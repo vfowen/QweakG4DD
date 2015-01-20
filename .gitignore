@@ -56,3 +56,6 @@ Thumbs.db
 *.sql
 *.sqlite
 
+# Output files #
+################
+*.root
