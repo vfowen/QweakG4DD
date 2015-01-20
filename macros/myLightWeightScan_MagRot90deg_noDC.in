@@ -1,0 +1,33 @@
+#Programmer: Valerie Gray
+#Purpose: The macro file for the LightWeight study on LH2 
+#
+#Date: 11-22-2012
+#Modified: 1-25-2013
+#Assisted By:
+#
+
+/control/execute myQweakConfiguration_Mag90.mac
+#/control/execute macros/peiqing_2011.mac
+/control/execute macros/noTracking.mac
+
+/random/setSavingFlag 0
+/random/setDirectoryName random/%name%_%jobid%
+/random/setSeeds %seedA% %seedB%
+
+/TrackingAction/TrackingFlag 3
+
+#rotate a magnetic field
+#/MagneticField/SetRotation 90.0 degree
+
+/EventGen/SelectReactionRegion 1
+/EventGen/SelectReactionType 1
+
+/Trigger/Disable all
+/Trigger/Enable cer
+/Trigger/Show
+
+#choose name out outpted rootfile
+/Analysis/RootFileName rootfiles/%name%_%jobid%_workdir/%name%_%jobid%.root
+
+/run/beamOn %nevents%
+

@@ -1,0 +1,439 @@
+\chapter{Qweak Main Data Tree Structure and Readout}\label{CHP_XIII}
+
+The event readout is implemented using several event data classes that
+define the event ROOT tree that is stored in a ROOT file at the end of
+a run. Each sensitive detector has at least one, but possibly several,
+event classes that have various data members which are newly filled
+for every event. In addition the generated primary event data is
+stored in its own event class. An event is completed after the primary
+track/particle and all secondary tracks have been killed by some
+process or have left the user defined world volume. An event is valid,
+if it has triggered at least one hit in some detector. This condition
+is tested in the class {\em QweakSimEventAction} (see lines 340-346,
+p.~\pageref{SourceXIII21}). If an event is valid (has detector hits),
+{\em QweakSimEventAction} collects the information for the hits from
+various classes, including the hit collectors for the sensitive
+detectors and {\em QweakSimUserInformation}, in which the data has
+been assmbled as the event is stepped through the simulation. The
+program then fills the event class data members and writes the data to
+the ROOT tree (line 1502, p.~\pageref{SourceXIII41}), which is defined
+and implemented in the class {\em QweakSimAnalysis}. The data members
+of the event classes are cleared after the tree is filled with the
+current event, or old, stored, data values are simply overwritten for
+each new event.
+
+Figure~\ref{fig:EVENTSTRUC}, shows the tree structure up to the 6
+event classes that are specific to a particular volume/detector and
+the primary event data. Each of these 6 classes is inherited by one or
+more other classes which further define the event structure, except
+for the primary event structure, which has only one class. The details
+of these 6 classes are described in other chapters, together with the
+specific detector/object for which they store the data.
+
+\begin{landscape}
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.7]{./figures13/EventTreeStructure.eps}
+  \caption{}
+           \label{fig:EVENTSTRUC}
+\end{figure}
+\end{landscape}
+
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimAnalysis.hh-p1.eps}
+  \caption{Header File}
+           \label{fig:XIII-SC-1}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimAnalysis.hh-p2.eps}
+  \caption{Header File}
+           \label{fig:XIII-SC-2}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimAnalysis.cc-p1.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-3}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimAnalysis.cc-p2.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-4}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimAnalysis.cc-p3.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-5}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimUserMainEvent.hh-p1.eps}
+  \caption{Header File}
+           \label{fig:XIII-SC-6}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimUserMainEvent.hh-p2.eps}
+  \caption{Header File}
+           \label{fig:XIII-SC-7}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimUserMainEvent.hh-p3.eps}
+  \caption{Header File}
+           \label{fig:XIII-SC-8}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimUserMainEvent.cc-p1.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-9}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimUserMainEvent.cc-p2.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-10}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.hh-p1.eps}
+  \caption{Header File}
+           \label{fig:XIII-SC-11}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.hh-p2.eps}
+  \caption{Header File}
+           \label{fig:XIII-SC-12}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.hh-p3.eps}
+  \caption{Header File}
+           \label{fig:XIII-SC-13}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.hh-p4.eps}
+  \caption{Header File}
+           \label{fig:XIII-SC-14}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.hh-p5.eps}
+  \caption{Header File}
+           \label{fig:XIII-SC-15}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p1.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-16}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p2.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-17}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p3.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-18}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p4.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-19}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p5.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-20}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p6.eps}
+  \caption{\label{SourceXIII21} Source File}
+           \label{fig:XIII-SC-21}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p7.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-22}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p8.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-23}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p9.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-24}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p10.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-25}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p11.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-26}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p12.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-27}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p13.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-28}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p14.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-29}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p15.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-30}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p16.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-31}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p17.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-32}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p18.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-33}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p19.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-34}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p20.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-35}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p21.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-36}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p22.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-37}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p23.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-38}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p24.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-39}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p25.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-40}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p26.eps}
+  \caption{\label{SourceXIII41}Source File}
+           \label{fig:XIII-SC-41}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p27.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-42}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p28.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-43}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+  \hspace{0cm}
+  \includegraphics[scale=0.8]{./figures13/QweakSimEventAction.cc-p29.eps}
+  \caption{Source File}
+           \label{fig:XIII-SC-44}
+\end{figure}
+
+

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+pstops '2:0L@.66(20cm,0)+1L@.66(20cm,12.5cm)' $1.ps $2.ps
+
+exit 0

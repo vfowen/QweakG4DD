@@ -1,0 +1,223 @@
+\relax 
+\citation{tn:GEANT4PRM}
+\@writefile{toc}{\contentsline {chapter}{\numberline {6}Qweak Main Cerenkov Detector}{39}}
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{CHP_V}{{6}{39}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.1}Detector Implementation}{39}}
+\@writefile{lot}{\contentsline {table}{\numberline {6.1}{\ignorespaces List of detector and connected classes which are currently implemented.}}{40}}
+\newlabel{tbl:V-I}{{6.1}{40}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1.1}Geometry}{40}}
+\@writefile{toc}{\contentsline {subsubsection}{Master Container}{41}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.1}{\ignorespaces Volumes that make up the detector implentation and their containment within and with respect to each other. The detector active volume combines the quartz bars, the glue joints, and the light guides. The active area and the PMT container are contained within the master container, the PMT window and cathode, as well as an additional glue joint (not shown) are contained within the PMT container. Also not shown are several volumes used to simulate mirrored surfaces.}}{41}}
+\newlabel{fig:VOLCONT}{{6.1}{41}}
+\@writefile{toc}{\contentsline {subsubsection}{Active Volume}{41}}
+\@writefile{lot}{\contentsline {table}{\numberline {6.2}{\ignorespaces List of detector properties that are currently implemented and the corresponding classes where the code can be found.}}{42}}
+\newlabel{tbl:V-II}{{6.2}{42}}
+\@writefile{toc}{\contentsline {subsubsection}{Quartz Bars}{43}}
+\@writefile{toc}{\contentsline {subsubsection}{Light Guides}{43}}
+\@writefile{toc}{\contentsline {subsubsection}{Pre (Shower) Radiator}{43}}
+\@writefile{toc}{\contentsline {subsubsection}{PMT Geometry}{43}}
+\citation{tn:MACK1}
+\citation{tn:NEVEN}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.2}{\ignorespaces Illustration of the PMT geometry and a photon ray through it. The right side of the light guide is shown as mirrored.}}{44}}
+\newlabel{fig:PMTGEO}{{6.2}{44}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1.2}Optical and Related Properties}{44}}
+\@writefile{toc}{\contentsline {subsubsection}{Quartz}{44}}
+\citation{pc:MACK1}
+\citation{tn:BABAR}
+\citation{PC:EELECTRONTUBES}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.3}{\ignorespaces PMT geometry in the simulation, with an entrance window (grey), a cathode (magenta), and the container (blue wire frame). The glue joint is not visible.}}{45}}
+\newlabel{fig:PMTGEO2}{{6.3}{45}}
+\newlabel{eqn:qrefl}{{6.1}{45}}
+\@writefile{toc}{\contentsline {subsubsection}{PMT}{45}}
+\citation{PC:LLEE}
+\citation{PC:LLEE}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.4}{\ignorespaces Quantum efficiency for the S20 cathode PMT to be used in the experiment\nobreakspace  {}\cite  {PC:EELECTRONTUBES}.}}{46}}
+\newlabel{fig:PMTQE}{{6.4}{46}}
+\@writefile{toc}{\contentsline {subsubsection}{Detector Wrapping}{46}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.5}{\ignorespaces Reflectance of various detector wrapping materials\nobreakspace  {}\cite  {PC:LLEE}.}}{47}}
+\newlabel{fig:REFLECTANCE}{{6.5}{47}}
+\citation{tn:GEANT4SFM}
+\@writefile{toc}{\contentsline {section}{\numberline {6.2}Description of the Geant4 Optical Transport and Transmission Code \\ ({\it  G4OpBoundaryProcess})}{48}}
+\newlabel{G4OPTR}{{6.2}{48}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2.1}Function {\it  PostStepDoIt}}{48}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.6}{\ignorespaces Illustration of optical boundary variables.}}{48}}
+\newlabel{fig:OPBOUND1}{{6.6}{48}}
+\citation{pp:LEVMOI}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.7}{\ignorespaces Cerenkov photon momentum and polarization with respect to the direction of an incident electron, in Geant4.}}{49}}
+\newlabel{fig:OPBOUND2}{{6.7}{49}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.8}{\ignorespaces Illustration of the material index of refraction for a wrapped detector configuration, inlcuding specification of the wrapping material roughness.}}{51}}
+\newlabel{fig:OPBOUND3}{{6.8}{51}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2.2}Function {\em  DielectricDielectric}}{51}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.9}{\ignorespaces Illustration of standard reflection and refraction at the boundary and the variables used here.}}{53}}
+\newlabel{fig:OPBOUND4}{{6.9}{53}}
+\citation{bb:JACKSON}
+\citation{bb:HECHT}
+\@writefile{toc}{\contentsline {subsubsection}{Total Internal Reflection}{54}}
+\citation{bb:JACKSON}
+\citation{bb:HECHT}
+\@writefile{toc}{\contentsline {subsubsection}{Calculation of Transmission Amplitude}{55}}
+\@writefile{toc}{\contentsline {subsubsection}{Reflection}{56}}
+\citation{bb:HECHT}
+\citation{bb:HECHT}
+\newlabel{eq:REFRMOM}{{6.2}{57}}
+\@writefile{toc}{\contentsline {subsubsection}{Transmission}{57}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.3}Event Data and Readout}{58}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3.1}Class {\em  QweakSimUserCerenkov\_DetectorEvent}}{58}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.10}{\ignorespaces Header File}}{60}}
+\newlabel{fig:V-SC-1}{{6.10}{60}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.11}{\ignorespaces Header File}}{61}}
+\newlabel{fig:V-SC-2}{{6.11}{61}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.12}{\ignorespaces Header File}}{62}}
+\newlabel{fig:V-SC-3}{{6.12}{62}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.13}{\ignorespaces Header File}}{63}}
+\newlabel{fig:V-SC-4}{{6.13}{63}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.14}{\ignorespaces Source File}}{64}}
+\newlabel{fig:V-SC-5}{{6.14}{64}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.15}{\ignorespaces  Source File}}{65}}
+\newlabel{SourceV2}{{6.15}{65}}
+\newlabel{fig:V-SC-6}{{6.15}{65}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.16}{\ignorespaces Source File}}{66}}
+\newlabel{fig:V-SC-7}{{6.16}{66}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.17}{\ignorespaces  Source File}}{67}}
+\newlabel{SourceV4}{{6.17}{67}}
+\newlabel{fig:V-SC-8}{{6.17}{67}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.18}{\ignorespaces  Source File}}{68}}
+\newlabel{SourceV5}{{6.18}{68}}
+\newlabel{fig:V-SC-9}{{6.18}{68}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.19}{\ignorespaces Source File}}{69}}
+\newlabel{fig:V-SC-10}{{6.19}{69}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.20}{\ignorespaces  Source File}}{70}}
+\newlabel{SourceV7}{{6.20}{70}}
+\newlabel{fig:V-SC-11}{{6.20}{70}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.21}{\ignorespaces  Source File}}{71}}
+\newlabel{SourceV8}{{6.21}{71}}
+\newlabel{fig:V-SC-12}{{6.21}{71}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.22}{\ignorespaces  Source File}}{72}}
+\newlabel{SourceV9}{{6.22}{72}}
+\newlabel{fig:V-SC-13}{{6.22}{72}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.23}{\ignorespaces Source File}}{73}}
+\newlabel{fig:V-SC-14}{{6.23}{73}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.24}{\ignorespaces  Source File}}{74}}
+\newlabel{SourceV11}{{6.24}{74}}
+\newlabel{fig:V-SC-15}{{6.24}{74}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.25}{\ignorespaces  Source File}}{75}}
+\newlabel{SourceV12}{{6.25}{75}}
+\newlabel{fig:V-SC-16}{{6.25}{75}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.26}{\ignorespaces  Source File}}{76}}
+\newlabel{SourceV13}{{6.26}{76}}
+\newlabel{fig:V-SC-17}{{6.26}{76}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.27}{\ignorespaces  Source File}}{77}}
+\newlabel{SourceV14}{{6.27}{77}}
+\newlabel{fig:V-SC-18}{{6.27}{77}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.28}{\ignorespaces  Source File}}{78}}
+\newlabel{SourceV15}{{6.28}{78}}
+\newlabel{fig:V-SC-19}{{6.28}{78}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.29}{\ignorespaces  Source File}}{79}}
+\newlabel{SourceV16}{{6.29}{79}}
+\newlabel{fig:V-SC-20}{{6.29}{79}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.30}{\ignorespaces  Source File}}{80}}
+\newlabel{SourceV17}{{6.30}{80}}
+\newlabel{fig:V-SC-21}{{6.30}{80}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.31}{\ignorespaces  Source File}}{81}}
+\newlabel{SourceV18}{{6.31}{81}}
+\newlabel{fig:V-SC-22}{{6.31}{81}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.32}{\ignorespaces  Source File}}{82}}
+\newlabel{SourceV19}{{6.32}{82}}
+\newlabel{fig:V-SC-23}{{6.32}{82}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.33}{\ignorespaces  Source File}}{83}}
+\newlabel{SourceV20}{{6.33}{83}}
+\newlabel{fig:V-SC-24}{{6.33}{83}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.34}{\ignorespaces  Source File}}{84}}
+\newlabel{SourceV21}{{6.34}{84}}
+\newlabel{fig:V-SC-25}{{6.34}{84}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.35}{\ignorespaces  Source File}}{85}}
+\newlabel{SourceV22}{{6.35}{85}}
+\newlabel{fig:V-SC-26}{{6.35}{85}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.36}{\ignorespaces  Source File}}{86}}
+\newlabel{SourceV23}{{6.36}{86}}
+\newlabel{fig:V-SC-27}{{6.36}{86}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.37}{\ignorespaces  Header File}}{87}}
+\newlabel{SourceV24}{{6.37}{87}}
+\newlabel{fig:V-SC-28}{{6.37}{87}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.38}{\ignorespaces  Header File}}{88}}
+\newlabel{SourceV25}{{6.38}{88}}
+\newlabel{fig:V-SC-29}{{6.38}{88}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.39}{\ignorespaces  Source File}}{89}}
+\newlabel{SourceV26}{{6.39}{89}}
+\newlabel{fig:V-SC-30}{{6.39}{89}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.40}{\ignorespaces  Source File}}{90}}
+\newlabel{SourceV27}{{6.40}{90}}
+\newlabel{fig:V-SC-31}{{6.40}{90}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.41}{\ignorespaces  Header File}}{91}}
+\newlabel{SourceV28}{{6.41}{91}}
+\newlabel{fig:V-SC-32}{{6.41}{91}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.42}{\ignorespaces  Header File}}{92}}
+\newlabel{SourceV29}{{6.42}{92}}
+\newlabel{fig:V-SC-33}{{6.42}{92}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.43}{\ignorespaces  Source File}}{93}}
+\newlabel{SourceV30}{{6.43}{93}}
+\newlabel{fig:V-SC-33}{{6.43}{93}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.44}{\ignorespaces  Header File}}{94}}
+\newlabel{SourceV31}{{6.44}{94}}
+\newlabel{fig:V-SC-34}{{6.44}{94}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.45}{\ignorespaces  Header File}}{95}}
+\newlabel{SourceV32}{{6.45}{95}}
+\newlabel{fig:V-SC-35}{{6.45}{95}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.46}{\ignorespaces  Header File}}{96}}
+\newlabel{SourceV33}{{6.46}{96}}
+\newlabel{fig:V-SC-36}{{6.46}{96}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.47}{\ignorespaces  Header File}}{97}}
+\newlabel{SourceV34}{{6.47}{97}}
+\newlabel{fig:V-SC-37}{{6.47}{97}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.48}{\ignorespaces  Header File}}{98}}
+\newlabel{SourceV35}{{6.48}{98}}
+\newlabel{fig:V-SC-38}{{6.48}{98}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.49}{\ignorespaces  Source File}}{99}}
+\newlabel{SourceV36}{{6.49}{99}}
+\newlabel{fig:V-SC-39}{{6.49}{99}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.50}{\ignorespaces  Source File}}{100}}
+\newlabel{SourceV37}{{6.50}{100}}
+\newlabel{fig:V-SC-40}{{6.50}{100}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.51}{\ignorespaces  Source File}}{101}}
+\newlabel{SourceV38}{{6.51}{101}}
+\newlabel{fig:V-SC-41}{{6.51}{101}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.52}{\ignorespaces  Source File}}{102}}
+\newlabel{SourceV39}{{6.52}{102}}
+\newlabel{fig:V-SC-42}{{6.52}{102}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.53}{\ignorespaces  Header File}}{103}}
+\newlabel{SourceV40}{{6.53}{103}}
+\newlabel{fig:V-SC-43}{{6.53}{103}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.54}{\ignorespaces  Header File}}{104}}
+\newlabel{SourceV41}{{6.54}{104}}
+\newlabel{fig:V-SC-44}{{6.54}{104}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.55}{\ignorespaces  Header File}}{105}}
+\newlabel{SourceV42}{{6.55}{105}}
+\newlabel{fig:V-SC-45}{{6.55}{105}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.56}{\ignorespaces  Source File}}{106}}
+\newlabel{SourceV43}{{6.56}{106}}
+\newlabel{fig:V-SC-46}{{6.56}{106}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.57}{\ignorespaces  Source File}}{107}}
+\newlabel{SourceV44}{{6.57}{107}}
+\newlabel{fig:V-SC-47}{{6.57}{107}}
+\@setckpt{./chapter5/chapter5}{
+\setcounter{page}{108}
+\setcounter{equation}{2}
+\setcounter{enumi}{3}
+\setcounter{enumii}{2}
+\setcounter{enumiii}{0}
+\setcounter{enumiv}{0}
+\setcounter{footnote}{1}
+\setcounter{mpfootnote}{0}
+\setcounter{part}{0}
+\setcounter{chapter}{6}
+\setcounter{section}{3}
+\setcounter{subsection}{1}
+\setcounter{subsubsection}{0}
+\setcounter{paragraph}{0}
+\setcounter{subparagraph}{0}
+\setcounter{figure}{57}
+\setcounter{table}{2}
+\setcounter{r@tfl@t}{0}
+}

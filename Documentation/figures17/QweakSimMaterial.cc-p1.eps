@@ -1,0 +1,837 @@
+%!PS-Adobe-3.0
+%%BoundingBox: 38 24 574 768
+%%Title: Enscript Output
+%%For: Michael Gericke
+%%Creator: GNU enscript 1.6.4
+%%CreationDate: Fri Jul 20 13:38:41 2007
+%%Orientation: Portrait
+%%Pages: (atend)
+%%DocumentMedia: Letter 612 792 0 () ()
+%%DocumentNeededResources: (atend)
+%%EndComments
+%%BeginProlog
+%%BeginResource: procset Enscript-Prolog 1.6 4
+%
+% Procedures.
+%
+
+/_S {	% save current state
+  /_s save def
+} def
+/_R {	% restore from saved state
+  _s restore
+} def
+
+/S {	% showpage protecting gstate
+  gsave
+  showpage
+  grestore
+} bind def
+
+/MF {	% fontname newfontname -> -	make a new encoded font
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  % insert only valid encoding vectors
+  encoding_vector length 256 eq {
+    newfont /Encoding encoding_vector put
+  } if
+
+  newfontname newfont definefont pop
+} def
+
+/MF_PS { % fontname newfontname -> -	make a new font preserving its enc
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  newfontname newfont definefont pop
+} def
+
+/SF { % fontname width height -> -	set a new font
+  /height exch def
+  /width exch def
+
+  findfont
+  [width 0 0 height 0 0] makefont setfont
+} def
+
+/SUF { % fontname width height -> -	set a new user font
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF
+  /F-gs-user-font width height SF
+} def
+
+/SUF_PS { % fontname width height -> -	set a new user font preserving its enc
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF_PS
+  /F-gs-user-font width height SF
+} def
+
+/M {moveto} bind def
+/s {show} bind def
+
+/Box {	% x y w h -> -			define box path
+  /d_h exch def /d_w exch def /d_y exch def /d_x exch def
+  d_x d_y  moveto
+  d_w 0 rlineto
+  0 d_h rlineto
+  d_w neg 0 rlineto
+  closepath
+} def
+
+/bgs {	% x y height blskip gray str -> -	show string with bg color
+  /str exch def
+  /gray exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    gray setgray
+    fill
+  grestore
+  x y M str s
+} def
+
+/bgcs { % x y height blskip red green blue str -> -  show string with bg color
+  /str exch def
+  /blue exch def
+  /green exch def
+  /red exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    red green blue setrgbcolor
+    fill
+  grestore
+  x y M str s
+} def
+
+% Highlight bars.
+/highlight_bars {	% nlines lineheight output_y_margin gray -> -
+  gsave
+    setgray
+    /ymarg exch def
+    /lineheight exch def
+    /nlines exch def
+
+    % This 2 is just a magic number to sync highlight lines to text.
+    0 d_header_y ymarg sub 2 sub translate
+
+    /cw d_output_w cols div def
+    /nrows d_output_h ymarg 2 mul sub lineheight div cvi def
+
+    % for each column
+    0 1 cols 1 sub {
+      cw mul /xp exch def
+
+      % for each rows
+      0 1 nrows 1 sub {
+        /rn exch def
+        rn lineheight mul neg /yp exch def
+        rn nlines idiv 2 mod 0 eq {
+	  % Draw highlight bar.  4 is just a magic indentation.
+	  xp 4 add yp cw 8 sub lineheight neg Box fill
+	} if
+      } for
+    } for
+
+  grestore
+} def
+
+% Line highlight bar.
+/line_highlight {	% x y width height gray -> -
+  gsave
+    /gray exch def
+    Box gray setgray fill
+  grestore
+} def
+
+% Column separator lines.
+/column_lines {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h translate
+    /cw d_output_w cols div def
+    1 1 cols 1 sub {
+      cw mul 0 moveto
+      0 d_output_h rlineto stroke
+    } for
+  grestore
+} def
+
+% Column borders.
+/column_borders {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h moveto
+    0 d_output_h rlineto
+    d_output_w 0 rlineto
+    0 d_output_h neg rlineto
+    closepath stroke
+  grestore
+} def
+
+% Do the actual underlay drawing
+/draw_underlay {
+  ul_style 0 eq {
+    ul_str true charpath stroke
+  } {
+    ul_str show
+  } ifelse
+} def
+
+% Underlay
+/underlay {	% - -> -
+  gsave
+    0 d_page_h translate
+    d_page_h neg d_page_w atan rotate
+
+    ul_gray setgray
+    ul_font setfont
+    /dw d_page_h dup mul d_page_w dup mul add sqrt def
+    ul_str stringwidth pop dw exch sub 2 div ul_h_ptsize -2 div moveto
+    draw_underlay
+  grestore
+} def
+
+/user_underlay {	% - -> -
+  gsave
+    ul_x ul_y translate
+    ul_angle rotate
+    ul_gray setgray
+    ul_font setfont
+    0 0 ul_h_ptsize 2 div sub moveto
+    draw_underlay
+  grestore
+} def
+
+% Page prefeed
+/page_prefeed {		% bool -> -
+  statusdict /prefeed known {
+    statusdict exch /prefeed exch put
+  } {
+    pop
+  } ifelse
+} def
+
+% Wrapped line markers
+/wrapped_line_mark {	% x y charwith charheight type -> -
+  /type exch def
+  /h exch def
+  /w exch def
+  /y exch def
+  /x exch def
+
+  type 2 eq {
+    % Black boxes (like TeX does)
+    gsave
+      0 setlinewidth
+      x w 4 div add y M
+      0 h rlineto w 2 div 0 rlineto 0 h neg rlineto
+      closepath fill
+    grestore
+  } {
+    type 3 eq {
+      % Small arrows
+      gsave
+        .2 setlinewidth
+        x w 2 div add y h 2 div add M
+        w 4 div 0 rlineto
+        x w 4 div add y lineto stroke
+
+        x w 4 div add w 8 div add y h 4 div add M
+        x w 4 div add y lineto
+	w 4 div h 8 div rlineto stroke
+      grestore
+    } {
+      % do nothing
+    } ifelse
+  } ifelse
+} def
+
+% EPSF import.
+
+/BeginEPSF {
+  /b4_Inc_state save def    		% Save state for cleanup
+  /dict_count countdictstack def	% Count objects on dict stack
+  /op_count count 1 sub def		% Count objects on operand stack
+  userdict begin
+  /showpage { } def
+  0 setgray 0 setlinecap
+  1 setlinewidth 0 setlinejoin
+  10 setmiterlimit [ ] 0 setdash newpath
+  /languagelevel where {
+    pop languagelevel
+    1 ne {
+      false setstrokeadjust false setoverprint
+    } if
+  } if
+} bind def
+
+/EndEPSF {
+  count op_count sub { pos } repeat	% Clean up stacks
+  countdictstack dict_count sub { end } repeat
+  b4_Inc_state restore
+} bind def
+
+% Check PostScript language level.
+/languagelevel where {
+  pop /gs_languagelevel languagelevel def
+} {
+  /gs_languagelevel 1 def
+} ifelse
+%%EndResource
+%%BeginResource: procset Enscript-Encoding-88591 1.6 4
+/encoding_vector [
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclam       	/quotedbl     	/numbersign   	
+/dollar       	/percent      	/ampersand    	/quoteright   	
+/parenleft    	/parenright   	/asterisk     	/plus         	
+/comma        	/hyphen       	/period       	/slash        	
+/zero         	/one          	/two          	/three        	
+/four         	/five         	/six          	/seven        	
+/eight        	/nine         	/colon        	/semicolon    	
+/less         	/equal        	/greater      	/question     	
+/at           	/A            	/B            	/C            	
+/D            	/E            	/F            	/G            	
+/H            	/I            	/J            	/K            	
+/L            	/M            	/N            	/O            	
+/P            	/Q            	/R            	/S            	
+/T            	/U            	/V            	/W            	
+/X            	/Y            	/Z            	/bracketleft  	
+/backslash    	/bracketright 	/asciicircum  	/underscore   	
+/quoteleft    	/a            	/b            	/c            	
+/d            	/e            	/f            	/g            	
+/h            	/i            	/j            	/k            	
+/l            	/m            	/n            	/o            	
+/p            	/q            	/r            	/s            	
+/t            	/u            	/v            	/w            	
+/x            	/y            	/z            	/braceleft    	
+/bar          	/braceright   	/tilde        	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclamdown   	/cent         	/sterling     	
+/currency     	/yen          	/brokenbar    	/section      	
+/dieresis     	/copyright    	/ordfeminine  	/guillemotleft	
+/logicalnot   	/hyphen       	/registered   	/macron       	
+/degree       	/plusminus    	/twosuperior  	/threesuperior	
+/acute        	/mu           	/paragraph    	/bullet       	
+/cedilla      	/onesuperior  	/ordmasculine 	/guillemotright	
+/onequarter   	/onehalf      	/threequarters	/questiondown 	
+/Agrave       	/Aacute       	/Acircumflex  	/Atilde       	
+/Adieresis    	/Aring        	/AE           	/Ccedilla     	
+/Egrave       	/Eacute       	/Ecircumflex  	/Edieresis    	
+/Igrave       	/Iacute       	/Icircumflex  	/Idieresis    	
+/Eth          	/Ntilde       	/Ograve       	/Oacute       	
+/Ocircumflex  	/Otilde       	/Odieresis    	/multiply     	
+/Oslash       	/Ugrave       	/Uacute       	/Ucircumflex  	
+/Udieresis    	/Yacute       	/Thorn        	/germandbls   	
+/agrave       	/aacute       	/acircumflex  	/atilde       	
+/adieresis    	/aring        	/ae           	/ccedilla     	
+/egrave       	/eacute       	/ecircumflex  	/edieresis    	
+/igrave       	/iacute       	/icircumflex  	/idieresis    	
+/eth          	/ntilde       	/ograve       	/oacute       	
+/ocircumflex  	/otilde       	/odieresis    	/divide       	
+/oslash       	/ugrave       	/uacute       	/ucircumflex  	
+/udieresis    	/yacute       	/thorn        	/ydieresis    	
+] def
+%%EndResource
+%%EndProlog
+%%BeginSetup
+%%IncludeResource: font Times-Roman
+%%IncludeResource: font Courier-Bold
+/HFpt_w 10 def
+/HFpt_h 10 def
+/Courier-Bold /HF-gs-font MF
+/HF /HF-gs-font findfont [HFpt_w 0 0 HFpt_h 0 0] makefont def
+/Times-Roman /F-gs-font MF
+/F-gs-font 10 10 SF
+/#copies 1 def
+% Pagedevice definitions:
+gs_languagelevel 1 gt {
+  <<
+    /PageSize [612 792] 
+  >> setpagedevice
+} if
+/d_page_w 536 def
+/d_page_h 744 def
+/d_header_x 0 def
+/d_header_y 744 def
+/d_header_w 536 def
+/d_header_h 0 def
+/d_footer_x 0 def
+/d_footer_y 0 def
+/d_footer_w 536 def
+/d_footer_h 0 def
+/d_output_w 536 def
+/d_output_h 744 def
+/cols 1 def
+%%EndSetup
+%%Page: (1) 1
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 1 def
+/fname (../src/QweakSimMaterial.cc) def
+/fdir (../src/) def
+/ftail (QweakSimMaterial.cc) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+26 731 M (1:) s
+26 720 M (2:) s
+41.56 720 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 720 M
+(include) s
+/F-gs-font 10 10 SF
+0 setgray
+77.68 720 M
+( ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+80.18 720 M
+("QweakSimMaterial.hh") s
+/F-gs-font 10 10 SF
+0 setgray
+26 709 M (3:) s
+26 698 M (4:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 698 M
+(//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......) s
+/F-gs-font 10 10 SF
+26 687 M (5:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+26 676 M (6:) s
+/Times-Bold 10 10 SUF
+0 0 1 setrgbcolor
+41.56 676 M
+(QweakSimMaterial::QweakSimMaterial) s
+/F-gs-font 10 10 SF
+0 setgray
+215.98 676 M
+(\(\)) s
+26 665 M (7:) s
+41.56 665 M
+({) s
+26 654 M (8:) s
+41.56 654 M
+(G4cout << G4endl << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+133 654 M
+("###### Calling QweakSimMaterial::QweakSimMaterial\(\) ") s
+/F-gs-font 10 10 SF
+0 setgray
+393.8 654 M
+( << G4endl << G4endl;) s
+26 643 M (9:) s
+41.56 643 M
+(}) s
+21 632 M (10:) s
+21 621 M (11:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 621 M
+(//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......) s
+/F-gs-font 10 10 SF
+21 610 M (12:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+21 599 M (13:) s
+/Times-Bold 10 10 SUF
+0 0 1 setrgbcolor
+41.56 599 M
+(QweakSimMaterial::~QweakSimMaterial) s
+/F-gs-font 10 10 SF
+0 setgray
+219.31 599 M
+(\(\)) s
+21 588 M (14:) s
+41.56 588 M
+({) s
+21 577 M (15:) s
+41.56 577 M
+(G4cout << G4endl << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+133 577 M
+("###### Calling/Leaving QweakSimMaterial::~QweakSimMaterial\(\) ") s
+/F-gs-font 10 10 SF
+0 setgray
+434.36 577 M
+( << G4endl << G4endl;) s
+21 566 M (16:) s
+41.56 566 M
+(}) s
+21 555 M (17:) s
+21 544 M (18:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 544 M
+(//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......) s
+/F-gs-font 10 10 SF
+21 533 M (19:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+21 522 M (20:) s
+/Times-Bold 10 10 SUF
+0.133333 0.545098 0.133333 setrgbcolor
+41.56 522 M
+(void) s
+/F-gs-font 10 10 SF
+0 setgray
+59.9 522 M
+( ) s
+/Times-Bold 10 10 SUF
+0 0 1 setrgbcolor
+62.4 522 M
+(QweakSimMaterial::DefineMaterials) s
+/F-gs-font 10 10 SF
+0 setgray
+221.81 522 M
+(\(\)) s
+21 511 M (21:) s
+41.56 511 M
+({) s
+21 500 M (22:) s
+41.56 500 M
+(G4cout << G4endl << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+133 500 M
+("###### Calling QweakSimMaterial::DefineMaterials\(\) ") s
+/F-gs-font 10 10 SF
+0 setgray
+378.79 500 M
+( << G4endl << G4endl;) s
+21 489 M (23:) s
+21 478 M (24:) s
+21 467 M (25:) s
+41.56 467 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 467 M
+(// Define required materials) s
+/F-gs-font 10 10 SF
+21 456 M (26:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+21 445 M (27:) s
+41.56 445 M
+(  G4double A;        ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+118.5 445 M
+(// atomic mass) s
+/F-gs-font 10 10 SF
+21 434 M (28:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 434 M
+(  G4double Z;        ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+117.39 434 M
+(// atomic number) s
+/F-gs-font 10 10 SF
+21 423 M (29:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 423 M
+(  G4double density;  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+125.17 423 M
+(// density) s
+/F-gs-font 10 10 SF
+21 412 M (30:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+21 401 M (31:) s
+41.56 401 M
+(  G4double temperature; ) s
+21 390 M (32:) s
+41.56 390 M
+(  G4double pressure;) s
+21 379 M (33:) s
+41.56 379 M
+(  G4double fractionmass;) s
+21 368 M (34:) s
+21 357 M (35:) s
+41.56 357 M
+(  G4String name;) s
+21 346 M (36:) s
+41.56 346 M
+(  G4String symbol;) s
+21 335 M (37:) s
+41.56 335 M
+(  ) s
+21 324 M (38:) s
+41.56 324 M
+(  G4int natoms; ) s
+21 313 M (39:) s
+41.56 313 M
+(  G4int ncomponents;) s
+21 302 M (40:) s
+41.56 302 M
+(  G4int nelements;) s
+21 291 M (41:) s
+21 280 M (42:) s
+41.56 280 M
+( ) s
+21 269 M (43:) s
+41.56 269 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 269 M
+(//) s
+/F-gs-font 10 10 SF
+21 258 M (44:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 258 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 258 M
+(// Define general elements) s
+/F-gs-font 10 10 SF
+21 247 M (45:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 247 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 247 M
+(//) s
+/F-gs-font 10 10 SF
+21 236 M (46:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+21 225 M (47:) s
+41.56 225 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 225 M
+(// G4Element describes the properties of the atoms:) s
+/F-gs-font 10 10 SF
+21 214 M (48:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 214 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 214 M
+(// atomic number, number of nucleons, atomic mass, shell energy ...) s
+/F-gs-font 10 10 SF
+21 203 M (49:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+21 192 M (50:) s
+21 181 M (51:) s
+41.56 181 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 181 M
+(// see http://pcitapiww.cern.ch/asd/geant4/G4UsersDocuments/UsersGuides/ForApplicationDeveloper/html/Detector/m) s
+5 170 M
+(aterial.html) s
+/F-gs-font 10 10 SF
+21 159 M (52:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 159 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 159 M
+(//) s
+/F-gs-font 10 10 SF
+21 148 M (53:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 148 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 148 M
+(// The whole list is availbale at: http://physics.nist.gov/PhysRefData/Star/Text/method.html) s
+/F-gs-font 10 10 SF
+21 137 M (54:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 137 M
+(  G4NistManager* man = G4NistManager::Instance\(\);) s
+21 126 M (55:) s
+41.56 126 M
+(  man->SetVerbose\(1\);) s
+21 115 M (56:) s
+21 104 M (57:) s
+21 93 M (58:) s
+41.56 93 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 93 M
+(//) s
+/F-gs-font 10 10 SF
+21 82 M (59:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 82 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 82 M
+(// define pure NIST materials) s
+/F-gs-font 10 10 SF
+21 71 M (60:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 71 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 71 M
+(//) s
+/F-gs-font 10 10 SF
+21 60 M (61:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+21 49 M (62:) s
+41.56 49 M
+(  G4Material* Al = man->FindOrBuildMaterial\() s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+235.32 49 M
+("G4_Al") s
+/F-gs-font 10 10 SF
+0 setgray
+274.2 49 M
+(\);) s
+21 38 M (63:) s
+41.56 38 M
+(  G4Material* Cu = man->FindOrBuildMaterial\() s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+236.99 38 M
+("G4_Cu") s
+/F-gs-font 10 10 SF
+0 setgray
+278.65 38 M
+(\);) s
+21 27 M (64:) s
+21 16 M (65:) s
+41.56 16 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 16 M
+(//---------------------------------------------------------) s
+/F-gs-font 10 10 SF
+21 5 M (66:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 5 M
+(  name   = ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+83.86 5 M
+("Element_Hydrogen") s
+/F-gs-font 10 10 SF
+0 setgray
+178.29 5 M
+(;) s
+_R
+S
+%%Trailer
+%%Pages: 1
+%%DocumentNeededResources: font Times-Roman Courier-Bold Times-Italic 
+%%+ font Times-Bold 
+%%EOF

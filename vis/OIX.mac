@@ -1,0 +1,74 @@
+#=====================================================
+#   Macro file when runing in interactice mode 
+# (graphical output with openinventor for < 1k events)
+#=====================================================
+
+/run/verbose 1
+/event/verbose 1
+/tracking/verbose 1
+/hits/verbose 1
+
+# Select the tracking flag
+#  0: Allow primaries only (default)
+#  1: Allow primaries and optical photons only
+#  2: Track all particles except optical photons
+#  3: Track all primaries and their secondaries
+/TrackingAction/TrackingFlag 0
+
+#==========================
+# Visualization: Hall related
+#==========================
+/HallC/Visibility/ShowHallFloor
+#/HallC/Visibility/HideHallFloor
+
+#====================================
+# Visualization: Detector Hut related
+#====================================
+
+/DetectorHut/Visibility/ShowCollimatorWall
+#/DetectorHut/Visibility/HideShieldingWall
+
+/DetectorHut/Visibility/ShowFrontWall
+#/DetectorHut/Visibility/HideFrontWall
+
+#/DetectorHut/Visibility/ShowBackWall
+/DetectorHut/Visibility/HideBackWall
+
+#/DetectorHut/Visibility/ShowLeftWall
+/DetectorHut/Visibility/HideLeftWall
+
+#/DetectorHut/Visibility/ShowRightWall
+/DetectorHut/Visibility/HideRightWall
+
+#/DetectorHut/Visibility/ShowTopWall
+/DetectorHut/Visibility/HideTopWall
+
+/vis/open OIX
+/vis/scene/create
+/vis/scene/add/volume
+/vis/sceneHandler/attach
+/vis/scene/add/trajectories
+/vis/scene/add/hits
+
+# Set camera
+/vis/viewer/reset
+/vis/viewer/set/viewpointThetaPhi 90 180 deg
+/vis/viewer/zoom 2.0
+/vis/viewer/set/style surface
+#/vis/viewer/set/style surface2
+
+/vis/modeling/trajectories/create/drawByParticleID QweakStyle
+/vis/modeling/trajectories/QweakStyle/set e- red
+/vis/modeling/trajectories/QweakStyle/set e+ blue
+/vis/modeling/trajectories/QweakStyle/set gamma green
+/vis/modeling/trajectories/QweakStyle/set neutron white
+/vis/modeling/trajectories/QweakStyle/set proton magenta
+/vis/modeling/trajectories/select QweakStyle
+
+/vis/scene/notifyHandlers
+/vis/scene/endOfEventAction accumulate
+/vis/scene/endOfRunAction refresh
+
+# load/execute this macro:
+#/control/execute myQweakConfiguration.mac
+

@@ -1,0 +1,22 @@
+# $Header: /cvs/lcd/slic/config/make/geant4.gmk,v 1.3 2005/12/06 00:54:18 jeremy Exp $
+
+#
+# Geant4 make fragment
+#
+
+# Geant4 Framework
+ifdef G4INSTALL
+
+  ifdef G4UI_USE_TERMINAL
+    CPPFLAGS += -DG4UI_USE_TERMINAL
+  endif
+
+  include $(G4INSTALL)/config/binmake.gmk
+
+  # extra libs for static linking
+  LOADLIBS  += -lCLHEP
+  EXTRALIBS += -lCLHEP
+
+else
+  $(error define G4INSTALL=/path/to/geant4)
+endif

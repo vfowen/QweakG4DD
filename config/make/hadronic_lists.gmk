@@ -1,0 +1,42 @@
+#
+# Based on $G4INSTALL/physics_lists/hadronic/GNUmakefile.user.code.example
+#
+# Reduced physics list selection from recommendations by D. Wright. 
+#
+
+ifndef G4INSTALL
+  $(error define G4INSTALL)
+endif
+
+ifndef G4LISTS_BASE
+  EXTRALIBS += -L$(G4LIB)/plists/$(G4SYSTEM)
+  G4LISTS_BASE = $(G4INSTALL)/physics_lists
+else
+  EXTRALIBS += -L$(G4LISTS_BASE)/hadronic/plists/lib/$(G4SYSTEM)
+endif
+
+
+LDFLAGS += -L$(G4INSTALL)/lib/plists/$(G4SYSTEM)
+
+#
+# Select your physics lists to link against.
+#
+EXTRALIBS += -lFTFC
+EXTRALIBS += -lFTFP
+EXTRALIBS += -lLHEP
+EXTRALIBS += -lQGSP_BERT
+EXTRALIBS += -lQGSC
+EXTRALIBS += -lQGSP
+EXTRALIBS += -lLHEP_BERT
+EXTRALIBS += -lQGSP_BIC
+EXTRALIBS += -lPackaging
+
+CPPFLAGS += -I$(G4LISTS_BASE)/hadronic/FTFC/include
+CPPFLAGS += -I$(G4LISTS_BASE)/hadronic/FTFP/include
+CPPFLAGS += -I$(G4LISTS_BASE)/hadronic/LHEP/include
+CPPFLAGS += -I$(G4LISTS_BASE)/hadronic/LHEP_BERT/include
+CPPFLAGS += -I$(G4LISTS_BASE)/hadronic/Packaging/include
+CPPFLAGS += -I$(G4LISTS_BASE)/hadronic/QGSC/include
+CPPFLAGS += -I$(G4LISTS_BASE)/hadronic/QGSP/include
+CPPFLAGS += -I$(G4LISTS_BASE)/hadronic/QGSP_BERT/include
+CPPFLAGS += -I$(G4LISTS_BASE)/hadronic/QGSP_BIC/include

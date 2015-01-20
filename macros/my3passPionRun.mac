@@ -1,0 +1,74 @@
+#=======================================
+# Macro file when runing in batch mode 
+#      (no graphical output)
+#
+# usage:
+#  Macro file for 3-pass running
+#=======================================
+
+# This shows the processes for all particles
+#/process/list   
+# AddDiscreteProcess to OpticalPhoton
+#     Transportation,                msc,              hIoni,              eIoni
+#              eBrem,            annihil,               phot,              compt
+#               conv,             muIoni,            muBrems,         muPairProd
+#              Decay,           Cerenkov,       OpAbsorption,         OpBoundary
+
+# This turns off processes for all particles
+#/process/inactivate msc  
+#/process/inactivate eBrem
+#/process/inactivate compt
+#/process/inactivate eIoni
+#/process/inactivate phot
+#/process/inactivate Cerenkov
+
+# or you can turn it off only for electrons
+# process labelled "1" in e- process list is MultipleScattering, see QweakSimPhysicsList.cc, line 180
+#/particle/select e-
+#/particle/process/dump
+#/particle/process/inactivate 3 
+
+
+# load/execute this macro:
+/control/execute myQweakConfiguration.mac
+
+# Select the tracking flag
+#  0: Allow primaries only (default)
+#  1: Allow primaries and optical photons only
+#  2: track all primaries and their secondaries except optical photons
+#  3: track all primaries and their secondaries
+# 
+#/TrackingAction/TrackingFlag 0
+#/TrackingAction/TrackingFlag 1
+#/TrackingAction/TrackingFlag 2
+/TrackingAction/TrackingFlag 3
+
+#/Analysis/RootFileName QweakSimNew.root
+#/Analysis/RootFileStem QwSim3pass
+/Analysis/RootFileStem QwSimPion
+
+/EventGen/SelectOctant 7
+
+#####################################
+# 3-pass beam settings
+/EventGen/SetBeamEnergy 3.35 GeV
+/MagneticField/SetActualCurrent 9000 A
+/EventGen/SetThetaMin 5.5 degree
+/EventGen/SetThetaMax 12 degree
+#/EventGen/SetEPrimeMin 0.9 GeV
+#/EventGen/SetEPrimeMax 1.3 GeV
+/EventGen/SetEPrimeMin 0.6 GeV
+/EventGen/SetEPrimeMax 1.5 GeV
+/PrimaryEvent/SetParticleType pi-
+/EventGen/SelectReactionType 88
+
+#/PionWall/Enable
+#/PionWall/SetThicknessInZ 5.08 cm
+
+/Trigger/PrintHits false
+/Trigger/Disable cer
+/Trigger/Enable all
+
+#/run/verbose 2
+#/tracking/verbose 2
+/run/beamOn 10000

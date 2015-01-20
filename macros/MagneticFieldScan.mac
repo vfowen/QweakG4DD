@@ -1,0 +1,116 @@
+#=======================================
+# Macro file when runing in batch mode 
+#      (no graphical output)
+#
+# usage:
+#
+#=======================================
+
+# This turns off processes for all particles
+#/process/inactivate msc  
+#/process/inactivate eBrem
+#/process/inactivate compt
+#/process/inactivate eIoni
+#/process/inactivate phot
+#/process/inactivate Cerenkov
+
+# or you can turn it off only for electrons
+# process labelled "1" in e- process list is MultipleScattering, see QweakSimPhysicsList.cc, line 180
+#/particle/select e-
+#/particle/process/dump
+#/particle/process/inactivate 3 
+
+
+# load/execute this macro:
+/control/execute myQweakConfiguration.mac
+
+# Select the tracking flag
+#  0: Allow primaries only (default)
+#  1: Allow primaries and optical photons only
+#  2: track all primaries and their secondaries except optical photons
+#  3: track all primaries and their secondaries
+# 
+/TrackingAction/TrackingFlag 0
+#/TrackingAction/TrackingFlag 1
+#/TrackingAction/TrackingFlag 2
+#/TrackingAction/TrackingFlag 3
+
+/Trigger/Enable cer
+
+/MagneticField/SetActualCurrent 8000
+/Analysis/RootFileName QwSim_8000.root
+/run/beamOn 10000
+
+/MagneticField/SetActualCurrent 8100
+/Analysis/RootFileName QwSim_8100.root
+/run/beamOn 10000
+
+/MagneticField/SetActualCurrent 8200
+/Analysis/RootFileName QwSim_8200.root
+/run/beamOn 10000
+
+/MagneticField/SetActualCurrent 8300
+/Analysis/RootFileName QwSim_8300.root
+/run/beamOn 10000
+
+/MagneticField/SetActualCurrent 8400
+/Analysis/RootFileName QwSim_8400.root
+/run/beamOn 10000
+
+/MagneticField/SetActualCurrent 8500
+/Analysis/RootFileName QwSim_8500.root
+/run/beamOn 10000
+
+/MagneticField/SetActualCurrent 8500
+/Analysis/RootFileName QwSim_8500.root
+/run/beamOn 10000
+
+/MagneticField/SetActualCurrent 8600
+/Analysis/RootFileName QwSim_8600.root
+/run/beamOn 10000
+
+/MagneticField/SetActualCurrent 8700
+/Analysis/RootFileName QwSim_8700.root
+/run/beamOn 10000
+
+/MagneticField/SetActualCurrent 8800
+/Analysis/RootFileName QwSim_8800.root
+/run/beamOn 10000
+
+/MagneticField/SetActualCurrent 8900
+/Analysis/RootFileName QwSim_8900.root
+/run/beamOn 10000
+
+/MagneticField/SetActualCurrent 9000
+/Analysis/RootFileName QwSim_9000.root
+/run/beamOn 10000
+
+/MagneticField/SetActualCurrent 9100
+/Analysis/RootFileName QwSim_9100.root
+/run/beamOn 10000
+
+/MagneticField/SetActualCurrent 9200
+/Analysis/RootFileName QwSim_9200.root
+/run/beamOn 10000
+
+/MagneticField/SetActualCurrent 9300
+/Analysis/RootFileName QwSim_9300.root
+/run/beamOn 10000
+
+/MagneticField/SetActualCurrent 9400
+/Analysis/RootFileName QwSim_9400.root
+/run/beamOn 10000
+
+/MagneticField/SetActualCurrent 9500
+/Analysis/RootFileName QwSim_9500.root
+/run/beamOn 10000
+
+/MagneticField/SetActualCurrent 9600
+/Analysis/RootFileName QwSim_9600.root
+/run/beamOn 10000
+
+/MagneticField/SetActualCurrent 9700
+/Analysis/RootFileName QwSim_9700.root
+/run/beamOn 10000
+
+

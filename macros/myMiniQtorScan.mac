@@ -1,0 +1,11 @@
+/control/execute myQweakConfiguration.mac
+/control/execute macros/peiqing_2011.mac
+/TrackingAction/TrackingFlag 0
+
+/MagneticField/SetActualCurrent 8900
+/Analysis/RootFileName QtorScan8900.root
+/run/beamOn 1000
+
+/MagneticField/SetActualCurrent 9000
+/Analysis/RootFileName QtorScan9000.root
+/run/beamOn 1000

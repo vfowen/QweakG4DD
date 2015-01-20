@@ -1,0 +1,40 @@
+=====================
+      README
+=====================
+
+Package:
+========
+
+  This software package, referred to as QweakSimG4, is a Monte Carlo simulation program, developed by the Qweak collaboration at Jefferson Laboratory. 
+
+Compiling:
+==========
+
+  See COMPILING for compiling information of the QweakSimG4 package.
+
+Documentation:
+==============
+
+  See ...
+
+Usage:
+======
+
+  To use the magnetic field map, make a symbolic link as:
+    MainMagnet_FieldMap.dat -> /group/qweak/QwAnalysis/common/QwScratch/calib/peiqing_2007.dat
+
+
+
+Authors:
+========
+
+  Klaus Grimm, grimm@latech.edu
+  Michael Gericke, mgericke@jlab.org
+  Jie Pan, jpan@jlab.org
+  Wouter Deconinck, wdeconinck@wm.edu
+  Peiqing Wang, pqwang@jlab.org 
+
+Copyright:
+==========
+
+  2011 by Qweak Collaboration, All Right Reserved.

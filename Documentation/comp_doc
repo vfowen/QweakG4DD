@@ -1,0 +1,10 @@
+#!/bin/sh
+
+latex main.tex
+bibtex main
+latex main.tex
+latex main.tex
+dvips -P pdf -o main.ps main.dvi
+./comb2pages main main-2p
+
+exit 0

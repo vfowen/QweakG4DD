@@ -1,0 +1,45 @@
+\contentsline {chapter}{\numberline {1}Introduction}{1}
+\contentsline {chapter}{\numberline {2}Qweak Simulation General Structure and Compile Information}{5}
+\contentsline {section}{\numberline {2.1}Class Structure}{5}
+\contentsline {section}{\numberline {2.2}Preliminaries: Installing Geant4 with Coin3D and ROOT}{11}
+\contentsline {section}{\numberline {2.3}Compiling QweakSim}{14}
+\contentsline {section}{\numberline {2.4}Running the Simulation}{15}
+\contentsline {subsection}{\numberline {2.4.1}Using the visualization}{15}
+\contentsline {chapter}{\numberline {3}Qweak Primary Event Generation}{19}
+\contentsline {chapter}{\numberline {4}The QweakSimG4.cc {\em main(...)} Function}{21}
+\contentsline {chapter}{\numberline {5}Qweak Overall Construction and Layout}{25}
+\contentsline {chapter}{\numberline {6}Qweak Main Cerenkov Detector}{39}
+\contentsline {section}{\numberline {6.1}Detector Implementation}{39}
+\contentsline {subsection}{\numberline {6.1.1}Geometry}{40}
+\contentsline {subsubsection}{Master Container}{41}
+\contentsline {subsubsection}{Active Volume}{41}
+\contentsline {subsubsection}{Quartz Bars}{43}
+\contentsline {subsubsection}{Light Guides}{43}
+\contentsline {subsubsection}{Pre (Shower) Radiator}{43}
+\contentsline {subsubsection}{PMT Geometry}{43}
+\contentsline {subsection}{\numberline {6.1.2}Optical and Related Properties}{44}
+\contentsline {subsubsection}{Quartz}{44}
+\contentsline {subsubsection}{PMT}{45}
+\contentsline {subsubsection}{Detector Wrapping}{46}
+\contentsline {section}{\numberline {6.2}Description of the Geant4 Optical Transport and Transmission Code \\ ({\it G4OpBoundaryProcess})}{48}
+\contentsline {subsection}{\numberline {6.2.1}Function {\it PostStepDoIt}}{48}
+\contentsline {subsection}{\numberline {6.2.2}Function {\em DielectricDielectric}}{51}
+\contentsline {subsubsection}{Total Internal Reflection}{54}
+\contentsline {subsubsection}{Calculation of Transmission Amplitude}{55}
+\contentsline {subsubsection}{Reflection}{56}
+\contentsline {subsubsection}{Transmission}{57}
+\contentsline {section}{\numberline {6.3}Event Data and Readout}{58}
+\contentsline {subsection}{\numberline {6.3.1}Class {\em QweakSimUserCerenkov\_DetectorEvent}}{58}
+\contentsline {chapter}{\numberline {7}Qweak VDC Detectors}{109}
+\contentsline {chapter}{\numberline {8}Qweak HDC Detectors}{111}
+\contentsline {chapter}{\numberline {9}Qweak GEM Detectors }{113}
+\contentsline {chapter}{\numberline {10}Qweak Trigger Scintillator}{115}
+\contentsline {chapter}{\numberline {11}Qweak Target}{117}
+\contentsline {chapter}{\numberline {12}Qweak Magnets and Fields}{119}
+\contentsline {chapter}{\numberline {13}Qweak Physics Lists}{121}
+\contentsline {chapter}{\numberline {14}Qweak Main Data Tree Structure and Readout}{123}
+\contentsline {chapter}{\numberline {15}Qweak Collimator and Shielding Definitions}{169}
+\contentsline {chapter}{\numberline {16}Tracking Action and Track History}{171}
+\contentsline {chapter}{\numberline {17}Stepping Action and Step by Step Data Collection}{173}
+\contentsline {chapter}{\numberline {18}Material Definitions}{181}
+\contentsline {chapter}{\numberline {19}User Classes}{197}

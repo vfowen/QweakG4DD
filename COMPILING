@@ -1,0 +1,72 @@
+How to compile QweakSimG4:
+=========================
+
+  - First, install Geant4 =8-)
+  - Make sure all your G4* environment variables are set.
+  - cd in the QweakSimG4 directory (e.g. cd ~/Project/Qweak/Geant4/v60)
+    
+       export G4WORKDIR=`pwd`
+
+  - the comilation is done with  
+               
+       make clean
+       make
+
+
+How to run QweakSimG4:
+=====================
+
+  => In case of the very first compilation: make a symbolic link to the binary
+  
+      ln -s bin/Linux-g++/QweakSimG4 QweakSimG4
+    
+   then make symbolic links to the field maps
+  
+      ln -s ../MagnetFieldMaps/MainMagnet_FieldMap.dat MainMagnet_FieldMap.dat
+      ln -s ../MagnetFieldMaps/MiniTorus_FieldMap.dat  MiniTorus_FieldMap.dat
+  
+   and a symbolic link to the primary event file (depending which collimator or ntuple is final now ...)
+   
+      ln -s  ../PrimaryEvents/ROOT/v5.08/ep_m84_qweak_final.root ep_elastic.root
+      
+
+   Finally the simulation is started by
+   
+
+     ./QweakSimG4 > mylogfile.txt                  For visualization with new events with Coin3D
+     
+     ./QweakSimG4 myRun.mac > /dev/zero            For running with several k events without visualization
+     
+
+About using the visualization:
+
+Executing  the command "./QweakSimG4 > mylogfile.txt" will open a G4UIXm window for steering the simulation.
+Within this window click on: Vis->myVis.mac (OIX). This will execute the Geant4 input file ./myVis.mac which
+will open a Coin3D window for geometry/track visualization. The Coin3D is black/blank initially. Click in the 
+Coin3D window on "Etc->visible mother + visible daughters" , this will then display the geometry. 
+Click Help->Controls for how to use the mouse pointer or the wheels for rotating, zooming, or moving the geometry.
+Back in the G4UIXm you can change parameters of the simulation:
+ - e.g. click on "DetectorHut->ShowTopWall" , then click in Coin3D on "Etc->visible mother + visible daughters"
+ - e.g. click on "TrackingAction->Track primaries only", this will track/transport only the primary electrons 
+defined by the event generator (root-file), secondaries are produced but not tracked.
+ 
+After you have selected your options, click finally on "Run->beamOn X" for starting the simulation. In Coin3D the screen
+gets erased, so do again "Etc->visible mother + visible daughters" for displaying geometry and tracks.
+In addition you might erase tracks and/or geometry in Coin3D using  "Etc->Erase event" or "Etc->Erase detector"
+Beware that selecting more than 100 tracks will significantly slow down the visualization, depending on the speed of 
+your machine.
+
+
+How to analyse QweakSimG4:
+==========================
+
+QweakSim produces a Root file with the name "QweakSim.root". You can use the TBrowser of root in order to browse through
+the root file and understand it's data structure. For analysing the root file like filling some histograms of interest,
+take a closer look into the root macro "ShowHits.C" (beware: prototype!) and see how the information is extracted.
+
+
+Cheers
+	|{laus
+ 
+   
+

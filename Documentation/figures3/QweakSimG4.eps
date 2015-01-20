@@ -1,0 +1,2045 @@
+%!PS-Adobe-3.0
+%%BoundingBox: 38 24 574 768
+%%Title: Enscript Output
+%%For: Michael Gericke
+%%Creator: GNU enscript 1.6.4
+%%CreationDate: Wed Jul 11 11:44:20 2007
+%%Orientation: Portrait
+%%Pages: (atend)
+%%DocumentMedia: Letter 612 792 0 () ()
+%%DocumentNeededResources: (atend)
+%%EndComments
+%%BeginProlog
+%%BeginResource: procset Enscript-Prolog 1.6 4
+%
+% Procedures.
+%
+
+/_S {	% save current state
+  /_s save def
+} def
+/_R {	% restore from saved state
+  _s restore
+} def
+
+/S {	% showpage protecting gstate
+  gsave
+  showpage
+  grestore
+} bind def
+
+/MF {	% fontname newfontname -> -	make a new encoded font
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  % insert only valid encoding vectors
+  encoding_vector length 256 eq {
+    newfont /Encoding encoding_vector put
+  } if
+
+  newfontname newfont definefont pop
+} def
+
+/MF_PS { % fontname newfontname -> -	make a new font preserving its enc
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  newfontname newfont definefont pop
+} def
+
+/SF { % fontname width height -> -	set a new font
+  /height exch def
+  /width exch def
+
+  findfont
+  [width 0 0 height 0 0] makefont setfont
+} def
+
+/SUF { % fontname width height -> -	set a new user font
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF
+  /F-gs-user-font width height SF
+} def
+
+/SUF_PS { % fontname width height -> -	set a new user font preserving its enc
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF_PS
+  /F-gs-user-font width height SF
+} def
+
+/M {moveto} bind def
+/s {show} bind def
+
+/Box {	% x y w h -> -			define box path
+  /d_h exch def /d_w exch def /d_y exch def /d_x exch def
+  d_x d_y  moveto
+  d_w 0 rlineto
+  0 d_h rlineto
+  d_w neg 0 rlineto
+  closepath
+} def
+
+/bgs {	% x y height blskip gray str -> -	show string with bg color
+  /str exch def
+  /gray exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    gray setgray
+    fill
+  grestore
+  x y M str s
+} def
+
+/bgcs { % x y height blskip red green blue str -> -  show string with bg color
+  /str exch def
+  /blue exch def
+  /green exch def
+  /red exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    red green blue setrgbcolor
+    fill
+  grestore
+  x y M str s
+} def
+
+% Highlight bars.
+/highlight_bars {	% nlines lineheight output_y_margin gray -> -
+  gsave
+    setgray
+    /ymarg exch def
+    /lineheight exch def
+    /nlines exch def
+
+    % This 2 is just a magic number to sync highlight lines to text.
+    0 d_header_y ymarg sub 2 sub translate
+
+    /cw d_output_w cols div def
+    /nrows d_output_h ymarg 2 mul sub lineheight div cvi def
+
+    % for each column
+    0 1 cols 1 sub {
+      cw mul /xp exch def
+
+      % for each rows
+      0 1 nrows 1 sub {
+        /rn exch def
+        rn lineheight mul neg /yp exch def
+        rn nlines idiv 2 mod 0 eq {
+	  % Draw highlight bar.  4 is just a magic indentation.
+	  xp 4 add yp cw 8 sub lineheight neg Box fill
+	} if
+      } for
+    } for
+
+  grestore
+} def
+
+% Line highlight bar.
+/line_highlight {	% x y width height gray -> -
+  gsave
+    /gray exch def
+    Box gray setgray fill
+  grestore
+} def
+
+% Column separator lines.
+/column_lines {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h translate
+    /cw d_output_w cols div def
+    1 1 cols 1 sub {
+      cw mul 0 moveto
+      0 d_output_h rlineto stroke
+    } for
+  grestore
+} def
+
+% Column borders.
+/column_borders {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h moveto
+    0 d_output_h rlineto
+    d_output_w 0 rlineto
+    0 d_output_h neg rlineto
+    closepath stroke
+  grestore
+} def
+
+% Do the actual underlay drawing
+/draw_underlay {
+  ul_style 0 eq {
+    ul_str true charpath stroke
+  } {
+    ul_str show
+  } ifelse
+} def
+
+% Underlay
+/underlay {	% - -> -
+  gsave
+    0 d_page_h translate
+    d_page_h neg d_page_w atan rotate
+
+    ul_gray setgray
+    ul_font setfont
+    /dw d_page_h dup mul d_page_w dup mul add sqrt def
+    ul_str stringwidth pop dw exch sub 2 div ul_h_ptsize -2 div moveto
+    draw_underlay
+  grestore
+} def
+
+/user_underlay {	% - -> -
+  gsave
+    ul_x ul_y translate
+    ul_angle rotate
+    ul_gray setgray
+    ul_font setfont
+    0 0 ul_h_ptsize 2 div sub moveto
+    draw_underlay
+  grestore
+} def
+
+% Page prefeed
+/page_prefeed {		% bool -> -
+  statusdict /prefeed known {
+    statusdict exch /prefeed exch put
+  } {
+    pop
+  } ifelse
+} def
+
+% Wrapped line markers
+/wrapped_line_mark {	% x y charwith charheight type -> -
+  /type exch def
+  /h exch def
+  /w exch def
+  /y exch def
+  /x exch def
+
+  type 2 eq {
+    % Black boxes (like TeX does)
+    gsave
+      0 setlinewidth
+      x w 4 div add y M
+      0 h rlineto w 2 div 0 rlineto 0 h neg rlineto
+      closepath fill
+    grestore
+  } {
+    type 3 eq {
+      % Small arrows
+      gsave
+        .2 setlinewidth
+        x w 2 div add y h 2 div add M
+        w 4 div 0 rlineto
+        x w 4 div add y lineto stroke
+
+        x w 4 div add w 8 div add y h 4 div add M
+        x w 4 div add y lineto
+	w 4 div h 8 div rlineto stroke
+      grestore
+    } {
+      % do nothing
+    } ifelse
+  } ifelse
+} def
+
+% EPSF import.
+
+/BeginEPSF {
+  /b4_Inc_state save def    		% Save state for cleanup
+  /dict_count countdictstack def	% Count objects on dict stack
+  /op_count count 1 sub def		% Count objects on operand stack
+  userdict begin
+  /showpage { } def
+  0 setgray 0 setlinecap
+  1 setlinewidth 0 setlinejoin
+  10 setmiterlimit [ ] 0 setdash newpath
+  /languagelevel where {
+    pop languagelevel
+    1 ne {
+      false setstrokeadjust false setoverprint
+    } if
+  } if
+} bind def
+
+/EndEPSF {
+  count op_count sub { pos } repeat	% Clean up stacks
+  countdictstack dict_count sub { end } repeat
+  b4_Inc_state restore
+} bind def
+
+% Check PostScript language level.
+/languagelevel where {
+  pop /gs_languagelevel languagelevel def
+} {
+  /gs_languagelevel 1 def
+} ifelse
+%%EndResource
+%%BeginResource: procset Enscript-Encoding-88591 1.6 4
+/encoding_vector [
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclam       	/quotedbl     	/numbersign   	
+/dollar       	/percent      	/ampersand    	/quoteright   	
+/parenleft    	/parenright   	/asterisk     	/plus         	
+/comma        	/hyphen       	/period       	/slash        	
+/zero         	/one          	/two          	/three        	
+/four         	/five         	/six          	/seven        	
+/eight        	/nine         	/colon        	/semicolon    	
+/less         	/equal        	/greater      	/question     	
+/at           	/A            	/B            	/C            	
+/D            	/E            	/F            	/G            	
+/H            	/I            	/J            	/K            	
+/L            	/M            	/N            	/O            	
+/P            	/Q            	/R            	/S            	
+/T            	/U            	/V            	/W            	
+/X            	/Y            	/Z            	/bracketleft  	
+/backslash    	/bracketright 	/asciicircum  	/underscore   	
+/quoteleft    	/a            	/b            	/c            	
+/d            	/e            	/f            	/g            	
+/h            	/i            	/j            	/k            	
+/l            	/m            	/n            	/o            	
+/p            	/q            	/r            	/s            	
+/t            	/u            	/v            	/w            	
+/x            	/y            	/z            	/braceleft    	
+/bar          	/braceright   	/tilde        	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclamdown   	/cent         	/sterling     	
+/currency     	/yen          	/brokenbar    	/section      	
+/dieresis     	/copyright    	/ordfeminine  	/guillemotleft	
+/logicalnot   	/hyphen       	/registered   	/macron       	
+/degree       	/plusminus    	/twosuperior  	/threesuperior	
+/acute        	/mu           	/paragraph    	/bullet       	
+/cedilla      	/onesuperior  	/ordmasculine 	/guillemotright	
+/onequarter   	/onehalf      	/threequarters	/questiondown 	
+/Agrave       	/Aacute       	/Acircumflex  	/Atilde       	
+/Adieresis    	/Aring        	/AE           	/Ccedilla     	
+/Egrave       	/Eacute       	/Ecircumflex  	/Edieresis    	
+/Igrave       	/Iacute       	/Icircumflex  	/Idieresis    	
+/Eth          	/Ntilde       	/Ograve       	/Oacute       	
+/Ocircumflex  	/Otilde       	/Odieresis    	/multiply     	
+/Oslash       	/Ugrave       	/Uacute       	/Ucircumflex  	
+/Udieresis    	/Yacute       	/Thorn        	/germandbls   	
+/agrave       	/aacute       	/acircumflex  	/atilde       	
+/adieresis    	/aring        	/ae           	/ccedilla     	
+/egrave       	/eacute       	/ecircumflex  	/edieresis    	
+/igrave       	/iacute       	/icircumflex  	/idieresis    	
+/eth          	/ntilde       	/ograve       	/oacute       	
+/ocircumflex  	/otilde       	/odieresis    	/divide       	
+/oslash       	/ugrave       	/uacute       	/ucircumflex  	
+/udieresis    	/yacute       	/thorn        	/ydieresis    	
+] def
+%%EndResource
+%%EndProlog
+%%BeginSetup
+%%IncludeResource: font Times-Roman
+%%IncludeResource: font Courier-Bold
+/HFpt_w 10 def
+/HFpt_h 10 def
+/Courier-Bold /HF-gs-font MF
+/HF /HF-gs-font findfont [HFpt_w 0 0 HFpt_h 0 0] makefont def
+/Times-Roman /F-gs-font MF
+/F-gs-font 10 10 SF
+/#copies 1 def
+% Pagedevice definitions:
+gs_languagelevel 1 gt {
+  <<
+    /PageSize [612 792] 
+  >> setpagedevice
+} if
+/d_page_w 536 def
+/d_page_h 744 def
+/d_header_x 0 def
+/d_header_y 744 def
+/d_header_w 536 def
+/d_header_h 0 def
+/d_footer_x 0 def
+/d_footer_y 0 def
+/d_footer_w 536 def
+/d_footer_h 0 def
+/d_output_w 536 def
+/d_output_h 744 def
+/cols 1 def
+%%EndSetup
+%%Page: (1) 1
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 1 def
+/fname (QweakSimG4.cc) def
+/fdir () def
+/ftail (QweakSimG4.cc) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+26 731 M (1:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 731 M
+(//=======================================================================) s
+5 720 M
+(======) s
+/F-gs-font 10 10 SF
+26 709 M (2:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 709 M
+(// ) s
+/F-gs-font 10 10 SF
+26 698 M (3:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 698 M
+(//   ---------------------------) s
+/F-gs-font 10 10 SF
+26 687 M (4:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 687 M
+(//  | Doxygen File Information |) s
+/F-gs-font 10 10 SF
+26 676 M (5:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 676 M
+(//  ---------------------------) s
+/F-gs-font 10 10 SF
+26 665 M (6:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 665 M
+(// ) s
+/F-gs-font 10 10 SF
+26 654 M (7:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 654 M
+(/**) s
+/F-gs-font 10 10 SF
+26 643 M (8:) s
+/Times-Italic 10 10 SUF
+41.56 643 M
+( ) s
+/F-gs-font 10 10 SF
+26 632 M (9:) s
+/Times-Italic 10 10 SUF
+41.56 632 M
+(   \\file QweakSimG4.cc) s
+/F-gs-font 10 10 SF
+21 621 M (10:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+21 610 M (11:) s
+/Times-Italic 10 10 SUF
+41.56 610 M
+(   $Revision: 1.2 $) s
+/F-gs-font 10 10 SF
+21 599 M (12:) s
+/Times-Italic 10 10 SUF
+41.56 599 M
+(   $Date: 2005/12/27 19:09:32 $) s
+/F-gs-font 10 10 SF
+21 588 M (13:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+21 577 M (14:) s
+/Times-Italic 10 10 SUF
+41.56 577 M
+(   \\author Klaus Hans Grimm   ) s
+/F-gs-font 10 10 SF
+21 566 M (15:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+21 555 M (16:) s
+/Times-Italic 10 10 SUF
+41.56 555 M
+(*/) s
+/F-gs-font 10 10 SF
+0 setgray
+21 544 M (17:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 544 M
+(//=======================================================================) s
+5 533 M
+(======) s
+/F-gs-font 10 10 SF
+21 522 M (18:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+21 511 M (19:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 511 M
+(//=======================================================================) s
+5 500 M
+(======) s
+/F-gs-font 10 10 SF
+21 489 M (20:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 489 M
+(//   -----------------------) s
+/F-gs-font 10 10 SF
+21 478 M (21:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 478 M
+(//  | CVS File Information |) s
+/F-gs-font 10 10 SF
+21 467 M (22:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 467 M
+(//  -----------------------) s
+/F-gs-font 10 10 SF
+21 456 M (23:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 456 M
+(// ) s
+/F-gs-font 10 10 SF
+21 445 M (24:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 445 M
+(//  Last Update:      $Author: grimm $) s
+/F-gs-font 10 10 SF
+21 434 M (25:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 434 M
+(//  Update Date:      $Date: 2005/12/27 19:09:32 $) s
+/F-gs-font 10 10 SF
+21 423 M (26:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 423 M
+(//  CVS/RCS Revision: $Revision: 1.2 $) s
+/F-gs-font 10 10 SF
+21 412 M (27:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 412 M
+(//  Status:           $State: Exp $) s
+/F-gs-font 10 10 SF
+21 401 M (28:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 401 M
+(// ) s
+/F-gs-font 10 10 SF
+21 390 M (29:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 390 M
+(// ===================================) s
+/F-gs-font 10 10 SF
+21 379 M (30:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 379 M
+(//  CVS Revision Log at end of file !!) s
+/F-gs-font 10 10 SF
+21 368 M (31:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 368 M
+(// ===================================) s
+/F-gs-font 10 10 SF
+21 357 M (32:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 357 M
+(//) s
+/F-gs-font 10 10 SF
+21 346 M (33:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 346 M
+(//=======================================================================) s
+5 335 M
+(=====) s
+/F-gs-font 10 10 SF
+21 324 M (34:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+21 313 M (35:) s
+41.56 313 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 313 M
+(include) s
+/F-gs-font 10 10 SF
+0 setgray
+77.68 313 M
+( ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+80.18 313 M
+("QweakSimDetectorConstruction.hh") s
+/F-gs-font 10 10 SF
+0 setgray
+21 302 M (36:) s
+41.56 302 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 302 M
+(include) s
+/F-gs-font 10 10 SF
+0 setgray
+77.68 302 M
+( ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+80.18 302 M
+("QweakSimPhysicsList.hh") s
+/F-gs-font 10 10 SF
+0 setgray
+21 291 M (37:) s
+41.56 291 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 291 M
+(include) s
+/F-gs-font 10 10 SF
+0 setgray
+77.68 291 M
+( ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+80.18 291 M
+("QweakSimPrimaryGeneratorAction.hh") s
+/F-gs-font 10 10 SF
+0 setgray
+21 280 M (38:) s
+41.56 280 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 280 M
+(include) s
+/F-gs-font 10 10 SF
+0 setgray
+77.68 280 M
+( ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+80.18 280 M
+("QweakSimRunAction.hh") s
+/F-gs-font 10 10 SF
+0 setgray
+21 269 M (39:) s
+41.56 269 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 269 M
+(include) s
+/F-gs-font 10 10 SF
+0 setgray
+77.68 269 M
+( ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+80.18 269 M
+("QweakSimEventAction.hh") s
+/F-gs-font 10 10 SF
+0 setgray
+21 258 M (40:) s
+41.56 258 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 258 M
+(include) s
+/F-gs-font 10 10 SF
+0 setgray
+77.68 258 M
+( ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+80.18 258 M
+("QweakSimStackingAction.hh") s
+/F-gs-font 10 10 SF
+0 setgray
+217.13 258 M
+() s
+225 258 M
+() s
+21 247 M (41:) s
+41.56 247 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 247 M
+(include) s
+/F-gs-font 10 10 SF
+0 setgray
+77.68 247 M
+( ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+80.18 247 M
+("QweakSimSteppingAction.hh") s
+/F-gs-font 10 10 SF
+0 setgray
+21 236 M (42:) s
+41.56 236 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 236 M
+(include) s
+/F-gs-font 10 10 SF
+0 setgray
+77.68 236 M
+( ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+80.18 236 M
+("QweakSimSteppingVerbose.hh") s
+/F-gs-font 10 10 SF
+0 setgray
+21 225 M (43:) s
+41.56 225 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 225 M
+(include) s
+/F-gs-font 10 10 SF
+0 setgray
+77.68 225 M
+( ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+80.18 225 M
+("QweakSimAnalysis.hh") s
+/F-gs-font 10 10 SF
+0 setgray
+21 214 M (44:) s
+41.56 214 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 214 M
+(include) s
+/F-gs-font 10 10 SF
+0 setgray
+77.68 214 M
+( ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+80.18 214 M
+("QweakSimTrackingAction.hh") s
+/F-gs-font 10 10 SF
+0 setgray
+21 203 M (45:) s
+41.56 203 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 203 M
+(include) s
+/F-gs-font 10 10 SF
+0 setgray
+77.68 203 M
+( ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+80.18 203 M
+("QweakSimTrackInformation.hh") s
+/F-gs-font 10 10 SF
+0 setgray
+21 192 M (46:) s
+41.56 192 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 192 M
+(include) s
+/F-gs-font 10 10 SF
+0 setgray
+77.68 192 M
+( ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+80.18 192 M
+("QweakSimUserInformation.hh") s
+/F-gs-font 10 10 SF
+0 setgray
+21 181 M (47:) s
+21 170 M (48:) s
+41.56 170 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 170 M
+(include) s
+/F-gs-font 10 10 SF
+0 setgray
+77.68 170 M
+( ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+80.18 170 M
+("G4RunManager.hh") s
+/F-gs-font 10 10 SF
+0 setgray
+21 159 M (49:) s
+41.56 159 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 159 M
+(include) s
+/F-gs-font 10 10 SF
+0 setgray
+77.68 159 M
+( ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+80.18 159 M
+("G4UImanager.hh") s
+/F-gs-font 10 10 SF
+0 setgray
+21 148 M (50:) s
+41.56 148 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 148 M
+(include) s
+/F-gs-font 10 10 SF
+0 setgray
+77.68 148 M
+( ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+80.18 148 M
+("G4UIterminal.hh") s
+/F-gs-font 10 10 SF
+0 setgray
+21 137 M (51:) s
+41.56 137 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 137 M
+(include) s
+/F-gs-font 10 10 SF
+0 setgray
+77.68 137 M
+( ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+80.18 137 M
+("G4UItcsh.hh") s
+/F-gs-font 10 10 SF
+0 setgray
+21 126 M (52:) s
+21 115 M (53:) s
+41.56 115 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 115 M
+(ifdef) s
+/F-gs-font 10 10 SF
+0 setgray
+66 115 M
+( ) s
+/Times-Roman 10 10 SUF
+0.721569 0.52549 0.043137 setrgbcolor
+68.5 115 M
+(G4UI_USE_XM) s
+/F-gs-font 10 10 SF
+0 setgray
+21 104 M (54:) s
+41.56 104 M
+(    #include ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+88.5 104 M
+("G4UIXm.hh") s
+/F-gs-font 10 10 SF
+0 setgray
+21 93 M (55:) s
+41.56 93 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 93 M
+(endif) s
+/F-gs-font 10 10 SF
+0 setgray
+21 82 M (56:) s
+21 71 M (57:) s
+41.56 71 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 71 M
+(ifdef) s
+/F-gs-font 10 10 SF
+0 setgray
+66 71 M
+( ) s
+/Times-Roman 10 10 SUF
+0.721569 0.52549 0.043137 setrgbcolor
+68.5 71 M
+(G4VIS_USE) s
+/F-gs-font 10 10 SF
+0 setgray
+21 60 M (58:) s
+41.56 60 M
+(    #include ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+88.5 60 M
+("G4VisExecutive.hh") s
+/F-gs-font 10 10 SF
+0 setgray
+21 49 M (59:) s
+41.56 49 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 49 M
+(endif) s
+/F-gs-font 10 10 SF
+0 setgray
+21 38 M (60:) s
+21 27 M (61:) s
+21 16 M (62:) s
+21 5 M (63:) s
+_R
+S
+%%Page: (2) 2
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 2 def
+/fname (QweakSimG4.cc) def
+/fdir () def
+/ftail (QweakSimG4.cc) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+21 731 M (64:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 731 M
+(//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......) s
+/F-gs-font 10 10 SF
+21 720 M (65:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+21 709 M (66:) s
+/Times-Bold 10 10 SUF
+0.133333 0.545098 0.133333 setrgbcolor
+41.56 709 M
+(int) s
+/F-gs-font 10 10 SF
+0 setgray
+53.23 709 M
+( ) s
+/Times-Bold 10 10 SUF
+0 0 1 setrgbcolor
+55.73 709 M
+(main) s
+/F-gs-font 10 10 SF
+0 setgray
+77.4 709 M
+(\() s
+/Times-Bold 10 10 SUF
+0.133333 0.545098 0.133333 setrgbcolor
+80.73 709 M
+(int) s
+/F-gs-font 10 10 SF
+0 setgray
+92.4 709 M
+( argc,) s
+/Times-Bold 10 10 SUF
+0.133333 0.545098 0.133333 setrgbcolor
+114.61 709 M
+(char) s
+/F-gs-font 10 10 SF
+0 setgray
+134.05 709 M
+(** argv\) {) s
+21 698 M (67:) s
+21 687 M (68:) s
+41.56 687 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 687 M
+(//my Verbose output class) s
+/F-gs-font 10 10 SF
+21 676 M (69:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 676 M
+(  ) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 676 M
+(G4VSteppingVerbose) s
+/F-gs-font 10 10 SF
+0 setgray
+139.34 676 M
+(::SetInstance\( ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+196.83 676 M
+(new) s
+/F-gs-font 10 10 SF
+0 setgray
+214.05 676 M
+( QweakSimSteppingVerbose\(\) \); ) s
+21 665 M (70:) s
+41.56 665 M
+(  ) s
+21 654 M (71:) s
+41.56 654 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 654 M
+(// Run manager) s
+/F-gs-font 10 10 SF
+21 643 M (72:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 643 M
+(  G4RunManager * runManager = ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+180.5 643 M
+(new) s
+/F-gs-font 10 10 SF
+0 setgray
+197.72 643 M
+( G4RunManager\(\);) s
+21 632 M (73:) s
+21 621 M (74:) s
+41.56 621 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 621 M
+(// UserInitialization classes \(mandatory\)) s
+/F-gs-font 10 10 SF
+21 610 M (75:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 610 M
+(  QweakSimUserInformation*       myQweakSimUserInformation  = ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+317.16 610 M
+(new) s
+/F-gs-font 10 10 SF
+0 setgray
+334.38 610 M
+( QweakSimUserInformation\(\);) s
+21 599 M (76:) s
+41.56 599 M
+(  QweakSimDetectorConstruction*  myQweakSimExperiment       = ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+316.62 599 M
+(new) s
+/F-gs-font 10 10 SF
+0 setgray
+333.84 599 M
+( QweakSimDetectorConstruction\(myQweakSim) s
+5 588 M
+(UserInformation\);) s
+21 577 M (77:) s
+41.56 577 M
+(  QweakSimAnalysis*              myQweakSimAnalysis         = ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+288.86 577 M
+(new) s
+/F-gs-font 10 10 SF
+0 setgray
+306.08 577 M
+( QweakSimAnalysis\(\);) s
+21 566 M (78:) s
+21 555 M (79:) s
+21 544 M (80:) s
+41.56 544 M
+(  runManager->SetUserInitialization\(myQweakSimExperiment\);) s
+21 533 M (81:) s
+41.56 533 M
+(  runManager->SetUserInitialization\() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+190.5 533 M
+(new) s
+/F-gs-font 10 10 SF
+0 setgray
+207.72 533 M
+( QweakSimPhysicsList\(\) \);) s
+21 522 M (82:) s
+41.56 522 M
+(   ) s
+21 511 M (83:) s
+21 500 M (84:) s
+21 489 M (85:) s
+21 478 M (86:) s
+21 467 M (87:) s
+21 456 M (88:) s
+21 445 M (89:) s
+41.56 445 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 445 M
+(// UserAction classes) s
+/F-gs-font 10 10 SF
+21 434 M (90:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 434 M
+(  runManager->SetUserAction\( ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+169.11 434 M
+(new) s
+/F-gs-font 10 10 SF
+0 setgray
+186.33 434 M
+( QweakSimPrimaryGeneratorAction\(myQweakSimUserInformation\) \);) s
+21 423 M (91:) s
+41.56 423 M
+(  runManager->SetUserAction\( ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+169.11 423 M
+(new) s
+/F-gs-font 10 10 SF
+0 setgray
+186.33 423 M
+( QweakSimRunAction\(myQweakSimAnalysis\) \);  ) s
+21 412 M (92:) s
+41.56 412 M
+(  runManager->SetUserAction\( ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+169.11 412 M
+(new) s
+/F-gs-font 10 10 SF
+0 setgray
+186.33 412 M
+( QweakSimEventAction\(myQweakSimAnalysis, myQweakSimUserInformation\) \);) s
+21 401 M (93:) s
+41.56 401 M
+(  runManager->SetUserAction\( ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+169.11 401 M
+(new) s
+/F-gs-font 10 10 SF
+0 setgray
+186.33 401 M
+( QweakSimSteppingAction\(myQweakSimUserInformation\) \);) s
+21 390 M (94:) s
+41.56 390 M
+(  runManager->SetUserAction\( ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+169.11 390 M
+(new) s
+/F-gs-font 10 10 SF
+0 setgray
+186.33 390 M
+( QweakSimStackingAction\(\) \);) s
+21 379 M (95:) s
+41.56 379 M
+(  runManager->SetUserAction\( ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+169.11 379 M
+(new) s
+/F-gs-font 10 10 SF
+0 setgray
+186.33 379 M
+( QweakSimTrackingAction\(myQweakSimUserInformation\) \);) s
+21 368 M (96:) s
+21 357 M (97:) s
+41.56 357 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 357 M
+(//Initialize G4 kernel) s
+/F-gs-font 10 10 SF
+21 346 M (98:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 346 M
+(  runManager->Initialize\(\);) s
+21 335 M (99:) s
+16 324 M (100:) s
+41.56 324 M
+(  G4UIsession* session = 0;) s
+16 313 M (101:) s
+16 302 M (102:) s
+41.56 302 M
+( ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+44.06 302 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+50.17 302 M
+( \(argc==1\)   ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+100.32 302 M
+(// Define UI session for interactive mode.) s
+/F-gs-font 10 10 SF
+16 291 M (103:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 291 M
+( {) s
+16 280 M (104:) s
+41.56 280 M
+(     ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+54.06 280 M
+(// G4UIterminal is a \(dumb\) terminal.) s
+/F-gs-font 10 10 SF
+16 269 M (105:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 269 M
+(    #) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+56.56 269 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+62.67 269 M
+( defined\(G4UI_USE_XM\)) s
+16 258 M (106:) s
+41.56 258 M
+(     session = ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+93.59 258 M
+(new) s
+/F-gs-font 10 10 SF
+0 setgray
+110.81 258 M
+( G4UIXm\(argc,argv\);) s
+16 247 M (107:) s
+41.56 247 M
+(    #elif defined\(G4UI_USE_WIN32\)) s
+16 236 M (108:) s
+41.56 236 M
+(     session = ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+93.59 236 M
+(new) s
+/F-gs-font 10 10 SF
+0 setgray
+110.81 236 M
+( G4UIWin32\(\);) s
+16 225 M (109:) s
+41.56 225 M
+(    #elif defined\(G4UI_USE_TCSH\)) s
+16 214 M (110:) s
+41.56 214 M
+(     session = ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+93.59 214 M
+(new) s
+/F-gs-font 10 10 SF
+0 setgray
+110.81 214 M
+( G4UIterminal\() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+172.74 214 M
+(new) s
+/F-gs-font 10 10 SF
+0 setgray
+189.96 214 M
+( G4UItcsh\);) s
+16 203 M (111:) s
+41.56 203 M
+(    #) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+56.56 203 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+16 192 M (112:) s
+41.56 192 M
+(      session = ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+96.09 192 M
+(new) s
+/F-gs-font 10 10 SF
+0 setgray
+113.31 192 M
+( G4UIterminal\(\);) s
+16 181 M (113:) s
+41.56 181 M
+(    #endif) s
+16 170 M (114:) s
+41.56 170 M
+( }) s
+16 159 M (115:) s
+16 148 M (116:) s
+16 137 M (117:) s
+41.56 137 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 137 M
+(ifdef) s
+/F-gs-font 10 10 SF
+0 setgray
+66 137 M
+( ) s
+/Times-Roman 10 10 SUF
+0.721569 0.52549 0.043137 setrgbcolor
+68.5 137 M
+(G4VIS_USE) s
+/F-gs-font 10 10 SF
+0 setgray
+16 126 M (118:) s
+41.56 126 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 126 M
+(// Visualization, if you choose to have it!) s
+/F-gs-font 10 10 SF
+16 115 M (119:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 115 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 115 M
+(// ) s
+/F-gs-font 10 10 SF
+16 104 M (120:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 104 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 104 M
+(// Simple graded message scheme - give first letter or a digit:) s
+/F-gs-font 10 10 SF
+16 93 M (121:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 93 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 93 M
+(//  0\) quiet,         // Nothing is printed.) s
+/F-gs-font 10 10 SF
+16 82 M (122:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 82 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 82 M
+(//  1\) startup,       // Startup and endup messages are printed...) s
+/F-gs-font 10 10 SF
+16 71 M (123:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 71 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 71 M
+(//  2\) errors,        // ...and errors...) s
+/F-gs-font 10 10 SF
+16 60 M (124:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 60 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 60 M
+(//  3\) warnings,      // ...and warnings...) s
+/F-gs-font 10 10 SF
+16 49 M (125:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 49 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 49 M
+(//  4\) confirmations, // ...and confirming messages...) s
+/F-gs-font 10 10 SF
+16 38 M (126:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 38 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 38 M
+(//  5\) parameters,    // ...and parameters of scenes and views...) s
+/F-gs-font 10 10 SF
+16 27 M (127:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 27 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 27 M
+(//  6\) all            // ...and everything available.) s
+/F-gs-font 10 10 SF
+16 16 M (128:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+16 5 M (129:) s
+41.56 5 M
+(  G4VisManager* visManager = ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+173.56 5 M
+(new) s
+/F-gs-font 10 10 SF
+0 setgray
+190.78 5 M
+( G4VisExecutive;) s
+_R
+S
+%%Page: (3) 3
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 3 def
+/fname (QweakSimG4.cc) def
+/fdir () def
+/ftail (QweakSimG4.cc) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+16 731 M (130:) s
+41.56 731 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 731 M
+(//visManager -> SetVerboseLevel \(1\);) s
+/F-gs-font 10 10 SF
+16 720 M (131:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 720 M
+(  visManager ->Initialize\(\);) s
+16 709 M (132:) s
+41.56 709 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 709 M
+(endif) s
+/F-gs-font 10 10 SF
+0 setgray
+16 698 M (133:) s
+16 687 M (134:) s
+16 676 M (135:) s
+41.56 676 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 676 M
+(//get the pointer to the User Interface manager ) s
+/F-gs-font 10 10 SF
+16 665 M (136:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 665 M
+(  G4UImanager * UI = G4UImanager::GetUIpointer\(\);  ) s
+16 654 M (137:) s
+16 643 M (138:) s
+41.56 643 M
+( ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+44.06 643 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+50.17 643 M
+( \(session\)   ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+95.72 643 M
+(// Define UI session for interactive mode.) s
+/F-gs-font 10 10 SF
+16 632 M (139:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 632 M
+(    {) s
+16 621 M (140:) s
+41.56 621 M
+(      ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+56.56 621 M
+(// G4UIterminal is a \(dumb\) terminal.) s
+/F-gs-font 10 10 SF
+16 610 M (141:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 610 M
+(      ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+56.56 610 M
+(//UI->ApplyCommand\("/control/execute myVis.mac"\);) s
+/F-gs-font 10 10 SF
+16 599 M (142:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+16 588 M (143:) s
+41.56 588 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 588 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+52.67 588 M
+( ) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+55.17 588 M
+(defined) s
+/F-gs-font 10 10 SF
+0 setgray
+86.84 588 M
+(\() s
+/Times-Roman 10 10 SUF
+0.721569 0.52549 0.043137 setrgbcolor
+90.17 588 M
+(G4UI_USE_XM) s
+/F-gs-font 10 10 SF
+0 setgray
+157.94 588 M
+(\) || ) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+170.27 588 M
+(defined) s
+/F-gs-font 10 10 SF
+0 setgray
+201.94 588 M
+(\() s
+/Times-Roman 10 10 SUF
+0.721569 0.52549 0.043137 setrgbcolor
+205.27 588 M
+(G4UI_USE_WIN32) s
+/F-gs-font 10 10 SF
+0 setgray
+286.92 588 M
+(\)) s
+16 577 M (144:) s
+41.56 577 M
+(      ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+56.56 577 M
+(// Customize the G4UIXm,Win32 menubar with a macro file :) s
+/F-gs-font 10 10 SF
+16 566 M (145:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 566 M
+(      UI->ApplyCommand\() s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+146.08 566 M
+("/control/execute gui.mac") s
+/F-gs-font 10 10 SF
+0 setgray
+261.05 566 M
+(\);) s
+16 555 M (146:) s
+41.56 555 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 555 M
+(endif) s
+/F-gs-font 10 10 SF
+0 setgray
+16 544 M (147:) s
+16 533 M (148:) s
+41.56 533 M
+(      session->SessionStart\(\);) s
+16 522 M (149:) s
+41.56 522 M
+(      ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+56.56 522 M
+(delete) s
+/F-gs-font 10 10 SF
+0 setgray
+81.55 522 M
+( session;) s
+16 511 M (150:) s
+41.56 511 M
+(    }) s
+16 500 M (151:) s
+41.56 500 M
+(  ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+46.56 500 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+62.11 500 M
+(           ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+89.61 500 M
+(// Batch mode) s
+/F-gs-font 10 10 SF
+16 489 M (152:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 489 M
+(    {) s
+16 478 M (153:) s
+41.56 478 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 478 M
+(ifdef) s
+/F-gs-font 10 10 SF
+0 setgray
+66 478 M
+( ) s
+/Times-Roman 10 10 SUF
+0.721569 0.52549 0.043137 setrgbcolor
+68.5 478 M
+(G4VIS_USE) s
+/F-gs-font 10 10 SF
+0 setgray
+16 467 M (154:) s
+41.56 467 M
+(      visManager->SetVerboseLevel\() s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+184.94 467 M
+("quiet") s
+/F-gs-font 10 10 SF
+0 setgray
+217.71 467 M
+(\);) s
+16 456 M (155:) s
+41.56 456 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 456 M
+(endif) s
+/F-gs-font 10 10 SF
+0 setgray
+16 445 M (156:) s
+41.56 445 M
+(      G4String command = ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+145.81 445 M
+("/control/execute ") s
+/F-gs-font 10 10 SF
+0 setgray
+227.17 445 M
+(;) s
+16 434 M (157:) s
+41.56 434 M
+(      G4String fileName = argv[1];) s
+16 423 M (158:) s
+41.56 423 M
+(      UI->ApplyCommand\(command+fileName\);) s
+16 412 M (159:) s
+41.56 412 M
+(    }) s
+16 401 M (160:) s
+16 390 M (161:) s
+16 379 M (162:) s
+16 368 M (163:) s
+41.56 368 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 368 M
+(ifdef) s
+/F-gs-font 10 10 SF
+0 setgray
+66 368 M
+( ) s
+/Times-Roman 10 10 SUF
+0.721569 0.52549 0.043137 setrgbcolor
+68.5 368 M
+(G4VIS_USE) s
+/F-gs-font 10 10 SF
+0 setgray
+16 357 M (164:) s
+41.56 357 M
+(  ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+46.56 357 M
+(delete) s
+/F-gs-font 10 10 SF
+0 setgray
+71.55 357 M
+( visManager;) s
+16 346 M (165:) s
+41.56 346 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 346 M
+(endif) s
+/F-gs-font 10 10 SF
+0 setgray
+16 335 M (166:) s
+16 324 M (167:) s
+41.56 324 M
+(  ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+46.56 324 M
+(delete) s
+/F-gs-font 10 10 SF
+0 setgray
+71.55 324 M
+( runManager;) s
+16 313 M (168:) s
+16 302 M (169:) s
+41.56 302 M
+(  ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+46.56 302 M
+(return) s
+/F-gs-font 10 10 SF
+0 setgray
+74.33 302 M
+( 0;) s
+16 291 M (170:) s
+41.56 291 M
+(}) s
+16 280 M (171:) s
+16 269 M (172:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 269 M
+(//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......) s
+/F-gs-font 10 10 SF
+16 258 M (173:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+16 247 M (174:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 247 M
+(//=======================================================) s
+/F-gs-font 10 10 SF
+16 236 M (175:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 236 M
+(//   -----------------------) s
+/F-gs-font 10 10 SF
+16 225 M (176:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 225 M
+(//  | CVS File Information |) s
+/F-gs-font 10 10 SF
+16 214 M (177:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 214 M
+(//  -----------------------) s
+/F-gs-font 10 10 SF
+16 203 M (178:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 203 M
+(// ) s
+/F-gs-font 10 10 SF
+16 192 M (179:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 192 M
+(//      $Revisions$  ) s
+/F-gs-font 10 10 SF
+16 181 M (180:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 181 M
+(//      $Log: QweakSimG4.cc,v $) s
+/F-gs-font 10 10 SF
+16 170 M (181:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 170 M
+(//      Revision 1.2  2005/12/27 19:09:32  grimm) s
+/F-gs-font 10 10 SF
+16 159 M (182:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 159 M
+(//      - Redesign of Doxygen header containing CVS info like revision and date) s
+/F-gs-font 10 10 SF
+16 148 M (183:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 148 M
+(//      - Added CVS revision log at the end of file) s
+/F-gs-font 10 10 SF
+16 137 M (184:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 137 M
+(//) s
+/F-gs-font 10 10 SF
+16 126 M (185:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 126 M
+(// ) s
+/F-gs-font 10 10 SF
+16 115 M (186:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+_R
+S
+%%Trailer
+%%Pages: 3
+%%DocumentNeededResources: font Times-Roman Courier-Bold Times-Italic 
+%%+ font Times-Bold 
+%%EOF

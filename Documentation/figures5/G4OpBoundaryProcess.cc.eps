@@ -1,0 +1,5967 @@
+%!PS-Adobe-3.0
+%%BoundingBox: 38 24 574 768
+%%Title: Enscript Output
+%%For: Michael Gericke
+%%Creator: GNU enscript 1.6.4
+%%CreationDate: Tue Jul 24 12:11:46 2007
+%%Orientation: Portrait
+%%Pages: (atend)
+%%DocumentMedia: Letter 612 792 0 () ()
+%%DocumentNeededResources: (atend)
+%%EndComments
+%%BeginProlog
+%%BeginResource: procset Enscript-Prolog 1.6 4
+%
+% Procedures.
+%
+
+/_S {	% save current state
+  /_s save def
+} def
+/_R {	% restore from saved state
+  _s restore
+} def
+
+/S {	% showpage protecting gstate
+  gsave
+  showpage
+  grestore
+} bind def
+
+/MF {	% fontname newfontname -> -	make a new encoded font
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  % insert only valid encoding vectors
+  encoding_vector length 256 eq {
+    newfont /Encoding encoding_vector put
+  } if
+
+  newfontname newfont definefont pop
+} def
+
+/MF_PS { % fontname newfontname -> -	make a new font preserving its enc
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  newfontname newfont definefont pop
+} def
+
+/SF { % fontname width height -> -	set a new font
+  /height exch def
+  /width exch def
+
+  findfont
+  [width 0 0 height 0 0] makefont setfont
+} def
+
+/SUF { % fontname width height -> -	set a new user font
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF
+  /F-gs-user-font width height SF
+} def
+
+/SUF_PS { % fontname width height -> -	set a new user font preserving its enc
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF_PS
+  /F-gs-user-font width height SF
+} def
+
+/M {moveto} bind def
+/s {show} bind def
+
+/Box {	% x y w h -> -			define box path
+  /d_h exch def /d_w exch def /d_y exch def /d_x exch def
+  d_x d_y  moveto
+  d_w 0 rlineto
+  0 d_h rlineto
+  d_w neg 0 rlineto
+  closepath
+} def
+
+/bgs {	% x y height blskip gray str -> -	show string with bg color
+  /str exch def
+  /gray exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    gray setgray
+    fill
+  grestore
+  x y M str s
+} def
+
+/bgcs { % x y height blskip red green blue str -> -  show string with bg color
+  /str exch def
+  /blue exch def
+  /green exch def
+  /red exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    red green blue setrgbcolor
+    fill
+  grestore
+  x y M str s
+} def
+
+% Highlight bars.
+/highlight_bars {	% nlines lineheight output_y_margin gray -> -
+  gsave
+    setgray
+    /ymarg exch def
+    /lineheight exch def
+    /nlines exch def
+
+    % This 2 is just a magic number to sync highlight lines to text.
+    0 d_header_y ymarg sub 2 sub translate
+
+    /cw d_output_w cols div def
+    /nrows d_output_h ymarg 2 mul sub lineheight div cvi def
+
+    % for each column
+    0 1 cols 1 sub {
+      cw mul /xp exch def
+
+      % for each rows
+      0 1 nrows 1 sub {
+        /rn exch def
+        rn lineheight mul neg /yp exch def
+        rn nlines idiv 2 mod 0 eq {
+	  % Draw highlight bar.  4 is just a magic indentation.
+	  xp 4 add yp cw 8 sub lineheight neg Box fill
+	} if
+      } for
+    } for
+
+  grestore
+} def
+
+% Line highlight bar.
+/line_highlight {	% x y width height gray -> -
+  gsave
+    /gray exch def
+    Box gray setgray fill
+  grestore
+} def
+
+% Column separator lines.
+/column_lines {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h translate
+    /cw d_output_w cols div def
+    1 1 cols 1 sub {
+      cw mul 0 moveto
+      0 d_output_h rlineto stroke
+    } for
+  grestore
+} def
+
+% Column borders.
+/column_borders {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h moveto
+    0 d_output_h rlineto
+    d_output_w 0 rlineto
+    0 d_output_h neg rlineto
+    closepath stroke
+  grestore
+} def
+
+% Do the actual underlay drawing
+/draw_underlay {
+  ul_style 0 eq {
+    ul_str true charpath stroke
+  } {
+    ul_str show
+  } ifelse
+} def
+
+% Underlay
+/underlay {	% - -> -
+  gsave
+    0 d_page_h translate
+    d_page_h neg d_page_w atan rotate
+
+    ul_gray setgray
+    ul_font setfont
+    /dw d_page_h dup mul d_page_w dup mul add sqrt def
+    ul_str stringwidth pop dw exch sub 2 div ul_h_ptsize -2 div moveto
+    draw_underlay
+  grestore
+} def
+
+/user_underlay {	% - -> -
+  gsave
+    ul_x ul_y translate
+    ul_angle rotate
+    ul_gray setgray
+    ul_font setfont
+    0 0 ul_h_ptsize 2 div sub moveto
+    draw_underlay
+  grestore
+} def
+
+% Page prefeed
+/page_prefeed {		% bool -> -
+  statusdict /prefeed known {
+    statusdict exch /prefeed exch put
+  } {
+    pop
+  } ifelse
+} def
+
+% Wrapped line markers
+/wrapped_line_mark {	% x y charwith charheight type -> -
+  /type exch def
+  /h exch def
+  /w exch def
+  /y exch def
+  /x exch def
+
+  type 2 eq {
+    % Black boxes (like TeX does)
+    gsave
+      0 setlinewidth
+      x w 4 div add y M
+      0 h rlineto w 2 div 0 rlineto 0 h neg rlineto
+      closepath fill
+    grestore
+  } {
+    type 3 eq {
+      % Small arrows
+      gsave
+        .2 setlinewidth
+        x w 2 div add y h 2 div add M
+        w 4 div 0 rlineto
+        x w 4 div add y lineto stroke
+
+        x w 4 div add w 8 div add y h 4 div add M
+        x w 4 div add y lineto
+	w 4 div h 8 div rlineto stroke
+      grestore
+    } {
+      % do nothing
+    } ifelse
+  } ifelse
+} def
+
+% EPSF import.
+
+/BeginEPSF {
+  /b4_Inc_state save def    		% Save state for cleanup
+  /dict_count countdictstack def	% Count objects on dict stack
+  /op_count count 1 sub def		% Count objects on operand stack
+  userdict begin
+  /showpage { } def
+  0 setgray 0 setlinecap
+  1 setlinewidth 0 setlinejoin
+  10 setmiterlimit [ ] 0 setdash newpath
+  /languagelevel where {
+    pop languagelevel
+    1 ne {
+      false setstrokeadjust false setoverprint
+    } if
+  } if
+} bind def
+
+/EndEPSF {
+  count op_count sub { pos } repeat	% Clean up stacks
+  countdictstack dict_count sub { end } repeat
+  b4_Inc_state restore
+} bind def
+
+% Check PostScript language level.
+/languagelevel where {
+  pop /gs_languagelevel languagelevel def
+} {
+  /gs_languagelevel 1 def
+} ifelse
+%%EndResource
+%%BeginResource: procset Enscript-Encoding-88591 1.6 4
+/encoding_vector [
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclam       	/quotedbl     	/numbersign   	
+/dollar       	/percent      	/ampersand    	/quoteright   	
+/parenleft    	/parenright   	/asterisk     	/plus         	
+/comma        	/hyphen       	/period       	/slash        	
+/zero         	/one          	/two          	/three        	
+/four         	/five         	/six          	/seven        	
+/eight        	/nine         	/colon        	/semicolon    	
+/less         	/equal        	/greater      	/question     	
+/at           	/A            	/B            	/C            	
+/D            	/E            	/F            	/G            	
+/H            	/I            	/J            	/K            	
+/L            	/M            	/N            	/O            	
+/P            	/Q            	/R            	/S            	
+/T            	/U            	/V            	/W            	
+/X            	/Y            	/Z            	/bracketleft  	
+/backslash    	/bracketright 	/asciicircum  	/underscore   	
+/quoteleft    	/a            	/b            	/c            	
+/d            	/e            	/f            	/g            	
+/h            	/i            	/j            	/k            	
+/l            	/m            	/n            	/o            	
+/p            	/q            	/r            	/s            	
+/t            	/u            	/v            	/w            	
+/x            	/y            	/z            	/braceleft    	
+/bar          	/braceright   	/tilde        	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclamdown   	/cent         	/sterling     	
+/currency     	/yen          	/brokenbar    	/section      	
+/dieresis     	/copyright    	/ordfeminine  	/guillemotleft	
+/logicalnot   	/hyphen       	/registered   	/macron       	
+/degree       	/plusminus    	/twosuperior  	/threesuperior	
+/acute        	/mu           	/paragraph    	/bullet       	
+/cedilla      	/onesuperior  	/ordmasculine 	/guillemotright	
+/onequarter   	/onehalf      	/threequarters	/questiondown 	
+/Agrave       	/Aacute       	/Acircumflex  	/Atilde       	
+/Adieresis    	/Aring        	/AE           	/Ccedilla     	
+/Egrave       	/Eacute       	/Ecircumflex  	/Edieresis    	
+/Igrave       	/Iacute       	/Icircumflex  	/Idieresis    	
+/Eth          	/Ntilde       	/Ograve       	/Oacute       	
+/Ocircumflex  	/Otilde       	/Odieresis    	/multiply     	
+/Oslash       	/Ugrave       	/Uacute       	/Ucircumflex  	
+/Udieresis    	/Yacute       	/Thorn        	/germandbls   	
+/agrave       	/aacute       	/acircumflex  	/atilde       	
+/adieresis    	/aring        	/ae           	/ccedilla     	
+/egrave       	/eacute       	/ecircumflex  	/edieresis    	
+/igrave       	/iacute       	/icircumflex  	/idieresis    	
+/eth          	/ntilde       	/ograve       	/oacute       	
+/ocircumflex  	/otilde       	/odieresis    	/divide       	
+/oslash       	/ugrave       	/uacute       	/ucircumflex  	
+/udieresis    	/yacute       	/thorn        	/ydieresis    	
+] def
+%%EndResource
+%%EndProlog
+%%BeginSetup
+%%IncludeResource: font Times-Roman
+%%IncludeResource: font Courier-Bold
+/HFpt_w 10 def
+/HFpt_h 10 def
+/Courier-Bold /HF-gs-font MF
+/HF /HF-gs-font findfont [HFpt_w 0 0 HFpt_h 0 0] makefont def
+/Times-Roman /F-gs-font MF
+/F-gs-font 10 10 SF
+/#copies 1 def
+% Pagedevice definitions:
+gs_languagelevel 1 gt {
+  <<
+    /PageSize [612 792] 
+  >> setpagedevice
+} if
+/d_page_w 536 def
+/d_page_h 744 def
+/d_header_x 0 def
+/d_header_y 744 def
+/d_header_w 536 def
+/d_header_h 0 def
+/d_footer_x 0 def
+/d_footer_y 0 def
+/d_footer_w 536 def
+/d_footer_h 0 def
+/d_output_w 536 def
+/d_output_h 744 def
+/cols 1 def
+%%EndSetup
+%%Page: (1) 1
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 1 def
+/fname (G4OpBoundaryProcess.cc) def
+/fdir () def
+/ftail (G4OpBoundaryProcess.cc) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+26 731 M (1:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 731 M
+(//) s
+/F-gs-font 10 10 SF
+26 720 M (2:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 720 M
+(// ********************************************************************) s
+/F-gs-font 10 10 SF
+26 709 M (3:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 709 M
+(// * License and Disclaimer                                           *) s
+/F-gs-font 10 10 SF
+26 698 M (4:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 698 M
+(// *                                                                  *) s
+/F-gs-font 10 10 SF
+26 687 M (5:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 687 M
+(// * The  Geant4 software  is  copyright of the Copyright Holders  of *) s
+/F-gs-font 10 10 SF
+26 676 M (6:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 676 M
+(// * the Geant4 Collaboration.  It is provided  under  the terms  and *) s
+/F-gs-font 10 10 SF
+26 665 M (7:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 665 M
+(// * conditions of the Geant4 Software License,  included in the file *) s
+/F-gs-font 10 10 SF
+26 654 M (8:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 654 M
+(// * LICENSE and available at  http://cern.ch/geant4/license .  These *) s
+/F-gs-font 10 10 SF
+26 643 M (9:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 643 M
+(// * include a list of copyright holders.                             *) s
+/F-gs-font 10 10 SF
+21 632 M (10:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 632 M
+(// *                                                                  *) s
+/F-gs-font 10 10 SF
+21 621 M (11:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 621 M
+(// * Neither the authors of this software system, nor their employing *) s
+/F-gs-font 10 10 SF
+21 610 M (12:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 610 M
+(// * institutes,nor the agencies providing financial support for this *) s
+/F-gs-font 10 10 SF
+21 599 M (13:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 599 M
+(// * work  make  any representation or  warranty, express or implied, *) s
+/F-gs-font 10 10 SF
+21 588 M (14:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 588 M
+(// * regarding  this  software system or assume any liability for its *) s
+/F-gs-font 10 10 SF
+21 577 M (15:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 577 M
+(// * use.  Please see the license in the file  LICENSE  and URL above *) s
+/F-gs-font 10 10 SF
+21 566 M (16:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 566 M
+(// * for the full disclaimer and the limitation of liability.         *) s
+/F-gs-font 10 10 SF
+21 555 M (17:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 555 M
+(// *                                                                  *) s
+/F-gs-font 10 10 SF
+21 544 M (18:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 544 M
+(// * This  code  implementation is the result of  the  scientific and *) s
+/F-gs-font 10 10 SF
+21 533 M (19:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 533 M
+(// * technical work of the GEANT4 collaboration.                      *) s
+/F-gs-font 10 10 SF
+21 522 M (20:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 522 M
+(// * By using,  copying,  modifying or  distributing the software \(or *) s
+/F-gs-font 10 10 SF
+21 511 M (21:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 511 M
+(// * any work based  on the software\)  you  agree  to acknowledge its *) s
+/F-gs-font 10 10 SF
+21 500 M (22:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 500 M
+(// * use  in  resulting  scientific  publications,  and indicate your *) s
+/F-gs-font 10 10 SF
+21 489 M (23:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 489 M
+(// * acceptance of all terms of the Geant4 Software license.          *) s
+/F-gs-font 10 10 SF
+21 478 M (24:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 478 M
+(// ********************************************************************) s
+/F-gs-font 10 10 SF
+21 467 M (25:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 467 M
+(//) s
+/F-gs-font 10 10 SF
+21 456 M (26:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 456 M
+(////////////////////////////////////////////////////////////////////////) s
+/F-gs-font 10 10 SF
+21 445 M (27:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 445 M
+(// Optical Photon Boundary Process Class Implementation) s
+/F-gs-font 10 10 SF
+21 434 M (28:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 434 M
+(////////////////////////////////////////////////////////////////////////) s
+/F-gs-font 10 10 SF
+21 423 M (29:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 423 M
+(//) s
+/F-gs-font 10 10 SF
+21 412 M (30:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 412 M
+(// File:        G4OpBoundaryProcess.cc) s
+/F-gs-font 10 10 SF
+21 401 M (31:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 401 M
+(// Description: Discrete Process -- reflection/refraction at) s
+/F-gs-font 10 10 SF
+21 390 M (32:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 390 M
+(//                                  optical interfaces) s
+/F-gs-font 10 10 SF
+21 379 M (33:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 379 M
+(// Version:     1.1) s
+/F-gs-font 10 10 SF
+21 368 M (34:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 368 M
+(// Created:     1997-06-18) s
+/F-gs-font 10 10 SF
+21 357 M (35:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 357 M
+(// Modified:    1998-05-25 - Correct parallel component of polarization) s
+/F-gs-font 10 10 SF
+21 346 M (36:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 346 M
+(//                           \(thanks to: Stefano Magni + Giovanni Pieri\)) s
+/F-gs-font 10 10 SF
+21 335 M (37:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 335 M
+(//              1998-05-28 - NULL Rindex pointer before reuse) s
+/F-gs-font 10 10 SF
+21 324 M (38:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 324 M
+(//                           \(thanks to: Stefano Magni\)) s
+/F-gs-font 10 10 SF
+21 313 M (39:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 313 M
+(//              1998-06-11 - delete *sint1 in oblique reflection) s
+/F-gs-font 10 10 SF
+21 302 M (40:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 302 M
+(//                           \(thanks to: Giovanni Pieri\)) s
+/F-gs-font 10 10 SF
+21 291 M (41:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 291 M
+(//              1998-06-19 - move from GetLocalExitNormal\(\) to the new ) s
+/F-gs-font 10 10 SF
+21 280 M (42:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 280 M
+(//                           method: GetLocalExitNormal\(&valid\) to get) s
+/F-gs-font 10 10 SF
+21 269 M (43:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 269 M
+(//                           the surface normal in all cases) s
+/F-gs-font 10 10 SF
+21 258 M (44:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 258 M
+(//              1998-11-07 - NULL OpticalSurface pointer before use) s
+/F-gs-font 10 10 SF
+21 247 M (45:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 247 M
+(//                           comparison not sharp for: std::abs\(cost1\) < 1.0) s
+/F-gs-font 10 10 SF
+21 236 M (46:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 236 M
+(//                           remove sin1, sin2 in lines 556,567) s
+/F-gs-font 10 10 SF
+21 225 M (47:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 225 M
+(//                           \(thanks to Stefano Magni\)) s
+/F-gs-font 10 10 SF
+21 214 M (48:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 214 M
+(//              1999-10-10 - Accommodate changes done in DoAbsorption by) s
+/F-gs-font 10 10 SF
+21 203 M (49:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 203 M
+(//                           changing logic in DielectricMetal) s
+/F-gs-font 10 10 SF
+21 192 M (50:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 192 M
+(//              2001-10-18 - avoid Linux \(gcc-2.95.2\) warning about variables) s
+/F-gs-font 10 10 SF
+21 181 M (51:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 181 M
+(//                           might be used uninitialized in this function) s
+/F-gs-font 10 10 SF
+21 170 M (52:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 170 M
+(//                           moved E2_perp, E2_parl and E2_total out of 'if') s
+/F-gs-font 10 10 SF
+21 159 M (53:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 159 M
+(//              2003-11-27 - Modified line 168-9 to reflect changes made to) s
+/F-gs-font 10 10 SF
+21 148 M (54:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 148 M
+(//                           G4OpticalSurface class \( by Fan Lei\)) s
+/F-gs-font 10 10 SF
+21 137 M (55:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 137 M
+(//              2004-02-02 - Set theStatus = Undefined at start of DoIt) s
+/F-gs-font 10 10 SF
+21 126 M (56:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 126 M
+(//              2005-07-28 - add G4ProcessType to constructor) s
+/F-gs-font 10 10 SF
+21 115 M (57:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 115 M
+(//) s
+/F-gs-font 10 10 SF
+21 104 M (58:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 104 M
+(// Author:      Peter Gumplinger) s
+/F-gs-font 10 10 SF
+21 93 M (59:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 93 M
+(// ) s
+65 93 M
+() s
+85 93 M
+(adopted from work by Werner Keil - April 2/96) s
+/F-gs-font 10 10 SF
+21 82 M (60:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 82 M
+(// mail:        gum@triumf.ca) s
+/F-gs-font 10 10 SF
+21 71 M (61:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 71 M
+(//) s
+/F-gs-font 10 10 SF
+21 60 M (62:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 60 M
+(////////////////////////////////////////////////////////////////////////) s
+/F-gs-font 10 10 SF
+21 49 M (63:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+21 38 M (64:) s
+41.56 38 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 38 M
+(include) s
+/F-gs-font 10 10 SF
+0 setgray
+77.68 38 M
+( ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+80.18 38 M
+("G4ios.hh") s
+/F-gs-font 10 10 SF
+0 setgray
+21 27 M (65:) s
+41.56 27 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 27 M
+(include) s
+/F-gs-font 10 10 SF
+0 setgray
+77.68 27 M
+( ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+80.18 27 M
+("G4OpBoundaryProcess.hh") s
+/F-gs-font 10 10 SF
+0 setgray
+21 16 M (66:) s
+21 5 M (67:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 5 M
+(/////////////////////////) s
+_R
+S
+%%Page: (2) 2
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 2 def
+/fname (G4OpBoundaryProcess.cc) def
+/fdir () def
+/ftail (G4OpBoundaryProcess.cc) def
+/Times-Italic 10 10 SUF
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+0.698039 0.133333 0.133333 setrgbcolor
+/F-gs-font 10 10 SF
+21 731 M (68:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 731 M
+(// Class Implementation) s
+/F-gs-font 10 10 SF
+21 720 M (69:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 720 M
+(/////////////////////////) s
+/F-gs-font 10 10 SF
+21 709 M (70:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+21 698 M (71:) s
+41.56 698 M
+(        ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+61.56 698 M
+(//////////////) s
+/F-gs-font 10 10 SF
+21 687 M (72:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 687 M
+(        ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+61.56 687 M
+(// Operators) s
+/F-gs-font 10 10 SF
+21 676 M (73:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 676 M
+(        ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+61.56 676 M
+(//////////////) s
+/F-gs-font 10 10 SF
+21 665 M (74:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+21 654 M (75:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 654 M
+(// G4OpBoundaryProcess::operator=\(const G4OpBoundaryProcess &right\)) s
+/F-gs-font 10 10 SF
+21 643 M (76:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 643 M
+(// {) s
+/F-gs-font 10 10 SF
+21 632 M (77:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 632 M
+(// }) s
+/F-gs-font 10 10 SF
+21 621 M (78:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+21 610 M (79:) s
+41.56 610 M
+(        ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+61.56 610 M
+(/////////////////) s
+/F-gs-font 10 10 SF
+21 599 M (80:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 599 M
+(        ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+61.56 599 M
+(// Constructors) s
+/F-gs-font 10 10 SF
+21 588 M (81:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 588 M
+(        ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+61.56 588 M
+(/////////////////) s
+/F-gs-font 10 10 SF
+21 577 M (82:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+21 566 M (83:) s
+/Times-Bold 10 10 SUF
+0 0 1 setrgbcolor
+41.56 566 M
+(G4OpBoundaryProcess::G4OpBoundaryProcess) s
+/F-gs-font 10 10 SF
+0 setgray
+250.46 566 M
+(\() s
+/Times-Bold 10 10 SUF
+0.133333 0.545098 0.133333 setrgbcolor
+253.79 566 M
+(const) s
+/F-gs-font 10 10 SF
+0 setgray
+276.01 566 M
+( G4String& processName,) s
+21 555 M (84:) s
+41.56 555 M
+(                                               G4ProcessType type\)) s
+21 544 M (85:) s
+41.56 544 M
+(             : G4VDiscreteProcess\(processName, type\)) s
+21 533 M (86:) s
+41.56 533 M
+({) s
+21 522 M (87:) s
+41.56 522 M
+(        ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+61.56 522 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+67.67 522 M
+( \( verboseLevel > 0\) {) s
+21 511 M (88:) s
+41.56 511 M
+(           G4cout << GetProcessName\(\) << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+206.59 511 M
+(" is created ") s
+/F-gs-font 10 10 SF
+0 setgray
+263.51 511 M
+( << G4endl;) s
+21 500 M (89:) s
+41.56 500 M
+(        }) s
+21 489 M (90:) s
+21 478 M (91:) s
+41.56 478 M
+() s
+45 478 M
+(theStatus = Undefined;) s
+21 467 M (92:) s
+41.56 467 M
+() s
+45 467 M
+(theModel = glisur;) s
+21 456 M (93:) s
+41.56 456 M
+() s
+45 456 M
+(theFinish = polished;) s
+21 445 M (94:) s
+41.56 445 M
+(        theReflectivity = 1.;) s
+21 434 M (95:) s
+41.56 434 M
+(        theEfficiency   = 0.;) s
+21 423 M (96:) s
+41.56 423 M
+(                                                                                ) s
+21 412 M (97:) s
+41.56 412 M
+(        prob_sl = 0.;) s
+21 401 M (98:) s
+41.56 401 M
+(        prob_ss = 0.;) s
+21 390 M (99:) s
+41.56 390 M
+(        prob_bs = 0.;) s
+16 379 M (100:) s
+16 368 M (101:) s
+41.56 368 M
+(}) s
+16 357 M (102:) s
+16 346 M (103:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 346 M
+(// G4OpBoundaryProcess::G4OpBoundaryProcess\(const G4OpBoundaryProcess &right\)) s
+/F-gs-font 10 10 SF
+16 335 M (104:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 335 M
+(// {) s
+/F-gs-font 10 10 SF
+16 324 M (105:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 324 M
+(// }) s
+/F-gs-font 10 10 SF
+16 313 M (106:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+16 302 M (107:) s
+41.56 302 M
+(        ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+61.56 302 M
+(////////////////) s
+/F-gs-font 10 10 SF
+16 291 M (108:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 291 M
+(        ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+61.56 291 M
+(// Destructors) s
+/F-gs-font 10 10 SF
+16 280 M (109:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 280 M
+(        ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+61.56 280 M
+(////////////////) s
+/F-gs-font 10 10 SF
+16 269 M (110:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+16 258 M (111:) s
+/Times-Bold 10 10 SUF
+0 0 1 setrgbcolor
+41.56 258 M
+(G4OpBoundaryProcess::~G4OpBoundaryProcess) s
+/F-gs-font 10 10 SF
+0 setgray
+253.79 258 M
+(\(\){}) s
+16 247 M (112:) s
+16 236 M (113:) s
+41.56 236 M
+(        ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+61.56 236 M
+(////////////) s
+/F-gs-font 10 10 SF
+16 225 M (114:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 225 M
+(        ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+61.56 225 M
+(// Methods) s
+/F-gs-font 10 10 SF
+16 214 M (115:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 214 M
+(        ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+61.56 214 M
+(////////////) s
+/F-gs-font 10 10 SF
+16 203 M (116:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+16 192 M (117:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 192 M
+(// PostStepDoIt) s
+/F-gs-font 10 10 SF
+16 181 M (118:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 181 M
+(// ------------) s
+/F-gs-font 10 10 SF
+16 170 M (119:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 170 M
+(//) s
+/F-gs-font 10 10 SF
+16 159 M (120:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 159 M
+(G4VParticleChange*) s
+16 148 M (121:) s
+/Times-Bold 10 10 SUF
+0 0 1 setrgbcolor
+41.56 148 M
+(G4OpBoundaryProcess::PostStepDoIt) s
+/F-gs-font 10 10 SF
+0 setgray
+206 148 M
+(\() s
+/Times-Bold 10 10 SUF
+0.133333 0.545098 0.133333 setrgbcolor
+209.33 148 M
+(const) s
+/F-gs-font 10 10 SF
+0 setgray
+231.55 148 M
+( G4Track& aTrack, ) s
+/Times-Bold 10 10 SUF
+0.133333 0.545098 0.133333 setrgbcolor
+312.63 148 M
+(const) s
+/F-gs-font 10 10 SF
+0 setgray
+334.85 148 M
+( G4Step& aStep\)) s
+16 137 M (122:) s
+41.56 137 M
+({) s
+16 126 M (123:) s
+41.56 126 M
+(        theStatus = Undefined;) s
+16 115 M (124:) s
+16 104 M (125:) s
+41.56 104 M
+(        aParticleChange.Initialize\(aTrack\);) s
+16 93 M (126:) s
+16 82 M (127:) s
+41.56 82 M
+(        G4StepPoint* pPreStepPoint  = aStep.GetPreStepPoint\(\);) s
+16 71 M (128:) s
+41.56 71 M
+(        G4StepPoint* pPostStepPoint = aStep.GetPostStepPoint\(\);) s
+16 60 M (129:) s
+16 49 M (130:) s
+41.56 49 M
+(        ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+61.56 49 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+67.67 49 M
+( \(pPostStepPoint->GetStepStatus\(\) != fGeomBoundary\){) s
+16 38 M (131:) s
+41.56 38 M
+() s
+45 38 M
+(        theStatus = NotAtBoundary;) s
+16 27 M (132:) s
+41.56 27 M
+() s
+45 27 M
+(        ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+65 27 M
+(return) s
+/F-gs-font 10 10 SF
+0 setgray
+92.77 27 M
+( G4VDiscreteProcess::PostStepDoIt\(aTrack, aStep\);) s
+16 16 M (133:) s
+41.56 16 M
+() s
+45 16 M
+(}) s
+16 5 M (134:) s
+_R
+S
+%%Page: (3) 3
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 3 def
+/fname (G4OpBoundaryProcess.cc) def
+/fdir () def
+/ftail (G4OpBoundaryProcess.cc) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+16 731 M (135:) s
+41.56 731 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+45 731 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+51.11 731 M
+( \(aTrack.GetStepLength\(\)<=kCarTolerance/2\){) s
+16 720 M (136:) s
+41.56 720 M
+() s
+45 720 M
+(        theStatus = StepTooSmall;) s
+16 709 M (137:) s
+41.56 709 M
+() s
+45 709 M
+(        ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+65 709 M
+(return) s
+/F-gs-font 10 10 SF
+0 setgray
+92.77 709 M
+( G4VDiscreteProcess::PostStepDoIt\(aTrack, aStep\);) s
+16 698 M (138:) s
+41.56 698 M
+() s
+45 698 M
+(}) s
+16 687 M (139:) s
+16 676 M (140:) s
+41.56 676 M
+() s
+45 676 M
+(Material1 = pPreStepPoint  -> GetMaterial\(\);) s
+16 665 M (141:) s
+41.56 665 M
+() s
+45 665 M
+(Material2 = pPostStepPoint -> GetMaterial\(\);) s
+16 654 M (142:) s
+16 643 M (143:) s
+41.56 643 M
+(        ) s
+/Times-Bold 10 10 SUF
+0.133333 0.545098 0.133333 setrgbcolor
+61.56 643 M
+(const) s
+/F-gs-font 10 10 SF
+0 setgray
+83.78 643 M
+( G4DynamicParticle* aParticle = aTrack.GetDynamicParticle\(\);) s
+16 632 M (144:) s
+16 621 M (145:) s
+41.56 621 M
+() s
+45 621 M
+(thePhotonMomentum = aParticle->GetTotalMomentum\(\);) s
+16 610 M (146:) s
+41.56 610 M
+(        OldMomentum       = aParticle->GetMomentumDirection\(\);) s
+16 599 M (147:) s
+41.56 599 M
+() s
+45 599 M
+(OldPolarization   = aParticle->GetPolarization\(\);) s
+16 588 M (148:) s
+16 577 M (149:) s
+41.56 577 M
+() s
+45 577 M
+(G4MaterialPropertiesTable* aMaterialPropertiesTable;) s
+16 566 M (150:) s
+41.56 566 M
+(        G4MaterialPropertyVector* Rindex;) s
+16 555 M (151:) s
+16 544 M (152:) s
+41.56 544 M
+() s
+45 544 M
+(aMaterialPropertiesTable = Material1->GetMaterialPropertiesTable\(\);) s
+16 533 M (153:) s
+41.56 533 M
+(        ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+61.56 533 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+67.67 533 M
+( \(aMaterialPropertiesTable\) {) s
+16 522 M (154:) s
+41.56 522 M
+() s
+45 522 M
+() s
+65 522 M
+(Rindex = aMaterialPropertiesTable->GetProperty\() s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+267.35 522 M
+("RINDEX") s
+/F-gs-font 10 10 SF
+0 setgray
+317.89 522 M
+(\);) s
+16 511 M (155:) s
+41.56 511 M
+() s
+45 511 M
+(}) s
+16 500 M (156:) s
+41.56 500 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+45 500 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+60.55 500 M
+( {) s
+16 489 M (157:) s
+41.56 489 M
+() s
+45 489 M
+(        theStatus = NoRINDEX;) s
+16 478 M (158:) s
+41.56 478 M
+() s
+45 478 M
+() s
+65 478 M
+(aParticleChange.ProposeTrackStatus\(fStopAndKill\);) s
+16 467 M (159:) s
+41.56 467 M
+() s
+45 467 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+65 467 M
+(return) s
+/F-gs-font 10 10 SF
+0 setgray
+92.77 467 M
+( G4VDiscreteProcess::PostStepDoIt\(aTrack, aStep\);) s
+16 456 M (160:) s
+41.56 456 M
+() s
+45 456 M
+(}) s
+16 445 M (161:) s
+16 434 M (162:) s
+41.56 434 M
+(        ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+61.56 434 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+67.67 434 M
+( \(Rindex\) {) s
+16 423 M (163:) s
+41.56 423 M
+() s
+45 423 M
+() s
+65 423 M
+(Rindex1 = Rindex->GetProperty\(thePhotonMomentum\);) s
+16 412 M (164:) s
+41.56 412 M
+() s
+45 412 M
+(}) s
+16 401 M (165:) s
+41.56 401 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+45 401 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+60.55 401 M
+( {) s
+16 390 M (166:) s
+41.56 390 M
+() s
+45 390 M
+(        theStatus = NoRINDEX;) s
+16 379 M (167:) s
+41.56 379 M
+() s
+45 379 M
+() s
+65 379 M
+(aParticleChange.ProposeTrackStatus\(fStopAndKill\);) s
+16 368 M (168:) s
+41.56 368 M
+() s
+45 368 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+65 368 M
+(return) s
+/F-gs-font 10 10 SF
+0 setgray
+92.77 368 M
+( G4VDiscreteProcess::PostStepDoIt\(aTrack, aStep\);) s
+16 357 M (169:) s
+41.56 357 M
+() s
+45 357 M
+(}) s
+16 346 M (170:) s
+16 335 M (171:) s
+41.56 335 M
+(        theModel = glisur;) s
+16 324 M (172:) s
+41.56 324 M
+(        theFinish = polished;) s
+16 313 M (173:) s
+16 302 M (174:) s
+41.56 302 M
+(        G4SurfaceType type = dielectric_dielectric;) s
+16 291 M (175:) s
+16 280 M (176:) s
+41.56 280 M
+(        Rindex = NULL;) s
+16 269 M (177:) s
+41.56 269 M
+(        OpticalSurface = NULL;) s
+16 258 M (178:) s
+16 247 M (179:) s
+41.56 247 M
+(        G4LogicalSurface* Surface = G4LogicalBorderSurface::GetSurface) s
+16 236 M (180:) s
+41.56 236 M
+() s
+45 236 M
+() s
+65 236 M
+() s
+85 236 M
+() s
+105 236 M
+(    \(pPreStepPoint ->GetPhysicalVolume\(\),) s
+16 225 M (181:) s
+41.56 225 M
+() s
+45 225 M
+() s
+65 225 M
+() s
+85 225 M
+() s
+105 225 M
+(     pPostStepPoint->GetPhysicalVolume\(\)\);) s
+16 214 M (182:) s
+16 203 M (183:) s
+41.56 203 M
+(        ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+61.56 203 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+67.67 203 M
+( \(Surface == NULL\){) s
+16 192 M (184:) s
+41.56 192 M
+() s
+45 192 M
+(  G4bool enteredDaughter=\(pPostStepPoint->GetPhysicalVolume\(\)) s
+16 181 M (185:) s
+41.56 181 M
+() s
+45 181 M
+() s
+65 181 M
+() s
+85 181 M
+() s
+105 181 M
+(  ->GetMotherLogical\(\) == ) s
+16 170 M (186:) s
+41.56 170 M
+() s
+45 170 M
+() s
+65 170 M
+() s
+85 170 M
+() s
+105 170 M
+(  pPreStepPoint->GetPhysicalVolume\(\)) s
+16 159 M (187:) s
+41.56 159 M
+() s
+45 159 M
+() s
+65 159 M
+() s
+85 159 M
+() s
+105 159 M
+(  ->GetLogicalVolume\(\)\);) s
+16 148 M (188:) s
+41.56 148 M
+() s
+45 148 M
+(  ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+50 148 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+56.11 148 M
+(\(enteredDaughter\){) s
+16 137 M (189:) s
+41.56 137 M
+() s
+45 137 M
+(    Surface = G4LogicalSkinSurface::GetSurface) s
+16 126 M (190:) s
+41.56 126 M
+() s
+45 126 M
+(      \(pPostStepPoint->GetPhysicalVolume\(\)->) s
+16 115 M (191:) s
+41.56 115 M
+() s
+45 115 M
+(       GetLogicalVolume\(\)\);) s
+16 104 M (192:) s
+41.56 104 M
+() s
+45 104 M
+(    ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+55 104 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+61.11 104 M
+(\(Surface == NULL\)) s
+16 93 M (193:) s
+41.56 93 M
+() s
+45 93 M
+(      Surface = G4LogicalSkinSurface::GetSurface) s
+16 82 M (194:) s
+41.56 82 M
+() s
+45 82 M
+(      \(pPreStepPoint->GetPhysicalVolume\(\)->) s
+16 71 M (195:) s
+41.56 71 M
+() s
+45 71 M
+(       GetLogicalVolume\(\)\);) s
+16 60 M (196:) s
+41.56 60 M
+() s
+45 60 M
+(  }) s
+16 49 M (197:) s
+41.56 49 M
+() s
+45 49 M
+(  ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+50 49 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+65.55 49 M
+({) s
+16 38 M (198:) s
+41.56 38 M
+() s
+45 38 M
+(    Surface = G4LogicalSkinSurface::GetSurface) s
+16 27 M (199:) s
+41.56 27 M
+() s
+45 27 M
+(      \(pPreStepPoint->GetPhysicalVolume\(\)->) s
+16 16 M (200:) s
+41.56 16 M
+() s
+45 16 M
+(       GetLogicalVolume\(\)\);) s
+16 5 M (201:) s
+41.56 5 M
+() s
+45 5 M
+(    ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+55 5 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+61.11 5 M
+(\(Surface == NULL\)) s
+_R
+S
+%%Page: (4) 4
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 4 def
+/fname (G4OpBoundaryProcess.cc) def
+/fdir () def
+/ftail (G4OpBoundaryProcess.cc) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+16 731 M (202:) s
+41.56 731 M
+() s
+45 731 M
+(      Surface = G4LogicalSkinSurface::GetSurface) s
+16 720 M (203:) s
+41.56 720 M
+() s
+45 720 M
+(      \(pPostStepPoint->GetPhysicalVolume\(\)->) s
+16 709 M (204:) s
+41.56 709 M
+() s
+45 709 M
+(       GetLogicalVolume\(\)\);) s
+16 698 M (205:) s
+41.56 698 M
+() s
+45 698 M
+(  }) s
+16 687 M (206:) s
+41.56 687 M
+() s
+45 687 M
+(}) s
+16 676 M (207:) s
+16 665 M (208:) s
+41.56 665 M
+() s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+45 665 M
+(//) s
+65 665 M
+(if \(Surface\) OpticalSurface = dynamic_cast <G4OpticalSurface*> \(Surface->GetSurfaceProperty\(\)\);) s
+/F-gs-font 10 10 SF
+16 654 M (209:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 654 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+45 654 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+51.11 654 M
+( \(Surface\) OpticalSurface = \(G4OpticalSurface*\) Surface->GetSurfaceProperty\(\);) s
+16 643 M (210:) s
+16 632 M (211:) s
+41.56 632 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+45 632 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+51.11 632 M
+( \(OpticalSurface\) {) s
+16 621 M (212:) s
+16 610 M (213:) s
+41.56 610 M
+(           type      = OpticalSurface->GetType\(\);) s
+16 599 M (214:) s
+41.56 599 M
+() s
+45 599 M
+(   theModel  = OpticalSurface->GetModel\(\);) s
+16 588 M (215:) s
+41.56 588 M
+() s
+45 588 M
+(   theFinish = OpticalSurface->GetFinish\(\);) s
+16 577 M (216:) s
+16 566 M (217:) s
+41.56 566 M
+() s
+45 566 M
+(   aMaterialPropertiesTable = OpticalSurface->) s
+16 555 M (218:) s
+41.56 555 M
+() s
+45 555 M
+() s
+65 555 M
+() s
+85 555 M
+() s
+105 555 M
+() s
+125 555 M
+(GetMaterialPropertiesTable\(\);) s
+16 544 M (219:) s
+16 533 M (220:) s
+41.56 533 M
+(           ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+69.06 533 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+75.17 533 M
+( \(aMaterialPropertiesTable\) {) s
+16 522 M (221:) s
+16 511 M (222:) s
+41.56 511 M
+(              ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+76.56 511 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+82.67 511 M
+( \(theFinish == polishedbackpainted ||) s
+16 500 M (223:) s
+41.56 500 M
+(                  theFinish == groundbackpainted \) {) s
+16 489 M (224:) s
+41.56 489 M
+(                  Rindex = aMaterialPropertiesTable->GetProperty\() s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+288.91 489 M
+("RINDEX") s
+/F-gs-font 10 10 SF
+0 setgray
+339.45 489 M
+(\);) s
+16 478 M (225:) s
+41.56 478 M
+() s
+45 478 M
+(          ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+70 478 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+76.11 478 M
+( \(Rindex\) {) s
+16 467 M (226:) s
+41.56 467 M
+(                     Rindex2 = Rindex->GetProperty\(thePhotonMomentum\);) s
+16 456 M (227:) s
+41.56 456 M
+(                  }) s
+16 445 M (228:) s
+41.56 445 M
+(                  ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+86.56 445 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+102.11 445 M
+( {) s
+16 434 M (229:) s
+41.56 434 M
+() s
+45 434 M
+() s
+65 434 M
+(     theStatus = NoRINDEX;) s
+16 423 M (230:) s
+41.56 423 M
+(                     aParticleChange.ProposeTrackStatus\(fStopAndKill\);) s
+16 412 M (231:) s
+41.56 412 M
+(                     ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+94.06 412 M
+(return) s
+/F-gs-font 10 10 SF
+0 setgray
+121.83 412 M
+( G4VDiscreteProcess::PostStepDoIt\(aTrack, aStep\);) s
+16 401 M (232:) s
+41.56 401 M
+(                  }) s
+16 390 M (233:) s
+41.56 390 M
+(              }) s
+16 379 M (234:) s
+16 368 M (235:) s
+41.56 368 M
+(              G4MaterialPropertyVector* PropertyPointer;) s
+16 357 M (236:) s
+16 346 M (237:) s
+41.56 346 M
+() s
+45 346 M
+(      PropertyPointer = ) s
+16 335 M (238:) s
+41.56 335 M
+() s
+45 335 M
+(      aMaterialPropertiesTable->GetProperty\() s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+222.82 335 M
+("REFLECTIVITY") s
+/F-gs-font 10 10 SF
+0 setgray
+310.04 335 M
+(\);) s
+16 324 M (239:) s
+41.56 324 M
+() s
+45 324 M
+(      ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+60 324 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+66.11 324 M
+( \(PropertyPointer\) { ) s
+16 313 M (240:) s
+41.56 313 M
+(                      theReflectivity =) s
+16 302 M (241:) s
+41.56 302 M
+() s
+45 302 M
+() s
+65 302 M
+(      PropertyPointer->GetProperty\(thePhotonMomentum\);) s
+16 291 M (242:) s
+41.56 291 M
+(              } ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+83.86 291 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+99.41 291 M
+( {) s
+16 280 M (243:) s
+41.56 280 M
+(                      theReflectivity = 1.0;) s
+16 269 M (244:) s
+41.56 269 M
+(              }) s
+16 258 M (245:) s
+16 247 M (246:) s
+41.56 247 M
+() s
+45 247 M
+(      PropertyPointer = ) s
+16 236 M (247:) s
+41.56 236 M
+() s
+45 236 M
+(      aMaterialPropertiesTable->GetProperty\() s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+222.82 236 M
+("EFFICIENCY") s
+/F-gs-font 10 10 SF
+0 setgray
+296.14 236 M
+(\);) s
+16 225 M (248:) s
+41.56 225 M
+() s
+45 225 M
+(      ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+60 225 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+66.11 225 M
+( \(PropertyPointer\) {) s
+16 214 M (249:) s
+41.56 214 M
+(                      theEfficiency =) s
+16 203 M (250:) s
+41.56 203 M
+() s
+45 203 M
+() s
+65 203 M
+(      PropertyPointer->GetProperty\(thePhotonMomentum\);) s
+16 192 M (251:) s
+41.56 192 M
+(              } ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+83.86 192 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+99.41 192 M
+( {) s
+16 181 M (252:) s
+41.56 181 M
+(                      theEfficiency = 0.0;) s
+16 170 M (253:) s
+41.56 170 M
+(              }) s
+16 159 M (254:) s
+16 148 M (255:) s
+41.56 148 M
+() s
+45 148 M
+(      ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+60 148 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+66.11 148 M
+( \( theModel == unified \) {) s
+16 137 M (256:) s
+41.56 137 M
+() s
+45 137 M
+(        PropertyPointer = ) s
+16 126 M (257:) s
+41.56 126 M
+() s
+45 126 M
+() s
+65 126 M
+(aMaterialPropertiesTable->GetProperty\() s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+227.82 126 M
+("SPECULARLOBECONSTANT") s
+/F-gs-font 10 10 SF
+0 setgray
+376.16 126 M
+(\);) s
+16 115 M (258:) s
+41.56 115 M
+() s
+45 115 M
+(        ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+65 115 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+71.11 115 M
+( \(PropertyPointer\) {) s
+16 104 M (259:) s
+41.56 104 M
+(                         prob_sl =) s
+16 93 M (260:) s
+41.56 93 M
+() s
+45 93 M
+() s
+65 93 M
+() s
+85 93 M
+( PropertyPointer->GetProperty\(thePhotonMomentum\);) s
+16 82 M (261:) s
+41.56 82 M
+(                } ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+88.86 82 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+104.41 82 M
+( {) s
+16 71 M (262:) s
+41.56 71 M
+(                         prob_sl = 0.0;) s
+16 60 M (263:) s
+41.56 60 M
+(                }) s
+16 49 M (264:) s
+16 38 M (265:) s
+41.56 38 M
+() s
+45 38 M
+(        PropertyPointer = ) s
+16 27 M (266:) s
+41.56 27 M
+() s
+45 27 M
+() s
+65 27 M
+(aMaterialPropertiesTable->GetProperty\() s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+227.82 27 M
+("SPECULARSPIKECONSTANT") s
+/F-gs-font 10 10 SF
+0 setgray
+378.38 27 M
+(\);) s
+16 16 M (267:) s
+41.56 16 M
+() s
+45 16 M
+(        ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+65 16 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+71.11 16 M
+( \(PropertyPointer\) {) s
+16 5 M (268:) s
+41.56 5 M
+(                         prob_ss =) s
+_R
+S
+%%Page: (5) 5
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 5 def
+/fname (G4OpBoundaryProcess.cc) def
+/fdir () def
+/ftail (G4OpBoundaryProcess.cc) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+16 731 M (269:) s
+41.56 731 M
+() s
+45 731 M
+() s
+65 731 M
+() s
+85 731 M
+( PropertyPointer->GetProperty\(thePhotonMomentum\);) s
+16 720 M (270:) s
+41.56 720 M
+(                } ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+88.86 720 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+104.41 720 M
+( {) s
+16 709 M (271:) s
+41.56 709 M
+(                         prob_ss = 0.0;) s
+16 698 M (272:) s
+41.56 698 M
+(                }) s
+16 687 M (273:) s
+16 676 M (274:) s
+41.56 676 M
+() s
+45 676 M
+(        PropertyPointer = ) s
+16 665 M (275:) s
+41.56 665 M
+() s
+45 665 M
+() s
+65 665 M
+(aMaterialPropertiesTable->GetProperty\() s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+227.82 665 M
+("BACKSCATTERCONSTANT") s
+/F-gs-font 10 10 SF
+0 setgray
+370.6 665 M
+(\);) s
+16 654 M (276:) s
+41.56 654 M
+() s
+45 654 M
+(        ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+65 654 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+71.11 654 M
+( \(PropertyPointer\) {) s
+16 643 M (277:) s
+41.56 643 M
+(                         prob_bs =) s
+16 632 M (278:) s
+41.56 632 M
+() s
+45 632 M
+() s
+65 632 M
+() s
+85 632 M
+( PropertyPointer->GetProperty\(thePhotonMomentum\);) s
+16 621 M (279:) s
+41.56 621 M
+(                } ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+88.86 621 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+104.41 621 M
+( {) s
+16 610 M (280:) s
+41.56 610 M
+(                         prob_bs = 0.0;) s
+16 599 M (281:) s
+41.56 599 M
+(                }) s
+16 588 M (282:) s
+41.56 588 M
+() s
+45 588 M
+(      }) s
+16 577 M (283:) s
+41.56 577 M
+() s
+45 577 M
+(   }) s
+16 566 M (284:) s
+41.56 566 M
+(           ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+69.06 566 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+84.61 566 M
+( ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+87.11 566 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+93.22 566 M
+( \(theFinish == polishedbackpainted ||) s
+16 555 M (285:) s
+41.56 555 M
+(                    theFinish == groundbackpainted \) {) s
+16 544 M (286:) s
+41.56 544 M
+(                      aParticleChange.ProposeTrackStatus\(fStopAndKill\);) s
+16 533 M (287:) s
+41.56 533 M
+(                      ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+96.56 533 M
+(return) s
+/F-gs-font 10 10 SF
+0 setgray
+124.33 533 M
+( G4VDiscreteProcess::PostStepDoIt\(aTrack, aStep\);) s
+16 522 M (288:) s
+41.56 522 M
+(           }) s
+16 511 M (289:) s
+41.56 511 M
+(        }) s
+16 500 M (290:) s
+16 489 M (291:) s
+41.56 489 M
+(        ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+61.56 489 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+67.67 489 M
+( \(type == dielectric_dielectric \) {) s
+16 478 M (292:) s
+41.56 478 M
+(           ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+69.06 478 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+75.17 478 M
+( \(theFinish == polished || theFinish == ground \) {) s
+16 467 M (293:) s
+16 456 M (294:) s
+41.56 456 M
+() s
+45 456 M
+(      ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+60 456 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+66.11 456 M
+( \(Material1 == Material2\){) s
+16 445 M (295:) s
+41.56 445 M
+() s
+45 445 M
+() s
+65 445 M
+( theStatus = SameMaterial;) s
+16 434 M (296:) s
+41.56 434 M
+() s
+45 434 M
+() s
+65 434 M
+( ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+67.5 434 M
+(return) s
+/F-gs-font 10 10 SF
+0 setgray
+95.27 434 M
+( G4VDiscreteProcess::PostStepDoIt\(aTrack, aStep\);) s
+16 423 M (297:) s
+41.56 423 M
+() s
+45 423 M
+(      }) s
+16 412 M (298:) s
+41.56 412 M
+(              aMaterialPropertiesTable = ) s
+16 401 M (299:) s
+41.56 401 M
+(                     Material2->GetMaterialPropertiesTable\(\);) s
+16 390 M (300:) s
+41.56 390 M
+(              ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+76.56 390 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+82.67 390 M
+( \(aMaterialPropertiesTable\)) s
+16 379 M (301:) s
+41.56 379 M
+(                 Rindex = aMaterialPropertiesTable->GetProperty\() s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+286.41 379 M
+("RINDEX") s
+/F-gs-font 10 10 SF
+0 setgray
+336.95 379 M
+(\);) s
+16 368 M (302:) s
+41.56 368 M
+(              ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+76.56 368 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+82.67 368 M
+( \(Rindex\) {) s
+16 357 M (303:) s
+41.56 357 M
+(                 Rindex2 = Rindex->GetProperty\(thePhotonMomentum\);) s
+16 346 M (304:) s
+41.56 346 M
+(              }) s
+16 335 M (305:) s
+41.56 335 M
+(              ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+76.56 335 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+92.11 335 M
+( {) s
+16 324 M (306:) s
+41.56 324 M
+() s
+45 324 M
+() s
+65 324 M
+( theStatus = NoRINDEX;) s
+16 313 M (307:) s
+41.56 313 M
+(                 aParticleChange.ProposeTrackStatus\(fStopAndKill\);) s
+16 302 M (308:) s
+41.56 302 M
+(                 ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+84.06 302 M
+(return) s
+/F-gs-font 10 10 SF
+0 setgray
+111.83 302 M
+( G4VDiscreteProcess::PostStepDoIt\(aTrack, aStep\);) s
+16 291 M (309:) s
+41.56 291 M
+() s
+45 291 M
+(      }) s
+16 280 M (310:) s
+41.56 280 M
+(           }) s
+16 269 M (311:) s
+41.56 269 M
+(        }) s
+16 258 M (312:) s
+16 247 M (313:) s
+41.56 247 M
+(        ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+61.56 247 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+67.67 247 M
+( \( verboseLevel > 0 \) {) s
+16 236 M (314:) s
+41.56 236 M
+(                G4cout << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+127.28 236 M
+(" Photon at Boundary! ") s
+/F-gs-font 10 10 SF
+0 setgray
+233.39 236 M
+( << G4endl;) s
+16 225 M (315:) s
+41.56 225 M
+(                G4cout << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+127.28 225 M
+(" Old Momentum Direction: ") s
+/F-gs-font 10 10 SF
+0 setgray
+257.81 225 M
+( << OldMomentum     << G4endl;) s
+16 214 M (316:) s
+41.56 214 M
+(                G4cout << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+127.28 214 M
+(" Old Polarization:       ") s
+/F-gs-font 10 10 SF
+0 setgray
+232.55 214 M
+( << OldPolarization << G4endl;) s
+16 203 M (317:) s
+41.56 203 M
+(        }) s
+16 192 M (318:) s
+16 181 M (319:) s
+41.56 181 M
+() s
+45 181 M
+(G4ThreeVector theGlobalPoint = pPostStepPoint->GetPosition\(\);) s
+16 170 M (320:) s
+16 159 M (321:) s
+41.56 159 M
+(        G4Navigator* theNavigator =) s
+16 148 M (322:) s
+41.56 148 M
+(                     ) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+94.06 148 M
+(G4TransportationManager) s
+/F-gs-font 10 10 SF
+0 setgray
+211.28 148 M
+(::GetTransportationManager\(\)->) s
+16 137 M (323:) s
+41.56 137 M
+(                                              GetNavigatorForTracking\(\);) s
+16 126 M (324:) s
+16 115 M (325:) s
+41.56 115 M
+() s
+45 115 M
+(G4ThreeVector theLocalPoint = theNavigator->) s
+16 104 M (326:) s
+41.56 104 M
+(        ) s
+65 104 M
+() s
+85 104 M
+() s
+105 104 M
+(      GetGlobalToLocalTransform\(\).) s
+16 93 M (327:) s
+41.56 93 M
+() s
+45 93 M
+() s
+65 93 M
+() s
+85 93 M
+() s
+105 93 M
+(      TransformPoint\(theGlobalPoint\);) s
+16 82 M (328:) s
+16 71 M (329:) s
+41.56 71 M
+() s
+45 71 M
+(G4ThreeVector theLocalNormal;) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+185 71 M
+(// Normal points back into volume) s
+/F-gs-font 10 10 SF
+16 60 M (330:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+16 49 M (331:) s
+41.56 49 M
+() s
+45 49 M
+(G4bool valid;) s
+16 38 M (332:) s
+41.56 38 M
+() s
+45 38 M
+(theLocalNormal = theNavigator->GetLocalExitNormal\(&valid\);) s
+16 27 M (333:) s
+16 16 M (334:) s
+41.56 16 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+45 16 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+51.11 16 M
+( \(valid\) {) s
+16 5 M (335:) s
+41.56 5 M
+() s
+45 5 M
+(  theLocalNormal = -theLocalNormal;) s
+_R
+S
+%%Page: (6) 6
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 6 def
+/fname (G4OpBoundaryProcess.cc) def
+/fdir () def
+/ftail (G4OpBoundaryProcess.cc) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+16 731 M (336:) s
+41.56 731 M
+() s
+45 731 M
+(}) s
+16 720 M (337:) s
+41.56 720 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+45 720 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+60.55 720 M
+( {) s
+16 709 M (338:) s
+41.56 709 M
+() s
+45 709 M
+(  G4cerr << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+94.04 709 M
+(" G4OpBoundaryProcess/PostStepDoIt\(\): ") s
+/F-gs-font 10 10 SF
+0 setgray
+16 698 M (339:) s
+41.56 698 M
+() s
+45 698 M
+(       << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+76.28 698 M
+(" The Navigator reports that it returned an invalid normal") s
+/F-gs-font 10 10 SF
+0 setgray
+332.65 698 M
+( ) s
+16 687 M (340:) s
+41.56 687 M
+() s
+45 687 M
+(       << G4endl;) s
+16 676 M (341:) s
+41.56 676 M
+() s
+45 676 M
+(}) s
+16 665 M (342:) s
+16 654 M (343:) s
+41.56 654 M
+() s
+45 654 M
+(theGlobalNormal = theNavigator->GetLocalToGlobalTransform\(\).) s
+16 643 M (344:) s
+41.56 643 M
+() s
+45 643 M
+(                                TransformAxis\(theLocalNormal\);) s
+16 632 M (345:) s
+41.56 632 M
+(        ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+61.56 632 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+67.67 632 M
+( \(OldMomentum * theGlobalNormal > 0.0\) {) s
+16 621 M (346:) s
+41.56 621 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 621 M
+(ifdef) s
+/F-gs-font 10 10 SF
+0 setgray
+66 621 M
+( ) s
+/Times-Roman 10 10 SUF
+0.721569 0.52549 0.043137 setrgbcolor
+68.5 621 M
+(G4DEBUG_OPTICAL) s
+/F-gs-font 10 10 SF
+0 setgray
+16 610 M (347:) s
+41.56 610 M
+(           G4cerr << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+113.1 610 M
+(" G4OpBoundaryProcess/PostStepDoIt\(\): ") s
+/F-gs-font 10 10 SF
+0 setgray
+16 599 M (348:) s
+41.56 599 M
+(                  << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+100.34 599 M
+(" theGlobalNormal points the wrong direction ") s
+/F-gs-font 10 10 SF
+0 setgray
+16 588 M (349:) s
+41.56 588 M
+(                  << G4endl;) s
+16 577 M (350:) s
+41.56 577 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 577 M
+(endif) s
+/F-gs-font 10 10 SF
+0 setgray
+16 566 M (351:) s
+41.56 566 M
+(           theGlobalNormal = -theGlobalNormal;) s
+16 555 M (352:) s
+41.56 555 M
+(        }) s
+16 544 M (353:) s
+41.56 544 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+45 544 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+51.11 544 M
+( \(type == dielectric_metal\) {) s
+16 533 M (354:) s
+16 522 M (355:) s
+41.56 522 M
+() s
+45 522 M
+(  DielectricMetal\(\);) s
+16 511 M (356:) s
+16 500 M (357:) s
+41.56 500 M
+() s
+45 500 M
+(}) s
+16 489 M (358:) s
+41.56 489 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+45 489 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+60.55 489 M
+( ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+63.05 489 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+69.16 489 M
+( \(type == dielectric_dielectric\) {) s
+16 478 M (359:) s
+16 467 M (360:) s
+41.56 467 M
+() s
+45 467 M
+(  ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+50 467 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+56.11 467 M
+( \( theFinish == polishedfrontpainted ||) s
+16 456 M (361:) s
+41.56 456 M
+() s
+45 456 M
+(       theFinish == groundfrontpainted \) {) s
+16 445 M (362:) s
+41.56 445 M
+() s
+45 445 M
+(          ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+70 445 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+76.11 445 M
+(\( !G4BooleanRand\(theReflectivity\) \) {) s
+16 434 M (363:) s
+41.56 434 M
+() s
+45 434 M
+() s
+65 434 M
+(    DoAbsorption\(\);) s
+16 423 M (364:) s
+41.56 423 M
+() s
+45 423 M
+() s
+65 423 M
+(  }) s
+16 412 M (365:) s
+41.56 412 M
+() s
+45 412 M
+(          ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+70 412 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+85.55 412 M
+( {) s
+16 401 M (366:) s
+41.56 401 M
+() s
+45 401 M
+() s
+65 401 M
+(    ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+75 401 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+81.11 401 M
+( \( theFinish == groundfrontpainted \)) s
+16 390 M (367:) s
+41.56 390 M
+() s
+45 390 M
+() s
+65 390 M
+() s
+85 390 M
+() s
+105 390 M
+() s
+125 390 M
+(theStatus = LambertianReflection;) s
+16 379 M (368:) s
+41.56 379 M
+() s
+45 379 M
+() s
+65 379 M
+(    DoReflection\(\);) s
+16 368 M (369:) s
+41.56 368 M
+() s
+45 368 M
+() s
+65 368 M
+(  }) s
+16 357 M (370:) s
+41.56 357 M
+() s
+45 357 M
+(  }) s
+16 346 M (371:) s
+41.56 346 M
+() s
+45 346 M
+(  ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+50 346 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+65.55 346 M
+( {) s
+16 335 M (372:) s
+41.56 335 M
+() s
+45 335 M
+() s
+65 335 M
+(  DielectricDielectric\(\);) s
+16 324 M (373:) s
+41.56 324 M
+() s
+45 324 M
+(  }) s
+16 313 M (374:) s
+41.56 313 M
+() s
+45 313 M
+(}) s
+16 302 M (375:) s
+41.56 302 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+45 302 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+60.55 302 M
+( {) s
+16 291 M (376:) s
+16 280 M (377:) s
+41.56 280 M
+() s
+45 280 M
+(  G4cerr << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+94.04 280 M
+(" Error: G4BoundaryProcess: illegal boundary type ") s
+/F-gs-font 10 10 SF
+0 setgray
+325.14 280 M
+( << G4endl;) s
+16 269 M (378:) s
+41.56 269 M
+() s
+45 269 M
+(  ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+50 269 M
+(return) s
+/F-gs-font 10 10 SF
+0 setgray
+77.77 269 M
+( G4VDiscreteProcess::PostStepDoIt\(aTrack, aStep\);) s
+16 258 M (379:) s
+16 247 M (380:) s
+41.56 247 M
+() s
+45 247 M
+(}) s
+16 236 M (381:) s
+16 225 M (382:) s
+41.56 225 M
+(        NewMomentum = NewMomentum.unit\(\);) s
+16 214 M (383:) s
+41.56 214 M
+(        NewPolarization = NewPolarization.unit\(\);) s
+16 203 M (384:) s
+16 192 M (385:) s
+41.56 192 M
+(        ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+61.56 192 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+67.67 192 M
+( \( verboseLevel > 0\) {) s
+16 181 M (386:) s
+41.56 181 M
+() s
+45 181 M
+() s
+65 181 M
+(G4cout << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+110.72 181 M
+(" New Momentum Direction: ") s
+/F-gs-font 10 10 SF
+0 setgray
+244.01 181 M
+( << NewMomentum     << G4endl;) s
+16 170 M (387:) s
+41.56 170 M
+() s
+45 170 M
+() s
+65 170 M
+(G4cout << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+110.72 170 M
+(" New Polarization:       ") s
+/F-gs-font 10 10 SF
+0 setgray
+218.75 170 M
+( << NewPolarization << G4endl;) s
+16 159 M (388:) s
+41.56 159 M
+() s
+45 159 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+65 159 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+71.11 159 M
+( \( theStatus == Undefined \)) s
+16 148 M (389:) s
+41.56 148 M
+() s
+45 148 M
+() s
+65 148 M
+() s
+85 148 M
+(G4cout << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+130.72 148 M
+(" *** Undefined *** ") s
+/F-gs-font 10 10 SF
+0 setgray
+226.27 148 M
+( << G4endl;) s
+16 137 M (390:) s
+41.56 137 M
+() s
+45 137 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+65 137 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+71.11 137 M
+( \( theStatus == FresnelRefraction \)) s
+16 126 M (391:) s
+41.56 126 M
+() s
+45 126 M
+() s
+65 126 M
+() s
+85 126 M
+(G4cout << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+130.72 126 M
+(" *** FresnelRefraction *** ") s
+/F-gs-font 10 10 SF
+0 setgray
+259.02 126 M
+( << G4endl;) s
+16 115 M (392:) s
+41.56 115 M
+() s
+45 115 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+65 115 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+71.11 115 M
+( \( theStatus == FresnelReflection \)) s
+16 104 M (393:) s
+41.56 104 M
+() s
+45 104 M
+() s
+65 104 M
+() s
+85 104 M
+(G4cout << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+130.72 104 M
+(" *** FresnelReflection *** ") s
+/F-gs-font 10 10 SF
+0 setgray
+256.8 104 M
+( << G4endl;) s
+16 93 M (394:) s
+41.56 93 M
+() s
+45 93 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+65 93 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+71.11 93 M
+( \( theStatus == TotalInternalReflection \)) s
+16 82 M (395:) s
+41.56 82 M
+() s
+45 82 M
+() s
+65 82 M
+() s
+85 82 M
+(G4cout << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+130.72 82 M
+(" *** TotalInternalReflection *** ") s
+/F-gs-font 10 10 SF
+0 setgray
+282.92 82 M
+( << G4endl;) s
+16 71 M (396:) s
+41.56 71 M
+() s
+45 71 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+65 71 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+71.11 71 M
+( \( theStatus == LambertianReflection \)) s
+16 60 M (397:) s
+41.56 60 M
+() s
+45 60 M
+() s
+65 60 M
+() s
+85 60 M
+(G4cout << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+130.72 60 M
+(" *** LambertianReflection *** ") s
+/F-gs-font 10 10 SF
+0 setgray
+276.25 60 M
+( << G4endl;) s
+16 49 M (398:) s
+41.56 49 M
+() s
+45 49 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+65 49 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+71.11 49 M
+( \( theStatus == LobeReflection \) ) s
+16 38 M (399:) s
+41.56 38 M
+() s
+45 38 M
+() s
+65 38 M
+() s
+85 38 M
+(G4cout << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+130.72 38 M
+(" *** LobeReflection *** ") s
+/F-gs-font 10 10 SF
+0 setgray
+246.81 38 M
+( << G4endl;) s
+16 27 M (400:) s
+41.56 27 M
+() s
+45 27 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+65 27 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+71.11 27 M
+( \( theStatus == SpikeReflection \)) s
+16 16 M (401:) s
+41.56 16 M
+() s
+45 16 M
+() s
+65 16 M
+() s
+85 16 M
+(G4cout << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+130.72 16 M
+(" *** SpikeReflection *** ") s
+/F-gs-font 10 10 SF
+0 setgray
+249.04 16 M
+( << G4endl;) s
+16 5 M (402:) s
+41.56 5 M
+() s
+45 5 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+65 5 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+71.11 5 M
+( \( theStatus == BackScattering \)) s
+_R
+S
+%%Page: (7) 7
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 7 def
+/fname (G4OpBoundaryProcess.cc) def
+/fdir () def
+/ftail (G4OpBoundaryProcess.cc) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+16 731 M (403:) s
+41.56 731 M
+() s
+45 731 M
+() s
+65 731 M
+() s
+85 731 M
+(G4cout << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+130.72 731 M
+(" *** BackScattering *** ") s
+/F-gs-font 10 10 SF
+0 setgray
+247.37 731 M
+( << G4endl;) s
+16 720 M (404:) s
+41.56 720 M
+() s
+45 720 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+65 720 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+71.11 720 M
+( \( theStatus == Absorption \)) s
+16 709 M (405:) s
+41.56 709 M
+() s
+45 709 M
+() s
+65 709 M
+() s
+85 709 M
+(G4cout << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+130.72 709 M
+(" *** Absorption *** ") s
+/F-gs-font 10 10 SF
+0 setgray
+230.16 709 M
+( << G4endl;) s
+16 698 M (406:) s
+41.56 698 M
+() s
+45 698 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+65 698 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+71.11 698 M
+( \( theStatus == Detection \)) s
+16 687 M (407:) s
+41.56 687 M
+() s
+45 687 M
+() s
+65 687 M
+() s
+85 687 M
+(G4cout << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+130.72 687 M
+(" *** Detection *** ") s
+/F-gs-font 10 10 SF
+0 setgray
+222.36 687 M
+( << G4endl;) s
+16 676 M (408:) s
+41.56 676 M
+(                ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+81.56 676 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+87.67 676 M
+( \( theStatus == NotAtBoundary \)) s
+16 665 M (409:) s
+41.56 665 M
+(                        G4cout << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+147.28 665 M
+(" *** NotAtBoundary *** ") s
+/F-gs-font 10 10 SF
+0 setgray
+267.27 665 M
+( << G4endl;) s
+16 654 M (410:) s
+41.56 654 M
+(                ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+81.56 654 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+87.67 654 M
+( \( theStatus == SameMaterial \)) s
+16 643 M (411:) s
+41.56 643 M
+(                        G4cout << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+147.28 643 M
+(" *** SameMaterial *** ") s
+/F-gs-font 10 10 SF
+0 setgray
+258.92 643 M
+( << G4endl;) s
+16 632 M (412:) s
+41.56 632 M
+(                ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+81.56 632 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+87.67 632 M
+( \( theStatus == StepTooSmall \)) s
+16 621 M (413:) s
+41.56 621 M
+(                        G4cout << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+147.28 621 M
+(" *** StepTooSmall *** ") s
+/F-gs-font 10 10 SF
+0 setgray
+258.39 621 M
+( << G4endl;) s
+16 610 M (414:) s
+41.56 610 M
+(                ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+81.56 610 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+87.67 610 M
+( \( theStatus == NoRINDEX \)) s
+16 599 M (415:) s
+41.56 599 M
+(                        G4cout << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+147.28 599 M
+(" *** NoRINDEX *** ") s
+/F-gs-font 10 10 SF
+0 setgray
+250.04 599 M
+( << G4endl;) s
+16 588 M (416:) s
+41.56 588 M
+(        }) s
+16 577 M (417:) s
+16 566 M (418:) s
+41.56 566 M
+() s
+45 566 M
+(aParticleChange.ProposeMomentumDirection\(NewMomentum\);) s
+16 555 M (419:) s
+41.56 555 M
+() s
+45 555 M
+(aParticleChange.ProposePolarization\(NewPolarization\);) s
+16 544 M (420:) s
+16 533 M (421:) s
+41.56 533 M
+(        ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+61.56 533 M
+(return) s
+/F-gs-font 10 10 SF
+0 setgray
+89.33 533 M
+( G4VDiscreteProcess::PostStepDoIt\(aTrack, aStep\);) s
+16 522 M (422:) s
+41.56 522 M
+(}) s
+16 511 M (423:) s
+16 500 M (424:) s
+41.56 500 M
+(G4ThreeVector ) s
+16 489 M (425:) s
+/Times-Bold 10 10 SUF
+0 0 1 setrgbcolor
+41.56 489 M
+(G4OpBoundaryProcess::GetFacetNormal) s
+/F-gs-font 10 10 SF
+0 setgray
+220.98 489 M
+(\() s
+/Times-Bold 10 10 SUF
+0.133333 0.545098 0.133333 setrgbcolor
+224.31 489 M
+(const) s
+/F-gs-font 10 10 SF
+0 setgray
+246.53 489 M
+( G4ThreeVector& Momentum,) s
+16 478 M (426:) s
+41.56 478 M
+() s
+45 478 M
+() s
+65 478 M
+() s
+85 478 M
+(            ) s
+/Times-Bold 10 10 SUF
+0.133333 0.545098 0.133333 setrgbcolor
+115 478 M
+(const) s
+/F-gs-font 10 10 SF
+0 setgray
+137.22 478 M
+( G4ThreeVector&  Normal \) ) s
+/Times-Bold 10 10 SUF
+0.133333 0.545098 0.133333 setrgbcolor
+254.13 478 M
+(const) s
+/F-gs-font 10 10 SF
+0 setgray
+16 467 M (427:) s
+41.56 467 M
+({) s
+16 456 M (428:) s
+41.56 456 M
+(        G4ThreeVector FacetNormal;) s
+16 445 M (429:) s
+16 434 M (430:) s
+41.56 434 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+45 434 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+51.11 434 M
+( \(theModel == unified\) {) s
+16 423 M (431:) s
+16 412 M (432:) s
+41.56 412 M
+() s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+45 412 M
+(/* This function code alpha to a random value taken from the) s
+/F-gs-font 10 10 SF
+16 401 M (433:) s
+/Times-Italic 10 10 SUF
+41.56 401 M
+(           distribution p\(alpha\) = g\(alpha; 0, sigma_alpha\)*std::sin\(alpha\), ) s
+/F-gs-font 10 10 SF
+16 390 M (434:) s
+/Times-Italic 10 10 SUF
+41.56 390 M
+(           for alpha > 0 and alpha < 90, where g\(alpha; 0, sigma_alpha\) ) s
+/F-gs-font 10 10 SF
+16 379 M (435:) s
+/Times-Italic 10 10 SUF
+41.56 379 M
+(           is a gaussian distribution with mean 0 and standard deviation ) s
+/F-gs-font 10 10 SF
+16 368 M (436:) s
+/Times-Italic 10 10 SUF
+41.56 368 M
+(           sigma_alpha.  */) s
+/F-gs-font 10 10 SF
+0 setgray
+16 357 M (437:) s
+16 346 M (438:) s
+41.56 346 M
+() s
+45 346 M
+(   G4double alpha;) s
+16 335 M (439:) s
+16 324 M (440:) s
+41.56 324 M
+() s
+45 324 M
+(   G4double sigma_alpha = 0.0;) s
+16 313 M (441:) s
+41.56 313 M
+() s
+45 313 M
+(   ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+52.5 313 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+58.61 313 M
+( \(OpticalSurface\) sigma_alpha = OpticalSurface->GetSigmaAlpha\(\);) s
+16 302 M (442:) s
+16 291 M (443:) s
+41.56 291 M
+() s
+45 291 M
+(   G4double f_max = std::min\(1.0,4.*sigma_alpha\);) s
+16 280 M (444:) s
+16 269 M (445:) s
+41.56 269 M
+() s
+45 269 M
+(   ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+52.5 269 M
+(do) s
+/F-gs-font 10 10 SF
+0 setgray
+63.06 269 M
+( {) s
+16 258 M (446:) s
+41.56 258 M
+() s
+45 258 M
+(      ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+60 258 M
+(do) s
+/F-gs-font 10 10 SF
+0 setgray
+70.56 258 M
+( {) s
+16 247 M (447:) s
+41.56 247 M
+() s
+45 247 M
+(         alpha = G4RandGauss::shoot\(0.0,sigma_alpha\);) s
+16 236 M (448:) s
+41.56 236 M
+() s
+45 236 M
+(      } ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+67.3 236 M
+(while) s
+/F-gs-font 10 10 SF
+0 setgray
+90.08 236 M
+( \(G4UniformRand\(\)*f_max > std::sin\(alpha\) || alpha >= halfpi \);) s
+16 225 M (449:) s
+16 214 M (450:) s
+41.56 214 M
+() s
+45 214 M
+(      G4double phi = G4UniformRand\(\)*twopi;) s
+16 203 M (451:) s
+16 192 M (452:) s
+41.56 192 M
+() s
+45 192 M
+(      G4double SinAlpha = std::sin\(alpha\);) s
+16 181 M (453:) s
+41.56 181 M
+() s
+45 181 M
+(      G4double CosAlpha = std::cos\(alpha\);) s
+16 170 M (454:) s
+41.56 170 M
+(              G4double SinPhi = std::sin\(phi\);) s
+16 159 M (455:) s
+41.56 159 M
+(              G4double CosPhi = std::cos\(phi\);) s
+16 148 M (456:) s
+16 137 M (457:) s
+41.56 137 M
+(              G4double unit_x = SinAlpha * CosPhi;) s
+16 126 M (458:) s
+41.56 126 M
+(              G4double unit_y = SinAlpha * SinPhi;) s
+16 115 M (459:) s
+41.56 115 M
+(              G4double unit_z = CosAlpha;) s
+16 104 M (460:) s
+16 93 M (461:) s
+41.56 93 M
+() s
+45 93 M
+(      FacetNormal.setX\(unit_x\);) s
+16 82 M (462:) s
+41.56 82 M
+() s
+45 82 M
+(      FacetNormal.setY\(unit_y\);) s
+16 71 M (463:) s
+41.56 71 M
+() s
+45 71 M
+(      FacetNormal.setZ\(unit_z\);) s
+16 60 M (464:) s
+16 49 M (465:) s
+41.56 49 M
+() s
+45 49 M
+(      G4ThreeVector tmpNormal = Normal;) s
+16 38 M (466:) s
+16 27 M (467:) s
+41.56 27 M
+() s
+45 27 M
+(      FacetNormal.rotateUz\(tmpNormal\);) s
+16 16 M (468:) s
+41.56 16 M
+() s
+45 16 M
+(   } ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+59.8 16 M
+(while) s
+/F-gs-font 10 10 SF
+0 setgray
+82.58 16 M
+( \(Momentum * FacetNormal >= 0.0\);) s
+16 5 M (469:) s
+41.56 5 M
+() s
+45 5 M
+(}) s
+_R
+S
+%%Page: (8) 8
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 8 def
+/fname (G4OpBoundaryProcess.cc) def
+/fdir () def
+/ftail (G4OpBoundaryProcess.cc) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+16 731 M (470:) s
+41.56 731 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+45 731 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+60.55 731 M
+( {) s
+16 720 M (471:) s
+16 709 M (472:) s
+41.56 709 M
+() s
+45 709 M
+(   G4double  polish = 1.0;) s
+16 698 M (473:) s
+41.56 698 M
+() s
+45 698 M
+(   ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+52.5 698 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+58.61 698 M
+( \(OpticalSurface\) polish = OpticalSurface->GetPolish\(\);) s
+16 687 M (474:) s
+16 676 M (475:) s
+41.56 676 M
+(           ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+69.06 676 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+75.17 676 M
+( \(polish < 1.0\) {) s
+16 665 M (476:) s
+41.56 665 M
+(              ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+76.56 665 M
+(do) s
+/F-gs-font 10 10 SF
+0 setgray
+87.12 665 M
+( {) s
+16 654 M (477:) s
+41.56 654 M
+(                 G4ThreeVector smear;) s
+16 643 M (478:) s
+41.56 643 M
+(                 ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+84.06 643 M
+(do) s
+/F-gs-font 10 10 SF
+0 setgray
+94.62 643 M
+( {) s
+16 632 M (479:) s
+41.56 632 M
+(                    smear.setX\(2.*G4UniformRand\(\)-1.0\);) s
+16 621 M (480:) s
+41.56 621 M
+(                    smear.setY\(2.*G4UniformRand\(\)-1.0\);) s
+16 610 M (481:) s
+41.56 610 M
+(                    smear.setZ\(2.*G4UniformRand\(\)-1.0\);) s
+16 599 M (482:) s
+41.56 599 M
+(                 } ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+91.36 599 M
+(while) s
+/F-gs-font 10 10 SF
+0 setgray
+114.14 599 M
+( \(smear.mag\(\)>1.0\);) s
+16 588 M (483:) s
+41.56 588 M
+(                 smear = \(1.-polish\) * smear;) s
+16 577 M (484:) s
+41.56 577 M
+(                 FacetNormal = Normal + smear;) s
+16 566 M (485:) s
+41.56 566 M
+(              } ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+83.86 566 M
+(while) s
+/F-gs-font 10 10 SF
+0 setgray
+106.64 566 M
+( \(Momentum * FacetNormal >= 0.0\);) s
+16 555 M (486:) s
+41.56 555 M
+(              FacetNormal = FacetNormal.unit\(\);) s
+16 544 M (487:) s
+41.56 544 M
+() s
+45 544 M
+(   }) s
+16 533 M (488:) s
+41.56 533 M
+(           ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+69.06 533 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+84.61 533 M
+( {) s
+16 522 M (489:) s
+41.56 522 M
+(              FacetNormal = Normal;) s
+16 511 M (490:) s
+41.56 511 M
+(           }) s
+16 500 M (491:) s
+41.56 500 M
+() s
+45 500 M
+(}) s
+16 489 M (492:) s
+41.56 489 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+45 489 M
+(return) s
+/F-gs-font 10 10 SF
+0 setgray
+72.77 489 M
+( FacetNormal;) s
+16 478 M (493:) s
+41.56 478 M
+(}) s
+16 467 M (494:) s
+16 456 M (495:) s
+/Times-Bold 10 10 SUF
+0.133333 0.545098 0.133333 setrgbcolor
+41.56 456 M
+(void) s
+/F-gs-font 10 10 SF
+0 setgray
+59.9 456 M
+( ) s
+/Times-Bold 10 10 SUF
+0 0 1 setrgbcolor
+62.4 456 M
+(G4OpBoundaryProcess::DielectricMetal) s
+/F-gs-font 10 10 SF
+0 setgray
+236.26 456 M
+(\(\)) s
+16 445 M (496:) s
+41.56 445 M
+({) s
+16 434 M (497:) s
+41.56 434 M
+(        G4int n = 0;) s
+16 423 M (498:) s
+16 412 M (499:) s
+41.56 412 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+45 412 M
+(do) s
+/F-gs-font 10 10 SF
+0 setgray
+55.56 412 M
+( {) s
+16 401 M (500:) s
+16 390 M (501:) s
+41.56 390 M
+(           n++;) s
+16 379 M (502:) s
+16 368 M (503:) s
+41.56 368 M
+(           ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+69.06 368 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+75.17 368 M
+(\( !G4BooleanRand\(theReflectivity\) && n == 1 \) {) s
+16 357 M (504:) s
+16 346 M (505:) s
+41.56 346 M
+(             DoAbsorption\(\);) s
+16 335 M (506:) s
+41.56 335 M
+(             ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+74.06 335 M
+(break) s
+/F-gs-font 10 10 SF
+0 setgray
+99.06 335 M
+(;) s
+16 324 M (507:) s
+16 313 M (508:) s
+41.56 313 M
+(           }) s
+16 302 M (509:) s
+41.56 302 M
+(           ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+69.06 302 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+84.61 302 M
+( {) s
+16 291 M (510:) s
+16 280 M (511:) s
+41.56 280 M
+(             ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+74.06 280 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+80.17 280 M
+( \( theModel == glisur || theFinish == polished \) {) s
+16 269 M (512:) s
+16 258 M (513:) s
+41.56 258 M
+(                DoReflection\(\);) s
+16 247 M (514:) s
+16 236 M (515:) s
+41.56 236 M
+(             } ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+81.36 236 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+96.91 236 M
+( {) s
+16 225 M (516:) s
+16 214 M (517:) s
+41.56 214 M
+(                ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+81.56 214 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+87.67 214 M
+( \( n == 1 \) ChooseReflection\(\);) s
+16 203 M (518:) s
+41.56 203 M
+(                                                                                ) s
+16 192 M (519:) s
+41.56 192 M
+(                ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+81.56 192 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+87.67 192 M
+( \( theStatus == LambertianReflection \) {) s
+16 181 M (520:) s
+41.56 181 M
+(                   DoReflection\(\);) s
+16 170 M (521:) s
+41.56 170 M
+(                }) s
+16 159 M (522:) s
+41.56 159 M
+(                ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+81.56 159 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+97.11 159 M
+( ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+99.61 159 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+105.72 159 M
+( \( theStatus == BackScattering \) {) s
+16 148 M (523:) s
+41.56 148 M
+(                   NewMomentum = -OldMomentum;) s
+16 137 M (524:) s
+41.56 137 M
+(                   NewPolarization = -OldPolarization;) s
+16 126 M (525:) s
+41.56 126 M
+(                }) s
+16 115 M (526:) s
+41.56 115 M
+(                ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+81.56 115 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+97.11 115 M
+( {) s
+16 104 M (527:) s
+16 93 M (528:) s
+41.56 93 M
+(                   ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+89.06 93 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+95.17 93 M
+(\(theStatus==LobeReflection\)theFacetNormal = ) s
+16 82 M (529:) s
+41.56 82 M
+(                             GetFacetNormal\(OldMomentum,theGlobalNormal\);) s
+16 71 M (530:) s
+16 60 M (531:) s
+41.56 60 M
+(                   G4double PdotN = OldMomentum * theFacetNormal;) s
+16 49 M (532:) s
+41.56 49 M
+(                   NewMomentum = OldMomentum - \(2.*PdotN\)*theFacetNormal;) s
+16 38 M (533:) s
+41.56 38 M
+(                   G4double EdotN = OldPolarization * theFacetNormal;) s
+16 27 M (534:) s
+41.56 27 M
+(                   NewPolarization = -OldPolarization + \(2.*EdotN\)*theFacetNormal;                                                                   ) s
+5 16 M
+(             ) s
+16 5 M (535:) s
+41.56 5 M
+(                }) s
+_R
+S
+%%Page: (9) 9
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 9 def
+/fname (G4OpBoundaryProcess.cc) def
+/fdir () def
+/ftail (G4OpBoundaryProcess.cc) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+16 731 M (536:) s
+16 720 M (537:) s
+41.56 720 M
+(             }) s
+16 709 M (538:) s
+16 698 M (539:) s
+41.56 698 M
+(             OldMomentum = NewMomentum;) s
+16 687 M (540:) s
+41.56 687 M
+(             OldPolarization = NewPolarization;) s
+16 676 M (541:) s
+16 665 M (542:) s
+41.56 665 M
+() s
+45 665 M
+(   }) s
+16 654 M (543:) s
+16 643 M (544:) s
+41.56 643 M
+() s
+45 643 M
+(} ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+52.3 643 M
+(while) s
+/F-gs-font 10 10 SF
+0 setgray
+75.08 643 M
+( \(NewMomentum * theGlobalNormal < 0.0\);) s
+16 632 M (545:) s
+41.56 632 M
+(}) s
+16 621 M (546:) s
+16 610 M (547:) s
+/Times-Bold 10 10 SUF
+0.133333 0.545098 0.133333 setrgbcolor
+41.56 610 M
+(void) s
+/F-gs-font 10 10 SF
+0 setgray
+59.9 610 M
+( ) s
+/Times-Bold 10 10 SUF
+0 0 1 setrgbcolor
+62.4 610 M
+(G4OpBoundaryProcess::DielectricDielectric) s
+/F-gs-font 10 10 SF
+0 setgray
+252.36 610 M
+(\(\)) s
+16 599 M (548:) s
+41.56 599 M
+({) s
+16 588 M (549:) s
+41.56 588 M
+() s
+45 588 M
+(G4bool Inside = false;) s
+16 577 M (550:) s
+41.56 577 M
+() s
+45 577 M
+(G4bool Swap = false;) s
+16 566 M (551:) s
+16 555 M (552:) s
+41.56 555 M
+() s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+45 555 M
+(leap) s
+/F-gs-font 10 10 SF
+0 setgray
+62.78 555 M
+(:) s
+16 544 M (553:) s
+16 533 M (554:) s
+41.56 533 M
+(        G4bool Through = false;) s
+16 522 M (555:) s
+41.56 522 M
+() s
+45 522 M
+(G4bool Done = false;) s
+16 511 M (556:) s
+16 500 M (557:) s
+41.56 500 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+45 500 M
+(do) s
+/F-gs-font 10 10 SF
+0 setgray
+55.56 500 M
+( {) s
+16 489 M (558:) s
+16 478 M (559:) s
+41.56 478 M
+() s
+45 478 M
+(   ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+52.5 478 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+58.61 478 M
+( \(Through\) {) s
+16 467 M (560:) s
+41.56 467 M
+() s
+45 467 M
+(      Swap = !Swap;) s
+16 456 M (561:) s
+41.56 456 M
+() s
+45 456 M
+(      Through = false;) s
+16 445 M (562:) s
+41.56 445 M
+() s
+45 445 M
+(      theGlobalNormal = -theGlobalNormal;) s
+16 434 M (563:) s
+41.56 434 M
+() s
+45 434 M
+(      G4Swap\(Material1,Material2\);) s
+16 423 M (564:) s
+41.56 423 M
+() s
+45 423 M
+(      G4Swap\(&Rindex1,&Rindex2\);) s
+16 412 M (565:) s
+41.56 412 M
+() s
+45 412 M
+(   }) s
+16 401 M (566:) s
+16 390 M (567:) s
+41.56 390 M
+() s
+45 390 M
+(   ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+52.5 390 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+58.61 390 M
+( \( theFinish == ground || theFinish == groundbackpainted \) {) s
+16 379 M (568:) s
+41.56 379 M
+() s
+45 379 M
+() s
+65 379 M
+(theFacetNormal = ) s
+16 368 M (569:) s
+41.56 368 M
+() s
+45 368 M
+() s
+65 368 M
+() s
+85 368 M
+(     GetFacetNormal\(OldMomentum,theGlobalNormal\);) s
+16 357 M (570:) s
+41.56 357 M
+() s
+45 357 M
+(   }) s
+16 346 M (571:) s
+41.56 346 M
+() s
+45 346 M
+(   ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+52.5 346 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+68.05 346 M
+( {) s
+16 335 M (572:) s
+41.56 335 M
+() s
+45 335 M
+() s
+65 335 M
+(theFacetNormal = theGlobalNormal;) s
+16 324 M (573:) s
+41.56 324 M
+() s
+45 324 M
+(   }) s
+16 313 M (574:) s
+16 302 M (575:) s
+41.56 302 M
+() s
+45 302 M
+(   G4double PdotN = OldMomentum * theFacetNormal;) s
+16 291 M (576:) s
+41.56 291 M
+() s
+45 291 M
+(   G4double EdotN = OldPolarization * theFacetNormal;) s
+16 280 M (577:) s
+16 269 M (578:) s
+41.56 269 M
+() s
+45 269 M
+(   cost1 = - PdotN;) s
+16 258 M (579:) s
+41.56 258 M
+() s
+45 258 M
+(   ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+52.5 258 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+58.61 258 M
+( \(std::abs\(cost1\) < 1.0-kCarTolerance\){) s
+16 247 M (580:) s
+41.56 247 M
+() s
+45 247 M
+(      sint1 = std::sqrt\(1.-cost1*cost1\);) s
+16 236 M (581:) s
+41.56 236 M
+() s
+45 236 M
+(      sint2 = sint1*Rindex1/Rindex2;     ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+200.38 236 M
+(// *** Snell's Law ***) s
+/F-gs-font 10 10 SF
+16 225 M (582:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 225 M
+() s
+45 225 M
+(   }) s
+16 214 M (583:) s
+41.56 214 M
+() s
+45 214 M
+(   ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+52.5 214 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+68.05 214 M
+( {) s
+16 203 M (584:) s
+41.56 203 M
+() s
+45 203 M
+(      sint1 = 0.0;) s
+16 192 M (585:) s
+41.56 192 M
+() s
+45 192 M
+(      sint2 = 0.0;) s
+16 181 M (586:) s
+41.56 181 M
+() s
+45 181 M
+(   }) s
+16 170 M (587:) s
+16 159 M (588:) s
+41.56 159 M
+() s
+45 159 M
+(   ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+52.5 159 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+58.61 159 M
+( \(sint2 >= 1.0\) {) s
+16 148 M (589:) s
+16 137 M (590:) s
+41.56 137 M
+() s
+45 137 M
+(      ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+60 137 M
+(// Simulate total internal reflection) s
+/F-gs-font 10 10 SF
+16 126 M (591:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+16 115 M (592:) s
+41.56 115 M
+() s
+45 115 M
+(      ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+60 115 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+66.11 115 M
+( \(Swap\) Swap = !Swap;) s
+16 104 M (593:) s
+16 93 M (594:) s
+41.56 93 M
+(              theStatus = TotalInternalReflection;) s
+16 82 M (595:) s
+16 71 M (596:) s
+41.56 71 M
+() s
+45 71 M
+(      ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+60 71 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+66.11 71 M
+( \( theModel == unified && theFinish != polished \)) s
+16 60 M (597:) s
+41.56 60 M
+() s
+45 60 M
+() s
+65 60 M
+() s
+85 60 M
+() s
+105 60 M
+() s
+125 60 M
+() s
+145 60 M
+(     ChooseReflection\(\);) s
+16 49 M (598:) s
+16 38 M (599:) s
+41.56 38 M
+() s
+45 38 M
+(      ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+60 38 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+66.11 38 M
+( \( theStatus == LambertianReflection \) {) s
+16 27 M (600:) s
+41.56 27 M
+() s
+45 27 M
+() s
+65 27 M
+( DoReflection\(\);) s
+16 16 M (601:) s
+41.56 16 M
+() s
+45 16 M
+(      }) s
+16 5 M (602:) s
+41.56 5 M
+() s
+45 5 M
+(      ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+60 5 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+75.55 5 M
+( ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+78.05 5 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+84.16 5 M
+( \( theStatus == BackScattering \) {) s
+_R
+S
+%%Page: (10) 10
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 10 def
+/fname (G4OpBoundaryProcess.cc) def
+/fdir () def
+/ftail (G4OpBoundaryProcess.cc) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+16 731 M (603:) s
+41.56 731 M
+() s
+45 731 M
+() s
+65 731 M
+( NewMomentum = -OldMomentum;) s
+16 720 M (604:) s
+41.56 720 M
+() s
+45 720 M
+() s
+65 720 M
+( NewPolarization = -OldPolarization;) s
+16 709 M (605:) s
+41.56 709 M
+() s
+45 709 M
+(      }) s
+16 698 M (606:) s
+41.56 698 M
+() s
+45 698 M
+(      ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+60 698 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+75.55 698 M
+( {) s
+16 687 M (607:) s
+16 676 M (608:) s
+41.56 676 M
+(                 PdotN = OldMomentum * theFacetNormal;) s
+16 665 M (609:) s
+41.56 665 M
+() s
+45 665 M
+() s
+65 665 M
+( NewMomentum = OldMomentum - \(2.*PdotN\)*theFacetNormal;) s
+16 654 M (610:) s
+41.56 654 M
+() s
+45 654 M
+() s
+65 654 M
+( EdotN = OldPolarization * theFacetNormal;) s
+16 643 M (611:) s
+41.56 643 M
+() s
+45 643 M
+() s
+65 643 M
+( NewPolarization = -OldPolarization + \(2.*EdotN\)*theFacetNormal;) s
+16 632 M (612:) s
+16 621 M (613:) s
+41.56 621 M
+() s
+45 621 M
+(      }) s
+16 610 M (614:) s
+41.56 610 M
+() s
+45 610 M
+(   }) s
+16 599 M (615:) s
+41.56 599 M
+() s
+45 599 M
+(   ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+52.5 599 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+68.05 599 M
+( ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+70.55 599 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+76.66 599 M
+( \(sint2 < 1.0\) {) s
+16 588 M (616:) s
+16 577 M (617:) s
+41.56 577 M
+() s
+45 577 M
+(      ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+60 577 M
+(// Calculate amplitude for transmission \(Q = P x N\)) s
+/F-gs-font 10 10 SF
+16 566 M (618:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+16 555 M (619:) s
+41.56 555 M
+() s
+45 555 M
+(      ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+60 555 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+66.11 555 M
+( \(cost1 > 0.0\) {) s
+16 544 M (620:) s
+41.56 544 M
+() s
+45 544 M
+(         cost2 =  std::sqrt\(1.-sint2*sint2\);) s
+16 533 M (621:) s
+41.56 533 M
+() s
+45 533 M
+(      }) s
+16 522 M (622:) s
+41.56 522 M
+() s
+45 522 M
+(      ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+60 522 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+75.55 522 M
+( {) s
+16 511 M (623:) s
+41.56 511 M
+() s
+45 511 M
+(         cost2 = -std::sqrt\(1.-sint2*sint2\);) s
+16 500 M (624:) s
+41.56 500 M
+() s
+45 500 M
+(      }) s
+16 489 M (625:) s
+16 478 M (626:) s
+41.56 478 M
+() s
+45 478 M
+(      G4ThreeVector A_trans, A_paral, E1pp, E1pl;) s
+16 467 M (627:) s
+41.56 467 M
+() s
+45 467 M
+(      G4double E1_perp, E1_parl;) s
+16 456 M (628:) s
+16 445 M (629:) s
+41.56 445 M
+() s
+45 445 M
+(      ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+60 445 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+66.11 445 M
+( \(sint1 > 0.0\) {) s
+16 434 M (630:) s
+41.56 434 M
+() s
+45 434 M
+(         A_trans = OldMomentum.cross\(theFacetNormal\);) s
+16 423 M (631:) s
+41.56 423 M
+(                 A_trans = A_trans.unit\(\);) s
+16 412 M (632:) s
+41.56 412 M
+() s
+45 412 M
+(         E1_perp = OldPolarization * A_trans;) s
+16 401 M (633:) s
+41.56 401 M
+(                 E1pp    = E1_perp * A_trans;) s
+16 390 M (634:) s
+41.56 390 M
+(                 E1pl    = OldPolarization - E1pp;) s
+16 379 M (635:) s
+41.56 379 M
+(                 E1_parl = E1pl.mag\(\);) s
+16 368 M (636:) s
+41.56 368 M
+(              }) s
+16 357 M (637:) s
+41.56 357 M
+() s
+45 357 M
+(      ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+60 357 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+75.55 357 M
+( {) s
+16 346 M (638:) s
+41.56 346 M
+() s
+45 346 M
+(         A_trans  = OldPolarization;) s
+16 335 M (639:) s
+41.56 335 M
+() s
+45 335 M
+(         ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+67.5 335 M
+(// Here we Follow Jackson's conventions and we set the) s
+/F-gs-font 10 10 SF
+16 324 M (640:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 324 M
+() s
+45 324 M
+(         ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+67.5 324 M
+(// parallel component = 1 in case of a ray perpendicular) s
+/F-gs-font 10 10 SF
+16 313 M (641:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 313 M
+() s
+45 313 M
+(         ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+67.5 313 M
+(// to the surface) s
+/F-gs-font 10 10 SF
+16 302 M (642:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 302 M
+() s
+45 302 M
+(         E1_perp  = 0.0;) s
+16 291 M (643:) s
+41.56 291 M
+() s
+45 291 M
+(         E1_parl  = 1.0;) s
+16 280 M (644:) s
+41.56 280 M
+() s
+45 280 M
+(      }) s
+16 269 M (645:) s
+16 258 M (646:) s
+41.56 258 M
+(              G4double s1 = Rindex1*cost1;) s
+16 247 M (647:) s
+41.56 247 M
+(              G4double E2_perp = 2.*s1*E1_perp/\(Rindex1*cost1+Rindex2*cost2\);) s
+16 236 M (648:) s
+41.56 236 M
+(              G4double E2_parl = 2.*s1*E1_parl/\(Rindex2*cost1+Rindex1*cost2\);) s
+16 225 M (649:) s
+41.56 225 M
+(              G4double E2_total = E2_perp*E2_perp + E2_parl*E2_parl;) s
+16 214 M (650:) s
+41.56 214 M
+(              G4double s2 = Rindex2*cost2*E2_total;) s
+16 203 M (651:) s
+16 192 M (652:) s
+41.56 192 M
+(              G4double TransCoeff;) s
+16 181 M (653:) s
+16 170 M (654:) s
+41.56 170 M
+() s
+45 170 M
+(      ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+60 170 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+66.11 170 M
+( \(cost1 != 0.0\) {) s
+16 159 M (655:) s
+41.56 159 M
+() s
+45 159 M
+(         TransCoeff = s2/s1;) s
+16 148 M (656:) s
+41.56 148 M
+() s
+45 148 M
+(      }) s
+16 137 M (657:) s
+41.56 137 M
+() s
+45 137 M
+(      ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+60 137 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+75.55 137 M
+( {) s
+16 126 M (658:) s
+41.56 126 M
+() s
+45 126 M
+(         TransCoeff = 0.0;) s
+16 115 M (659:) s
+41.56 115 M
+() s
+45 115 M
+(      }) s
+16 104 M (660:) s
+16 93 M (661:) s
+41.56 93 M
+() s
+45 93 M
+(      G4double E2_abs, C_parl, C_perp;) s
+16 82 M (662:) s
+16 71 M (663:) s
+41.56 71 M
+() s
+45 71 M
+(      ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+60 71 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+66.11 71 M
+( \( !G4BooleanRand\(TransCoeff\) \) {) s
+16 60 M (664:) s
+16 49 M (665:) s
+41.56 49 M
+() s
+45 49 M
+(         ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+67.5 49 M
+(// Simulate reflection) s
+/F-gs-font 10 10 SF
+16 38 M (666:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+16 27 M (667:) s
+41.56 27 M
+(                 ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+84.06 27 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+90.17 27 M
+( \(Swap\) Swap = !Swap;) s
+16 16 M (668:) s
+16 5 M (669:) s
+41.56 5 M
+() s
+45 5 M
+() s
+65 5 M
+( theStatus = FresnelReflection;) s
+_R
+S
+%%Page: (11) 11
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 11 def
+/fname (G4OpBoundaryProcess.cc) def
+/fdir () def
+/ftail (G4OpBoundaryProcess.cc) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+16 731 M (670:) s
+16 720 M (671:) s
+41.56 720 M
+() s
+45 720 M
+() s
+65 720 M
+( ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+67.5 720 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+73.61 720 M
+( \( theModel == unified && theFinish != polished \)) s
+16 709 M (672:) s
+41.56 709 M
+() s
+45 709 M
+() s
+65 709 M
+() s
+85 709 M
+() s
+105 709 M
+() s
+125 709 M
+() s
+145 709 M
+(     ChooseReflection\(\);) s
+16 698 M (673:) s
+16 687 M (674:) s
+41.56 687 M
+() s
+45 687 M
+() s
+65 687 M
+( ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+67.5 687 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+73.61 687 M
+( \( theStatus == LambertianReflection \) {) s
+16 676 M (675:) s
+41.56 676 M
+() s
+45 676 M
+() s
+65 676 M
+(    DoReflection\(\);) s
+16 665 M (676:) s
+41.56 665 M
+() s
+45 665 M
+() s
+65 665 M
+( }) s
+16 654 M (677:) s
+41.56 654 M
+() s
+45 654 M
+() s
+65 654 M
+( ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+67.5 654 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+83.05 654 M
+( ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+85.55 654 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+91.66 654 M
+( \( theStatus == BackScattering \) {) s
+16 643 M (678:) s
+41.56 643 M
+() s
+45 643 M
+() s
+65 643 M
+(    NewMomentum = -OldMomentum;) s
+16 632 M (679:) s
+41.56 632 M
+() s
+45 632 M
+() s
+65 632 M
+(    NewPolarization = -OldPolarization;) s
+16 621 M (680:) s
+41.56 621 M
+() s
+45 621 M
+() s
+65 621 M
+( }) s
+16 610 M (681:) s
+41.56 610 M
+() s
+45 610 M
+() s
+65 610 M
+( ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+67.5 610 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+83.05 610 M
+( {) s
+16 599 M (682:) s
+16 588 M (683:) s
+41.56 588 M
+(                    PdotN = OldMomentum * theFacetNormal;) s
+16 577 M (684:) s
+41.56 577 M
+() s
+45 577 M
+(            NewMomentum = OldMomentum - \(2.*PdotN\)*theFacetNormal;) s
+16 566 M (685:) s
+16 555 M (686:) s
+41.56 555 M
+() s
+45 555 M
+(            ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+75 555 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+81.11 555 M
+( \(sint1 > 0.0\) {   ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+147.66 555 M
+(// incident ray oblique) s
+/F-gs-font 10 10 SF
+16 544 M (687:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+16 533 M (688:) s
+41.56 533 M
+() s
+45 533 M
+() s
+65 533 M
+(       E2_parl   = Rindex2*E2_parl/Rindex1 - E1_parl;) s
+16 522 M (689:) s
+41.56 522 M
+() s
+45 522 M
+() s
+65 522 M
+(       E2_perp   = E2_perp - E1_perp;) s
+16 511 M (690:) s
+41.56 511 M
+() s
+45 511 M
+() s
+65 511 M
+(       E2_total  = E2_perp*E2_perp + E2_parl*E2_parl;) s
+16 500 M (691:) s
+41.56 500 M
+(                       A_paral   = NewMomentum.cross\(A_trans\);) s
+16 489 M (692:) s
+41.56 489 M
+(                       A_paral   = A_paral.unit\(\);) s
+16 478 M (693:) s
+41.56 478 M
+() s
+45 478 M
+() s
+65 478 M
+(       E2_abs    = std::sqrt\(E2_total\);) s
+16 467 M (694:) s
+41.56 467 M
+() s
+45 467 M
+() s
+65 467 M
+(       C_parl    = E2_parl/E2_abs;) s
+16 456 M (695:) s
+41.56 456 M
+() s
+45 456 M
+() s
+65 456 M
+(       C_perp    = E2_perp/E2_abs;) s
+16 445 M (696:) s
+16 434 M (697:) s
+41.56 434 M
+(                       NewPolarization = C_parl*A_paral + C_perp*A_trans;) s
+16 423 M (698:) s
+16 412 M (699:) s
+41.56 412 M
+() s
+45 412 M
+(            }) s
+16 401 M (700:) s
+16 390 M (701:) s
+41.56 390 M
+() s
+45 390 M
+(            ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+75 390 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+90.55 390 M
+( {               ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+135.35 390 M
+(// incident ray perpendicular) s
+/F-gs-font 10 10 SF
+16 379 M (702:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+16 368 M (703:) s
+41.56 368 M
+() s
+45 368 M
+(               ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+82.5 368 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+88.61 368 M
+( \(Rindex2 > Rindex1\) {) s
+16 357 M (704:) s
+41.56 357 M
+() s
+45 357 M
+() s
+65 357 M
+(          NewPolarization = - OldPolarization;) s
+16 346 M (705:) s
+41.56 346 M
+() s
+45 346 M
+(               }) s
+16 335 M (706:) s
+41.56 335 M
+() s
+45 335 M
+(               ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+82.5 335 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+98.05 335 M
+( {) s
+16 324 M (707:) s
+41.56 324 M
+() s
+45 324 M
+(                  NewPolarization =   OldPolarization;) s
+16 313 M (708:) s
+41.56 313 M
+() s
+45 313 M
+(               }) s
+16 302 M (709:) s
+16 291 M (710:) s
+41.56 291 M
+() s
+45 291 M
+(            }) s
+16 280 M (711:) s
+41.56 280 M
+() s
+45 280 M
+(         }) s
+16 269 M (712:) s
+41.56 269 M
+() s
+45 269 M
+(      }) s
+16 258 M (713:) s
+41.56 258 M
+() s
+45 258 M
+(      ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+60 258 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+75.55 258 M
+( { ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+85.35 258 M
+(// photon gets transmitted) s
+/F-gs-font 10 10 SF
+16 247 M (714:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+16 236 M (715:) s
+41.56 236 M
+() s
+45 236 M
+(         ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+67.5 236 M
+(// Simulate transmission/refraction) s
+/F-gs-font 10 10 SF
+16 225 M (716:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+16 214 M (717:) s
+41.56 214 M
+() s
+45 214 M
+() s
+65 214 M
+( Inside = !Inside;) s
+16 203 M (718:) s
+41.56 203 M
+() s
+45 203 M
+() s
+65 203 M
+( Through = true;) s
+16 192 M (719:) s
+41.56 192 M
+() s
+45 192 M
+() s
+65 192 M
+( theStatus = FresnelRefraction;) s
+16 181 M (720:) s
+16 170 M (721:) s
+41.56 170 M
+() s
+45 170 M
+(         ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+67.5 170 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+73.61 170 M
+( \(sint1 > 0.0\) {      ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+147.66 170 M
+(// incident ray oblique) s
+/F-gs-font 10 10 SF
+16 159 M (722:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+16 148 M (723:) s
+41.56 148 M
+() s
+45 148 M
+() s
+65 148 M
+(    G4double alpha = cost1 - cost2*\(Rindex2/Rindex1\);) s
+16 137 M (724:) s
+41.56 137 M
+() s
+45 137 M
+() s
+65 137 M
+(    NewMomentum = OldMomentum + alpha*theFacetNormal;) s
+16 126 M (725:) s
+41.56 126 M
+() s
+45 126 M
+() s
+65 126 M
+(    NewMomentum = NewMomentum.unit\(\);) s
+16 115 M (726:) s
+41.56 115 M
+() s
+45 115 M
+() s
+65 115 M
+(    PdotN = -cost2;) s
+16 104 M (727:) s
+41.56 104 M
+(                    A_paral = NewMomentum.cross\(A_trans\);) s
+16 93 M (728:) s
+41.56 93 M
+(                    A_paral = A_paral.unit\(\);) s
+16 82 M (729:) s
+41.56 82 M
+() s
+45 82 M
+() s
+65 82 M
+(    E2_abs     = std::sqrt\(E2_total\);) s
+16 71 M (730:) s
+41.56 71 M
+() s
+45 71 M
+() s
+65 71 M
+(    C_parl     = E2_parl/E2_abs;) s
+16 60 M (731:) s
+41.56 60 M
+() s
+45 60 M
+() s
+65 60 M
+(    C_perp     = E2_perp/E2_abs;) s
+16 49 M (732:) s
+16 38 M (733:) s
+41.56 38 M
+(                    NewPolarization = C_parl*A_paral + C_perp*A_trans;) s
+16 27 M (734:) s
+16 16 M (735:) s
+41.56 16 M
+() s
+45 16 M
+(         }) s
+16 5 M (736:) s
+41.56 5 M
+() s
+45 5 M
+(         ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+67.5 5 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+83.05 5 M
+( {                  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+135.35 5 M
+(// incident ray perpendicular) s
+_R
+S
+%%Page: (12) 12
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 12 def
+/fname (G4OpBoundaryProcess.cc) def
+/fdir () def
+/ftail (G4OpBoundaryProcess.cc) def
+/Times-Italic 10 10 SUF
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+0.698039 0.133333 0.133333 setrgbcolor
+/F-gs-font 10 10 SF
+16 731 M (737:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+16 720 M (738:) s
+41.56 720 M
+() s
+45 720 M
+() s
+65 720 M
+(    NewMomentum = OldMomentum;) s
+16 709 M (739:) s
+41.56 709 M
+() s
+45 709 M
+() s
+65 709 M
+(    NewPolarization = OldPolarization;) s
+16 698 M (740:) s
+16 687 M (741:) s
+41.56 687 M
+() s
+45 687 M
+(         }) s
+16 676 M (742:) s
+41.56 676 M
+() s
+45 676 M
+(      }) s
+16 665 M (743:) s
+41.56 665 M
+() s
+45 665 M
+(   }) s
+16 654 M (744:) s
+16 643 M (745:) s
+41.56 643 M
+() s
+45 643 M
+(   OldMomentum = NewMomentum.unit\(\);) s
+16 632 M (746:) s
+41.56 632 M
+() s
+45 632 M
+(   OldPolarization = NewPolarization.unit\(\);) s
+16 621 M (747:) s
+16 610 M (748:) s
+41.56 610 M
+() s
+45 610 M
+(   ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+52.5 610 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+58.61 610 M
+( \(theStatus == FresnelRefraction\) {) s
+16 599 M (749:) s
+41.56 599 M
+() s
+45 599 M
+(      Done = \(NewMomentum * theGlobalNormal <= 0.0\);) s
+16 588 M (750:) s
+41.56 588 M
+() s
+45 588 M
+(   } ) s
+16 577 M (751:) s
+41.56 577 M
+() s
+45 577 M
+(   ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+52.5 577 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+68.05 577 M
+( {) s
+16 566 M (752:) s
+41.56 566 M
+() s
+45 566 M
+(      Done = \(NewMomentum * theGlobalNormal >= 0.0\);) s
+16 555 M (753:) s
+41.56 555 M
+() s
+45 555 M
+(   }) s
+16 544 M (754:) s
+16 533 M (755:) s
+41.56 533 M
+() s
+45 533 M
+(} ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+52.3 533 M
+(while) s
+/F-gs-font 10 10 SF
+0 setgray
+75.08 533 M
+( \(!Done\);) s
+16 522 M (756:) s
+16 511 M (757:) s
+41.56 511 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+45 511 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+51.11 511 M
+( \(Inside && !Swap\) {) s
+16 500 M (758:) s
+41.56 500 M
+(          ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+66.56 500 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+72.67 500 M
+(\( theFinish == polishedbackpainted ||) s
+16 489 M (759:) s
+41.56 489 M
+(              theFinish == groundbackpainted \) {) s
+16 478 M (760:) s
+41.56 478 M
+() s
+45 478 M
+(      ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+60 478 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+66.11 478 M
+(\( !G4BooleanRand\(theReflectivity\) \) {) s
+16 467 M (761:) s
+41.56 467 M
+() s
+45 467 M
+() s
+65 467 M
+(DoAbsorption\(\);) s
+16 456 M (762:) s
+41.56 456 M
+(              }) s
+16 445 M (763:) s
+41.56 445 M
+() s
+45 445 M
+(      ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+60 445 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+75.55 445 M
+( {) s
+16 434 M (764:) s
+41.56 434 M
+() s
+45 434 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+65 434 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+71.11 434 M
+( \(theStatus != FresnelRefraction \) {) s
+16 423 M (765:) s
+41.56 423 M
+() s
+45 423 M
+() s
+65 423 M
+(   theGlobalNormal = -theGlobalNormal;) s
+16 412 M (766:) s
+41.56 412 M
+() s
+45 412 M
+(        }) s
+16 401 M (767:) s
+41.56 401 M
+() s
+45 401 M
+(        ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+65 401 M
+(else) s
+/F-gs-font 10 10 SF
+0 setgray
+80.55 401 M
+( {) s
+16 390 M (768:) s
+41.56 390 M
+() s
+45 390 M
+() s
+65 390 M
+(   Swap = !Swap;) s
+16 379 M (769:) s
+41.56 379 M
+() s
+45 379 M
+() s
+65 379 M
+(   G4Swap\(Material1,Material2\);) s
+16 368 M (770:) s
+41.56 368 M
+() s
+45 368 M
+() s
+65 368 M
+(   G4Swap\(&Rindex1,&Rindex2\);) s
+16 357 M (771:) s
+41.56 357 M
+() s
+45 357 M
+(        }) s
+16 346 M (772:) s
+41.56 346 M
+() s
+45 346 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+65 346 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+71.11 346 M
+( \( theFinish == groundbackpainted \)) s
+16 335 M (773:) s
+41.56 335 M
+() s
+45 335 M
+() s
+65 335 M
+() s
+85 335 M
+() s
+105 335 M
+() s
+125 335 M
+(theStatus = LambertianReflection;) s
+16 324 M (774:) s
+16 313 M (775:) s
+41.56 313 M
+() s
+45 313 M
+(        DoReflection\(\);) s
+16 302 M (776:) s
+16 291 M (777:) s
+41.56 291 M
+() s
+45 291 M
+(        theGlobalNormal = -theGlobalNormal;) s
+16 280 M (778:) s
+41.56 280 M
+() s
+45 280 M
+() s
+65 280 M
+(OldMomentum = NewMomentum;) s
+16 269 M (779:) s
+16 258 M (780:) s
+41.56 258 M
+() s
+45 258 M
+(        ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+65 258 M
+(goto) s
+/F-gs-font 10 10 SF
+0 setgray
+83.33 258 M
+( ) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+85.83 258 M
+(leap) s
+/F-gs-font 10 10 SF
+0 setgray
+103.61 258 M
+(;) s
+16 247 M (781:) s
+41.56 247 M
+() s
+45 247 M
+(      }) s
+16 236 M (782:) s
+41.56 236 M
+() s
+45 236 M
+(  }) s
+16 225 M (783:) s
+41.56 225 M
+() s
+45 225 M
+(}) s
+16 214 M (784:) s
+41.56 214 M
+(}) s
+16 203 M (785:) s
+16 192 M (786:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 192 M
+(// GetMeanFreePath) s
+/F-gs-font 10 10 SF
+16 181 M (787:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 181 M
+(// ---------------) s
+/F-gs-font 10 10 SF
+16 170 M (788:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 170 M
+(//) s
+/F-gs-font 10 10 SF
+16 159 M (789:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 159 M
+(G4double ) s
+/Times-Bold 10 10 SUF
+0 0 1 setrgbcolor
+83.5 159 M
+(G4OpBoundaryProcess::GetMeanFreePath) s
+/F-gs-font 10 10 SF
+0 setgray
+270.7 159 M
+(\() s
+/Times-Bold 10 10 SUF
+0.133333 0.545098 0.133333 setrgbcolor
+274.03 159 M
+(const) s
+/F-gs-font 10 10 SF
+0 setgray
+296.25 159 M
+( G4Track& ,) s
+16 148 M (790:) s
+41.56 148 M
+(                                              G4double ,) s
+16 137 M (791:) s
+41.56 137 M
+(                                              G4ForceCondition* condition\)) s
+16 126 M (792:) s
+41.56 126 M
+({) s
+16 115 M (793:) s
+41.56 115 M
+() s
+45 115 M
+(*condition = Forced;) s
+16 104 M (794:) s
+16 93 M (795:) s
+41.56 93 M
+() s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+45 93 M
+(return) s
+/F-gs-font 10 10 SF
+0 setgray
+72.77 93 M
+( DBL_MAX;) s
+16 82 M (796:) s
+41.56 82 M
+(}) s
+16 71 M (797:) s
+_R
+S
+%%Trailer
+%%Pages: 12
+%%DocumentNeededResources: font Times-Roman Courier-Bold Times-Italic 
+%%+ font Times-Bold 
+%%EOF

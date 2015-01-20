@@ -1,0 +1,96 @@
+//**************************************************************************
+//
+//  Radiative Lookup Table Readme
+//  Author: James Dowd (jdowd@jlab.org)
+//
+//**************************************************************************
+
+=================
+     Contents
+-----------------
+[1]  Description
+[2]  Installation
+[3]  Usage
+=================
+
+
+
+-----------------
+[1]  Description
+-----------------
+This is the readme for the radiative lookup table event generator (reaction 
+type 7) for QwGeant4.  The primary purpose of this event generator is to 
+look at kinematics where radiated processes come into play.  Reaction type 7
+works for three specific beam energies: 3.35 GeV, 1.16 GeV, & 877 MeV.  It 
+will not work for any other beam energy.  Due to the way lookup tables are 
+constructed, there are kinematic range limitations.  Here are the limitations
+for each beam energy:
+
+- 3.35 GeV -
+Theta:    2.0 to 20.0 degrees
+E prime:  0.15 to 1.55 GeV
+
+- 1.16 GeV -
+Theta:    2.0 to 20.0 degrees
+E prime:  0.059 to 1.159 GeV
+
+- 877 MeV -
+Theta:    2.0 to 20.0 degrees
+E prime:  26 to 876 MeV
+
+
+
+-----------------
+[2]  Installation
+-----------------
+- IFARM -
+If you are running QwGeant4 on the ifarm, run the following command from 
+the main QwGeant4 directory:
+
+ln -sf /group/qweak/www/html/private/jdowd/radiative_lookup_tables radiative_lookup_tables
+
+
+- LOCAL -
+If you are running a local copy of QwGeant4, you will need to copy the data 
+files to a local directory.  From the main QwGeant4 directory, run the 
+following commands:
+
+mkdir radiative_lookup_tables
+cp /group/qweak/www/html/private/jdowd/radiative_lookup_tables/* radiative_lookup_tables
+
+Alternately, you can copy only the data files that you plan on using.  The 
+names are descriptive, so there shouldn't be any trouble finding the ones 
+you need.
+
+
+
+-----------------
+[3]  Usage
+-----------------
+To use reaction type 7, you need to add a few lines to whatever QwGeant4 run
+macro you use.  You will need to specify the beam energy, E prime range, theta 
+range, and reaction region.  It is recommended that you have them in the 
+following order:
+
+/EventGen/SetBeamEnergy 3.35 GeV
+/EventGen/SetEPrimeMax 1.2 GeV
+/EventGen/SetEPrimeMin 0.900 GeV
+/EventGen/SetThetaMax 12.5 degree
+/EventGen/SetThetaMin 5.5 degree
+/EventGen/SelectReactionRegion 1
+/EventGen/SelectReactionType 7
+
+The reaction region specifies which target you are using.  Here is what each 
+reaction region corresponds to:
+
+ 1 - Main Target (LH2)
+ 2 - Main Target (US Al Window)
+ 3 - Main Target (DS Al Window)
+ 4 - Dummy Target (1% US Al)
+ 5 - Dummy Target (2% US Al)
+ 6 - Dummy Target (4% US Al)
+ 7 - Dummy Target (2% DS Al)
+ 8 - Dummy Target (4% DS Al)
+ 9 - Dummy Target (8% DS Al)
+10 - Dummy Target (US Carbon)
+11 - Dummy Target (DS Carbon)

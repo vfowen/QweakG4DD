@@ -1,0 +1,32 @@
+/control/execute myQweakConfiguration.mac
+
+#====================================
+# Magnetic field related
+#====================================
+
+# This is only valid for peiqing_2007.dat
+#/MagneticField/SetActualCurrent 8921.0
+#/MagneticField/SetReferenceCurrent 8615.0
+#/MagneticField/ReadFieldMap peiqing_2007.dat 
+
+# The preferred way to load a field map is to use
+# the macros in macros/peiqing_*.mac
+/MagneticField/SetTranslation 0.0 cm
+/MagneticField/SetRotation 45.0 degree
+
+/MagneticField/SetMinZ -250 cm
+/MagneticField/SetMaxZ  250 cm
+/MagneticField/SetStepZ 2 cm
+
+/MagneticField/SetMinR 2 cm
+/MagneticField/SetMaxR 260 cm
+/MagneticField/SetStepR 2 cm
+
+/MagneticField/SetMinPhi 0.0 degree
+/MagneticField/SetMaxPhi 360.0 degree
+/MagneticField/SetStepPhi 1 degree
+/MagneticField/SetWrapPhi 1
+
+/MagneticField/SetReferenceCurrent 8960.0
+/MagneticField/ReadFieldMap peiqing_2011.dat
+

@@ -1,0 +1,748 @@
+%!PS-Adobe-3.0
+%%BoundingBox: 38 24 574 768
+%%Title: Enscript Output
+%%For: Michael Gericke
+%%Creator: GNU enscript 1.6.4
+%%CreationDate: Thu Aug  9 22:37:28 2007
+%%Orientation: Portrait
+%%Pages: (atend)
+%%DocumentMedia: Letter 612 792 0 () ()
+%%DocumentNeededResources: (atend)
+%%EndComments
+%%BeginProlog
+%%BeginResource: procset Enscript-Prolog 1.6 4
+%
+% Procedures.
+%
+
+/_S {	% save current state
+  /_s save def
+} def
+/_R {	% restore from saved state
+  _s restore
+} def
+
+/S {	% showpage protecting gstate
+  gsave
+  showpage
+  grestore
+} bind def
+
+/MF {	% fontname newfontname -> -	make a new encoded font
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  % insert only valid encoding vectors
+  encoding_vector length 256 eq {
+    newfont /Encoding encoding_vector put
+  } if
+
+  newfontname newfont definefont pop
+} def
+
+/MF_PS { % fontname newfontname -> -	make a new font preserving its enc
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  newfontname newfont definefont pop
+} def
+
+/SF { % fontname width height -> -	set a new font
+  /height exch def
+  /width exch def
+
+  findfont
+  [width 0 0 height 0 0] makefont setfont
+} def
+
+/SUF { % fontname width height -> -	set a new user font
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF
+  /F-gs-user-font width height SF
+} def
+
+/SUF_PS { % fontname width height -> -	set a new user font preserving its enc
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF_PS
+  /F-gs-user-font width height SF
+} def
+
+/M {moveto} bind def
+/s {show} bind def
+
+/Box {	% x y w h -> -			define box path
+  /d_h exch def /d_w exch def /d_y exch def /d_x exch def
+  d_x d_y  moveto
+  d_w 0 rlineto
+  0 d_h rlineto
+  d_w neg 0 rlineto
+  closepath
+} def
+
+/bgs {	% x y height blskip gray str -> -	show string with bg color
+  /str exch def
+  /gray exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    gray setgray
+    fill
+  grestore
+  x y M str s
+} def
+
+/bgcs { % x y height blskip red green blue str -> -  show string with bg color
+  /str exch def
+  /blue exch def
+  /green exch def
+  /red exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    red green blue setrgbcolor
+    fill
+  grestore
+  x y M str s
+} def
+
+% Highlight bars.
+/highlight_bars {	% nlines lineheight output_y_margin gray -> -
+  gsave
+    setgray
+    /ymarg exch def
+    /lineheight exch def
+    /nlines exch def
+
+    % This 2 is just a magic number to sync highlight lines to text.
+    0 d_header_y ymarg sub 2 sub translate
+
+    /cw d_output_w cols div def
+    /nrows d_output_h ymarg 2 mul sub lineheight div cvi def
+
+    % for each column
+    0 1 cols 1 sub {
+      cw mul /xp exch def
+
+      % for each rows
+      0 1 nrows 1 sub {
+        /rn exch def
+        rn lineheight mul neg /yp exch def
+        rn nlines idiv 2 mod 0 eq {
+	  % Draw highlight bar.  4 is just a magic indentation.
+	  xp 4 add yp cw 8 sub lineheight neg Box fill
+	} if
+      } for
+    } for
+
+  grestore
+} def
+
+% Line highlight bar.
+/line_highlight {	% x y width height gray -> -
+  gsave
+    /gray exch def
+    Box gray setgray fill
+  grestore
+} def
+
+% Column separator lines.
+/column_lines {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h translate
+    /cw d_output_w cols div def
+    1 1 cols 1 sub {
+      cw mul 0 moveto
+      0 d_output_h rlineto stroke
+    } for
+  grestore
+} def
+
+% Column borders.
+/column_borders {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h moveto
+    0 d_output_h rlineto
+    d_output_w 0 rlineto
+    0 d_output_h neg rlineto
+    closepath stroke
+  grestore
+} def
+
+% Do the actual underlay drawing
+/draw_underlay {
+  ul_style 0 eq {
+    ul_str true charpath stroke
+  } {
+    ul_str show
+  } ifelse
+} def
+
+% Underlay
+/underlay {	% - -> -
+  gsave
+    0 d_page_h translate
+    d_page_h neg d_page_w atan rotate
+
+    ul_gray setgray
+    ul_font setfont
+    /dw d_page_h dup mul d_page_w dup mul add sqrt def
+    ul_str stringwidth pop dw exch sub 2 div ul_h_ptsize -2 div moveto
+    draw_underlay
+  grestore
+} def
+
+/user_underlay {	% - -> -
+  gsave
+    ul_x ul_y translate
+    ul_angle rotate
+    ul_gray setgray
+    ul_font setfont
+    0 0 ul_h_ptsize 2 div sub moveto
+    draw_underlay
+  grestore
+} def
+
+% Page prefeed
+/page_prefeed {		% bool -> -
+  statusdict /prefeed known {
+    statusdict exch /prefeed exch put
+  } {
+    pop
+  } ifelse
+} def
+
+% Wrapped line markers
+/wrapped_line_mark {	% x y charwith charheight type -> -
+  /type exch def
+  /h exch def
+  /w exch def
+  /y exch def
+  /x exch def
+
+  type 2 eq {
+    % Black boxes (like TeX does)
+    gsave
+      0 setlinewidth
+      x w 4 div add y M
+      0 h rlineto w 2 div 0 rlineto 0 h neg rlineto
+      closepath fill
+    grestore
+  } {
+    type 3 eq {
+      % Small arrows
+      gsave
+        .2 setlinewidth
+        x w 2 div add y h 2 div add M
+        w 4 div 0 rlineto
+        x w 4 div add y lineto stroke
+
+        x w 4 div add w 8 div add y h 4 div add M
+        x w 4 div add y lineto
+	w 4 div h 8 div rlineto stroke
+      grestore
+    } {
+      % do nothing
+    } ifelse
+  } ifelse
+} def
+
+% EPSF import.
+
+/BeginEPSF {
+  /b4_Inc_state save def    		% Save state for cleanup
+  /dict_count countdictstack def	% Count objects on dict stack
+  /op_count count 1 sub def		% Count objects on operand stack
+  userdict begin
+  /showpage { } def
+  0 setgray 0 setlinecap
+  1 setlinewidth 0 setlinejoin
+  10 setmiterlimit [ ] 0 setdash newpath
+  /languagelevel where {
+    pop languagelevel
+    1 ne {
+      false setstrokeadjust false setoverprint
+    } if
+  } if
+} bind def
+
+/EndEPSF {
+  count op_count sub { pos } repeat	% Clean up stacks
+  countdictstack dict_count sub { end } repeat
+  b4_Inc_state restore
+} bind def
+
+% Check PostScript language level.
+/languagelevel where {
+  pop /gs_languagelevel languagelevel def
+} {
+  /gs_languagelevel 1 def
+} ifelse
+%%EndResource
+%%BeginResource: procset Enscript-Encoding-88591 1.6 4
+/encoding_vector [
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclam       	/quotedbl     	/numbersign   	
+/dollar       	/percent      	/ampersand    	/quoteright   	
+/parenleft    	/parenright   	/asterisk     	/plus         	
+/comma        	/hyphen       	/period       	/slash        	
+/zero         	/one          	/two          	/three        	
+/four         	/five         	/six          	/seven        	
+/eight        	/nine         	/colon        	/semicolon    	
+/less         	/equal        	/greater      	/question     	
+/at           	/A            	/B            	/C            	
+/D            	/E            	/F            	/G            	
+/H            	/I            	/J            	/K            	
+/L            	/M            	/N            	/O            	
+/P            	/Q            	/R            	/S            	
+/T            	/U            	/V            	/W            	
+/X            	/Y            	/Z            	/bracketleft  	
+/backslash    	/bracketright 	/asciicircum  	/underscore   	
+/quoteleft    	/a            	/b            	/c            	
+/d            	/e            	/f            	/g            	
+/h            	/i            	/j            	/k            	
+/l            	/m            	/n            	/o            	
+/p            	/q            	/r            	/s            	
+/t            	/u            	/v            	/w            	
+/x            	/y            	/z            	/braceleft    	
+/bar          	/braceright   	/tilde        	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclamdown   	/cent         	/sterling     	
+/currency     	/yen          	/brokenbar    	/section      	
+/dieresis     	/copyright    	/ordfeminine  	/guillemotleft	
+/logicalnot   	/hyphen       	/registered   	/macron       	
+/degree       	/plusminus    	/twosuperior  	/threesuperior	
+/acute        	/mu           	/paragraph    	/bullet       	
+/cedilla      	/onesuperior  	/ordmasculine 	/guillemotright	
+/onequarter   	/onehalf      	/threequarters	/questiondown 	
+/Agrave       	/Aacute       	/Acircumflex  	/Atilde       	
+/Adieresis    	/Aring        	/AE           	/Ccedilla     	
+/Egrave       	/Eacute       	/Ecircumflex  	/Edieresis    	
+/Igrave       	/Iacute       	/Icircumflex  	/Idieresis    	
+/Eth          	/Ntilde       	/Ograve       	/Oacute       	
+/Ocircumflex  	/Otilde       	/Odieresis    	/multiply     	
+/Oslash       	/Ugrave       	/Uacute       	/Ucircumflex  	
+/Udieresis    	/Yacute       	/Thorn        	/germandbls   	
+/agrave       	/aacute       	/acircumflex  	/atilde       	
+/adieresis    	/aring        	/ae           	/ccedilla     	
+/egrave       	/eacute       	/ecircumflex  	/edieresis    	
+/igrave       	/iacute       	/icircumflex  	/idieresis    	
+/eth          	/ntilde       	/ograve       	/oacute       	
+/ocircumflex  	/otilde       	/odieresis    	/divide       	
+/oslash       	/ugrave       	/uacute       	/ucircumflex  	
+/udieresis    	/yacute       	/thorn        	/ydieresis    	
+] def
+%%EndResource
+%%EndProlog
+%%BeginSetup
+%%IncludeResource: font Times-Roman
+%%IncludeResource: font Courier-Bold
+/HFpt_w 10 def
+/HFpt_h 10 def
+/Courier-Bold /HF-gs-font MF
+/HF /HF-gs-font findfont [HFpt_w 0 0 HFpt_h 0 0] makefont def
+/Times-Roman /F-gs-font MF
+/F-gs-font 10 10 SF
+/#copies 1 def
+% Pagedevice definitions:
+gs_languagelevel 1 gt {
+  <<
+    /PageSize [612 792] 
+  >> setpagedevice
+} if
+/d_page_w 536 def
+/d_page_h 744 def
+/d_header_x 0 def
+/d_header_y 744 def
+/d_header_w 536 def
+/d_header_h 0 def
+/d_footer_x 0 def
+/d_footer_y 0 def
+/d_footer_w 536 def
+/d_footer_h 0 def
+/d_output_w 536 def
+/d_output_h 744 def
+/cols 1 def
+%%EndSetup
+%%Page: (1) 1
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 1 def
+/fname (QweakSimAnalysis.hh) def
+/fdir () def
+/ftail (QweakSimAnalysis.hh) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+26 731 M (1:) s
+41.56 731 M
+(//=============================================================================) s
+26 720 M (2:) s
+41.56 720 M
+(// ) s
+26 709 M (3:) s
+41.56 709 M
+(//   ---------------------------) s
+26 698 M (4:) s
+41.56 698 M
+(//  | Doxygen File Information |) s
+26 687 M (5:) s
+41.56 687 M
+(//  ---------------------------) s
+26 676 M (6:) s
+41.56 676 M
+(/**) s
+26 665 M (7:) s
+41.56 665 M
+( ) s
+26 654 M (8:) s
+41.56 654 M
+(   \\file QweakSimAnalysis.hh) s
+26 643 M (9:) s
+41.56 643 M
+(   $Revision: 1.2 $) s
+21 632 M (10:) s
+41.56 632 M
+(   $Date: 2005/12/27 19:22:16 $) s
+21 621 M (11:) s
+41.56 621 M
+(   \\author Klaus Hans Grimm) s
+21 610 M (12:) s
+41.56 610 M
+(     ) s
+21 599 M (13:) s
+41.56 599 M
+(*/) s
+21 588 M (14:) s
+41.56 588 M
+(//=============================================================================) s
+21 577 M (15:) s
+41.56 577 M
+(// ) s
+21 566 M (16:) s
+41.56 566 M
+(//=============================================================================) s
+21 555 M (17:) s
+41.56 555 M
+(// ) s
+21 544 M (18:) s
+41.56 544 M
+(//   ---------------------------) s
+21 533 M (19:) s
+41.56 533 M
+(//  | Doxygen Class Information |) s
+21 522 M (20:) s
+41.56 522 M
+(//  ---------------------------) s
+21 511 M (21:) s
+41.56 511 M
+(/**) s
+21 500 M (22:) s
+41.56 500 M
+(   \\class QweakSimAnalysis) s
+21 489 M (23:) s
+41.56 489 M
+(    ) s
+21 478 M (24:) s
+41.56 478 M
+(   \\brief Handling of the output ROOT file) s
+21 467 M (25:) s
+21 456 M (26:) s
+41.56 456 M
+(   Placeholder for a long explaination) s
+21 445 M (27:) s
+41.56 445 M
+(    ) s
+21 434 M (28:) s
+41.56 434 M
+( */) s
+21 423 M (29:) s
+41.56 423 M
+(//=============================================================================) s
+21 412 M (30:) s
+41.56 412 M
+(//) s
+21 401 M (31:) s
+41.56 401 M
+(//=============================================================================) s
+21 390 M (32:) s
+41.56 390 M
+(//   -----------------------) s
+21 379 M (33:) s
+41.56 379 M
+(//  | CVS File Information |) s
+21 368 M (34:) s
+41.56 368 M
+(//  -----------------------) s
+21 357 M (35:) s
+41.56 357 M
+(// ) s
+21 346 M (36:) s
+41.56 346 M
+(//  Last Update:      $Author: grimm $) s
+21 335 M (37:) s
+41.56 335 M
+(//  Update Date:      $Date: 2005/12/27 19:22:16 $) s
+21 324 M (38:) s
+41.56 324 M
+(//  CVS/RCS Revision: $Revision: 1.2 $) s
+21 313 M (39:) s
+41.56 313 M
+(//  Status:           $State: Exp $) s
+21 302 M (40:) s
+41.56 302 M
+(// ) s
+21 291 M (41:) s
+41.56 291 M
+(// ===================================) s
+21 280 M (42:) s
+41.56 280 M
+(//  CVS Revision Log at end of file !!) s
+21 269 M (43:) s
+41.56 269 M
+(// ===================================) s
+21 258 M (44:) s
+41.56 258 M
+(// ) s
+21 247 M (45:) s
+41.56 247 M
+(//=============================================================================) s
+21 236 M (46:) s
+21 225 M (47:) s
+41.56 225 M
+(//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......) s
+21 214 M (48:) s
+41.56 214 M
+(#ifndef QweakSimAnalysis_h ) s
+21 203 M (49:) s
+41.56 203 M
+(#define QweakSimAnalysis_h ) s
+21 192 M (50:) s
+41.56 192 M
+(//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......) s
+21 181 M (51:) s
+21 170 M (52:) s
+41.56 170 M
+(// system includes) s
+21 159 M (53:) s
+41.56 159 M
+(#include "cpp_include.h") s
+21 148 M (54:) s
+41.56 148 M
+(#include "Root_include.h") s
+21 137 M (55:) s
+41.56 137 M
+(#include "Geant4_include.hh" ) s
+21 126 M (56:) s
+21 115 M (57:) s
+41.56 115 M
+(// user includes) s
+21 104 M (58:) s
+41.56 104 M
+(#include "QweakSimUserMainEvent.hh") s
+21 93 M (59:) s
+21 82 M (60:) s
+41.56 82 M
+(// user classes) s
+21 71 M (61:) s
+41.56 71 M
+(class QweakSimUserMainEvent;) s
+21 60 M (62:) s
+21 49 M (63:) s
+41.56 49 M
+(//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......) s
+21 38 M (64:) s
+41.56 38 M
+(class QweakSimAnalysis {) s
+21 27 M (65:) s
+41.56 27 M
+(public:) s
+21 16 M (66:) s
+41.56 16 M
+(  QweakSimAnalysis\(\);) s
+21 5 M (67:) s
+41.56 5 M
+(  virtual ~QweakSimAnalysis\(\);) s
+_R
+S
+%%Page: (2) 2
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 2 def
+/fname (QweakSimAnalysis.hh) def
+/fdir () def
+/ftail (QweakSimAnalysis.hh) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+21 731 M (68:) s
+41.56 731 M
+(  ) s
+21 720 M (69:) s
+41.56 720 M
+(public:) s
+21 709 M (70:) s
+21 698 M (71:) s
+41.56 698 M
+(  void BeginOfRun\(\);) s
+21 687 M (72:) s
+41.56 687 M
+(  void EndOfRun\(\);) s
+21 676 M (73:) s
+41.56 676 M
+(  void EndOfEvent\(G4int flag\);) s
+21 665 M (74:) s
+21 654 M (75:) s
+41.56 654 M
+(  void Init\(\);) s
+21 643 M (76:) s
+41.56 643 M
+(  void Finish\(\);) s
+21 632 M (77:) s
+21 621 M (78:) s
+41.56 621 M
+(  void Fill_RootNtuple\(\) {QweakSimG4_RootNtuple->Fill\(\);}) s
+21 610 M (79:) s
+41.56 610 M
+(  void AutoSaveRootNtuple\(\);) s
+21 599 M (80:) s
+21 588 M (81:) s
+41.56 588 M
+(  QweakSimUserMainEvent* QweakSimG4_RootEvent;) s
+21 577 M (82:) s
+21 566 M (83:) s
+21 555 M (84:) s
+41.56 555 M
+(private:) s
+21 544 M (85:) s
+21 533 M (86:) s
+41.56 533 M
+(  void ConstructRootNtuple\(\); ) s
+21 522 M (87:) s
+21 511 M (88:) s
+41.56 511 M
+(  TTree*   QweakSimG4_RootNtuple;) s
+21 500 M (89:) s
+41.56 500 M
+(  TBranch* QweakSimG4_RootBranch;) s
+21 489 M (90:) s
+41.56 489 M
+(  TFile*   QweakSimG4_RootFile;) s
+21 478 M (91:) s
+21 467 M (92:) s
+41.56 467 M
+(};) s
+21 456 M (93:) s
+21 445 M (94:) s
+41.56 445 M
+(//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......) s
+21 434 M (95:) s
+21 423 M (96:) s
+41.56 423 M
+(#endif) s
+21 412 M (97:) s
+21 401 M (98:) s
+41.56 401 M
+(//=====================================================================================) s
+5 390 M
+(==) s
+21 379 M (99:) s
+41.56 379 M
+(//   -----------------------) s
+16 368 M (100:) s
+41.56 368 M
+(//  | CVS File Information |) s
+16 357 M (101:) s
+41.56 357 M
+(//  -----------------------) s
+16 346 M (102:) s
+41.56 346 M
+(// ) s
+16 335 M (103:) s
+41.56 335 M
+(//      $Revisions$  ) s
+16 324 M (104:) s
+41.56 324 M
+(//      $Log: QweakSimAnalysis.hh,v $) s
+16 313 M (105:) s
+41.56 313 M
+(//      Revision 1.2  2005/12/27 19:22:16  grimm) s
+16 302 M (106:) s
+41.56 302 M
+(//      - Redesign of Doxygen header containing CVS info like revision and date) s
+16 291 M (107:) s
+41.56 291 M
+(//      - Added CVS revision log at the end of file) s
+16 280 M (108:) s
+41.56 280 M
+(//) s
+16 269 M (109:) s
+41.56 269 M
+(// ) s
+_R
+S
+%%Trailer
+%%Pages: 2
+%%DocumentNeededResources: font Times-Roman Courier-Bold 
+%%EOF

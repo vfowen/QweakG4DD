@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# W&M Helicity
+. /usr/local/bin/root.sh
+. /usr/local/bin/geant4.sh
+
+# W&M SciClone
+##PBS -l nodes=1:opteron:compute:ppn=1
+#. ~/local/root/bin/thisroot.sh
+#. ~/local/geant4/bin/geant4.sh
+
+cd %qwgeant4%
+mkdir -p rootfiles/%name%_%jobid%_workdir
+build/QweakSimG4 macros/jobs/%name%_%jobid%.mac
+
+
+

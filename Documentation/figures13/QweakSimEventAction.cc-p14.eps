@@ -1,0 +1,786 @@
+%!PS-Adobe-3.0
+%%BoundingBox: 38 24 574 768
+%%Title: Enscript Output
+%%For: Michael Gericke
+%%Creator: GNU enscript 1.6.4
+%%CreationDate: Thu Aug  9 21:45:07 2007
+%%Orientation: Portrait
+%%Pages: (atend)
+%%DocumentMedia: Letter 612 792 0 () ()
+%%DocumentNeededResources: (atend)
+%%EndComments
+%%BeginProlog
+%%BeginResource: procset Enscript-Prolog 1.6 4
+%
+% Procedures.
+%
+
+/_S {	% save current state
+  /_s save def
+} def
+/_R {	% restore from saved state
+  _s restore
+} def
+
+/S {	% showpage protecting gstate
+  gsave
+  showpage
+  grestore
+} bind def
+
+/MF {	% fontname newfontname -> -	make a new encoded font
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  % insert only valid encoding vectors
+  encoding_vector length 256 eq {
+    newfont /Encoding encoding_vector put
+  } if
+
+  newfontname newfont definefont pop
+} def
+
+/MF_PS { % fontname newfontname -> -	make a new font preserving its enc
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  newfontname newfont definefont pop
+} def
+
+/SF { % fontname width height -> -	set a new font
+  /height exch def
+  /width exch def
+
+  findfont
+  [width 0 0 height 0 0] makefont setfont
+} def
+
+/SUF { % fontname width height -> -	set a new user font
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF
+  /F-gs-user-font width height SF
+} def
+
+/SUF_PS { % fontname width height -> -	set a new user font preserving its enc
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF_PS
+  /F-gs-user-font width height SF
+} def
+
+/M {moveto} bind def
+/s {show} bind def
+
+/Box {	% x y w h -> -			define box path
+  /d_h exch def /d_w exch def /d_y exch def /d_x exch def
+  d_x d_y  moveto
+  d_w 0 rlineto
+  0 d_h rlineto
+  d_w neg 0 rlineto
+  closepath
+} def
+
+/bgs {	% x y height blskip gray str -> -	show string with bg color
+  /str exch def
+  /gray exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    gray setgray
+    fill
+  grestore
+  x y M str s
+} def
+
+/bgcs { % x y height blskip red green blue str -> -  show string with bg color
+  /str exch def
+  /blue exch def
+  /green exch def
+  /red exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    red green blue setrgbcolor
+    fill
+  grestore
+  x y M str s
+} def
+
+% Highlight bars.
+/highlight_bars {	% nlines lineheight output_y_margin gray -> -
+  gsave
+    setgray
+    /ymarg exch def
+    /lineheight exch def
+    /nlines exch def
+
+    % This 2 is just a magic number to sync highlight lines to text.
+    0 d_header_y ymarg sub 2 sub translate
+
+    /cw d_output_w cols div def
+    /nrows d_output_h ymarg 2 mul sub lineheight div cvi def
+
+    % for each column
+    0 1 cols 1 sub {
+      cw mul /xp exch def
+
+      % for each rows
+      0 1 nrows 1 sub {
+        /rn exch def
+        rn lineheight mul neg /yp exch def
+        rn nlines idiv 2 mod 0 eq {
+	  % Draw highlight bar.  4 is just a magic indentation.
+	  xp 4 add yp cw 8 sub lineheight neg Box fill
+	} if
+      } for
+    } for
+
+  grestore
+} def
+
+% Line highlight bar.
+/line_highlight {	% x y width height gray -> -
+  gsave
+    /gray exch def
+    Box gray setgray fill
+  grestore
+} def
+
+% Column separator lines.
+/column_lines {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h translate
+    /cw d_output_w cols div def
+    1 1 cols 1 sub {
+      cw mul 0 moveto
+      0 d_output_h rlineto stroke
+    } for
+  grestore
+} def
+
+% Column borders.
+/column_borders {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h moveto
+    0 d_output_h rlineto
+    d_output_w 0 rlineto
+    0 d_output_h neg rlineto
+    closepath stroke
+  grestore
+} def
+
+% Do the actual underlay drawing
+/draw_underlay {
+  ul_style 0 eq {
+    ul_str true charpath stroke
+  } {
+    ul_str show
+  } ifelse
+} def
+
+% Underlay
+/underlay {	% - -> -
+  gsave
+    0 d_page_h translate
+    d_page_h neg d_page_w atan rotate
+
+    ul_gray setgray
+    ul_font setfont
+    /dw d_page_h dup mul d_page_w dup mul add sqrt def
+    ul_str stringwidth pop dw exch sub 2 div ul_h_ptsize -2 div moveto
+    draw_underlay
+  grestore
+} def
+
+/user_underlay {	% - -> -
+  gsave
+    ul_x ul_y translate
+    ul_angle rotate
+    ul_gray setgray
+    ul_font setfont
+    0 0 ul_h_ptsize 2 div sub moveto
+    draw_underlay
+  grestore
+} def
+
+% Page prefeed
+/page_prefeed {		% bool -> -
+  statusdict /prefeed known {
+    statusdict exch /prefeed exch put
+  } {
+    pop
+  } ifelse
+} def
+
+% Wrapped line markers
+/wrapped_line_mark {	% x y charwith charheight type -> -
+  /type exch def
+  /h exch def
+  /w exch def
+  /y exch def
+  /x exch def
+
+  type 2 eq {
+    % Black boxes (like TeX does)
+    gsave
+      0 setlinewidth
+      x w 4 div add y M
+      0 h rlineto w 2 div 0 rlineto 0 h neg rlineto
+      closepath fill
+    grestore
+  } {
+    type 3 eq {
+      % Small arrows
+      gsave
+        .2 setlinewidth
+        x w 2 div add y h 2 div add M
+        w 4 div 0 rlineto
+        x w 4 div add y lineto stroke
+
+        x w 4 div add w 8 div add y h 4 div add M
+        x w 4 div add y lineto
+	w 4 div h 8 div rlineto stroke
+      grestore
+    } {
+      % do nothing
+    } ifelse
+  } ifelse
+} def
+
+% EPSF import.
+
+/BeginEPSF {
+  /b4_Inc_state save def    		% Save state for cleanup
+  /dict_count countdictstack def	% Count objects on dict stack
+  /op_count count 1 sub def		% Count objects on operand stack
+  userdict begin
+  /showpage { } def
+  0 setgray 0 setlinecap
+  1 setlinewidth 0 setlinejoin
+  10 setmiterlimit [ ] 0 setdash newpath
+  /languagelevel where {
+    pop languagelevel
+    1 ne {
+      false setstrokeadjust false setoverprint
+    } if
+  } if
+} bind def
+
+/EndEPSF {
+  count op_count sub { pos } repeat	% Clean up stacks
+  countdictstack dict_count sub { end } repeat
+  b4_Inc_state restore
+} bind def
+
+% Check PostScript language level.
+/languagelevel where {
+  pop /gs_languagelevel languagelevel def
+} {
+  /gs_languagelevel 1 def
+} ifelse
+%%EndResource
+%%BeginResource: procset Enscript-Encoding-88591 1.6 4
+/encoding_vector [
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclam       	/quotedbl     	/numbersign   	
+/dollar       	/percent      	/ampersand    	/quoteright   	
+/parenleft    	/parenright   	/asterisk     	/plus         	
+/comma        	/hyphen       	/period       	/slash        	
+/zero         	/one          	/two          	/three        	
+/four         	/five         	/six          	/seven        	
+/eight        	/nine         	/colon        	/semicolon    	
+/less         	/equal        	/greater      	/question     	
+/at           	/A            	/B            	/C            	
+/D            	/E            	/F            	/G            	
+/H            	/I            	/J            	/K            	
+/L            	/M            	/N            	/O            	
+/P            	/Q            	/R            	/S            	
+/T            	/U            	/V            	/W            	
+/X            	/Y            	/Z            	/bracketleft  	
+/backslash    	/bracketright 	/asciicircum  	/underscore   	
+/quoteleft    	/a            	/b            	/c            	
+/d            	/e            	/f            	/g            	
+/h            	/i            	/j            	/k            	
+/l            	/m            	/n            	/o            	
+/p            	/q            	/r            	/s            	
+/t            	/u            	/v            	/w            	
+/x            	/y            	/z            	/braceleft    	
+/bar          	/braceright   	/tilde        	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclamdown   	/cent         	/sterling     	
+/currency     	/yen          	/brokenbar    	/section      	
+/dieresis     	/copyright    	/ordfeminine  	/guillemotleft	
+/logicalnot   	/hyphen       	/registered   	/macron       	
+/degree       	/plusminus    	/twosuperior  	/threesuperior	
+/acute        	/mu           	/paragraph    	/bullet       	
+/cedilla      	/onesuperior  	/ordmasculine 	/guillemotright	
+/onequarter   	/onehalf      	/threequarters	/questiondown 	
+/Agrave       	/Aacute       	/Acircumflex  	/Atilde       	
+/Adieresis    	/Aring        	/AE           	/Ccedilla     	
+/Egrave       	/Eacute       	/Ecircumflex  	/Edieresis    	
+/Igrave       	/Iacute       	/Icircumflex  	/Idieresis    	
+/Eth          	/Ntilde       	/Ograve       	/Oacute       	
+/Ocircumflex  	/Otilde       	/Odieresis    	/multiply     	
+/Oslash       	/Ugrave       	/Uacute       	/Ucircumflex  	
+/Udieresis    	/Yacute       	/Thorn        	/germandbls   	
+/agrave       	/aacute       	/acircumflex  	/atilde       	
+/adieresis    	/aring        	/ae           	/ccedilla     	
+/egrave       	/eacute       	/ecircumflex  	/edieresis    	
+/igrave       	/iacute       	/icircumflex  	/idieresis    	
+/eth          	/ntilde       	/ograve       	/oacute       	
+/ocircumflex  	/otilde       	/odieresis    	/divide       	
+/oslash       	/ugrave       	/uacute       	/ucircumflex  	
+/udieresis    	/yacute       	/thorn        	/ydieresis    	
+] def
+%%EndResource
+%%EndProlog
+%%BeginSetup
+%%IncludeResource: font Times-Roman
+%%IncludeResource: font Courier-Bold
+/HFpt_w 10 def
+/HFpt_h 10 def
+/Courier-Bold /HF-gs-font MF
+/HF /HF-gs-font findfont [HFpt_w 0 0 HFpt_h 0 0] makefont def
+/Times-Roman /F-gs-font MF
+/F-gs-font 10 10 SF
+/#copies 1 def
+% Pagedevice definitions:
+gs_languagelevel 1 gt {
+  <<
+    /PageSize [612 792] 
+  >> setpagedevice
+} if
+/d_page_w 536 def
+/d_page_h 744 def
+/d_header_x 0 def
+/d_header_y 744 def
+/d_header_w 536 def
+/d_header_h 0 def
+/d_footer_x 0 def
+/d_footer_y 0 def
+/d_footer_w 536 def
+/d_footer_h 0 def
+/d_output_w 536 def
+/d_output_h 744 def
+/cols 1 def
+%%EndSetup
+%%Page: (14) 1
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 14 def
+/fname (../src/QweakSimEventAction.cc) def
+/fdir (../src/) def
+/ftail (QweakSimEventAction.cc) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+16 731 M (773:) s
+16 720 M (774:) s
+41.56 720 M
+(    ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+51.56 720 M
+(if) s
+/F-gs-font 10 10 SF
+0 setgray
+57.67 720 M
+( \(n_hitCerenkov >0\){) s
+16 709 M (775:) s
+41.56 709 M
+(      ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+56.56 709 M
+(// loop over hits ) s
+/F-gs-font 10 10 SF
+16 698 M (776:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 698 M
+(      ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+56.56 698 M
+(for) s
+/F-gs-font 10 10 SF
+0 setgray
+69.33 698 M
+(\() s
+/Times-Bold 10 10 SUF
+0.133333 0.545098 0.133333 setrgbcolor
+72.66 698 M
+(int) s
+/F-gs-font 10 10 SF
+0 setgray
+84.33 698 M
+( i1=0;i1<n_hitCerenkov;i1++\){) s
+16 687 M (777:) s
+16 676 M (778:) s
+41.56 676 M
+() s
+45 676 M
+(QweakSimCerenkov_DetectorHit* aHit = \(*CerenkovDetector_HC\)[i1];) s
+16 665 M (779:) s
+16 654 M (780:) s
+41.56 654 M
+( ) s
+45 654 M
+(rOctantID = G4IndexToOctantNumber[ \(Int_t\) aHit->GetDetectorID\(\)];) s
+16 643 M (781:) s
+16 632 M (782:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 632 M
+(//         //aHit->Print\(\);) s
+/F-gs-font 10 10 SF
+16 621 M (783:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 621 M
+() s
+45 621 M
+(      ) s
+16 610 M (784:) s
+41.56 610 M
+() s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+45 610 M
+(// get local position of hit ) s
+/F-gs-font 10 10 SF
+16 599 M (785:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 599 M
+() s
+45 599 M
+(localPosition  = aHit->GetLocalPosition\(\);) s
+16 588 M (786:) s
+41.56 588 M
+() s
+45 588 M
+(rLocalPositionX = \(Float_t\) localPosition.x\(\)/cm;) s
+16 577 M (787:) s
+41.56 577 M
+() s
+45 577 M
+(rLocalPositionY = \(Float_t\) localPosition.y\(\)/cm;) s
+16 566 M (788:) s
+41.56 566 M
+() s
+45 566 M
+(rLocalPositionZ = \(Float_t\) localPosition.z\(\)/cm;) s
+16 555 M (789:) s
+41.56 555 M
+() s
+45 555 M
+(  ) s
+16 544 M (790:) s
+41.56 544 M
+() s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+45 544 M
+(// get world position of hit ) s
+/F-gs-font 10 10 SF
+16 533 M (791:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 533 M
+() s
+45 533 M
+(globalPosition  = aHit->GetWorldPosition\(\);) s
+16 522 M (792:) s
+41.56 522 M
+() s
+45 522 M
+(rGlobalPositionX = \(Float_t\) globalPosition.x\(\)/cm;) s
+16 511 M (793:) s
+41.56 511 M
+() s
+45 511 M
+(rGlobalPositionY = \(Float_t\) globalPosition.y\(\)/cm;) s
+16 500 M (794:) s
+41.56 500 M
+() s
+45 500 M
+(rGlobalPositionZ = \(Float_t\) globalPosition.z\(\)/cm;) s
+16 489 M (795:) s
+16 478 M (796:) s
+41.56 478 M
+() s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+45 478 M
+(// get local Momentum of hit ) s
+/F-gs-font 10 10 SF
+16 467 M (797:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 467 M
+() s
+45 467 M
+(localMomentum  = aHit->GetLocalMomentum\(\);) s
+16 456 M (798:) s
+41.56 456 M
+() s
+45 456 M
+(rLocalMomentumX = \(Float_t\) localMomentum.x\(\)/MeV;) s
+16 445 M (799:) s
+41.56 445 M
+() s
+45 445 M
+(rLocalMomentumY = \(Float_t\) localMomentum.y\(\)/MeV;) s
+16 434 M (800:) s
+41.56 434 M
+() s
+45 434 M
+(rLocalMomentumZ = \(Float_t\) localMomentum.z\(\)/MeV;) s
+16 423 M (801:) s
+41.56 423 M
+(      ) s
+16 412 M (802:) s
+41.56 412 M
+() s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+45 412 M
+(// get world Momentum of hit ) s
+/F-gs-font 10 10 SF
+16 401 M (803:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 401 M
+() s
+45 401 M
+(globalMomentum  = aHit->GetWorldMomentum\(\);) s
+16 390 M (804:) s
+41.56 390 M
+() s
+45 390 M
+(rGlobalMomentumX = \(Float_t\) globalMomentum.x\(\)/MeV;) s
+16 379 M (805:) s
+41.56 379 M
+() s
+45 379 M
+(rGlobalMomentumY = \(Float_t\) globalMomentum.y\(\)/MeV;) s
+16 368 M (806:) s
+41.56 368 M
+() s
+45 368 M
+(rGlobalMomentumZ = \(Float_t\) globalMomentum.z\(\)/MeV;) s
+16 357 M (807:) s
+41.56 357 M
+() s
+45 357 M
+(      ) s
+16 346 M (808:) s
+41.56 346 M
+() s
+45 346 M
+(localExitPosition = myUserInfo->GetLocalCerenkovExitPosition\(\);) s
+16 335 M (809:) s
+41.56 335 M
+() s
+45 335 M
+(rLocalExitPositionX = \(Float_t\) localExitPosition.x\(\)/cm;) s
+16 324 M (810:) s
+41.56 324 M
+() s
+45 324 M
+(rLocalExitPositionY = \(Float_t\) localExitPosition.y\(\)/cm;) s
+16 313 M (811:) s
+41.56 313 M
+() s
+45 313 M
+(rLocalExitPositionZ = \(Float_t\) localExitPosition.z\(\)/cm;) s
+285 313 M
+(      ) s
+16 302 M (812:) s
+41.56 302 M
+() s
+45 302 M
+(      ) s
+16 291 M (813:) s
+41.56 291 M
+() s
+45 291 M
+(originVertexPosition  = aHit->GetOriginVertexPosition\(\);) s
+16 280 M (814:) s
+41.56 280 M
+() s
+45 280 M
+(rOriginVertexPositionX      = \(Float_t\) originVertexPosition.x\(\)/cm;) s
+16 269 M (815:) s
+41.56 269 M
+() s
+45 269 M
+(rOriginVertexPositionY      = \(Float_t\) originVertexPosition.y\(\)/cm;) s
+16 258 M (816:) s
+41.56 258 M
+() s
+45 258 M
+(rOriginVertexPositionZ      = \(Float_t\) originVertexPosition.z\(\)/cm;) s
+16 247 M (817:) s
+41.56 247 M
+() s
+45 247 M
+(      ) s
+16 236 M (818:) s
+41.56 236 M
+() s
+45 236 M
+(originVertexMomentumDirection = aHit->GetOriginVertexMomentumDirection\(\);) s
+16 225 M (819:) s
+41.56 225 M
+() s
+45 225 M
+(      ) s
+16 214 M (820:) s
+41.56 214 M
+() s
+45 214 M
+(originVertexKineticEnergy =   aHit->GetOriginVertexKineticEnergy\(\);) s
+16 203 M (821:) s
+41.56 203 M
+() s
+45 203 M
+(rOriginVertexKineticEnergy = \(Float_t \) originVertexKineticEnergy/MeV;) s
+16 192 M (822:) s
+41.56 192 M
+() s
+45 192 M
+(      ) s
+16 181 M (823:) s
+41.56 181 M
+() s
+45 181 M
+(originVertexTotalEnergy =   aHit->GetOriginVertexTotalEnergy\(\);) s
+16 170 M (824:) s
+41.56 170 M
+() s
+45 170 M
+(rOriginVertexTotalEnergy = \(Float_t \) originVertexTotalEnergy/MeV;) s
+16 159 M (825:) s
+41.56 159 M
+() s
+45 159 M
+(      ) s
+16 148 M (826:) s
+41.56 148 M
+() s
+45 148 M
+(primaryQ2  = aHit->GetPrimaryQ2\(\);) s
+16 137 M (827:) s
+41.56 137 M
+() s
+45 137 M
+(rPrimaryQ2  = \(Float_t\) primaryQ2;) s
+16 126 M (828:) s
+16 115 M (829:) s
+41.56 115 M
+() s
+45 115 M
+(crossSectionWeight =  aHit->GetCrossSectionWeight\(\);) s
+16 104 M (830:) s
+41.56 104 M
+() s
+45 104 M
+(rCrossSectionWeight = \(Float_t\) crossSectionWeight;) s
+16 93 M (831:) s
+16 82 M (832:) s
+16 71 M (833:) s
+41.56 71 M
+() s
+45 71 M
+(globalTime = aHit->GetGlobalTime\(\);) s
+16 60 M (834:) s
+41.56 60 M
+() s
+45 60 M
+(rGlobalTime = \(Float_t\) globalTime/ns;) s
+16 49 M (835:) s
+16 38 M (836:) s
+16 27 M (837:) s
+41.56 27 M
+() s
+45 27 M
+( GlobalThetaAngle = globalMomentum.theta\(\);) s
+16 16 M (838:) s
+41.56 16 M
+(        rGlobalThetaAngle = \(Float_t\) GlobalThetaAngle/degree;) s
+16 5 M (839:) s
+_R
+S
+%%Trailer
+%%Pages: 1
+%%DocumentNeededResources: font Times-Roman Courier-Bold Times-Italic 
+%%+ font Times-Bold 
+%%EOF

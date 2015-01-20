@@ -1,0 +1,41 @@
+#=======================================
+# Macro file when runing in batch mode 
+#      (no graphical output)
+#
+# usage: Used to simulate background detectors 
+# during run 2. Throws to all octants
+#
+#=======================================
+
+#=======================================
+# load/execute this macro:
+#=======================================
+/control/execute myQweakConfiguration_run2.mac
+
+#===================================
+# Throw Elastic LH2 to all octants 
+#===================================
+/EventGen/SelectReactionType   1
+/EventGen/SelectOctant 0
+
+#===================================
+# Track all secondaries
+#===================================
+/TrackingAction/TrackingFlag 3  
+
+#====================================
+# Set PMTOnly On and in nominal position
+#====================================
+/PMTOnly/Enable
+
+#====================================
+# Software Triggers
+#====================================
+/Trigger/Disable all
+
+#====================================
+# Set MD9 to nominal position
+#====================================
+/Cerenkov/Cerenkov9/SetCenterPositionInX  -72.86 cm
+/Cerenkov/Cerenkov9/SetCenterPositionInY  368.84 cm
+/Cerenkov/Cerenkov9/SetCenterPositionInZ  736.86 cm

@@ -1,0 +1,19 @@
+# $Header: /cvs/lcd/slic/config/make/lcdd.gmk,v 1.5 2006/02/09 03:04:46 jeremy Exp $
+
+#
+# LCDD make fragment
+#
+ifdef LCDD_BASE
+
+  # includes
+  CPPFLAGS += -I$(LCDD_BASE)/include
+
+  # libs
+  EXTRALIBS += -L$(LCDD_BASE)/lib
+  EXTRALIBS += -llcdd 
+
+#  LDFLAGS += -L$(LCDD_BASE)/lib 
+#  LOADLIBS += -llcdd
+else
+  $(error define LCDD_BASE=/path/to/lcdd)
+endif

@@ -1,0 +1,123 @@
+#
+# Macro file for the initialization phase of "exampleN02.cc"
+# when runing in interactive mode
+#
+# Sets some default verbose
+#
+
+#/control/verbose 1
+#/control/saveHistory
+#
+#/run/verbose 1
+#/event/verbose 1
+
+# running geantinos thru geometry, check for correct tracking
+#/tracking/verbose 4
+#/hits/verbose 1
+
+#overlap checkout
+/geometry/test/recursive_test
+
+#==========================
+# Target related
+#==========================
+/Target/SetCenterPositionInZ  -650.0 cm
+#/Target/SetTargetMaterial    Vacuum
+/Target/SetTargetMaterial    H2Liquid
+
+#==========================
+# Cerenkov Detector related
+#==========================
+#  Air    : without Cerenkov light production 
+#  Quartz  :with    Cerenkov light production
+# 
+# angle is definedagaing vertical (y) axis
+# - a tilt angle of 0.0*deg means vertical 
+# - positive angle will tilt detector against target
+#
+#/Cerenkov/SetCerenkovMaterial HeGas
+/Cerenkov/SetCerenkovMaterial Quartz
+
+# positions to be extracted from SolidWorks
+# or by Juliette Mammei's hit distribution
+# on the vertical detector plane
+ 
+/Cerenkov/SetCenterPositionInX    0.0 cm
+/Cerenkov/SetCenterPositionInY  328.0 cm 
+/Cerenkov/SetCenterPositionInZ  570.0 cm
+/Cerenkov/SetTiltingAngle           0.0 degree
+
+
+#==========================
+# VDC related
+#==========================
+# angle in respect to SHORT Frame side (Y axis)
+/VDC/DriftCell/SetWireAngleFront     60.0 degree
+/VDC/DriftCell/SetWireAngleBack     -60.0 degree
+#/VDC/DriftCell/SetWireAngleFront     45.0 degree
+#/VDC/DriftCell/SetWireAngleBack     -45.0 degree
+
+/VDC/DriftCell/SetFullHeight         60.0 cm
+/VDC/DriftCell/SetDCNumberPerPlane    201
+#/VDC/DriftCell/SetDCNumberPerPlane    401
+
+#==============================================
+# Thickness = 64/64 inch
+#/VDC/DriftCell/SetFullThickness      25.4 mm 
+
+# Thickness = 68/64 inch
+/VDC/DriftCell/SetFullThickness      26.9875 mm
+#==============================================
+
+# FullWidthOnFrame = 25/64 inch
+#/VDC/DriftCell/SetFullWidthOnFrame   9.9219 mm
+#/run/beamOn 1
+#/Qweak/PrimaryGenerator/ResetNtupleEventCounter
+
+# FullWidthOnFrame = 26/64 inch
+#/VDC/DriftCell/SetFullWidthOnFrame   10.3188 mm
+#/run/beamOn 10000
+#/Qweak/PrimaryGenerator/ResetNtupleEventCounter
+
+# FullWidthOnFrame = 27/64 inch
+#/VDC/DriftCell/SetFullWidthOnFrame   10.7156 mm
+#/run/beamOn 10000
+#/Qweak/PrimaryGenerator/ResetNtupleEventCounter
+
+# FullWidthOnFrame =  28/64 inch
+/VDC/DriftCell/SetFullWidthOnFrame   11.1125 mm
+#/run/beamOn 10000
+#/Qweak/PrimaryGenerator/ResetNtupleEventCounter
+
+# FullWidthOnFrame = 29/64 inch
+#/VDC/DriftCell/SetFullWidthOnFrame   11.5094 mm
+#/run/beamOn 10000
+#/Qweak/PrimaryGenerator/ResetNtupleEventCounter
+
+# FullWidthOnFrame = 30/64 inch
+#/VDC/DriftCell/SetFullWidthOnFrame   11.9063 mm
+#/run/beamOn 10000
+#/Qweak/PrimaryGenerator/ResetNtupleEventCounter
+
+# FullWidthOnFrame = 31/64 inch
+#/VDC/DriftCell/SetFullWidthOnFrame   12.3031 mm
+#/run/beamOn 10000
+#/Qweak/PrimaryGenerator/ResetNtupleEventCounter
+
+# FullWidthOnFrame = 32/64 = 1/2 inch
+#/VDC/DriftCell/SetFullWidthOnFrame   12.7 mm
+#/run/beamOn 10000
+#/Qweak/PrimaryGenerator/ResetNtupleEventCounter
+
+
+
+
+
+
+
+
+
+
+
+   
+

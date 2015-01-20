@@ -1,0 +1,13 @@
+#========================================================================
+#  Macro file  Normal_Target.mac
+#========================================================================
+# This macro reverts any changes made by Al_TargetWindow_Dummy on the
+# target back to the default target.
+#------------------------------------------------------------------------
+
+/Target/SetTargetMaterial H2Liquid
+/Target/SetTargetCellMaterial Aluminum
+/Target/SetTargetEntranceWindowMaterial Aluminum
+/Target/SetTargetExitWindowMaterial Aluminum
+/Target/SetTargetExitWindowNippleMaterial Aluminum
+

@@ -1,0 +1,44 @@
+#Programmer: Valerie Gray
+#Purpose: The macro file for the MD9 background study 
+#
+#Date: 11-22-2012
+#Modified:
+#Assisted By:
+#
+
+/control/execute myQweakConfiguration_run2.mac
+
+#set the randomness of the rootfile 
+/random/setSavingFlag 0
+/random/setDirectoryName random/%name%_%jobid%
+/random/setSeeds %seedA% %seedB%
+
+#tracke everything
+/TrackingAction/TrackingFlag 3
+
+#choose what reaction type and region we want
+/EventGen/SelectReactionRegion 1
+/EventGen/SelectReactionType 1
+
+/Trigger/Disable all
+/Trigger/Enable cer
+/Trigger/Show
+
+#set an alias for the octant that will be active in the simultaion
+#hehe - don't use
+#/control/alias oct %octant%
+
+#set the standard positions on MD9
+/Cerenkov/Cerenkov9/SetCenterPositionInX  -72.86 cm
+/Cerenkov/Cerenkov9/SetCenterPositionInY  368.84 cm
+/Cerenkov/Cerenkov9/SetCenterPositionInZ  736.86 cm
+
+#change the position of MD9 in one axis  
+/Cerenkov/Cerenkov9/SetCenterPositionIn%axis% %position% cm
+
+#set the rootfile name
+/Analysis/RootFileName rootfiles/%name%_%jobid%_workdir/%name%_%jobid%.root
+
+#number of events simulated
+/run/beamOn %nevents%
+

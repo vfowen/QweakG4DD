@@ -1,0 +1,992 @@
+%!PS-Adobe-3.0
+%%BoundingBox: 38 24 574 768
+%%Title: Enscript Output
+%%For: Michael Gericke
+%%Creator: GNU enscript 1.6.4
+%%CreationDate: Thu Aug  9 23:08:54 2007
+%%Orientation: Portrait
+%%Pages: (atend)
+%%DocumentMedia: Letter 612 792 0 () ()
+%%DocumentNeededResources: (atend)
+%%EndComments
+%%BeginProlog
+%%BeginResource: procset Enscript-Prolog 1.6 4
+%
+% Procedures.
+%
+
+/_S {	% save current state
+  /_s save def
+} def
+/_R {	% restore from saved state
+  _s restore
+} def
+
+/S {	% showpage protecting gstate
+  gsave
+  showpage
+  grestore
+} bind def
+
+/MF {	% fontname newfontname -> -	make a new encoded font
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  % insert only valid encoding vectors
+  encoding_vector length 256 eq {
+    newfont /Encoding encoding_vector put
+  } if
+
+  newfontname newfont definefont pop
+} def
+
+/MF_PS { % fontname newfontname -> -	make a new font preserving its enc
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  newfontname newfont definefont pop
+} def
+
+/SF { % fontname width height -> -	set a new font
+  /height exch def
+  /width exch def
+
+  findfont
+  [width 0 0 height 0 0] makefont setfont
+} def
+
+/SUF { % fontname width height -> -	set a new user font
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF
+  /F-gs-user-font width height SF
+} def
+
+/SUF_PS { % fontname width height -> -	set a new user font preserving its enc
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF_PS
+  /F-gs-user-font width height SF
+} def
+
+/M {moveto} bind def
+/s {show} bind def
+
+/Box {	% x y w h -> -			define box path
+  /d_h exch def /d_w exch def /d_y exch def /d_x exch def
+  d_x d_y  moveto
+  d_w 0 rlineto
+  0 d_h rlineto
+  d_w neg 0 rlineto
+  closepath
+} def
+
+/bgs {	% x y height blskip gray str -> -	show string with bg color
+  /str exch def
+  /gray exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    gray setgray
+    fill
+  grestore
+  x y M str s
+} def
+
+/bgcs { % x y height blskip red green blue str -> -  show string with bg color
+  /str exch def
+  /blue exch def
+  /green exch def
+  /red exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    red green blue setrgbcolor
+    fill
+  grestore
+  x y M str s
+} def
+
+% Highlight bars.
+/highlight_bars {	% nlines lineheight output_y_margin gray -> -
+  gsave
+    setgray
+    /ymarg exch def
+    /lineheight exch def
+    /nlines exch def
+
+    % This 2 is just a magic number to sync highlight lines to text.
+    0 d_header_y ymarg sub 2 sub translate
+
+    /cw d_output_w cols div def
+    /nrows d_output_h ymarg 2 mul sub lineheight div cvi def
+
+    % for each column
+    0 1 cols 1 sub {
+      cw mul /xp exch def
+
+      % for each rows
+      0 1 nrows 1 sub {
+        /rn exch def
+        rn lineheight mul neg /yp exch def
+        rn nlines idiv 2 mod 0 eq {
+	  % Draw highlight bar.  4 is just a magic indentation.
+	  xp 4 add yp cw 8 sub lineheight neg Box fill
+	} if
+      } for
+    } for
+
+  grestore
+} def
+
+% Line highlight bar.
+/line_highlight {	% x y width height gray -> -
+  gsave
+    /gray exch def
+    Box gray setgray fill
+  grestore
+} def
+
+% Column separator lines.
+/column_lines {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h translate
+    /cw d_output_w cols div def
+    1 1 cols 1 sub {
+      cw mul 0 moveto
+      0 d_output_h rlineto stroke
+    } for
+  grestore
+} def
+
+% Column borders.
+/column_borders {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h moveto
+    0 d_output_h rlineto
+    d_output_w 0 rlineto
+    0 d_output_h neg rlineto
+    closepath stroke
+  grestore
+} def
+
+% Do the actual underlay drawing
+/draw_underlay {
+  ul_style 0 eq {
+    ul_str true charpath stroke
+  } {
+    ul_str show
+  } ifelse
+} def
+
+% Underlay
+/underlay {	% - -> -
+  gsave
+    0 d_page_h translate
+    d_page_h neg d_page_w atan rotate
+
+    ul_gray setgray
+    ul_font setfont
+    /dw d_page_h dup mul d_page_w dup mul add sqrt def
+    ul_str stringwidth pop dw exch sub 2 div ul_h_ptsize -2 div moveto
+    draw_underlay
+  grestore
+} def
+
+/user_underlay {	% - -> -
+  gsave
+    ul_x ul_y translate
+    ul_angle rotate
+    ul_gray setgray
+    ul_font setfont
+    0 0 ul_h_ptsize 2 div sub moveto
+    draw_underlay
+  grestore
+} def
+
+% Page prefeed
+/page_prefeed {		% bool -> -
+  statusdict /prefeed known {
+    statusdict exch /prefeed exch put
+  } {
+    pop
+  } ifelse
+} def
+
+% Wrapped line markers
+/wrapped_line_mark {	% x y charwith charheight type -> -
+  /type exch def
+  /h exch def
+  /w exch def
+  /y exch def
+  /x exch def
+
+  type 2 eq {
+    % Black boxes (like TeX does)
+    gsave
+      0 setlinewidth
+      x w 4 div add y M
+      0 h rlineto w 2 div 0 rlineto 0 h neg rlineto
+      closepath fill
+    grestore
+  } {
+    type 3 eq {
+      % Small arrows
+      gsave
+        .2 setlinewidth
+        x w 2 div add y h 2 div add M
+        w 4 div 0 rlineto
+        x w 4 div add y lineto stroke
+
+        x w 4 div add w 8 div add y h 4 div add M
+        x w 4 div add y lineto
+	w 4 div h 8 div rlineto stroke
+      grestore
+    } {
+      % do nothing
+    } ifelse
+  } ifelse
+} def
+
+% EPSF import.
+
+/BeginEPSF {
+  /b4_Inc_state save def    		% Save state for cleanup
+  /dict_count countdictstack def	% Count objects on dict stack
+  /op_count count 1 sub def		% Count objects on operand stack
+  userdict begin
+  /showpage { } def
+  0 setgray 0 setlinecap
+  1 setlinewidth 0 setlinejoin
+  10 setmiterlimit [ ] 0 setdash newpath
+  /languagelevel where {
+    pop languagelevel
+    1 ne {
+      false setstrokeadjust false setoverprint
+    } if
+  } if
+} bind def
+
+/EndEPSF {
+  count op_count sub { pos } repeat	% Clean up stacks
+  countdictstack dict_count sub { end } repeat
+  b4_Inc_state restore
+} bind def
+
+% Check PostScript language level.
+/languagelevel where {
+  pop /gs_languagelevel languagelevel def
+} {
+  /gs_languagelevel 1 def
+} ifelse
+%%EndResource
+%%BeginResource: procset Enscript-Encoding-88591 1.6 4
+/encoding_vector [
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclam       	/quotedbl     	/numbersign   	
+/dollar       	/percent      	/ampersand    	/quoteright   	
+/parenleft    	/parenright   	/asterisk     	/plus         	
+/comma        	/hyphen       	/period       	/slash        	
+/zero         	/one          	/two          	/three        	
+/four         	/five         	/six          	/seven        	
+/eight        	/nine         	/colon        	/semicolon    	
+/less         	/equal        	/greater      	/question     	
+/at           	/A            	/B            	/C            	
+/D            	/E            	/F            	/G            	
+/H            	/I            	/J            	/K            	
+/L            	/M            	/N            	/O            	
+/P            	/Q            	/R            	/S            	
+/T            	/U            	/V            	/W            	
+/X            	/Y            	/Z            	/bracketleft  	
+/backslash    	/bracketright 	/asciicircum  	/underscore   	
+/quoteleft    	/a            	/b            	/c            	
+/d            	/e            	/f            	/g            	
+/h            	/i            	/j            	/k            	
+/l            	/m            	/n            	/o            	
+/p            	/q            	/r            	/s            	
+/t            	/u            	/v            	/w            	
+/x            	/y            	/z            	/braceleft    	
+/bar          	/braceright   	/tilde        	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclamdown   	/cent         	/sterling     	
+/currency     	/yen          	/brokenbar    	/section      	
+/dieresis     	/copyright    	/ordfeminine  	/guillemotleft	
+/logicalnot   	/hyphen       	/registered   	/macron       	
+/degree       	/plusminus    	/twosuperior  	/threesuperior	
+/acute        	/mu           	/paragraph    	/bullet       	
+/cedilla      	/onesuperior  	/ordmasculine 	/guillemotright	
+/onequarter   	/onehalf      	/threequarters	/questiondown 	
+/Agrave       	/Aacute       	/Acircumflex  	/Atilde       	
+/Adieresis    	/Aring        	/AE           	/Ccedilla     	
+/Egrave       	/Eacute       	/Ecircumflex  	/Edieresis    	
+/Igrave       	/Iacute       	/Icircumflex  	/Idieresis    	
+/Eth          	/Ntilde       	/Ograve       	/Oacute       	
+/Ocircumflex  	/Otilde       	/Odieresis    	/multiply     	
+/Oslash       	/Ugrave       	/Uacute       	/Ucircumflex  	
+/Udieresis    	/Yacute       	/Thorn        	/germandbls   	
+/agrave       	/aacute       	/acircumflex  	/atilde       	
+/adieresis    	/aring        	/ae           	/ccedilla     	
+/egrave       	/eacute       	/ecircumflex  	/edieresis    	
+/igrave       	/iacute       	/icircumflex  	/idieresis    	
+/eth          	/ntilde       	/ograve       	/oacute       	
+/ocircumflex  	/otilde       	/odieresis    	/divide       	
+/oslash       	/ugrave       	/uacute       	/ucircumflex  	
+/udieresis    	/yacute       	/thorn        	/ydieresis    	
+] def
+%%EndResource
+%%EndProlog
+%%BeginSetup
+%%IncludeResource: font Times-Roman
+%%IncludeResource: font Courier-Bold
+/HFpt_w 10 def
+/HFpt_h 10 def
+/Courier-Bold /HF-gs-font MF
+/HF /HF-gs-font findfont [HFpt_w 0 0 HFpt_h 0 0] makefont def
+/Times-Roman /F-gs-font MF
+/F-gs-font 10 10 SF
+/#copies 1 def
+% Pagedevice definitions:
+gs_languagelevel 1 gt {
+  <<
+    /PageSize [612 792] 
+  >> setpagedevice
+} if
+/d_page_w 536 def
+/d_page_h 744 def
+/d_header_x 0 def
+/d_header_y 744 def
+/d_header_w 536 def
+/d_header_h 0 def
+/d_footer_x 0 def
+/d_footer_y 0 def
+/d_footer_w 536 def
+/d_footer_h 0 def
+/d_output_w 536 def
+/d_output_h 744 def
+/cols 1 def
+%%EndSetup
+%%Page: (1) 1
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 1 def
+/fname (QweakSimUserCerenkov_PMTEvent.cc) def
+/fdir () def
+/ftail (QweakSimUserCerenkov_PMTEvent.cc) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+26 731 M (1:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 731 M
+(//=======================================================================) s
+5 720 M
+(======) s
+/F-gs-font 10 10 SF
+26 709 M (2:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 709 M
+(// ) s
+/F-gs-font 10 10 SF
+26 698 M (3:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 698 M
+(//   ---------------------------) s
+/F-gs-font 10 10 SF
+26 687 M (4:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 687 M
+(//  | Doxygen File Information |) s
+/F-gs-font 10 10 SF
+26 676 M (5:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 676 M
+(//  ---------------------------) s
+/F-gs-font 10 10 SF
+26 665 M (6:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 665 M
+(// ) s
+/F-gs-font 10 10 SF
+26 654 M (7:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 654 M
+(/**) s
+/F-gs-font 10 10 SF
+26 643 M (8:) s
+/Times-Italic 10 10 SUF
+41.56 643 M
+( ) s
+/F-gs-font 10 10 SF
+26 632 M (9:) s
+/Times-Italic 10 10 SUF
+41.56 632 M
+(   \\file QweakSimUserCerenkov_PMTEvent.cc) s
+/F-gs-font 10 10 SF
+21 621 M (10:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+21 610 M (11:) s
+/Times-Italic 10 10 SUF
+41.56 610 M
+(   $Revision: 1.2 $) s
+/F-gs-font 10 10 SF
+21 599 M (12:) s
+/Times-Italic 10 10 SUF
+41.56 599 M
+(   $Date: 2005/12/27 19:16:56 $) s
+/F-gs-font 10 10 SF
+21 588 M (13:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+21 577 M (14:) s
+/Times-Italic 10 10 SUF
+41.56 577 M
+(   \\author Klaus Hans Grimm   ) s
+/F-gs-font 10 10 SF
+21 566 M (15:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+21 555 M (16:) s
+/Times-Italic 10 10 SUF
+41.56 555 M
+(*/) s
+/F-gs-font 10 10 SF
+0 setgray
+21 544 M (17:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 544 M
+(//=======================================================================) s
+5 533 M
+(======) s
+/F-gs-font 10 10 SF
+21 522 M (18:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+21 511 M (19:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 511 M
+(//=======================================================================) s
+5 500 M
+(======) s
+/F-gs-font 10 10 SF
+21 489 M (20:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 489 M
+(//   -----------------------) s
+/F-gs-font 10 10 SF
+21 478 M (21:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 478 M
+(//  | CVS File Information |) s
+/F-gs-font 10 10 SF
+21 467 M (22:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 467 M
+(//  -----------------------) s
+/F-gs-font 10 10 SF
+21 456 M (23:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 456 M
+(// ) s
+/F-gs-font 10 10 SF
+21 445 M (24:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 445 M
+(//  Last Update:      $Author: grimm $) s
+/F-gs-font 10 10 SF
+21 434 M (25:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 434 M
+(//  Update Date:      $Date: 2005/12/27 19:16:56 $) s
+/F-gs-font 10 10 SF
+21 423 M (26:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 423 M
+(//  CVS/RCS Revision: $Revision: 1.2 $) s
+/F-gs-font 10 10 SF
+21 412 M (27:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 412 M
+(//  Status:           $State: Exp $) s
+/F-gs-font 10 10 SF
+21 401 M (28:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 401 M
+(// ) s
+/F-gs-font 10 10 SF
+21 390 M (29:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 390 M
+(// ===================================) s
+/F-gs-font 10 10 SF
+21 379 M (30:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 379 M
+(//  CVS Revision Log at end of file !!) s
+/F-gs-font 10 10 SF
+21 368 M (31:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 368 M
+(// ===================================) s
+/F-gs-font 10 10 SF
+21 357 M (32:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 357 M
+(//) s
+/F-gs-font 10 10 SF
+21 346 M (33:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 346 M
+(//=======================================================================) s
+5 335 M
+(=====) s
+/F-gs-font 10 10 SF
+21 324 M (34:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+21 313 M (35:) s
+21 302 M (36:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 302 M
+(//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....) s
+/F-gs-font 10 10 SF
+21 291 M (37:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+21 280 M (38:) s
+41.56 280 M
+(#) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 280 M
+(include) s
+/F-gs-font 10 10 SF
+0 setgray
+77.68 280 M
+( ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+80.18 280 M
+("QweakSimUserCerenkov_PMTEvent.hh") s
+/F-gs-font 10 10 SF
+0 setgray
+21 269 M (39:) s
+21 258 M (40:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 258 M
+(//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....) s
+/F-gs-font 10 10 SF
+21 247 M (41:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+21 236 M (42:) s
+/Times-Bold 10 10 SUF
+0 0 1 setrgbcolor
+41.56 236 M
+(ClassImp) s
+/F-gs-font 10 10 SF
+0 setgray
+82.12 236 M
+(\(QweakSimUserCerenkov_PMTEvent\)) s
+21 225 M (43:) s
+21 214 M (44:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 214 M
+(//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....) s
+/F-gs-font 10 10 SF
+21 203 M (45:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 203 M
+(  ) s
+/Times-Bold 10 10 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+46.56 203 M
+(QweakSimUserCerenkov_PMTEvent) s
+/F-gs-font 10 10 SF
+0 setgray
+207.1 203 M
+(::QweakSimUserCerenkov_PMTEvent\(\) ) s
+21 192 M (46:) s
+41.56 192 M
+({) s
+21 181 M (47:) s
+41.56 181 M
+(  Initialize\(\);) s
+21 170 M (48:) s
+41.56 170 M
+(} ) s
+21 159 M (49:) s
+21 148 M (50:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 148 M
+(//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....) s
+/F-gs-font 10 10 SF
+21 137 M (51:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Bold 10 10 SUF
+0 0 1 setrgbcolor
+41.56 137 M
+(QweakSimUserCerenkov_PMTEvent::~QweakSimUserCerenkov_PMTEvent) s
+/F-gs-font 10 10 SF
+0 setgray
+372.63 137 M
+(\(\)) s
+21 126 M (52:) s
+41.56 126 M
+({;}) s
+21 115 M (53:) s
+21 104 M (54:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 104 M
+(//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....) s
+/F-gs-font 10 10 SF
+21 93 M (55:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+21 82 M (56:) s
+/Times-Bold 10 10 SUF
+0.133333 0.545098 0.133333 setrgbcolor
+41.56 82 M
+(void) s
+/F-gs-font 10 10 SF
+0 setgray
+59.9 82 M
+( ) s
+/Times-Bold 10 10 SUF
+0 0 1 setrgbcolor
+62.4 82 M
+(QweakSimUserCerenkov_PMTEvent::Initialize) s
+/F-gs-font 10 10 SF
+0 setgray
+267.38 82 M
+(\(\)) s
+21 71 M (57:) s
+41.56 71 M
+({) s
+21 60 M (58:) s
+41.56 60 M
+(  DetectorID                     = 0;) s
+21 49 M (59:) s
+41.56 49 M
+(  TrackID                        = 0;) s
+21 38 M (60:) s
+21 27 M (61:) s
+41.56 27 M
+(  PMTHasBeenHit                  = 0;) s
+21 16 M (62:) s
+41.56 16 M
+(  PMTLeftNbOfHits                = 0;) s
+21 5 M (63:) s
+41.56 5 M
+(  PMTRightNbOfHits               = 0;) s
+_R
+S
+%%Page: (2) 2
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 2 def
+/fname (QweakSimUserCerenkov_PMTEvent.cc) def
+/fdir () def
+/ftail (QweakSimUserCerenkov_PMTEvent.cc) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+21 731 M (64:) s
+41.56 731 M
+(  PMTTotalNbOfHits               = 0;) s
+21 720 M (65:) s
+41.56 720 M
+(  PMTLeftNbOfPEs                 = 0;) s
+21 709 M (66:) s
+41.56 709 M
+(  PMTRightNbOfPEs                = 0;) s
+21 698 M (67:) s
+41.56 698 M
+(  PMTTotalNbOfPEs                = 0;) s
+21 687 M (68:) s
+21 676 M (69:) s
+41.56 676 M
+(}) s
+21 665 M (70:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 665 M
+(//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....) s
+/F-gs-font 10 10 SF
+21 654 M (71:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+21 643 M (72:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 643 M
+(//=======================================================) s
+/F-gs-font 10 10 SF
+21 632 M (73:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 632 M
+(//   -----------------------) s
+/F-gs-font 10 10 SF
+21 621 M (74:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 621 M
+(//  | CVS File Information |) s
+/F-gs-font 10 10 SF
+21 610 M (75:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 610 M
+(//  -----------------------) s
+/F-gs-font 10 10 SF
+21 599 M (76:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 599 M
+(// ) s
+/F-gs-font 10 10 SF
+21 588 M (77:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 588 M
+(//      $Revisions$  ) s
+/F-gs-font 10 10 SF
+21 577 M (78:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 577 M
+(//      $Log: QweakSimUserCerenkov_PMTEvent.cc,v $) s
+/F-gs-font 10 10 SF
+21 566 M (79:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 566 M
+(//      Revision 1.2  2005/12/27 19:16:56  grimm) s
+/F-gs-font 10 10 SF
+21 555 M (80:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 555 M
+(//      - Redesign of Doxygen header containing CVS info like revision and date) s
+/F-gs-font 10 10 SF
+21 544 M (81:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 544 M
+(//      - Added CVS revision log at the end of file) s
+/F-gs-font 10 10 SF
+21 533 M (82:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 533 M
+(//) s
+/F-gs-font 10 10 SF
+21 522 M (83:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 522 M
+(//) s
+/F-gs-font 10 10 SF
+21 511 M (84:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+_R
+S
+%%Trailer
+%%Pages: 2
+%%DocumentNeededResources: font Times-Roman Courier-Bold Times-Italic 
+%%+ font Times-Bold 
+%%EOF

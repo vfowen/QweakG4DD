@@ -1,0 +1,143 @@
+#
+#  This file permits to customize, with commands,
+# the menu bar of the G4UIXm, G4UIWin32 sessions.
+# It has no effect with G4UIterminal.
+#
+# File :
+/gui/addMenu   file File
+/gui/addButton file "Load experimental configurations"   "/control/execute myQweakConfiguration.mac"
+/gui/addButton file "Load experimental configurations for Run 1"   "/control/execute myQweakConfiguration_run1.mac"
+/gui/addButton file "Load experimental configurations for Run 2"   "/control/execute myQweakConfiguration_run2.mac"
+/gui/addButton file Continue continue
+/gui/addButton file Exit "exit"
+#
+# Run menu :
+/gui/addMenu   run Run
+/gui/addButton run "beamOn 1"    "/run/beamOn 1"
+/gui/addButton run "beamOn 2"    "/run/beamOn 2"
+/gui/addButton run "beamOn 5"    "/run/beamOn 5"
+/gui/addButton run "beamOn 10"   "/run/beamOn 10"
+/gui/addButton run "beamOn 15"   "/run/beamOn 15"
+/gui/addButton run "beamOn 20"   "/run/beamOn 20"
+/gui/addButton run "beamOn 25"   "/run/beamOn 25"
+/gui/addButton run "beamOn 50"   "/run/beamOn 50"
+/gui/addButton run "beamOn 100"  "/run/beamOn 100"
+/gui/addButton run "beamOn 200"  "/run/beamOn 200"
+/gui/addButton run "beamOn 1000" "/run/beamOn 1000"
+/gui/addButton run "beamOn 2000" "/run/beamOn 2000"
+
+#
+# Viewer menu :
+/gui/addMenu   viewer Viewer
+/gui/addButton viewer "My viewer"            "/control/execute vis/myVis.mac"
+/gui/addButton viewer "OIX viewer"           "/control/execute vis/OIX.mac"
+/gui/addButton viewer "X viewer"             "/control/execute vis/X.mac"
+/gui/addButton viewer "Qt viewer"            "/control/execute vis/Qt.mac"
+/gui/addButton viewer "Set style solid"      "/vis/viewer/set/style solid"
+/gui/addButton viewer "Set style wire"       "/vis/viewer/set/style wire"
+/gui/addButton viewer "Hide tracks behind objects" "/vis/viewer/set/hiddenMarker true"
+/gui/addButton viewer "Show tracks behind objects" "/vis/viewer/set/hiddenMarker false"
+/gui/addButton viewer "Front view"           "/vis/viewer/set/viewpointThetaPhi 180 0 deg"
+/gui/addButton viewer "Back view"            "/vis/viewer/set/viewpointThetaPhi 0 0 deg"
+/gui/addButton viewer "Side view"            "/vis/viewer/set/viewpointThetaPhi 90 180 deg"
+/gui/addButton viewer "Top view"             "/vis/viewer/set/viewpointThetaPhi 90 89 deg"
+/gui/addButton viewer "Update viewer"        "/vis/viewer/update"
+/gui/addButton viewer "Update scene"         "/vis/scene/notifyHandlers"
+/gui/addButton viewer "Reset scene"          "/control/execute vis/vis.mac"
+#
+
+# QTOR menu :
+/gui/addMenu   qtor QTOR
+/gui/addButton qtor "Load 2007 field map" "/control/execute macros/peiqing_2007.mac"
+/gui/addButton qtor "Load 2010_ff field map" "/control/execute macros/peiqing_2010_ff.mac"
+/gui/addButton qtor "Load 2010_zc field map" "/control/execute macros/peiqing_2010_zc.mac"
+/gui/addButton qtor "Load 2011 field map" "/control/execute macros/peiqing_2011.mac"
+#/gui/addButton qtor "Set ref. current to 8960 A" "/MagneticField/SetReferenceCurrent 8960.0"
+#/gui/addButton qtor "Set actual current to 8921 A" "/MagneticField/SetActualCurrent 8921.0"
+
+
+# Detectorhut menu :
+/gui/addMenu   detectorhut DetectorHut
+/gui/addButton detectorhut "ColliWallMaterial ShieldingConcrete" "/DetectorHut/CollimatorWall/SetCollimatorWallMaterial ShieldingConcrete"
+
+/gui/addButton detectorhut "ShowCollimatorWall" "/DetectorHut/Visibility/ShowCollimatorWall"
+/gui/addButton detectorhut "HideShieldingWall"  "/DetectorHut/Visibility/HideShieldingWall"
+
+/gui/addButton detectorhut "ShowFrontWall" "/DetectorHut/Visibility/ShowFrontWall"
+/gui/addButton detectorhut "HideFrontWall" "/DetectorHut/Visibility/HideFrontWall"
+
+/gui/addButton detectorhut "ShowBackWall" "/DetectorHut/Visibility/ShowBackWall"
+/gui/addButton detectorhut "HideBackWall" "/DetectorHut/Visibility/HideBackWall"
+
+/gui/addButton detectorhut "ShowLeftWall" "/DetectorHut/Visibility/ShowLeftWall"
+/gui/addButton detectorhut "HideLeftWall" "/DetectorHut/Visibility/HideLeftWall"
+
+/gui/addButton detectorhut "ShowRightWall" "/DetectorHut/Visibility/ShowRightWall"
+/gui/addButton detectorhut "HideRightWall" "/DetectorHut/Visibility/HideRightWall"
+
+/gui/addButton detectorhut "ShowTopWall" "/DetectorHut/Visibility/ShowTopWall"
+/gui/addButton detectorhut "HideTopWall" "/DetectorHut/Visibility/HideTopWall"
+
+# TrackingAction menu
+/gui/addMenu   trackingAction TrackingAction 
+/gui/addButton trackingAction "Track primary electrons only" "/TrackingAction/TrackingFlag 0"
+/gui/addButton trackingAction "Track primary electrons and optical photons only" "/TrackingAction/TrackingFlag 1"
+/gui/addButton trackingAction "Track all particles except optical photons" "/TrackingAction/TrackingFlag 2"
+/gui/addButton trackingAction "Track all particles" "/TrackingAction/TrackingFlag 3"
+/gui/addButton trackingAction "Select Octant1" "/EventGen/SelectOctant 1"
+/gui/addButton trackingAction "Select Octant2" "/EventGen/SelectOctant 2"
+/gui/addButton trackingAction "Select Octant3" "/EventGen/SelectOctant 3"
+/gui/addButton trackingAction "Select Octant4" "/EventGen/SelectOctant 4"
+/gui/addButton trackingAction "Select Octant5" "/EventGen/SelectOctant 5"
+/gui/addButton trackingAction "Select Octant6" "/EventGen/SelectOctant 6"
+/gui/addButton trackingAction "Select Octant7" "/EventGen/SelectOctant 7"
+/gui/addButton trackingAction "Select Octant8" "/EventGen/SelectOctant 8"
+
+# Trigger menu
+/gui/addMenu   trigger Trigger
+/gui/addButton trigger "Show trigger config" "/Trigger/Show"
+/gui/addButton trigger "Enable on all events" "/Trigger/Enable all"
+/gui/addButton trigger "Enable on 4 VDC planes and CER" "/Trigger/Enable 4fold"
+/gui/addButton trigger "Enable on 3 VDC planes" "/Trigger/Enable 3fold"
+/gui/addButton trigger "Enable on TS" "/Trigger/Enable scint"
+/gui/addButton trigger "Enable on LeadGlass" "Trigger/Enable leadglass"  #Enable Trigger for the LeadGlass
+/gui/addButton trigger "Enable on CER" "/Trigger/Enable cer"
+/gui/addButton trigger "Disable on all events" "/Trigger/Disable all"
+/gui/addButton trigger "Disable on 4 VDC planes and CER" "/Trigger/Disable 4fold"
+/gui/addButton trigger "Disable on 3 VDC planes" "/Trigger/Disable 3fold"
+/gui/addButton trigger "Disable on TS" "/Trigger/Disable scint"
+/gui/addButton trigger "Disable on LeadGlass" "/Trigger/Disable leadglass"   #Disable Trigger for the LeadGlass
+/gui/addButton trigger "Disable on CER" "/Trigger/Disable cer"
+
+
+# Reaction type menu
+/gui/addMenu reactionType Reaction
+/gui/addButton reactionType "0 - Combination of all reactions" "/EventGen/SelectReactionType 0"
+/gui/addButton reactionType "1 - Elastic LH2" "/EventGen/SelectReactionType 1"
+/gui/addButton reactionType "2 - Elastic Al" "/EventGen/SelectReactionType 2"
+/gui/addButton reactionType "3 - Quasi-elastic Al (proton)" "/EventGen/SelectReactionType 3"
+/gui/addButton reactionType "4 - Quasi-elastic Al (neutron)" "/EventGen/SelectReactionType 4"
+/gui/addButton reactionType "5 - Inelastic LH2" "/EventGen/SelectReactionType 5"
+/gui/addButton reactionType "6 - Moller scattering" "/EventGen/SelectReactionType 6"
+/gui/addButton reactionType "7 - Radiative Scattering Lookup Table" "/EventGen/SelectReactionType 7"
+/gui/addButton reactionType "8 - Quasielastic Scattering from Al using Bosted fit" "/EventGen/SelectReactionType 8"
+
+# Reaction region menu
+/gui/addMenu reactionRegion ReactionRegion
+/gui/addButton reactionRegion "1 - LH2 Target" "/EventGen/SelectReactionRegion 1"
+/gui/addButton reactionRegion "2 - Entrance target window" "/EventGen/SelectReactionRegion 2"
+/gui/addButton reactionRegion "3 - Exit target window" "/EventGen/SelectReactionRegion 3"
+/gui/addButton reactionRegion "4 - Dummy Target (1% US AL)" "/EventGen/SelectReactionRegion 4"
+/gui/addButton reactionRegion "5 - Dummy Target (2% US AL)" "/EventGen/SelectReactionRegion 5"
+/gui/addButton reactionRegion "6 - Dummy Target (4% US AL)" "/EventGen/SelectReactionRegion 6"
+/gui/addButton reactionRegion "7 - Dummy Target (2% DS AL)" "/EventGen/SelectReactionRegion 7"
+/gui/addButton reactionRegion "8 - Dummy Target (4% DS AL)" "/EventGen/SelectReactionRegion 8"
+/gui/addButton reactionRegion "9 - Dummy Target (8% DS AL)" "/EventGen/SelectReactionRegion 9"
+/gui/addButton reactionRegion "10 - Dummy Target (US Carbon)" "/EventGen/SelectReactionRegion 10"
+/gui/addButton reactionRegion "11 - Dummy Target (US Carbon)" "/EventGen/SelectReactionRegion 11"
+
+# Target Options menu
+/gui/addMenu target Target
+/gui/addButton target "Upstream Al Target Window" "/control/execute macros/Al_TargetWindow_Dummy_Upstream.mac"
+/gui/addButton target "Downstream Al Target Window" "/control/execute macros/Al_TargetWindow_Dummy_Downstream.mac"
+/gui/addButton target "Normal LH2 Target" "/control/execute macros/Normal_Target.mac"

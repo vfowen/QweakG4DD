@@ -1,0 +1,20 @@
+# $Header: /cvs/lcd/slic/config/make/lcio.gmk,v 1.2 2005/12/06 00:54:18 jeremy Exp $
+
+#
+# LCIO make fragment
+#
+
+ifdef LCIO
+
+  # includes
+  CPPFLAGS += -I$(LCIO)/src/cpp/include
+  CPPFLAGS += -I$(LCIO)/sio/include
+
+  # libs
+  LCIO_LIBS = -llcio -lsio
+  LDFLAGS += -L$(LCIO)/lib -L$(LCIO)/sio/lib
+  LOADLIBS += $(LCIO_LIBS)
+  LOADLIBS += -lz
+else
+  $(error define LCIO=/path/to/lcio)
+endif

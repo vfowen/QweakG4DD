@@ -1,0 +1,8 @@
+/control/execute myQweakConfiguration.mac
+
+/Target/SetCenterPositionInZ -653.075 cm
+
+/MagneticField/SetActualCurrent 8899 A
+
+/EventGen/SetBeamEnergy 1157.48 MeV
+

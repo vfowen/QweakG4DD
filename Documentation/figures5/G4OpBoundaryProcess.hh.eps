@@ -1,0 +1,1733 @@
+%!PS-Adobe-3.0
+%%BoundingBox: 38 24 574 768
+%%Title: Enscript Output
+%%For: Michael Gericke
+%%Creator: GNU enscript 1.6.4
+%%CreationDate: Tue Jul 24 12:05:47 2007
+%%Orientation: Portrait
+%%Pages: (atend)
+%%DocumentMedia: Letter 612 792 0 () ()
+%%DocumentNeededResources: (atend)
+%%EndComments
+%%BeginProlog
+%%BeginResource: procset Enscript-Prolog 1.6 4
+%
+% Procedures.
+%
+
+/_S {	% save current state
+  /_s save def
+} def
+/_R {	% restore from saved state
+  _s restore
+} def
+
+/S {	% showpage protecting gstate
+  gsave
+  showpage
+  grestore
+} bind def
+
+/MF {	% fontname newfontname -> -	make a new encoded font
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  % insert only valid encoding vectors
+  encoding_vector length 256 eq {
+    newfont /Encoding encoding_vector put
+  } if
+
+  newfontname newfont definefont pop
+} def
+
+/MF_PS { % fontname newfontname -> -	make a new font preserving its enc
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  newfontname newfont definefont pop
+} def
+
+/SF { % fontname width height -> -	set a new font
+  /height exch def
+  /width exch def
+
+  findfont
+  [width 0 0 height 0 0] makefont setfont
+} def
+
+/SUF { % fontname width height -> -	set a new user font
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF
+  /F-gs-user-font width height SF
+} def
+
+/SUF_PS { % fontname width height -> -	set a new user font preserving its enc
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF_PS
+  /F-gs-user-font width height SF
+} def
+
+/M {moveto} bind def
+/s {show} bind def
+
+/Box {	% x y w h -> -			define box path
+  /d_h exch def /d_w exch def /d_y exch def /d_x exch def
+  d_x d_y  moveto
+  d_w 0 rlineto
+  0 d_h rlineto
+  d_w neg 0 rlineto
+  closepath
+} def
+
+/bgs {	% x y height blskip gray str -> -	show string with bg color
+  /str exch def
+  /gray exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    gray setgray
+    fill
+  grestore
+  x y M str s
+} def
+
+/bgcs { % x y height blskip red green blue str -> -  show string with bg color
+  /str exch def
+  /blue exch def
+  /green exch def
+  /red exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    red green blue setrgbcolor
+    fill
+  grestore
+  x y M str s
+} def
+
+% Highlight bars.
+/highlight_bars {	% nlines lineheight output_y_margin gray -> -
+  gsave
+    setgray
+    /ymarg exch def
+    /lineheight exch def
+    /nlines exch def
+
+    % This 2 is just a magic number to sync highlight lines to text.
+    0 d_header_y ymarg sub 2 sub translate
+
+    /cw d_output_w cols div def
+    /nrows d_output_h ymarg 2 mul sub lineheight div cvi def
+
+    % for each column
+    0 1 cols 1 sub {
+      cw mul /xp exch def
+
+      % for each rows
+      0 1 nrows 1 sub {
+        /rn exch def
+        rn lineheight mul neg /yp exch def
+        rn nlines idiv 2 mod 0 eq {
+	  % Draw highlight bar.  4 is just a magic indentation.
+	  xp 4 add yp cw 8 sub lineheight neg Box fill
+	} if
+      } for
+    } for
+
+  grestore
+} def
+
+% Line highlight bar.
+/line_highlight {	% x y width height gray -> -
+  gsave
+    /gray exch def
+    Box gray setgray fill
+  grestore
+} def
+
+% Column separator lines.
+/column_lines {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h translate
+    /cw d_output_w cols div def
+    1 1 cols 1 sub {
+      cw mul 0 moveto
+      0 d_output_h rlineto stroke
+    } for
+  grestore
+} def
+
+% Column borders.
+/column_borders {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h moveto
+    0 d_output_h rlineto
+    d_output_w 0 rlineto
+    0 d_output_h neg rlineto
+    closepath stroke
+  grestore
+} def
+
+% Do the actual underlay drawing
+/draw_underlay {
+  ul_style 0 eq {
+    ul_str true charpath stroke
+  } {
+    ul_str show
+  } ifelse
+} def
+
+% Underlay
+/underlay {	% - -> -
+  gsave
+    0 d_page_h translate
+    d_page_h neg d_page_w atan rotate
+
+    ul_gray setgray
+    ul_font setfont
+    /dw d_page_h dup mul d_page_w dup mul add sqrt def
+    ul_str stringwidth pop dw exch sub 2 div ul_h_ptsize -2 div moveto
+    draw_underlay
+  grestore
+} def
+
+/user_underlay {	% - -> -
+  gsave
+    ul_x ul_y translate
+    ul_angle rotate
+    ul_gray setgray
+    ul_font setfont
+    0 0 ul_h_ptsize 2 div sub moveto
+    draw_underlay
+  grestore
+} def
+
+% Page prefeed
+/page_prefeed {		% bool -> -
+  statusdict /prefeed known {
+    statusdict exch /prefeed exch put
+  } {
+    pop
+  } ifelse
+} def
+
+% Wrapped line markers
+/wrapped_line_mark {	% x y charwith charheight type -> -
+  /type exch def
+  /h exch def
+  /w exch def
+  /y exch def
+  /x exch def
+
+  type 2 eq {
+    % Black boxes (like TeX does)
+    gsave
+      0 setlinewidth
+      x w 4 div add y M
+      0 h rlineto w 2 div 0 rlineto 0 h neg rlineto
+      closepath fill
+    grestore
+  } {
+    type 3 eq {
+      % Small arrows
+      gsave
+        .2 setlinewidth
+        x w 2 div add y h 2 div add M
+        w 4 div 0 rlineto
+        x w 4 div add y lineto stroke
+
+        x w 4 div add w 8 div add y h 4 div add M
+        x w 4 div add y lineto
+	w 4 div h 8 div rlineto stroke
+      grestore
+    } {
+      % do nothing
+    } ifelse
+  } ifelse
+} def
+
+% EPSF import.
+
+/BeginEPSF {
+  /b4_Inc_state save def    		% Save state for cleanup
+  /dict_count countdictstack def	% Count objects on dict stack
+  /op_count count 1 sub def		% Count objects on operand stack
+  userdict begin
+  /showpage { } def
+  0 setgray 0 setlinecap
+  1 setlinewidth 0 setlinejoin
+  10 setmiterlimit [ ] 0 setdash newpath
+  /languagelevel where {
+    pop languagelevel
+    1 ne {
+      false setstrokeadjust false setoverprint
+    } if
+  } if
+} bind def
+
+/EndEPSF {
+  count op_count sub { pos } repeat	% Clean up stacks
+  countdictstack dict_count sub { end } repeat
+  b4_Inc_state restore
+} bind def
+
+% Check PostScript language level.
+/languagelevel where {
+  pop /gs_languagelevel languagelevel def
+} {
+  /gs_languagelevel 1 def
+} ifelse
+%%EndResource
+%%BeginResource: procset Enscript-Encoding-88591 1.6 4
+/encoding_vector [
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclam       	/quotedbl     	/numbersign   	
+/dollar       	/percent      	/ampersand    	/quoteright   	
+/parenleft    	/parenright   	/asterisk     	/plus         	
+/comma        	/hyphen       	/period       	/slash        	
+/zero         	/one          	/two          	/three        	
+/four         	/five         	/six          	/seven        	
+/eight        	/nine         	/colon        	/semicolon    	
+/less         	/equal        	/greater      	/question     	
+/at           	/A            	/B            	/C            	
+/D            	/E            	/F            	/G            	
+/H            	/I            	/J            	/K            	
+/L            	/M            	/N            	/O            	
+/P            	/Q            	/R            	/S            	
+/T            	/U            	/V            	/W            	
+/X            	/Y            	/Z            	/bracketleft  	
+/backslash    	/bracketright 	/asciicircum  	/underscore   	
+/quoteleft    	/a            	/b            	/c            	
+/d            	/e            	/f            	/g            	
+/h            	/i            	/j            	/k            	
+/l            	/m            	/n            	/o            	
+/p            	/q            	/r            	/s            	
+/t            	/u            	/v            	/w            	
+/x            	/y            	/z            	/braceleft    	
+/bar          	/braceright   	/tilde        	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclamdown   	/cent         	/sterling     	
+/currency     	/yen          	/brokenbar    	/section      	
+/dieresis     	/copyright    	/ordfeminine  	/guillemotleft	
+/logicalnot   	/hyphen       	/registered   	/macron       	
+/degree       	/plusminus    	/twosuperior  	/threesuperior	
+/acute        	/mu           	/paragraph    	/bullet       	
+/cedilla      	/onesuperior  	/ordmasculine 	/guillemotright	
+/onequarter   	/onehalf      	/threequarters	/questiondown 	
+/Agrave       	/Aacute       	/Acircumflex  	/Atilde       	
+/Adieresis    	/Aring        	/AE           	/Ccedilla     	
+/Egrave       	/Eacute       	/Ecircumflex  	/Edieresis    	
+/Igrave       	/Iacute       	/Icircumflex  	/Idieresis    	
+/Eth          	/Ntilde       	/Ograve       	/Oacute       	
+/Ocircumflex  	/Otilde       	/Odieresis    	/multiply     	
+/Oslash       	/Ugrave       	/Uacute       	/Ucircumflex  	
+/Udieresis    	/Yacute       	/Thorn        	/germandbls   	
+/agrave       	/aacute       	/acircumflex  	/atilde       	
+/adieresis    	/aring        	/ae           	/ccedilla     	
+/egrave       	/eacute       	/ecircumflex  	/edieresis    	
+/igrave       	/iacute       	/icircumflex  	/idieresis    	
+/eth          	/ntilde       	/ograve       	/oacute       	
+/ocircumflex  	/otilde       	/odieresis    	/divide       	
+/oslash       	/ugrave       	/uacute       	/ucircumflex  	
+/udieresis    	/yacute       	/thorn        	/ydieresis    	
+] def
+%%EndResource
+%%EndProlog
+%%BeginSetup
+%%IncludeResource: font Times-Roman
+%%IncludeResource: font Courier-Bold
+/HFpt_w 10 def
+/HFpt_h 10 def
+/Courier-Bold /HF-gs-font MF
+/HF /HF-gs-font findfont [HFpt_w 0 0 HFpt_h 0 0] makefont def
+/Times-Roman /F-gs-font MF
+/F-gs-font 10 10 SF
+/#copies 1 def
+% Pagedevice definitions:
+gs_languagelevel 1 gt {
+  <<
+    /PageSize [612 792] 
+  >> setpagedevice
+} if
+/d_page_w 536 def
+/d_page_h 744 def
+/d_header_x 0 def
+/d_header_y 744 def
+/d_header_w 536 def
+/d_header_h 0 def
+/d_footer_x 0 def
+/d_footer_y 0 def
+/d_footer_w 536 def
+/d_footer_h 0 def
+/d_output_w 536 def
+/d_output_h 744 def
+/cols 1 def
+%%EndSetup
+%%Page: (1) 1
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 1 def
+/fname (G4OpBoundaryProcess.hh) def
+/fdir () def
+/ftail (G4OpBoundaryProcess.hh) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+26 731 M (1:) s
+41.56 731 M
+(//) s
+26 720 M (2:) s
+41.56 720 M
+(// ********************************************************************) s
+26 709 M (3:) s
+41.56 709 M
+(// * License and Disclaimer                                           *) s
+26 698 M (4:) s
+41.56 698 M
+(// *                                                                  *) s
+26 687 M (5:) s
+41.56 687 M
+(// * The  Geant4 software  is  copyright of the Copyright Holders  of *) s
+26 676 M (6:) s
+41.56 676 M
+(// * the Geant4 Collaboration.  It is provided  under  the terms  and *) s
+26 665 M (7:) s
+41.56 665 M
+(// * conditions of the Geant4 Software License,  included in the file *) s
+26 654 M (8:) s
+41.56 654 M
+(// * LICENSE and available at  http://cern.ch/geant4/license .  These *) s
+26 643 M (9:) s
+41.56 643 M
+(// * include a list of copyright holders.                             *) s
+21 632 M (10:) s
+41.56 632 M
+(// *                                                                  *) s
+21 621 M (11:) s
+41.56 621 M
+(// * Neither the authors of this software system, nor their employing *) s
+21 610 M (12:) s
+41.56 610 M
+(// * institutes,nor the agencies providing financial support for this *) s
+21 599 M (13:) s
+41.56 599 M
+(// * work  make  any representation or  warranty, express or implied, *) s
+21 588 M (14:) s
+41.56 588 M
+(// * regarding  this  software system or assume any liability for its *) s
+21 577 M (15:) s
+41.56 577 M
+(// * use.  Please see the license in the file  LICENSE  and URL above *) s
+21 566 M (16:) s
+41.56 566 M
+(// * for the full disclaimer and the limitation of liability.         *) s
+21 555 M (17:) s
+41.56 555 M
+(// *                                                                  *) s
+21 544 M (18:) s
+41.56 544 M
+(// * This  code  implementation is the result of  the  scientific and *) s
+21 533 M (19:) s
+41.56 533 M
+(// * technical work of the GEANT4 collaboration.                      *) s
+21 522 M (20:) s
+41.56 522 M
+(// * By using,  copying,  modifying or  distributing the software \(or *) s
+21 511 M (21:) s
+41.56 511 M
+(// * any work based  on the software\)  you  agree  to acknowledge its *) s
+21 500 M (22:) s
+41.56 500 M
+(// * use  in  resulting  scientific  publications,  and indicate your *) s
+21 489 M (23:) s
+41.56 489 M
+(// * acceptance of all terms of the Geant4 Software license.          *) s
+21 478 M (24:) s
+41.56 478 M
+(// ********************************************************************) s
+21 467 M (25:) s
+41.56 467 M
+(//) s
+21 456 M (26:) s
+41.56 456 M
+(//) s
+21 445 M (27:) s
+41.56 445 M
+(// $Id: G4OpBoundaryProcess.hh,v 1.14 2006/06/29 21:08:38 gunter Exp $) s
+21 434 M (28:) s
+41.56 434 M
+(// GEANT4 tag $Name: geant4-08-01-patch-01 $) s
+21 423 M (29:) s
+41.56 423 M
+(//) s
+21 412 M (30:) s
+41.56 412 M
+(// ) s
+21 401 M (31:) s
+41.56 401 M
+(////////////////////////////////////////////////////////////////////////) s
+21 390 M (32:) s
+41.56 390 M
+(// Optical Photon Boundary Process Class Definition) s
+21 379 M (33:) s
+41.56 379 M
+(////////////////////////////////////////////////////////////////////////) s
+21 368 M (34:) s
+41.56 368 M
+(//) s
+21 357 M (35:) s
+41.56 357 M
+(// File:        G4OpBoundaryProcess.hh) s
+21 346 M (36:) s
+41.56 346 M
+(// Description: Discrete Process -- reflection/refraction at) s
+21 335 M (37:) s
+41.56 335 M
+(//                                  optical interfaces) s
+21 324 M (38:) s
+41.56 324 M
+(// Version:     1.1) s
+21 313 M (39:) s
+41.56 313 M
+(// Created:     1997-06-18) s
+21 302 M (40:) s
+41.56 302 M
+(// Modified:    2005-07-28 add G4ProcessType to constructor) s
+21 291 M (41:) s
+41.56 291 M
+(//              1999-10-29 add method and class descriptors) s
+21 280 M (42:) s
+41.56 280 M
+(//              1999-10-10 - Fill NewMomentum/NewPolarization in ) s
+21 269 M (43:) s
+41.56 269 M
+(//                           DoAbsorption. These members need to be) s
+21 258 M (44:) s
+41.56 258 M
+(//                           filled since DoIt calls ) s
+21 247 M (45:) s
+41.56 247 M
+(//                           aParticleChange.SetMomentumChange etc.) s
+21 236 M (46:) s
+41.56 236 M
+(//                           upon return \(thanks to: Clark McGrew\)) s
+21 225 M (47:) s
+41.56 225 M
+(//) s
+21 214 M (48:) s
+41.56 214 M
+(// Author:      Peter Gumplinger) s
+21 203 M (49:) s
+41.56 203 M
+(//              adopted from work by Werner Keil - April 2/96) s
+21 192 M (50:) s
+41.56 192 M
+(// mail:        gum@triumf.ca) s
+21 181 M (51:) s
+41.56 181 M
+(//) s
+21 170 M (52:) s
+41.56 170 M
+(// CVS version tag: ) s
+21 159 M (53:) s
+41.56 159 M
+(////////////////////////////////////////////////////////////////////////) s
+21 148 M (54:) s
+21 137 M (55:) s
+41.56 137 M
+(#ifndef G4OpBoundaryProcess_h) s
+21 126 M (56:) s
+41.56 126 M
+(#define G4OpBoundaryProcess_h 1) s
+21 115 M (57:) s
+21 104 M (58:) s
+41.56 104 M
+(/////////////) s
+21 93 M (59:) s
+41.56 93 M
+(// Includes) s
+21 82 M (60:) s
+41.56 82 M
+(/////////////) s
+21 71 M (61:) s
+21 60 M (62:) s
+41.56 60 M
+(#include "globals.hh") s
+21 49 M (63:) s
+41.56 49 M
+(#include "templates.hh") s
+21 38 M (64:) s
+41.56 38 M
+(#include "geomdefs.hh") s
+21 27 M (65:) s
+41.56 27 M
+(#include "Randomize.hh") s
+21 16 M (66:) s
+41.56 16 M
+(#include "G4Step.hh") s
+21 5 M (67:) s
+41.56 5 M
+(#include "G4VDiscreteProcess.hh") s
+_R
+S
+%%Page: (2) 2
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 2 def
+/fname (G4OpBoundaryProcess.hh) def
+/fdir () def
+/ftail (G4OpBoundaryProcess.hh) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+21 731 M (68:) s
+41.56 731 M
+(#include "G4DynamicParticle.hh") s
+21 720 M (69:) s
+41.56 720 M
+(#include "G4Material.hh") s
+21 709 M (70:) s
+41.56 709 M
+(#include "G4LogicalBorderSurface.hh") s
+21 698 M (71:) s
+41.56 698 M
+(#include "G4LogicalSkinSurface.hh") s
+21 687 M (72:) s
+41.56 687 M
+(#include "G4OpticalSurface.hh") s
+21 676 M (73:) s
+41.56 676 M
+(#include "G4OpticalPhoton.hh") s
+21 665 M (74:) s
+41.56 665 M
+(#include "G4TransportationManager.hh") s
+21 654 M (75:) s
+21 643 M (76:) s
+41.56 643 M
+(// Class Description:) s
+21 632 M (77:) s
+41.56 632 M
+(// Discrete Process -- reflection/refraction at optical interfaces.) s
+21 621 M (78:) s
+41.56 621 M
+(// Class inherits publicly from G4VDiscreteProcess.                  ) s
+21 610 M (79:) s
+41.56 610 M
+(// Class Description - End:             ) s
+21 599 M (80:) s
+21 588 M (81:) s
+41.56 588 M
+(/////////////////////) s
+21 577 M (82:) s
+41.56 577 M
+(// Class Definition) s
+21 566 M (83:) s
+41.56 566 M
+(/////////////////////) s
+21 555 M (84:) s
+21 544 M (85:) s
+41.56 544 M
+(enum G4OpBoundaryProcessStatus {  Undefined,) s
+21 533 M (86:) s
+41.56 533 M
+(                                  FresnelRefraction, FresnelReflection,) s
+21 522 M (87:) s
+41.56 522 M
+(                                  TotalInternalReflection,) s
+21 511 M (88:) s
+41.56 511 M
+(                                  LambertianReflection, LobeReflection,) s
+21 500 M (89:) s
+41.56 500 M
+(                                  SpikeReflection, BackScattering,) s
+21 489 M (90:) s
+41.56 489 M
+(                                  Absorption, Detection, NotAtBoundary,) s
+21 478 M (91:) s
+41.56 478 M
+(                                  SameMaterial, StepTooSmall, NoRINDEX };) s
+21 467 M (92:) s
+21 456 M (93:) s
+41.56 456 M
+(class G4OpBoundaryProcess : public G4VDiscreteProcess ) s
+21 445 M (94:) s
+41.56 445 M
+({) s
+21 434 M (95:) s
+21 423 M (96:) s
+41.56 423 M
+(private:) s
+21 412 M (97:) s
+21 401 M (98:) s
+41.56 401 M
+(        //////////////) s
+21 390 M (99:) s
+41.56 390 M
+(        // Operators) s
+16 379 M (100:) s
+41.56 379 M
+(        //////////////) s
+16 368 M (101:) s
+16 357 M (102:) s
+41.56 357 M
+(        // G4OpBoundaryProcess& operator=\(const G4OpBoundaryProcess &right\);) s
+16 346 M (103:) s
+16 335 M (104:) s
+41.56 335 M
+(        // G4OpBoundaryProcess\(const G4OpBoundaryProcess &right\);) s
+16 324 M (105:) s
+16 313 M (106:) s
+41.56 313 M
+(public: // Without description) s
+16 302 M (107:) s
+16 291 M (108:) s
+41.56 291 M
+(        ////////////////////////////////) s
+16 280 M (109:) s
+41.56 280 M
+(        // Constructors and Destructor) s
+16 269 M (110:) s
+41.56 269 M
+(        ////////////////////////////////) s
+16 258 M (111:) s
+16 247 M (112:) s
+41.56 247 M
+(        G4OpBoundaryProcess\(const G4String& processName = "OpBoundary",) s
+16 236 M (113:) s
+41.56 236 M
+(                                     G4ProcessType type = fOptical\);) s
+16 225 M (114:) s
+16 214 M (115:) s
+41.56 214 M
+() s
+45 214 M
+(~G4OpBoundaryProcess\(\);) s
+16 203 M (116:) s
+16 192 M (117:) s
+41.56 192 M
+() s
+45 192 M
+(////////////) s
+16 181 M (118:) s
+41.56 181 M
+() s
+45 181 M
+(// Methods) s
+16 170 M (119:) s
+41.56 170 M
+(        ////////////) s
+16 159 M (120:) s
+16 148 M (121:) s
+41.56 148 M
+(public: // With description) s
+16 137 M (122:) s
+16 126 M (123:) s
+41.56 126 M
+(        G4bool IsApplicable\(const G4ParticleDefinition& aParticleType\);) s
+16 115 M (124:) s
+41.56 115 M
+(        // Returns true -> 'is applicable' only for an optical photon.) s
+16 104 M (125:) s
+16 93 M (126:) s
+41.56 93 M
+() s
+45 93 M
+(G4double GetMeanFreePath\(const G4Track& ,) s
+16 82 M (127:) s
+41.56 82 M
+() s
+45 82 M
+() s
+65 82 M
+() s
+85 82 M
+() s
+105 82 M
+( G4double ,) s
+16 71 M (128:) s
+41.56 71 M
+() s
+45 71 M
+() s
+65 71 M
+() s
+85 71 M
+() s
+105 71 M
+( G4ForceCondition* condition\);) s
+16 60 M (129:) s
+41.56 60 M
+(        // Returns infinity; i. e. the process does not limit the step,) s
+16 49 M (130:) s
+41.56 49 M
+(        // but sets the 'Forced' condition for the DoIt to be invoked at) s
+16 38 M (131:) s
+41.56 38 M
+(        // every step. However, only at a boundary will any action be) s
+16 27 M (132:) s
+41.56 27 M
+(        // taken. ) s
+16 16 M (133:) s
+16 5 M (134:) s
+41.56 5 M
+() s
+45 5 M
+(G4VParticleChange* PostStepDoIt\(const G4Track& aTrack,) s
+_R
+S
+%%Page: (3) 3
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 3 def
+/fname (G4OpBoundaryProcess.hh) def
+/fdir () def
+/ftail (G4OpBoundaryProcess.hh) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+16 731 M (135:) s
+41.56 731 M
+() s
+45 731 M
+() s
+65 731 M
+() s
+85 731 M
+() s
+105 731 M
+(       const G4Step&  aStep\);) s
+16 720 M (136:) s
+41.56 720 M
+(        // This is the method implementing boundary processes.) s
+16 709 M (137:) s
+16 698 M (138:) s
+41.56 698 M
+() s
+45 698 M
+(G4OpticalSurfaceModel GetModel\(\) const;) s
+16 687 M (139:) s
+41.56 687 M
+(        // Returns the optical surface mode.) s
+16 676 M (140:) s
+16 665 M (141:) s
+41.56 665 M
+(        G4OpBoundaryProcessStatus GetStatus\(\) const;) s
+16 654 M (142:) s
+41.56 654 M
+(        // Returns the current status.) s
+16 643 M (143:) s
+16 632 M (144:) s
+41.56 632 M
+() s
+45 632 M
+(void           SetModel\(G4OpticalSurfaceModel model\);) s
+16 621 M (145:) s
+41.56 621 M
+() s
+45 621 M
+(// Set the optical surface model to be followed ) s
+16 610 M (146:) s
+41.56 610 M
+(        // \(glisur || unified\). ) s
+16 599 M (147:) s
+16 588 M (148:) s
+41.56 588 M
+(private:) s
+16 577 M (149:) s
+16 566 M (150:) s
+41.56 566 M
+() s
+45 566 M
+(void G4Swap\(G4double* a, G4double* b\) const;) s
+16 555 M (151:) s
+16 544 M (152:) s
+41.56 544 M
+() s
+45 544 M
+(void G4Swap\(G4Material* a, G4Material* b\) const;) s
+16 533 M (153:) s
+16 522 M (154:) s
+41.56 522 M
+() s
+45 522 M
+(void G4VectorSwap\(G4ThreeVector* vec1, G4ThreeVector* vec2\) const;) s
+16 511 M (155:) s
+16 500 M (156:) s
+41.56 500 M
+() s
+45 500 M
+(G4bool G4BooleanRand\(const G4double prob\) const;) s
+16 489 M (157:) s
+16 478 M (158:) s
+41.56 478 M
+() s
+45 478 M
+(G4ThreeVector G4IsotropicRand\(\) const;) s
+16 467 M (159:) s
+16 456 M (160:) s
+41.56 456 M
+() s
+45 456 M
+(G4ThreeVector G4LambertianRand\(const G4ThreeVector& normal\);) s
+16 445 M (161:) s
+16 434 M (162:) s
+41.56 434 M
+() s
+45 434 M
+(G4ThreeVector G4PlaneVectorRand\(const G4ThreeVector& normal\) const; ) s
+16 423 M (163:) s
+16 412 M (164:) s
+41.56 412 M
+() s
+45 412 M
+(G4ThreeVector GetFacetNormal\(const G4ThreeVector& Momentum,) s
+16 401 M (165:) s
+41.56 401 M
+() s
+45 401 M
+() s
+65 401 M
+() s
+85 401 M
+() s
+105 401 M
+(     const G4ThreeVector&  Normal\) const;) s
+16 390 M (166:) s
+16 379 M (167:) s
+41.56 379 M
+() s
+45 379 M
+(void DielectricMetal\(\);) s
+16 368 M (168:) s
+41.56 368 M
+() s
+45 368 M
+(void DielectricDielectric\(\);) s
+16 357 M (169:) s
+16 346 M (170:) s
+41.56 346 M
+() s
+45 346 M
+(void ChooseReflection\(\);) s
+16 335 M (171:) s
+41.56 335 M
+() s
+45 335 M
+(void DoAbsorption\(\);) s
+16 324 M (172:) s
+41.56 324 M
+() s
+45 324 M
+(void DoReflection\(\);) s
+16 313 M (173:) s
+16 302 M (174:) s
+41.56 302 M
+(private:) s
+16 291 M (175:) s
+16 280 M (176:) s
+41.56 280 M
+() s
+45 280 M
+(G4double thePhotonMomentum;) s
+16 269 M (177:) s
+16 258 M (178:) s
+41.56 258 M
+() s
+45 258 M
+(G4ThreeVector OldMomentum;) s
+16 247 M (179:) s
+41.56 247 M
+() s
+45 247 M
+(G4ThreeVector OldPolarization;) s
+16 236 M (180:) s
+16 225 M (181:) s
+41.56 225 M
+() s
+45 225 M
+(G4ThreeVector NewMomentum;) s
+16 214 M (182:) s
+41.56 214 M
+() s
+45 214 M
+(G4ThreeVector NewPolarization;) s
+16 203 M (183:) s
+16 192 M (184:) s
+41.56 192 M
+() s
+45 192 M
+(G4ThreeVector theGlobalNormal;) s
+16 181 M (185:) s
+41.56 181 M
+() s
+45 181 M
+(G4ThreeVector theFacetNormal;) s
+16 170 M (186:) s
+16 159 M (187:) s
+41.56 159 M
+() s
+45 159 M
+(G4Material* Material1;) s
+16 148 M (188:) s
+41.56 148 M
+() s
+45 148 M
+(G4Material* Material2;) s
+16 137 M (189:) s
+16 126 M (190:) s
+41.56 126 M
+() s
+45 126 M
+(G4OpticalSurface* OpticalSurface;) s
+16 115 M (191:) s
+16 104 M (192:) s
+41.56 104 M
+() s
+45 104 M
+(G4double Rindex1;) s
+16 93 M (193:) s
+41.56 93 M
+() s
+45 93 M
+(G4double Rindex2;) s
+16 82 M (194:) s
+16 71 M (195:) s
+41.56 71 M
+() s
+45 71 M
+(G4double cost1, cost2, sint1, sint2;) s
+16 60 M (196:) s
+16 49 M (197:) s
+41.56 49 M
+() s
+45 49 M
+(G4OpBoundaryProcessStatus theStatus;) s
+16 38 M (198:) s
+16 27 M (199:) s
+41.56 27 M
+() s
+45 27 M
+(G4OpticalSurfaceModel theModel;) s
+16 16 M (200:) s
+16 5 M (201:) s
+41.56 5 M
+() s
+45 5 M
+(G4OpticalSurfaceFinish theFinish;) s
+_R
+S
+%%Page: (4) 4
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 4 def
+/fname (G4OpBoundaryProcess.hh) def
+/fdir () def
+/ftail (G4OpBoundaryProcess.hh) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+16 731 M (202:) s
+16 720 M (203:) s
+41.56 720 M
+() s
+45 720 M
+(G4double theReflectivity;) s
+16 709 M (204:) s
+41.56 709 M
+() s
+45 709 M
+(G4double theEfficiency;) s
+16 698 M (205:) s
+41.56 698 M
+() s
+45 698 M
+(G4double prob_sl, prob_ss, prob_bs;) s
+16 687 M (206:) s
+16 676 M (207:) s
+41.56 676 M
+(};) s
+16 665 M (208:) s
+16 654 M (209:) s
+41.56 654 M
+(////////////////////) s
+16 643 M (210:) s
+41.56 643 M
+(// Inline methods) s
+16 632 M (211:) s
+41.56 632 M
+(////////////////////) s
+16 621 M (212:) s
+16 610 M (213:) s
+41.56 610 M
+(inline) s
+16 599 M (214:) s
+41.56 599 M
+(void G4OpBoundaryProcess::G4Swap\(G4double* a, G4double* b\) const) s
+16 588 M (215:) s
+41.56 588 M
+({) s
+16 577 M (216:) s
+41.56 577 M
+() s
+45 577 M
+(// swaps the contents of the objects pointed ) s
+16 566 M (217:) s
+41.56 566 M
+() s
+45 566 M
+(// to by 'a' and 'b'!) s
+16 555 M (218:) s
+16 544 M (219:) s
+41.56 544 M
+(  G4double temp;) s
+16 533 M (220:) s
+16 522 M (221:) s
+41.56 522 M
+(  temp = *a;) s
+16 511 M (222:) s
+41.56 511 M
+(  *a = *b;) s
+16 500 M (223:) s
+41.56 500 M
+(  *b = temp;) s
+16 489 M (224:) s
+41.56 489 M
+(}) s
+16 478 M (225:) s
+16 467 M (226:) s
+41.56 467 M
+(inline) s
+16 456 M (227:) s
+41.56 456 M
+(void G4OpBoundaryProcess::G4Swap\(G4Material* a, G4Material* b\) const) s
+16 445 M (228:) s
+41.56 445 M
+({) s
+16 434 M (229:) s
+41.56 434 M
+() s
+45 434 M
+(// ONLY swaps the pointers; i.e. what used to be pointed) s
+16 423 M (230:) s
+41.56 423 M
+() s
+45 423 M
+(// to by 'a' is now pointed to by 'b' and vice versa!) s
+16 412 M (231:) s
+16 401 M (232:) s
+41.56 401 M
+(   G4Material* temp = a;) s
+16 390 M (233:) s
+16 379 M (234:) s
+41.56 379 M
+(   a = b;) s
+16 368 M (235:) s
+41.56 368 M
+(   b = temp;) s
+16 357 M (236:) s
+41.56 357 M
+(}) s
+16 346 M (237:) s
+16 335 M (238:) s
+41.56 335 M
+(inline) s
+16 324 M (239:) s
+41.56 324 M
+(void G4OpBoundaryProcess::G4VectorSwap\(G4ThreeVector* vec1,) s
+16 313 M (240:) s
+41.56 313 M
+() s
+45 313 M
+() s
+65 313 M
+() s
+85 313 M
+() s
+105 313 M
+(       G4ThreeVector* vec2\) const) s
+16 302 M (241:) s
+41.56 302 M
+({) s
+16 291 M (242:) s
+41.56 291 M
+(        // swaps the contents of the objects pointed) s
+16 280 M (243:) s
+41.56 280 M
+(        // to by 'vec1' and 'vec2'!) s
+16 269 M (244:) s
+16 258 M (245:) s
+41.56 258 M
+(  G4ThreeVector temp;) s
+16 247 M (246:) s
+16 236 M (247:) s
+41.56 236 M
+(  temp = *vec1;) s
+16 225 M (248:) s
+41.56 225 M
+(  *vec1 = *vec2;) s
+16 214 M (249:) s
+41.56 214 M
+(  *vec2 = temp;) s
+16 203 M (250:) s
+41.56 203 M
+(}) s
+16 192 M (251:) s
+16 181 M (252:) s
+41.56 181 M
+(inline) s
+16 170 M (253:) s
+41.56 170 M
+(G4bool G4OpBoundaryProcess::G4BooleanRand\(const G4double prob\) const) s
+16 159 M (254:) s
+41.56 159 M
+({) s
+16 148 M (255:) s
+41.56 148 M
+(  /* Returns a random boolean variable with the specified probability */) s
+16 137 M (256:) s
+16 126 M (257:) s
+41.56 126 M
+(  return \(G4UniformRand\(\) < prob\);) s
+16 115 M (258:) s
+41.56 115 M
+(}) s
+16 104 M (259:) s
+16 93 M (260:) s
+41.56 93 M
+(inline) s
+16 82 M (261:) s
+41.56 82 M
+(G4ThreeVector G4OpBoundaryProcess::G4IsotropicRand\(\) const) s
+16 71 M (262:) s
+41.56 71 M
+({) s
+16 60 M (263:) s
+41.56 60 M
+(  /* Returns a random isotropic unit vector. */) s
+16 49 M (264:) s
+16 38 M (265:) s
+41.56 38 M
+(  G4ThreeVector vect;) s
+16 27 M (266:) s
+41.56 27 M
+(  G4double len2;) s
+16 16 M (267:) s
+16 5 M (268:) s
+41.56 5 M
+(  do {) s
+_R
+S
+%%Page: (5) 5
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 5 def
+/fname (G4OpBoundaryProcess.hh) def
+/fdir () def
+/ftail (G4OpBoundaryProcess.hh) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+16 731 M (269:) s
+16 720 M (270:) s
+41.56 720 M
+(    vect.setX\(G4UniformRand\(\) - 0.5\);) s
+16 709 M (271:) s
+41.56 709 M
+(    vect.setY\(G4UniformRand\(\) - 0.5\);) s
+16 698 M (272:) s
+41.56 698 M
+(    vect.setZ\(G4UniformRand\(\) - 0.5\);) s
+16 687 M (273:) s
+16 676 M (274:) s
+41.56 676 M
+(    len2 = vect.mag2\(\);) s
+16 665 M (275:) s
+16 654 M (276:) s
+41.56 654 M
+(  } while \(len2 < 0.01 || len2 > 0.25\);) s
+16 643 M (277:) s
+16 632 M (278:) s
+41.56 632 M
+(  return vect.unit\(\);) s
+16 621 M (279:) s
+41.56 621 M
+(}) s
+16 610 M (280:) s
+16 599 M (281:) s
+41.56 599 M
+(inline) s
+16 588 M (282:) s
+41.56 588 M
+(G4ThreeVector G4OpBoundaryProcess::) s
+16 577 M (283:) s
+41.56 577 M
+() s
+45 577 M
+(      G4LambertianRand\(const G4ThreeVector& normal\)) s
+16 566 M (284:) s
+41.56 566 M
+({) s
+16 555 M (285:) s
+41.56 555 M
+(  /* Returns a random lambertian unit vector. */) s
+16 544 M (286:) s
+16 533 M (287:) s
+41.56 533 M
+(  G4ThreeVector vect;) s
+16 522 M (288:) s
+41.56 522 M
+(  G4double ndotv;) s
+16 511 M (289:) s
+16 500 M (290:) s
+41.56 500 M
+(  do {) s
+16 489 M (291:) s
+41.56 489 M
+(    vect = G4IsotropicRand\(\);) s
+16 478 M (292:) s
+16 467 M (293:) s
+41.56 467 M
+(    ndotv = normal * vect;) s
+16 456 M (294:) s
+16 445 M (295:) s
+41.56 445 M
+(    if \(ndotv < 0.0\) {) s
+16 434 M (296:) s
+41.56 434 M
+(      vect = -vect;) s
+16 423 M (297:) s
+41.56 423 M
+(      ndotv = -ndotv;) s
+16 412 M (298:) s
+41.56 412 M
+(    }) s
+16 401 M (299:) s
+16 390 M (300:) s
+41.56 390 M
+(  } while \(!G4BooleanRand\(ndotv\)\);) s
+16 379 M (301:) s
+41.56 379 M
+(  return vect;) s
+16 368 M (302:) s
+41.56 368 M
+(}) s
+16 357 M (303:) s
+16 346 M (304:) s
+41.56 346 M
+(inline) s
+16 335 M (305:) s
+41.56 335 M
+(G4ThreeVector G4OpBoundaryProcess::) s
+16 324 M (306:) s
+41.56 324 M
+() s
+45 324 M
+(      G4PlaneVectorRand\(const G4ThreeVector& normal\) const) s
+16 313 M (307:) s
+16 302 M (308:) s
+41.56 302 M
+(  /* This function chooses a random vector within a plane given) s
+16 291 M (309:) s
+41.56 291 M
+(     by the unit normal */) s
+16 280 M (310:) s
+41.56 280 M
+({) s
+16 269 M (311:) s
+41.56 269 M
+(  G4ThreeVector vec1 = normal.orthogonal\(\);) s
+16 258 M (312:) s
+16 247 M (313:) s
+41.56 247 M
+(  G4ThreeVector vec2 = vec1.cross\(normal\);) s
+16 236 M (314:) s
+16 225 M (315:) s
+41.56 225 M
+(  G4double phi = twopi*G4UniformRand\(\);) s
+16 214 M (316:) s
+41.56 214 M
+(  G4double cosphi = std::cos\(phi\);) s
+16 203 M (317:) s
+41.56 203 M
+(  G4double sinphi = std::sin\(phi\);) s
+16 192 M (318:) s
+16 181 M (319:) s
+41.56 181 M
+(  return cosphi * vec1 + sinphi * vec2;) s
+16 170 M (320:) s
+41.56 170 M
+(}) s
+16 159 M (321:) s
+16 148 M (322:) s
+41.56 148 M
+(inline) s
+16 137 M (323:) s
+41.56 137 M
+(G4bool G4OpBoundaryProcess::IsApplicable\(const G4ParticleDefinition& ) s
+16 126 M (324:) s
+41.56 126 M
+() s
+45 126 M
+() s
+65 126 M
+() s
+85 126 M
+() s
+105 126 M
+() s
+125 126 M
+(               aParticleType\)) s
+16 115 M (325:) s
+41.56 115 M
+({) s
+16 104 M (326:) s
+41.56 104 M
+(   return \( &aParticleType == G4OpticalPhoton::OpticalPhoton\(\) \);) s
+16 93 M (327:) s
+41.56 93 M
+(}) s
+16 82 M (328:) s
+16 71 M (329:) s
+41.56 71 M
+(inline) s
+16 60 M (330:) s
+41.56 60 M
+(G4OpticalSurfaceModel G4OpBoundaryProcess::GetModel\(\) const) s
+16 49 M (331:) s
+41.56 49 M
+({) s
+16 38 M (332:) s
+41.56 38 M
+(   return theModel;) s
+16 27 M (333:) s
+41.56 27 M
+(}) s
+16 16 M (334:) s
+16 5 M (335:) s
+41.56 5 M
+(inline) s
+_R
+S
+%%Page: (6) 6
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 6 def
+/fname (G4OpBoundaryProcess.hh) def
+/fdir () def
+/ftail (G4OpBoundaryProcess.hh) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+16 731 M (336:) s
+41.56 731 M
+(G4OpBoundaryProcessStatus G4OpBoundaryProcess::GetStatus\(\) const) s
+16 720 M (337:) s
+41.56 720 M
+({) s
+16 709 M (338:) s
+41.56 709 M
+(   return theStatus;) s
+16 698 M (339:) s
+41.56 698 M
+(}) s
+16 687 M (340:) s
+16 676 M (341:) s
+41.56 676 M
+(inline) s
+16 665 M (342:) s
+41.56 665 M
+(void G4OpBoundaryProcess::SetModel\(G4OpticalSurfaceModel model\)) s
+16 654 M (343:) s
+41.56 654 M
+({) s
+16 643 M (344:) s
+41.56 643 M
+(   theModel = model;) s
+16 632 M (345:) s
+41.56 632 M
+(}) s
+16 621 M (346:) s
+16 610 M (347:) s
+41.56 610 M
+(inline) s
+16 599 M (348:) s
+41.56 599 M
+(void G4OpBoundaryProcess::ChooseReflection\(\)) s
+16 588 M (349:) s
+41.56 588 M
+({) s
+16 577 M (350:) s
+41.56 577 M
+(                 G4double rand = G4UniformRand\(\);) s
+16 566 M (351:) s
+41.56 566 M
+(                 if \( rand >= 0.0 && rand < prob_ss \) {) s
+16 555 M (352:) s
+41.56 555 M
+(                    theStatus = SpikeReflection;) s
+16 544 M (353:) s
+41.56 544 M
+(                    theFacetNormal = theGlobalNormal;) s
+16 533 M (354:) s
+41.56 533 M
+(                 }) s
+16 522 M (355:) s
+41.56 522 M
+(                 else if \( rand >= prob_ss &&) s
+16 511 M (356:) s
+41.56 511 M
+(                           rand <= prob_ss+prob_sl\) {) s
+16 500 M (357:) s
+41.56 500 M
+(                    theStatus = LobeReflection;) s
+16 489 M (358:) s
+41.56 489 M
+(                 }) s
+16 478 M (359:) s
+41.56 478 M
+(                 else if \( rand > prob_ss+prob_sl &&) s
+16 467 M (360:) s
+41.56 467 M
+(                           rand < prob_ss+prob_sl+prob_bs \) {) s
+16 456 M (361:) s
+41.56 456 M
+(                    theStatus = BackScattering;) s
+16 445 M (362:) s
+41.56 445 M
+(                 }) s
+16 434 M (363:) s
+41.56 434 M
+(                 else {) s
+16 423 M (364:) s
+41.56 423 M
+(                    theStatus = LambertianReflection;) s
+16 412 M (365:) s
+41.56 412 M
+(                 }) s
+16 401 M (366:) s
+41.56 401 M
+(}) s
+16 390 M (367:) s
+16 379 M (368:) s
+41.56 379 M
+(inline) s
+16 368 M (369:) s
+41.56 368 M
+(void G4OpBoundaryProcess::DoAbsorption\(\)) s
+16 357 M (370:) s
+41.56 357 M
+({) s
+16 346 M (371:) s
+41.56 346 M
+(              theStatus = Absorption;) s
+16 335 M (372:) s
+16 324 M (373:) s
+41.56 324 M
+(              if \( G4BooleanRand\(theEfficiency\) \) {) s
+16 313 M (374:) s
+41.56 313 M
+() s
+45 313 M
+() s
+16 302 M (375:) s
+41.56 302 M
+(                 // EnergyDeposited =/= 0 means: photon has been detected) s
+16 291 M (376:) s
+41.56 291 M
+(                 theStatus = Detection;) s
+16 280 M (377:) s
+41.56 280 M
+(                 aParticleChange.ProposeLocalEnergyDeposit\(thePhotonMomentum\);) s
+16 269 M (378:) s
+41.56 269 M
+(              }) s
+16 258 M (379:) s
+41.56 258 M
+(              else {) s
+16 247 M (380:) s
+41.56 247 M
+(                 aParticleChange.ProposeLocalEnergyDeposit\(0.0\);) s
+16 236 M (381:) s
+41.56 236 M
+(              }) s
+16 225 M (382:) s
+16 214 M (383:) s
+41.56 214 M
+(              NewMomentum = OldMomentum;) s
+16 203 M (384:) s
+41.56 203 M
+(              NewPolarization = OldPolarization;) s
+16 192 M (385:) s
+16 181 M (386:) s
+41.56 181 M
+(//              aParticleChange.ProposeEnergy\(0.0\);) s
+16 170 M (387:) s
+41.56 170 M
+(              aParticleChange.ProposeTrackStatus\(fStopAndKill\);) s
+16 159 M (388:) s
+41.56 159 M
+(}) s
+16 148 M (389:) s
+16 137 M (390:) s
+41.56 137 M
+(inline) s
+16 126 M (391:) s
+41.56 126 M
+(void G4OpBoundaryProcess::DoReflection\(\)) s
+16 115 M (392:) s
+41.56 115 M
+({) s
+16 104 M (393:) s
+41.56 104 M
+(        if \( theStatus == LambertianReflection \) {) s
+16 93 M (394:) s
+16 82 M (395:) s
+41.56 82 M
+(          NewMomentum = G4LambertianRand\(theGlobalNormal\);) s
+16 71 M (396:) s
+41.56 71 M
+(          theFacetNormal = \(NewMomentum - OldMomentum\).unit\(\);) s
+16 60 M (397:) s
+16 49 M (398:) s
+41.56 49 M
+(        }) s
+16 38 M (399:) s
+41.56 38 M
+(        else if \( theFinish == ground \) {) s
+16 27 M (400:) s
+16 16 M (401:) s
+41.56 16 M
+() s
+45 16 M
+(  theStatus = LobeReflection;) s
+16 5 M (402:) s
+41.56 5 M
+(          theFacetNormal = GetFacetNormal\(OldMomentum,theGlobalNormal\);) s
+_R
+S
+%%Page: (7) 7
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 7 def
+/fname (G4OpBoundaryProcess.hh) def
+/fdir () def
+/ftail (G4OpBoundaryProcess.hh) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+16 731 M (403:) s
+41.56 731 M
+(          G4double PdotN = OldMomentum * theFacetNormal;) s
+16 720 M (404:) s
+41.56 720 M
+(          NewMomentum = OldMomentum - \(2.*PdotN\)*theFacetNormal;) s
+16 709 M (405:) s
+16 698 M (406:) s
+41.56 698 M
+(        }) s
+16 687 M (407:) s
+41.56 687 M
+(        else {) s
+16 676 M (408:) s
+16 665 M (409:) s
+41.56 665 M
+(          theStatus = SpikeReflection;) s
+16 654 M (410:) s
+41.56 654 M
+(          theFacetNormal = theGlobalNormal;) s
+16 643 M (411:) s
+41.56 643 M
+(          G4double PdotN = OldMomentum * theFacetNormal;) s
+16 632 M (412:) s
+41.56 632 M
+(          NewMomentum = OldMomentum - \(2.*PdotN\)*theFacetNormal;) s
+16 621 M (413:) s
+16 610 M (414:) s
+41.56 610 M
+(        }) s
+16 599 M (415:) s
+41.56 599 M
+(        G4double EdotN = OldPolarization * theFacetNormal;) s
+16 588 M (416:) s
+41.56 588 M
+(        NewPolarization = -OldPolarization + \(2.*EdotN\)*theFacetNormal;) s
+16 577 M (417:) s
+41.56 577 M
+(}) s
+16 566 M (418:) s
+16 555 M (419:) s
+41.56 555 M
+(#endif /* G4OpBoundaryProcess_h */) s
+_R
+S
+%%Trailer
+%%Pages: 7
+%%DocumentNeededResources: font Times-Roman Courier-Bold 
+%%EOF

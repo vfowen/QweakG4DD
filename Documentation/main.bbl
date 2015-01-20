@@ -1,0 +1,69 @@
+\begin{thebibliography}{10}
+
+\bibitem{pp:GEANT4}
+S.~Agostinelli {\it et al}.
+\newblock {GEANT4: A Simulation Toolkit}.
+\newblock {\em NIM A}, 506:250--303, 2003.
+
+\bibitem{tn:ROOT}
+{R. Brun, F. Rademakers, S. Panacek, I. Antcheva and D. Buskulic}.
+\newblock {ROOT, an Object-Oriented Data Analysis Framework Users Guide}.
+\newblock Technical report, CERN, FNAL, and Université de Savoie (LAPP).
+\newblock {\tt http://root.cern.ch}.
+
+\bibitem{tn:GEANT4PRM}
+{}.
+\newblock {GEANT4: Physics Reference Manual}.
+\newblock Technical report, CERN.
+
+\bibitem{tn:MACK1}
+{D. Mack}.
+\newblock {Fused Silica Radiator Specifications for the Qweak Main Cerenkov
+  Detectors}\\.
+\newblock Technical report, JLab.
+\newblock {\tt http://qweak.jlab.org/doc-private/ShowDocument?docid=228}.
+
+\bibitem{tn:NEVEN}
+{N. Simicevic}.
+\newblock {Design of a Cerenkov Counter for the Qweak Experiment}.
+\newblock Technical report, Louisiana Tech.
+\newblock {\tt http://qweak.jlab.org/DocDB/0000/000028/001/28.pdf}.
+
+\bibitem{tn:BABAR}
+{BaBar Collaboration}.
+\newblock {The BaBar DIRC bar}\\.
+\newblock Technical report.
+\newblock {}.
+
+\bibitem{PC:EELECTRONTUBES}
+Electron Tubes.
+\newblock Obtained from PMT manufacturer.
+
+\bibitem{PC:LLEE}
+Larry Lee.
+\newblock Private communication (unpublished TRIUMF and Russian Measurements).
+
+\bibitem{tn:GEANT4SFM}
+GEANT4 Collaboration.
+\newblock {Users Guide For Application Developers \\{\tt
+  (http://geant4.web.cern.ch/geant4/UserDocumentation/UsersGuides/\\ForApplica%
+tionDeveloper/html/ch05.html)}}.
+\newblock Technical report, CERN, 2007.
+
+\bibitem{pp:LEVMOI}
+A.~Levin and C.~Moisan.
+\newblock A more physical approach to model the surface treatment of
+  scintillation counters and its implementation into detect.
+\newblock {\em IEEE Nuclear Science Symposium}, 1996.
+
+\bibitem{bb:JACKSON}
+Jackson.
+\newblock {\em Electromagnetism}.
+\newblock ?, ?
+
+\bibitem{bb:HECHT}
+E.Hecht.
+\newblock {\em Optics}.
+\newblock Addison Wesley, 1998.
+
+\end{thebibliography}

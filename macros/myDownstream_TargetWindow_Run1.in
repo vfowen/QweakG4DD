@@ -1,0 +1,32 @@
+#Programmer: Kurtis Bartlett
+#Purpose: The macro file for the isolated target window simulations
+#
+#Date: 11-22-2012
+#Modified: 5-15-2013
+#Assisted By: Val
+#
+
+/control/execute myQweakConfiguration_run1.mac
+/control/execute macros/noTracking.mac
+
+/random/setSavingFlag 0
+/random/setDirectoryName random/%name%_%jobid%
+/random/setSeeds %seedA% %seedB%
+
+/TrackingAction/TrackingFlag 3
+
+#set reaction region and type
+/control/execute macros/Al_TargetWindow_Dummy_Downstream.mac
+/EventGen/SelectReactionRegion 3
+/EventGen/SelectReactionType 2
+
+/Trigger/Disable all
+/Trigger/Enable cer
+/Trigger/Show
+
+#set the rootfile name
+/Analysis/RootFileName rootfiles/%name%_%jobid%_workdir/%name%_%jobid%.root
+
+#number of events
+/run/beamOn %nevents%
+

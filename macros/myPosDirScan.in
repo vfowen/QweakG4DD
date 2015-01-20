@@ -1,0 +1,45 @@
+#Programmer: Valerie Gray
+#Purpose: The macro file for the Qtor Scan study
+#
+#Date: 11-22-2012
+#Modified:
+#Assisted By:
+#
+/control/execute myQweakConfiguration.mac
+/control/execute macros/peiqing_2011.mac
+
+/random/setSavingFlag 0
+/random/setDirectoryName random/%name%_%jobid%
+/random/setSeeds %seedA% %seedB%
+
+#track everything
+/TrackingAction/TrackingFlag 3
+
+#select reaction region and type
+/EventGen/SelectReactionRegion 1
+/EventGen/SelectReactionType 1
+
+/Trigger/Disable all
+/Trigger/Enable cer
+/Trigger/Show
+
+#set the intial/defult beam positions and directions
+/PrimaryEvent/SetBeamPositionX 0 mm
+/PrimaryEvent/SetBeamPositionY 0 mm
+/PrimaryEvent/SetBeamDirectionX 0 mrad
+/PrimaryEvent/SetBeamDirectionY 0 mrad
+
+#convert to the units Geant wants
+/control/divide position %position% 1000
+/control/divide direction %direction% 1000
+
+#set the wanted beam angle and directions
+/PrimaryEvent/SetBeamPosition%axis% {position} mm
+/PrimaryEvent/SetBeamDirection%axis% {direction} mrad
+
+#name the rootfile properly
+/Analysis/RootFileName rootfiles/%name%_%jobid%_workdir/%name%_%jobid%.root
+
+#number of events
+/run/beamOn %nevents%
+

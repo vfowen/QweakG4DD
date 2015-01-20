@@ -1,0 +1,12 @@
+#========================================================================
+#  Macro file  Al_TargetWindow_Dummy_Downstream.mac
+#========================================================================
+# This macro isolates the downstream aluminum window of the target.
+#
+#------------------------------------------------------------------------
+
+/Target/SetTargetMaterial Air
+/Target/SetTargetCellMaterial Air
+/Target/SetTargetEntranceWindowMaterial Air
+
+

@@ -1,0 +1,899 @@
+%!PS-Adobe-3.0
+%%BoundingBox: 38 24 574 768
+%%Title: Enscript Output
+%%For: Michael Gericke
+%%Creator: GNU enscript 1.6.4
+%%CreationDate: Thu Aug  2 17:09:45 2007
+%%Orientation: Portrait
+%%Pages: (atend)
+%%DocumentMedia: Letter 612 792 0 () ()
+%%DocumentNeededResources: (atend)
+%%EndComments
+%%BeginProlog
+%%BeginResource: procset Enscript-Prolog 1.6 4
+%
+% Procedures.
+%
+
+/_S {	% save current state
+  /_s save def
+} def
+/_R {	% restore from saved state
+  _s restore
+} def
+
+/S {	% showpage protecting gstate
+  gsave
+  showpage
+  grestore
+} bind def
+
+/MF {	% fontname newfontname -> -	make a new encoded font
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  % insert only valid encoding vectors
+  encoding_vector length 256 eq {
+    newfont /Encoding encoding_vector put
+  } if
+
+  newfontname newfont definefont pop
+} def
+
+/MF_PS { % fontname newfontname -> -	make a new font preserving its enc
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  newfontname newfont definefont pop
+} def
+
+/SF { % fontname width height -> -	set a new font
+  /height exch def
+  /width exch def
+
+  findfont
+  [width 0 0 height 0 0] makefont setfont
+} def
+
+/SUF { % fontname width height -> -	set a new user font
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF
+  /F-gs-user-font width height SF
+} def
+
+/SUF_PS { % fontname width height -> -	set a new user font preserving its enc
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF_PS
+  /F-gs-user-font width height SF
+} def
+
+/M {moveto} bind def
+/s {show} bind def
+
+/Box {	% x y w h -> -			define box path
+  /d_h exch def /d_w exch def /d_y exch def /d_x exch def
+  d_x d_y  moveto
+  d_w 0 rlineto
+  0 d_h rlineto
+  d_w neg 0 rlineto
+  closepath
+} def
+
+/bgs {	% x y height blskip gray str -> -	show string with bg color
+  /str exch def
+  /gray exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    gray setgray
+    fill
+  grestore
+  x y M str s
+} def
+
+/bgcs { % x y height blskip red green blue str -> -  show string with bg color
+  /str exch def
+  /blue exch def
+  /green exch def
+  /red exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    red green blue setrgbcolor
+    fill
+  grestore
+  x y M str s
+} def
+
+% Highlight bars.
+/highlight_bars {	% nlines lineheight output_y_margin gray -> -
+  gsave
+    setgray
+    /ymarg exch def
+    /lineheight exch def
+    /nlines exch def
+
+    % This 2 is just a magic number to sync highlight lines to text.
+    0 d_header_y ymarg sub 2 sub translate
+
+    /cw d_output_w cols div def
+    /nrows d_output_h ymarg 2 mul sub lineheight div cvi def
+
+    % for each column
+    0 1 cols 1 sub {
+      cw mul /xp exch def
+
+      % for each rows
+      0 1 nrows 1 sub {
+        /rn exch def
+        rn lineheight mul neg /yp exch def
+        rn nlines idiv 2 mod 0 eq {
+	  % Draw highlight bar.  4 is just a magic indentation.
+	  xp 4 add yp cw 8 sub lineheight neg Box fill
+	} if
+      } for
+    } for
+
+  grestore
+} def
+
+% Line highlight bar.
+/line_highlight {	% x y width height gray -> -
+  gsave
+    /gray exch def
+    Box gray setgray fill
+  grestore
+} def
+
+% Column separator lines.
+/column_lines {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h translate
+    /cw d_output_w cols div def
+    1 1 cols 1 sub {
+      cw mul 0 moveto
+      0 d_output_h rlineto stroke
+    } for
+  grestore
+} def
+
+% Column borders.
+/column_borders {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h moveto
+    0 d_output_h rlineto
+    d_output_w 0 rlineto
+    0 d_output_h neg rlineto
+    closepath stroke
+  grestore
+} def
+
+% Do the actual underlay drawing
+/draw_underlay {
+  ul_style 0 eq {
+    ul_str true charpath stroke
+  } {
+    ul_str show
+  } ifelse
+} def
+
+% Underlay
+/underlay {	% - -> -
+  gsave
+    0 d_page_h translate
+    d_page_h neg d_page_w atan rotate
+
+    ul_gray setgray
+    ul_font setfont
+    /dw d_page_h dup mul d_page_w dup mul add sqrt def
+    ul_str stringwidth pop dw exch sub 2 div ul_h_ptsize -2 div moveto
+    draw_underlay
+  grestore
+} def
+
+/user_underlay {	% - -> -
+  gsave
+    ul_x ul_y translate
+    ul_angle rotate
+    ul_gray setgray
+    ul_font setfont
+    0 0 ul_h_ptsize 2 div sub moveto
+    draw_underlay
+  grestore
+} def
+
+% Page prefeed
+/page_prefeed {		% bool -> -
+  statusdict /prefeed known {
+    statusdict exch /prefeed exch put
+  } {
+    pop
+  } ifelse
+} def
+
+% Wrapped line markers
+/wrapped_line_mark {	% x y charwith charheight type -> -
+  /type exch def
+  /h exch def
+  /w exch def
+  /y exch def
+  /x exch def
+
+  type 2 eq {
+    % Black boxes (like TeX does)
+    gsave
+      0 setlinewidth
+      x w 4 div add y M
+      0 h rlineto w 2 div 0 rlineto 0 h neg rlineto
+      closepath fill
+    grestore
+  } {
+    type 3 eq {
+      % Small arrows
+      gsave
+        .2 setlinewidth
+        x w 2 div add y h 2 div add M
+        w 4 div 0 rlineto
+        x w 4 div add y lineto stroke
+
+        x w 4 div add w 8 div add y h 4 div add M
+        x w 4 div add y lineto
+	w 4 div h 8 div rlineto stroke
+      grestore
+    } {
+      % do nothing
+    } ifelse
+  } ifelse
+} def
+
+% EPSF import.
+
+/BeginEPSF {
+  /b4_Inc_state save def    		% Save state for cleanup
+  /dict_count countdictstack def	% Count objects on dict stack
+  /op_count count 1 sub def		% Count objects on operand stack
+  userdict begin
+  /showpage { } def
+  0 setgray 0 setlinecap
+  1 setlinewidth 0 setlinejoin
+  10 setmiterlimit [ ] 0 setdash newpath
+  /languagelevel where {
+    pop languagelevel
+    1 ne {
+      false setstrokeadjust false setoverprint
+    } if
+  } if
+} bind def
+
+/EndEPSF {
+  count op_count sub { pos } repeat	% Clean up stacks
+  countdictstack dict_count sub { end } repeat
+  b4_Inc_state restore
+} bind def
+
+% Check PostScript language level.
+/languagelevel where {
+  pop /gs_languagelevel languagelevel def
+} {
+  /gs_languagelevel 1 def
+} ifelse
+%%EndResource
+%%BeginResource: procset Enscript-Encoding-88591 1.6 4
+/encoding_vector [
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclam       	/quotedbl     	/numbersign   	
+/dollar       	/percent      	/ampersand    	/quoteright   	
+/parenleft    	/parenright   	/asterisk     	/plus         	
+/comma        	/hyphen       	/period       	/slash        	
+/zero         	/one          	/two          	/three        	
+/four         	/five         	/six          	/seven        	
+/eight        	/nine         	/colon        	/semicolon    	
+/less         	/equal        	/greater      	/question     	
+/at           	/A            	/B            	/C            	
+/D            	/E            	/F            	/G            	
+/H            	/I            	/J            	/K            	
+/L            	/M            	/N            	/O            	
+/P            	/Q            	/R            	/S            	
+/T            	/U            	/V            	/W            	
+/X            	/Y            	/Z            	/bracketleft  	
+/backslash    	/bracketright 	/asciicircum  	/underscore   	
+/quoteleft    	/a            	/b            	/c            	
+/d            	/e            	/f            	/g            	
+/h            	/i            	/j            	/k            	
+/l            	/m            	/n            	/o            	
+/p            	/q            	/r            	/s            	
+/t            	/u            	/v            	/w            	
+/x            	/y            	/z            	/braceleft    	
+/bar          	/braceright   	/tilde        	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclamdown   	/cent         	/sterling     	
+/currency     	/yen          	/brokenbar    	/section      	
+/dieresis     	/copyright    	/ordfeminine  	/guillemotleft	
+/logicalnot   	/hyphen       	/registered   	/macron       	
+/degree       	/plusminus    	/twosuperior  	/threesuperior	
+/acute        	/mu           	/paragraph    	/bullet       	
+/cedilla      	/onesuperior  	/ordmasculine 	/guillemotright	
+/onequarter   	/onehalf      	/threequarters	/questiondown 	
+/Agrave       	/Aacute       	/Acircumflex  	/Atilde       	
+/Adieresis    	/Aring        	/AE           	/Ccedilla     	
+/Egrave       	/Eacute       	/Ecircumflex  	/Edieresis    	
+/Igrave       	/Iacute       	/Icircumflex  	/Idieresis    	
+/Eth          	/Ntilde       	/Ograve       	/Oacute       	
+/Ocircumflex  	/Otilde       	/Odieresis    	/multiply     	
+/Oslash       	/Ugrave       	/Uacute       	/Ucircumflex  	
+/Udieresis    	/Yacute       	/Thorn        	/germandbls   	
+/agrave       	/aacute       	/acircumflex  	/atilde       	
+/adieresis    	/aring        	/ae           	/ccedilla     	
+/egrave       	/eacute       	/ecircumflex  	/edieresis    	
+/igrave       	/iacute       	/icircumflex  	/idieresis    	
+/eth          	/ntilde       	/ograve       	/oacute       	
+/ocircumflex  	/otilde       	/odieresis    	/divide       	
+/oslash       	/ugrave       	/uacute       	/ucircumflex  	
+/udieresis    	/yacute       	/thorn        	/ydieresis    	
+] def
+%%EndResource
+%%EndProlog
+%%BeginSetup
+%%IncludeResource: font Times-Roman
+%%IncludeResource: font Courier-Bold
+/HFpt_w 10 def
+/HFpt_h 10 def
+/Courier-Bold /HF-gs-font MF
+/HF /HF-gs-font findfont [HFpt_w 0 0 HFpt_h 0 0] makefont def
+/Times-Roman /F-gs-font MF
+/F-gs-font 10 10 SF
+/#copies 1 def
+% Pagedevice definitions:
+gs_languagelevel 1 gt {
+  <<
+    /PageSize [612 792] 
+  >> setpagedevice
+} if
+/d_page_w 536 def
+/d_page_h 744 def
+/d_header_x 0 def
+/d_header_y 744 def
+/d_header_w 536 def
+/d_header_h 0 def
+/d_footer_x 0 def
+/d_footer_y 0 def
+/d_footer_w 536 def
+/d_footer_h 0 def
+/d_output_w 536 def
+/d_output_h 744 def
+/cols 1 def
+%%EndSetup
+%%Page: (20) 1
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 20 def
+/fname (../src/QweakSimCerenkovDetector.cc) def
+/fdir (../src/) def
+/ftail (QweakSimCerenkovDetector.cc) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+11 731 M (1210:) s
+41.56 731 M
+( G4Colour  khaki3    \( 205/255., 198/255., 115/255.\);) s
+11 720 M (1211:) s
+41.56 720 M
+( ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+44.06 720 M
+(//------------------------------------------) s
+/F-gs-font 10 10 SF
+11 709 M (1212:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 709 M
+( ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+44.06 709 M
+(// Visual Attributes for:  CerenkovContainer) s
+/F-gs-font 10 10 SF
+11 698 M (1213:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 698 M
+( ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+44.06 698 M
+(//------------------------------------------) s
+/F-gs-font 10 10 SF
+11 687 M (1214:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+11 676 M (1215:) s
+41.56 676 M
+( G4VisAttributes* CerenkovContainerVisAtt = ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+233.3 676 M
+(new) s
+/F-gs-font 10 10 SF
+0 setgray
+250.52 676 M
+( G4VisAttributes\(blue\);) s
+11 665 M (1216:) s
+41.56 665 M
+( CerenkovContainerVisAtt->SetVisibility\(false\);) s
+11 654 M (1217:) s
+41.56 654 M
+( ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+44.06 654 M
+(//CerenkovContainerVisAtt->SetVisibility\(true\);) s
+/F-gs-font 10 10 SF
+11 643 M (1218:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 643 M
+( ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+44.06 643 M
+(//CerenkovContainerVisAtt->SetForceWireframe\(true\);) s
+/F-gs-font 10 10 SF
+11 632 M (1219:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 632 M
+( ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+44.06 632 M
+(//CerenkovContainerVisAtt->SetForceSolid\(true\);) s
+/F-gs-font 10 10 SF
+11 621 M (1220:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 621 M
+( CerenkovMasterContainer_Logical->SetVisAttributes\(CerenkovContainerVisAtt\); ) s
+11 610 M (1221:) s
+41.56 610 M
+( CerenkovContainer_Logical->SetVisAttributes\(CerenkovContainerVisAtt\); ) s
+11 599 M (1222:) s
+41.56 599 M
+( ActiveArea_Logical->SetVisAttributes\(CerenkovContainerVisAtt\); ) s
+11 588 M (1223:) s
+11 577 M (1224:) s
+41.56 577 M
+( ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+44.06 577 M
+(//-----------------------------------------) s
+/F-gs-font 10 10 SF
+11 566 M (1225:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 566 M
+( ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+44.06 566 M
+(// Visual Attributes for:  CerenkovDetector) s
+/F-gs-font 10 10 SF
+11 555 M (1226:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 555 M
+( ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+44.06 555 M
+(//-----------------------------------------) s
+/F-gs-font 10 10 SF
+11 544 M (1227:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 544 M
+( G4VisAttributes* CerenkovDetectorVisAtt = ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+228.29 544 M
+(new) s
+/F-gs-font 10 10 SF
+0 setgray
+245.51 544 M
+( G4VisAttributes\(orange\);   ) s
+11 533 M (1228:) s
+41.56 533 M
+( CerenkovDetectorVisAtt->SetVisibility\(true\);) s
+11 522 M (1229:) s
+41.56 522 M
+( ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+44.06 522 M
+(// Needed for the correct visualization using Coin3D) s
+/F-gs-font 10 10 SF
+11 511 M (1230:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 511 M
+( ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+44.06 511 M
+(//CerenkovDetectorVisAtt->SetForceSolid\(true\);) s
+/F-gs-font 10 10 SF
+11 500 M (1231:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 500 M
+( CerenkovDetectorVisAtt->SetForceWireframe\(true\);) s
+11 489 M (1232:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 489 M
+(//  ActiveArea_Logical->SetVisAttributes\(CerenkovDetectorVisAtt\); ) s
+/F-gs-font 10 10 SF
+11 478 M (1233:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 478 M
+( QuartzBar_LogicalLeft->SetVisAttributes\(CerenkovDetectorVisAtt\); ) s
+11 467 M (1234:) s
+41.56 467 M
+( QuartzBar_LogicalRight->SetVisAttributes\(CerenkovDetectorVisAtt\); ) s
+11 456 M (1235:) s
+41.56 456 M
+( LightGuide_LogicalLeft->SetVisAttributes\(CerenkovDetectorVisAtt\); ) s
+11 445 M (1236:) s
+41.56 445 M
+( LightGuide_LogicalRight->SetVisAttributes\(CerenkovDetectorVisAtt\); ) s
+11 434 M (1237:) s
+41.56 434 M
+( QuartzGlue_Logical->SetVisAttributes\(CerenkovDetectorVisAtt\); ) s
+11 423 M (1238:) s
+11 412 M (1239:) s
+41.56 412 M
+( ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+44.06 412 M
+(//------------------------------------------------) s
+/F-gs-font 10 10 SF
+11 401 M (1240:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 401 M
+( ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+44.06 401 M
+(// Visual Attributes for:  PMTContainer) s
+/F-gs-font 10 10 SF
+11 390 M (1241:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 390 M
+( ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+44.06 390 M
+(//------------------------------------------------) s
+/F-gs-font 10 10 SF
+11 379 M (1242:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 379 M
+( G4VisAttributes* PMTContainerVisAtt = ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+214.98 379 M
+(new) s
+/F-gs-font 10 10 SF
+0 setgray
+232.2 379 M
+( G4VisAttributes\(blue\);) s
+11 368 M (1243:) s
+41.56 368 M
+( PMTContainerVisAtt->SetVisibility\(true\);) s
+11 357 M (1244:) s
+41.56 357 M
+( PMTContainerVisAtt->SetForceWireframe\(true\);) s
+11 346 M (1245:) s
+41.56 346 M
+( ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+44.06 346 M
+(//PMTContainerVisAtt->SetForceSolid\(true\);) s
+/F-gs-font 10 10 SF
+11 335 M (1246:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 335 M
+( PMTContainer_Logical->SetVisAttributes\(PMTContainerVisAtt\); ) s
+11 324 M (1247:) s
+11 313 M (1248:) s
+41.56 313 M
+( ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+44.06 313 M
+(//-----------------------------------------------------) s
+/F-gs-font 10 10 SF
+11 302 M (1249:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 302 M
+( ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+44.06 302 M
+(// Visual Attributes for:  PMTEntranceWindow) s
+/F-gs-font 10 10 SF
+11 291 M (1250:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 291 M
+( ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+44.06 291 M
+(//-----------------------------------------------------) s
+/F-gs-font 10 10 SF
+11 280 M (1251:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 280 M
+( G4VisAttributes* PMTEntranceWindowVisAtt = ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+245.52 280 M
+(new) s
+/F-gs-font 10 10 SF
+0 setgray
+262.74 280 M
+( G4VisAttributes\(grey\);) s
+11 269 M (1252:) s
+41.56 269 M
+( PMTEntranceWindowVisAtt->SetVisibility\(true\);) s
+11 258 M (1253:) s
+41.56 258 M
+( ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+44.06 258 M
+(//PMTEntranceWindowVisAtt->SetForceWireframe\(true\);) s
+/F-gs-font 10 10 SF
+11 247 M (1254:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 247 M
+( PMTEntranceWindowVisAtt->SetForceSolid\(true\);) s
+11 236 M (1255:) s
+41.56 236 M
+( PMTEntranceWindow_Logical->SetVisAttributes\(PMTEntranceWindowVisAtt\); ) s
+11 225 M (1256:) s
+11 214 M (1257:) s
+41.56 214 M
+( ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+44.06 214 M
+(//---------------------------------------) s
+/F-gs-font 10 10 SF
+11 203 M (1258:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 203 M
+( ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+44.06 203 M
+(// Visual Attributes for:  PMT) s
+/F-gs-font 10 10 SF
+11 192 M (1259:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 192 M
+( ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+44.06 192 M
+(//---------------------------------------) s
+/F-gs-font 10 10 SF
+11 181 M (1260:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 181 M
+(  G4VisAttributes* PMTVisAtt = ) s
+/Times-Bold 10 10 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+178.04 181 M
+(new) s
+/F-gs-font 10 10 SF
+0 setgray
+195.26 181 M
+( G4VisAttributes\(magenta\);) s
+11 170 M (1261:) s
+41.56 170 M
+( PMTVisAtt->SetVisibility\(true\);) s
+11 159 M (1262:) s
+41.56 159 M
+( ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+44.06 159 M
+(//PMTVisAtt->SetForceWireframe\(true\);) s
+/F-gs-font 10 10 SF
+11 148 M (1263:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 148 M
+( PMTVisAtt->SetForceSolid\(true\);) s
+11 137 M (1264:) s
+41.56 137 M
+( Cathode_Logical->SetVisAttributes\(PMTVisAtt\); ) s
+11 126 M (1265:) s
+11 115 M (1266:) s
+41.56 115 M
+(G4cout << G4endl << ) s
+/Times-Bold 10 10 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+133 115 M
+("###### Leaving QweakSimCerenkovDetector::ConstructComponent\(\) ") s
+/F-gs-font 10 10 SF
+0 setgray
+447.11 115 M
+( << G4endl << G4en) s
+5 104 M
+(dl;) s
+11 93 M (1267:) s
+11 82 M (1268:) s
+41.56 82 M
+(} ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+48.86 82 M
+(// end of  QweakSimCerenkovDetector::ConstructComponent\(\)) s
+/F-gs-font 10 10 SF
+11 71 M (1269:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+11 60 M (1270:) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+41.56 60 M
+(//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......) s
+/F-gs-font 10 10 SF
+11 49 M (1271:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+11 38 M (1272:) s
+/Times-Bold 10 10 SUF
+0.133333 0.545098 0.133333 setrgbcolor
+41.56 38 M
+(void) s
+/F-gs-font 10 10 SF
+0 setgray
+59.9 38 M
+( ) s
+/Times-Bold 10 10 SUF
+0 0 1 setrgbcolor
+62.4 38 M
+(QweakSimCerenkovDetector::SetCerenkovDetectorMaterial) s
+/F-gs-font 10 10 SF
+0 setgray
+322.87 38 M
+(\(G4String materialName\)) s
+11 27 M (1273:) s
+41.56 27 M
+({) s
+11 16 M (1274:) s
+41.56 16 M
+(  ) s
+/Times-Italic 10 10 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+46.56 16 M
+(// search the material by its name ) s
+/F-gs-font 10 10 SF
+11 5 M (1275:) s
+/Times-Italic 10 10 SUF
+/F-gs-font 10 10 SF
+0 setgray
+41.56 5 M
+(  G4Material* pttoMaterial = G4Material::GetMaterial\(materialName\);  ) s
+_R
+S
+%%Trailer
+%%Pages: 1
+%%DocumentNeededResources: font Times-Roman Courier-Bold Times-Italic 
+%%+ font Times-Bold 
+%%EOF

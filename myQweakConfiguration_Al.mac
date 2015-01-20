@@ -1,0 +1,320 @@
+#=================================================
+#   Macro file myQweakConfiguration.mac
+#=================================================
+
+# store tracks
+/tracking/storeTrajectory 1
+
+#==========================
+# Primary Event related
+#==========================
+#/PrimaryEvent/SetBeamEnergy    1.160 GeV
+#/PrimaryEvent/SetParticleType  e-
+
+#==========================
+# Set beam rastering region
+#==========================
+/PrimaryEvent/SetRasterXmin -2.0 mm
+/PrimaryEvent/SetRasterXmax  2.0 mm
+/PrimaryEvent/SetRasterYmin -2.0 mm
+/PrimaryEvent/SetRasterYmax  2.0 mm
+
+#====================================
+# Event generator/crsec related
+#====================================
+#
+/EventGen/SelectReactionType    2
+#  0 - Combination of all reactions
+#  1 - LH2 elastic (default)
+#  2 - Al elastic
+#  3 - Al quasi-elastic (proton)
+#  4 - Al quasi-elastic (neutron)
+#  5 - LH2 inelastic (delta resonance)
+#  6 - Moller scattering
+#  7 - LH2 radiative lookup table (3.35 GeV)
+#  8 - Al quasi-elastic, Bosted
+#  88 - pion
+#  9 - Al nuclera inelastics SPS
+#  10 - Al GDR
+
+# Selects a region of tgt
+/EventGen/SelectReactionRegion 1
+# 1 - LH2 in target, no Al end caps (default)
+# 2 - entrance target window
+# 3 - exit target window
+
+#====================================
+# Magnetic field related
+#====================================
+
+# This is only valid for peiqing_2007.dat
+#/MagneticField/SetRotation -67.5 degree
+#/MagneticField/SetActualCurrent 8921.0
+#/MagneticField/SetReferenceCurrent 8615.0
+#/MagneticField/ReadFieldMap peiqing_2007.dat
+
+# The preferred way to load a field map is to use
+# the macros in macros/peiqing_*.mac
+/MagneticField/SetActualCurrent 8921.0
+/control/execute macros/peiqing_2011.mac
+
+#====================================
+# Random seed handling
+#====================================
+
+# Inform the RunManager to systematically save the seed
+/random/setSavingFlag 1
+# Copy the following command line to your user macro and uncomment it 
+# to use the seeds of the last event in last run
+#/random/resetEngineFrom currentEvent.rndm
+# Or use specific seeds from file 'myseed.rndm', for example 
+#/random/resetEngineFrom myseed.rndm
+
+#==========================
+# Target related
+#==========================
+#/Target/SetCenterPositionInZ  -652.67 cm
+#/Target/SetTargetCellMaterial  Aluminum
+#/Target/SetTargetMaterial      H2Liquid
+#/Target/SetTargetCellMaterial  Vacuum
+#/Target/SetTargetMaterial      Vacuum
+
+#==========================
+# Detector Hut related
+#==========================
+/DetectorHut/CollimatorWall/SetCollimatorWallMaterial ShieldingConcrete
+
+#==========================
+# Cerenkov Detector related
+#==========================
+#  Air    : without Cerenkov light production 
+#  Quartz  :with    Cerenkov light production
+# 
+# angle is definedagaing vertical (y) axis
+# - a tilt angle of 0.0*deg means vertical 
+# - negative angle will tilt detector towards target
+#
+#/Cerenkov/SetCerenkovMaterial HeGas
+#/Cerenkov/SetCerenkovMaterial SiO2
+/Cerenkov/SetCerenkovMaterial Quartz
+#/Cerenkov/SetCerenkovMaterial Vacuum
+
+# positions to be extracted from SolidWorks
+# on the vertical detector plane
+ 
+#/Cerenkov/SetCenterPositionInX      0.0 cm
+#/Cerenkov/SetCenterPositionInY   335.17 cm
+#/Cerenkov/SetCenterPositionInZ   577.88 cm
+/Cerenkov/SetTiltingAngle           0.0 degree
+
+/Cerenkov/SetPreradiatorMaterial PBA
+#/Cerenkov/SetPreradiatorMaterial Vacuum
+
+# Move Cerenkov Detectors to actual position 
+/Cerenkov/SetNumberOfDetectors 9
+
+/Cerenkov/Cerenkov1/SetCenterPositionInY  334.724 cm
+/Cerenkov/Cerenkov1/SetCenterPositionInZ  576.665 cm
+
+/Cerenkov/Cerenkov2/SetCenterPositionInY  334.742 cm
+/Cerenkov/Cerenkov2/SetCenterPositionInZ  576.705 cm
+
+/Cerenkov/Cerenkov3/SetCenterPositionInY  334.738 cm
+/Cerenkov/Cerenkov3/SetCenterPositionInZ  577.020 cm
+
+/Cerenkov/Cerenkov4/SetCenterPositionInY  335.036 cm
+/Cerenkov/Cerenkov4/SetCenterPositionInZ  577.425 cm
+
+/Cerenkov/Cerenkov5/SetCenterPositionInY  335.074 cm
+/Cerenkov/Cerenkov5/SetCenterPositionInZ  577.515 cm
+
+/Cerenkov/Cerenkov6/SetCenterPositionInY  335.252 cm
+/Cerenkov/Cerenkov6/SetCenterPositionInZ  577.955 cm
+
+/Cerenkov/Cerenkov7/SetCenterPositionInY  335.224 cm
+/Cerenkov/Cerenkov7/SetCenterPositionInZ  577.885 cm
+
+/Cerenkov/Cerenkov8/SetCenterPositionInY  334.888 cm
+/Cerenkov/Cerenkov8/SetCenterPositionInZ  577.060 cm
+
+# ELOG Detector/74: Positions of background detectors
+#
+# For practical reasons (MD9 is in the same octant as MD1) the background
+# detector is here in the opposite octant than it actually was in (behind MD5).
+#
+# PRELIMINARY: More accurate numbers will require both the final survey
+# and the local survey of the monument with respect to the detector itself.
+#
+# "Det. Origin" is (assumed to be) the center of the back of the bar, outer edge.
+#
+# Z position of Det. Origin = 737.86 cm
+#   - 1 cm (half thickness) = 736.86 cm (Z in MC)
+# X position of Det. Origin = 377.84 cm
+#   - 9 cm (half width bar) = 368.84 cm (Y in MC)
+# Y position of Det. Origin =  72.86 cm (X in MC)
+# 
+/Cerenkov/Cerenkov9/SetCenterPositionInX  -72.86 cm
+/Cerenkov/Cerenkov9/SetCenterPositionInY  368.84 cm
+/Cerenkov/Cerenkov9/SetCenterPositionInZ  736.86 cm
+
+#==================================
+#  Trigger Scintillator related
+#==================================
+#  Air    : without Cerenkov light production 
+#  Quartz  :with    Cerenkov light production
+# 
+# angle is definedagaing vertical (y) axis
+# - a tilt angle of 0.0*deg means vertical 
+# - positive angle will tilt detector against target
+#
+#/TriggerScintillator/SetScintillatorMaterial  Vacuum
+/TriggerScintillator/SetScintillatorMaterial  Polyethylene
+#/TriggerScintillator/SetScintillatorMaterial SiO2
+#/TriggerScintillator/SetScintillatorMaterial Quartz
+ 
+/TriggerScintillator/SetCenterPositionInX     0.0 cm
+/TriggerScintillator/SetCenterPositionInY   328.0 cm 
+/TriggerScintillator/SetCenterPositionInZ   545.0 cm
+/TriggerScintillator/SetTiltingAngle          0.0 degree
+
+#=============================
+#     GEM related  (Region1)
+#============================
+#/GEM/SetFrontCenterPositionInX       0.0    cm
+#/GEM/SetFrontCenterPositionInY      25.0    cm
+#/GEM/SetFrontCenterPositionInZ    -543.170  cm
+
+#/GEM/SetBackCenterPositionInX        0.0    cm
+#/GEM/SetBackCenterPositionInY       25.0    cm
+#/GEM/SetBackCenterPositionInZ     -535.0    cm
+
+#/GEM/SetFrontChamberRotationAngleInPhi    90.0   degree
+#/GEM/SetBackChamberRotationAngleInPhi     90.0   degree
+
+#/GEM/SetMasterContainerMaterial     Air
+#/GEM/SetSubContainerMaterial        ArCO2
+#/GEM/SetFrameMaterial               NemaG10
+
+# /GEM/SetFoilMaterial                Kapton
+
+#=============================
+#    HDC related  (Region2)
+#============================
+/HDC/SetFrontCenterPositionInX      -0.276  cm
+/HDC/SetFrontCenterPositionInY      51.104  cm
+/HDC/SetFrontCenterPositionInZ    -337.355  cm
+
+/HDC/SetBackCenterPositionInX       -0.141  cm
+/HDC/SetBackCenterPositionInY       54.872  cm
+/HDC/SetBackCenterPositionInZ     -294.677  cm
+
+/HDC/SetRotationAngleInPhi           90.0   degree
+
+/HDC/SetMasterContainerMaterial     Air
+/HDC/SetSubContainerMaterial        ArCO2
+/HDC/SetFoilMaterial                Mylar
+/HDC/SetFrameMaterial               NemaG10
+/HDC/SetWirePlaneMaterial           ArCO2
+
+
+#==========================
+#   VDC related   (Region3)
+#==========================
+
+# here you can set the position of the Front VDC (upstream)
+# The Back VDC will automatically repositioned relative to the Front VDC
+#/VDC/SetMeanTrackAngle            20.57 degree
+#/VDC/SetFrontBackDistance         50.0  cm 
+/VDC/SetFrontCenterPositionInX     -0.08  cm
+/VDC/SetFrontCenterPositionInY    272.255 cm
+/VDC/SetFrontCenterPositionInZ    444.61  cm
+
+#/VDC/SetVDC_SubContainerMaterial   Vacuum
+/VDC/SetVDC_SubContainerMaterial   Ar-C2H6_40-60
+
+# Angle Orientation in Phi
+# 90.0 degree = octant 1 in 12 o'clock position
+# 45.0 degree = octant2
+/VDC/SetRotationAngleInPhi  90.0 degree
+#/VDC/SetRotationAngleInPhi  45.0 degree
+#/VDC/SetRotationAngleInPhi  0.0 degree
+
+# angle in respect to SHORT Frame side
+# 90-26.57=63.43
+/VDC/DriftCell/SetWireAngleFront     65.57 degree
+/VDC/DriftCell/SetWireAngleBack     -65.57 degree
+#/VDC/DriftCell/SetWireAngleFront     45.0 degree
+#/VDC/DriftCell/SetWireAngleBack     -45.0 degree
+
+/VDC/DriftCell/SetMaterial           Ar-C2H6_40-60
+#/VDC/DriftCell/SetMaterial           NemaG10
+/VDC/DriftCell/SetFullHeight         70.0 cm
+/VDC/DriftCell/SetDCNumberPerPlane    341
+
+#==============================================
+# Thickness = 64/64 inch
+/VDC/DriftCell/SetFullThickness      25.4 mm 
+
+# Thickness = 68/64 inch
+#/VDC/DriftCell/SetFullThickness      26.9875 mm
+#==============================================
+
+# FullWidthOnFrame = 25/64 inch
+#/VDC/DriftCell/SetFullWidthOnFrame   9.9219 mm
+
+# FullWidthOnFrame = 26/64 inch
+#/VDC/DriftCell/SetFullWidthOnFrame   10.3188 mm
+
+# FullWidthOnFrame = 27/64 inch
+#/VDC/DriftCell/SetFullWidthOnFrame   10.7156 mm
+
+
+# FullWidthOnFrame =  28/64 inch
+/VDC/DriftCell/SetFullWidthOnFrame   11.1125 mm
+
+# FullWidthOnFrame = 29/64 inch
+#/VDC/DriftCell/SetFullWidthOnFrame   11.5094 mm
+
+# FullWidthOnFrame = 30/64 inch
+#/VDC/DriftCell/SetFullWidthOnFrame   11.9063 mm
+
+# FullWidthOnFrame = 31/64 inch
+#/VDC/DriftCell/SetFullWidthOnFrame   12.3031 mm
+
+# FullWidthOnFrame = 32/64 = 1/2 inch
+#/VDC/DriftCell/SetFullWidthOnFrame   12.7 mm
+
+#=====================================
+# Pion Wall related
+#=====================================
+
+# Comment out the line below to leave the Pion Wall in (defaults to 4" thick)
+/PionWall/Disable
+
+# Uncomment the following line to change the Pion Wall thickness to 2"
+#/PionWall/SetThicknessInZ 5.08 cm
+
+#=====================================
+# Tungsten Shutters related
+#=====================================
+
+# Comment out the following two lines to enable the Tungsten Shutters.
+# By default they are disabled.
+
+/WShutters/WShutters1/Disable
+/WShutters/WShutters2/Disable
+
+
+#=====================================
+# LeadGlass related
+#=====================================
+
+# Comment out the line below to leave the LeadGlass in
+/LeadGlass/Disable
+
+#=====================================
+# PMTOnly related
+#=====================================
+
+# Comment out the line below to leave the PMTOnly in
+/PMTOnly/Disable

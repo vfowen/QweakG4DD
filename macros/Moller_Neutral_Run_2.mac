@@ -1,0 +1,42 @@
+#=======================================
+# Macro file when runing in batch mode 
+#      (no graphical output)
+#
+# usage: Puts pmtltg in octant3
+#
+#=======================================
+
+
+# execute these macros to get Run 2 configurations:
+/control/execute myQweakConfiguration_run2.mac
+
+# Track all particles
+/TrackingAction/TrackingFlag 3
+
+#====================================
+# Throw from the Moller Generator
+#====================================
+
+/EventGen/SelectReactionType 6
+
+#====================================
+# Software Triggers (all => keep every event)
+#====================================
+
+/Trigger/PrintHits false
+/Trigger/Disable cer
+/Trigger/Enable all
+/Trigger/Show
+
+#====================================
+# Throw a tighter angular range in the octant
+#====================================
+
+#====================================
+# Throw a tighter angular range in the octant
+#====================================
+
+/EventGen/SetThetaMax 6.5
+/EventGen/SetThetaMin 4
+/EventGen/SelectOctant 3
+

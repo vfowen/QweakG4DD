@@ -1,0 +1,25 @@
+# $Header: /cvs/lcd/slic/config/make/xerces.gmk,v 1.9 2005/12/06 00:54:18 jeremy Exp $
+
+#
+# Xerces-C make fragment
+#
+ifdef XERCESCROOT
+
+  XERCES_LIBNAME := xerces-c
+
+  # Xerces includes
+  CPPFLAGS += -I$(XERCESCROOT)/include
+
+  # library
+  LDFLAGS += -L$(XERCESCROOT)/lib -L$(XERCESCROOT)/bin \
+             -l$(XERCES_LIBNAME)
+
+  # load path
+  LD_LIBRARY_PATH := $(XERCESCROOT)/lib
+  PATH := $(XERCESCROOT)/bin:$(XERCESCROOT)/lib:$(PATH)
+
+  LOADLIBS += -l$(XERCES_LIBNAME)
+  EXTRALIBS +=-l$(XERCES_LIBNAME)
+else
+  $(error define XERCESCROOT=/path/to/xerces/install_dir)
+endif

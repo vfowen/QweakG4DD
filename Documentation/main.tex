@@ -1,0 +1,130 @@
+%%%%%%%%%%%%%%%%%%%%%% Inputs - Packages %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[12pt]{book}
+\bibliographystyle{unsrt}
+\usepackage{epsf}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{xspace}
+\usepackage{fancyhdr}
+\usepackage{layout}
+\usepackage{slashed}
+\usepackage{setspace}                    % Line spacing
+\usepackage{rotating}
+\usepackage{lscape}
+\pagestyle{plain}
+%
+%\usepackage[body={5.5in, 8.5in},left=1.5in,top=1in,right=1in,bottom=1in]{geometry}
+\usepackage[body={5.5in, 8.5in},left=1in,top=1in,right=1in,bottom=1in]{geometry}
+\parskip=12pt
+\parindent=0pt
+%
+%\topmargin=2.54cm
+%\textheight=22.86cm
+%\textwidth=15cm
+%\oddsidemargin=3.81cm
+%\evensidemargin=2.54cm
+%\marginparwidth=0cm
+%\marginparsep=0cm
+
+%
+%\input{/home/mgericke/Papers/aipproc/aipproc.cls}
+\input{/home/mgericke/NPDGamma/PHD_Thesis/def_math.tex}           % Mathematical definitions
+\input{/home/mgericke/NPDGamma/PHD_Thesis/def_thesis.tex}           % Thesis definitions
+\input{/home/mgericke/NPDGamma/PHD_Thesis/def_com_thesis.tex}           % Thesis new command definitions
+%
+\def\npdg{$\vec{n} + p \rightarrow d + \gamma$}
+\def\BC{${\rm B_4C}$}
+\def\CCL{${\rm CCl_4}$}
+\def\REAC{$^{10}$B(n,$\alpha$)$^{7}$Li}
+\def\LIP{${\rm ^6Li}$}
+\def\Ag{$A_{\gamma}$}
+\def\Alr{$A_{\gamma,LR}$}
+\def\Gr{$\gamma$-ray}
+\def\Grs{$\gamma$-rays}
+
+\definecolor{brown}{rgb}{0.3,0.1,0.4}
+\definecolor{dblue}{rgb}{0,0,0.6}    % dark blue
+
+\title{QWeak {\color{blue} GEANT4} Code Manual}
+\author{Klaus Grimm 
+\vspace{1cm} \\
+and
+\vspace{1cm} \\
+Michael Gericke}
+\date{\today}
+\titlepage
+
+\makeatletter
+\def\cleardoublepage{\clearpage\if@twoside \ifodd\c@page\else%
+    \hbox{}%
+    \thispagestyle{empty}%              % Empty header styles
+    \newpage%
+    \if@twocolumn\hbox{}\newpage\fi\fi\fi}
+\makeatother
+
+%\AtBeginDocument{
+%\special{!userdict begin
+%/split {(pt) search { 3 1 roll pop pop } if cvr} 
+%def
+%%%%%%%%%%%% Definitions %%%%%%%%%%%%%%
+%/font /Palatino-Roman findfont 110 scalefont def
+%/grayvalue .8 def           % 1 is white
+%/angle 50 def               % rotation for the text
+%/bgtext (draft) def         % background text
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%gsave font setfont 1000 1000 moveto
+%bgtext true charpath pathbbox grestore
+%3 -1 roll sub 3 1 roll sub neg
+%/breite exch def /hoehe exch def
+%/mx (\the\textwidth) split 2 div 72 add def
+%/my (\the\textheight) split 2 div 72 add def
+%/bop-hook { gsave grayvalue setgray font setfont
+%mx my translate angle rotate
+%breite -2 div hoehe -2 div moveto
+%bgtext show grestore
+%} def end
+%}}
+
+
+
+%\includeonly{./contents/contents,./chapters/preface,./chapters/chapter2,./chapters/chapter1,
+%./chapters/chapter3,./chapters/chapter4,./chapters/chapter5,./appendices/appendix1,./appendices/appendix2,./appendices/appendix3}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\makeindex
+\begin{document}
+\pagenumbering{roman} \setcounter{page}{1}
+\maketitle
+%\doublespacing
+\frontmatter
+\include{./contents/contents}
+\mainmatter
+\include{./Introduction/Introduction}
+\include{./chapter1/chapter1}
+\include{./chapter2/chapter2}
+\include{./chapter3/chapter3}
+\include{./chapter4/chapter4}
+\include{./chapter5/chapter5}
+\include{./chapter6/chapter6}
+\include{./chapter7/chapter7}
+\include{./chapter8/chapter8}
+\include{./chapter9/chapter9}
+\include{./chapter10/chapter10}
+\include{./chapter11/chapter11}
+\include{./chapter12/chapter12}
+\include{./chapter13/chapter13}
+\include{./chapter14/chapter14}
+\include{./chapter15/chapter15}
+\include{./chapter16/chapter16}
+\include{./chapter17/chapter17}
+\include{./chapter18/chapter18}
+%\appendix
+%\include{./appendices/appendix1}
+%\include{./appendices/appendix2}
+%\include{./appendices/appendix4}
+%\include{./appendices/appendix3}
+\backmatter
+%\include{./index}
+\bibliography{qweaksim}
+\end{document}
+
+

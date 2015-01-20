@@ -1,0 +1,32 @@
+#=======================================
+# Macro file when runing in batch mode 
+#      (no graphical output)
+#
+# usage: Used to simulate pmtltl during run2
+#
+#=======================================
+
+# load/execute this macro:
+/control/execute myQweakConfiguration_run2.mac
+
+# Select the tracking flag
+#  0: Allow primaries only (default)
+#  1: Allow primaries and optical photons only
+#  2: track all primaries and their secondaries except optical photons
+#  3: track all primaries and their secondaries
+
+/TrackingAction/TrackingFlag 3
+/EventGen/SelectOctant 5
+
+#====================================
+# Set PMTOnly On and In Position
+#====================================
+
+/PMTOnly/Enable
+
+#====================================
+# Software Triggers
+#====================================
+
+/Trigger/Disable all
+

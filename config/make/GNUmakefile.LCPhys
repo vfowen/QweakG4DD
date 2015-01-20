@@ -1,0 +1,2 @@
+name := LCPhys
+include $(G4INSTALL)/physics_lists/hadronic/common.gmk

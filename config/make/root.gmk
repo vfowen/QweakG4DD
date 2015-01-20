@@ -1,0 +1,27 @@
+#
+# ROOT make fragment
+#
+
+ifndef ROOTSYS
+  ROOTSYS := `root-config --prefix`
+endif
+
+ifdef ROOTSYS
+
+  ROOTCFLAGS := `root-config --cflags`
+
+  # ROOT includes
+  CPPFLAGS  +=  $(ROOTCFLAGS)
+
+  #library
+  LDFLAGS   += `root-config --nonew --libs`
+
+  LD_LIBRARY_PATH += $(ROOTSYS)/lib
+  PATH := $(ROOTSYS)/bin:$(PATH)
+
+else
+
+  $(warning ROOTSYS is not defined)
+
+endif
+

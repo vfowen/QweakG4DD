@@ -1,0 +1,110 @@
+#=======================================
+# Macro file when runing in batch mode 
+#      (no graphical output)
+#
+# usage:
+#
+#=======================================
+
+# This shows the processes for all particles
+#/process/list   
+# AddDiscreteProcess to OpticalPhoton
+#     Transportation,                msc,              hIoni,              eIoni
+#              eBrem,            annihil,               phot,              compt
+#               conv,             muIoni,            muBrems,         muPairProd
+#              Decay,           Cerenkov,       OpAbsorption,         OpBoundary
+
+# This turns off processes for all particles
+#/process/inactivate msc  
+/process/inactivate eBrem
+#/process/inactivate eIoni
+/process/inactivate hIoni
+# GAMMA processes below
+#/process/inactivate compt
+#/process/inactivate phot
+#/process/inactivate Cerenkov
+
+# process labelled "1" in e- process list is MultipleScattering, see QweakSimPhysicsList.cc, line 180
+#/particle/select e-
+#/particle/process/dump
+#/particle/process/inactivate 3
+
+# load/execute this macro:
+/control/execute myQweakConfiguration_Al.mac
+
+# Select the tracking flag
+#  0: Allow primaries only (default)
+#  1: Allow primaries and optical photons only
+#  2: track all primaries and their secondaries except optical photons
+#  3: track all primaries and their secondaries
+# 
+#/TrackingAction/TrackingFlag 0
+/TrackingAction/TrackingFlag 1
+#/TrackingAction/TrackingFlag 2
+#/TrackingAction/TrackingFlag 3
+
+#====================================
+# Trigger on ..
+#====================================
+/Trigger/Enable all
+#/Trigger/Enable scint
+#/Trigger/Enable cer
+#/Trigger/Enable leadglass
+/Trigger/Show
+
+#--- Set the LeadGlass tilt angle
+#/LeadGlass/SetTiltAngleInX -22.00
+
+#/LeadGlass/SetCenterPositionInX 0.0 cm
+#/LeadGlass/SetCenterPositionInY -9.00 cm
+#/LeadGlass/SetCenterPositionInZ 530.00 cm
+
+# Comment out the line below to leave the LeadGlass in
+#/LeadGlass/Enable
+
+#--- Set Qtor current
+#/MagneticField/SetActualCurrent 9000
+
+#==========================
+# Target related
+#==========================
+# Production LH2 tgt
+# ##
+#/Target/SetCenterPositionInZ  -652.67 cm
+#/Target/SetTargetCellMaterial  Aluminum
+#/Target/SetTargetMaterial      H2Liquid
+# DS2% Al
+# ##
+# Length from ELOG 736
+# https://qweak.jlab.org/elog/Target/18
+/Target/SetTargetLength        1.737 mm 
+##  TargetUSDummyPositionOffsetZ = -178.956*mm; from LH2 center
+##  TargetDSDummyPositionOffsetZ = 168.68*mm;   from LH2 center
+/Target/SetCenterPositionInZ  -635.8 cm
+/Target/SetTargetMaterial      Aluminum
+/Target/SetTargetCellMaterial  Vacuum
+/Target/SetTargetEntranceWindowMaterial   Vacuum
+/Target/SetTargetExitWindowMaterial       Vacuum
+/Target/SetTargetExitWindowNippleMaterial Vacuum
+
+## default unit is degrees
+/EventGen/SetThetaMin  3  degree
+/EventGen/SetThetaMax  12 degree
+#### octant 1 det (det 5 in QwG4)
+#/EventGen/SetPhiMin    0 degree
+#/EventGen/SetPhiMax    360 degree
+#### octant 7 det (det 7 in QwG4)
+/EventGen/SelectOctant          7
+
+# default unit is GeV
+/EventGen/SetBeamEnergy   1.16 GeV
+/EventGen/SetEPrimeMin    0.00 GeV
+/EventGen/SetEPrimeMax    1.16 GeV
+/PrimaryEvent/SetParticleType  e-
+#/PrimaryEvent/SetParticleType  pi-
+
+/Analysis/RootFileStem rootfiles/QweakSim_Al_el_DS2p
+
+#/run/verbose 2
+#/tracking/verbose 2
+/run/beamOn 1000

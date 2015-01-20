@@ -1,0 +1,38 @@
+# load/execute this macro:
+/control/execute myQweakConfiguration.mac
+
+# Select the tracking flag
+#  0: Allow primaries only (default)
+#  1: Allow primaries and optical photons only
+#  2: track all primaries and their secondaries except optical photons
+#  3: track all primaries and their secondaries
+# 
+#/TrackingAction/TrackingFlag 0
+/TrackingAction/TrackingFlag 1
+#/TrackingAction/TrackingFlag 2
+#/TrackingAction/TrackingFlag 3
+
+# Octant 1 (which is where MD9 is in this study)
+/EventGen/SelectOctant 1
+
+# Minimum theta angle
+#/EventGen/SetThetaMin 1 degree
+
+# LH2
+/Analysis/RootFileName MD9_LH2.root
+/EventGen/SelectReactionType 1
+/EventGen/SelectReactionRegion 1
+/run/beamOn 1000
+
+# US-Al
+/Analysis/RootFileName MD9_US_Al.root
+/EventGen/SelectReactionType 2
+/EventGen/SelectReactionRegion 2
+/run/beamOn 1000
+
+# DS-Al
+/Analysis/RootFileName MD9_DS_Al.root
+/EventGen/SelectReactionType 2
+/EventGen/SelectReactionRegion 3
+/run/beamOn 1000
+

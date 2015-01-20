@@ -1,0 +1,34 @@
+#=======================================
+#
+# usage: QweakSimG4 macros/myTrackingRun.mac
+#
+# - you can change number of events below
+# - you can change which particles are tracked
+# - you can change the triggering condition
+#
+#=======================================
+
+# load/execute this macro:
+/control/execute myQweakConfiguration.mac
+
+# Select the tracking flag
+#  0: Allow primaries only (default)
+#  1: Allow primaries and optical photons only
+#  2: track all primaries and their secondaries except optical photons
+#  3: track all primaries and their secondaries
+# 
+/TrackingAction/TrackingFlag 0
+#/TrackingAction/TrackingFlag 1
+#/TrackingAction/TrackingFlag 2
+#/TrackingAction/TrackingFlag 3
+
+# Output file name, format: QwSim_[runno].root
+/Analysis/RootFileName QwSim_1000.root
+
+# Trigger on scintillator only
+/Trigger/Disable cer
+/Trigger/Enable scint
+/Trigger/Show
+
+/run/beamOn 60000
+

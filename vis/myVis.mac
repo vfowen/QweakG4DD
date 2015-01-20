@@ -1,0 +1,198 @@
+#=================================================
+#   Macro file when runing in interactice mode 
+# (graphical output with Coin3D for < 1k events)
+#
+# usage:
+#
+#  ./QweakSimG4 myVis.mac > verbose_output.txt
+#
+#=================================================
+
+#/process/dump neutron all
+
+
+#/control/verbose 1
+#/control/saveHistory
+#
+/run/verbose 1
+/event/verbose 1
+/tracking/verbose 1
+/hits/verbose 1
+
+# This shows the processes for all particles
+#/process/list   
+# AddDiscreteProcess to OpticalPhoton
+#     Transportation,                msc,              hIoni,              eIoni
+#              eBrem,            annihil,               phot,              compt
+#               conv,             muIoni,            muBrems,         muPairProd
+#              Decay,           Cerenkov,       OpAbsorption,         OpBoundary
+
+# This turns off processes for all particles
+#/process/inactivate msc  
+#/process/inactivate eBrem
+#/process/inactivate compt
+#/process/inactivate eIoni
+#/process/inactivate phot
+#/process/inactivate Cerenkov
+
+# or you can turn it off only for electrons
+# process labelled "1" in e- process list is MultipleScattering, see QweakSimPhysicsList.cc, line 180
+# /particle/select e-
+# /particle/process/dump
+# /particle/process/inactivate 1
+
+# Select the tracking flag
+#  0: Allow primaries only (default)
+#  1: Allow primaries and optical photons only
+#  2: Track all particles except optical photons
+#  3: Track all primaries and their secondaries
+/TrackingAction/TrackingFlag 0
+#/TrackingAction/TrackingFlag 1
+#/TrackingAction/TrackingFlag 2
+#/TrackingAction/TrackingFlag 3
+
+#
+# Store particle trajactories for visualisation
+# New: Comand /tracking/storeTrajectory 1 is now issued automatically when doing /vis/scene/add/trajectories
+#/tracking/storeTrajectory 1
+#/tracking/storeTrajectory 0
+
+# Create a scene handler for a specific graphics system
+# (Edit the next line(s) to choose another graphic system)
+#
+# Invoke the OpenGL Basic 3D-Viewer: interactive display
+#/vis/open OGLIX
+
+# Invoke the Coin3D (public OpenInventor) driver: interactive
+# Note: close Coin3D with  File->Escape and again File->Escape,
+# otherwise the root file is corrupted 
+/vis/open OGLIQt
+
+
+# Invoke the WIRED driver: offline display
+#/vis/open HepRepFile
+
+# Invoke the VRML driver: offline display (freewrl)
+#/vis/open VRML2FILE
+
+# Invoke the DAWN  driver: offline display
+#/vis/open DAWNFILE
+
+#
+# Create a new empty scene
+#
+/vis/scene/create
+
+
+#
+# Add axis (has to be after /vis/scene/create )
+#
+#/vis/scene/add/axes
+
+#
+# Declare that the world volume should be added to the scene
+#
+/vis/scene/add/volume
+
+#
+# Attach scene to scenehandler
+#
+/vis/sceneHandler/attach
+
+#
+# Draw a picture that has just the detector (no trajectories or hits).
+#
+#/vis/viewer/flush
+
+#
+# Declare that trajectories and hits should be added to the scene
+#
+/vis/scene/add/trajectories
+/vis/scene/add/hits
+
+# Set camera
+/vis/viewer/reset
+/vis/viewer/set/viewpointThetaPhi 90 180 deg
+#/vis/viewer/set/viewpointThetaPhi 90 90 deg
+#/vis/viewer/set/viewpointThetaPhi 90 0 deg
+#/vis/viewer/set/viewpointThetaPhi 60 20 deg
+/vis/viewer/zoom 2.0
+/vis/viewer/set/style surface
+#/vis/viewer/set/style surface2
+
+#/vis/modeling/trajectories/list
+
+#/vis/modeling/trajectories/create/drawByParticleID
+#/vis/modeling/trajectories/drawByParticleID-0/set neutron yellow
+#/vis/modeling/trajectories/drawByParticleID-0/set gamma red
+
+# RGB + Alpha codes
+# white    1.0 1.0 1.0 1.0
+# orange   1.0 0.5 0.0 1.0
+# yellow   1.0 1.0 0.0 1.0
+# magenta  1.0 0.0 1.0 1.0
+# mangenta1 (104/255., 49/255., 94/255.);
+
+/vis/modeling/trajectories/create/drawByParticleID QweakStyle
+/vis/modeling/trajectories/QweakStyle/set e- red
+/vis/modeling/trajectories/QweakStyle/set e+ blue
+/vis/modeling/trajectories/QweakStyle/set gamma green
+/vis/modeling/trajectories/QweakStyle/set neutron white
+##/vis/modeling/trajectories/QweakStyle/setRGBA opticalphoton 104.0/255. 49./255. 94./255. 1.0
+#/vis/modeling/trajectories/QweakStyle/setRGBA proton 1.0 0.5 0.0 1.0
+/vis/modeling/trajectories/QweakStyle/set proton magenta
+#
+/vis/modeling/trajectories/select QweakStyle
+
+#/vis/viewer/flush
+
+# meaning unclear
+/vis/scene/notifyHandlers
+
+#
+# for drawing the tracks
+# (if too many tracks cause core dump => storeTrajectory 0)
+#
+# If multiple events in one run, accumulate all events into a single
+# graphical image.  If this line is commented out, each event will instead
+# appear in a separate image.
+/vis/scene/endOfEventAction accumulate
+
+# refresh image
+/vis/scene/endOfRunAction refresh
+
+
+# load/execute this macro:
+/control/execute myQweakConfiguration.mac
+
+#==========================
+# Visualization: Hall related
+#==========================
+/HallC/Visibility/ShowHallFloor
+#/HallC/Visibility/HideHallFloor
+
+#====================================
+# Visualization: Detector Hut related
+#====================================
+
+/DetectorHut/Visibility/ShowCollimatorWall
+#/DetectorHut/Visibility/HideShieldingWall
+
+/DetectorHut/Visibility/ShowFrontWall
+#/DetectorHut/Visibility/HideFrontWall
+
+#/DetectorHut/Visibility/ShowBackWall
+/DetectorHut/Visibility/HideBackWall
+
+#/DetectorHut/Visibility/ShowLeftWall
+/DetectorHut/Visibility/HideLeftWall
+
+#/DetectorHut/Visibility/ShowRightWall
+/DetectorHut/Visibility/HideRightWall
+
+#/DetectorHut/Visibility/ShowTopWall
+/DetectorHut/Visibility/HideTopWall
+
+
+
+

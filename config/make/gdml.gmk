@@ -1,0 +1,37 @@
+#
+# GDML make fragment
+#
+
+ifndef GDML_BASE
+  $(error define GDML_BASE=/usr/local/GDML/latest/CPPGDML  
+endif
+
+# lib dir
+ifndef GDML_LIB_DIR
+    
+  # guess lib dir if not set
+  ifdef G4SYSTEM
+    GDML_LIB_DIR = $(GDML_BASE)/build/$(G4SYSTEM)/lib
+  else
+    $(error Can't guess GDML_LIB_DIR because G4SYSTEM is not set.)
+  endif
+endif
+
+# GDML includes
+CPPFLAGS += -I$(GDML_BASE)/G4Binding/G4Evaluator \
+            -I$(GDML_BASE)/G4Binding/G4Processor \
+            -I$(GDML_BASE)/G4Binding/G4Subscribers \
+            -I$(GDML_BASE)/G4Binding/G4Writer \
+            -I$(GDML_BASE)/Common/Writer \
+            -I$(GDML_BASE)/Common/Schema \
+            -I$(GDML_BASE)/Common/Processes \
+            -I$(GDML_BASE)/Common/Saxana
+
+GDML_LINK_LIBS += -L$(GDML_LIB_DIR)
+# FIXME: ugly static link order
+#  GDML_LINK_LIBS += -lSaxana -lProcesses -lWriter -lG4Processor -lG4Subscribers -lG4Writer -lG4Subscribers -lG4Processor -lSaxana -lProcesses -lWriter
+#  GDML_LINK_LIBS += -lG4Subscribers -lG4Processor -lG4Writer -lWriter -lSaxana -lProcesses
+#-lG4Subscribers -lG4Processor -lSaxana -lProcesses -lWriter
+GDML_LINK_LIBS += -lgdml
+
+EXTRALIBS += $(GDML_LINK_LIBS)

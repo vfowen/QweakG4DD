@@ -1,0 +1,23 @@
+#!/bin/sh
+
+chp=3
+
+#dir="/usr/local/geant4.8.2/source/processes/optical/src/"  #"../src/"
+dir="../"
+source="QweakSimG4.cc"
+
+pp=1
+ppI=1
+ppL=1
+ppU=2
+
+while [ $pp -le $ppU ]; do
+    echo $pp
+
+    enscript --font=Times-Roman10 --pretty-print --color --no-header --line-numbers --margin=:200:: -a $pp -o figures$chp/$source-p$pp.eps $dir$source
+    
+    pp=$((pp+ppI))
+
+done
+
+exit 0

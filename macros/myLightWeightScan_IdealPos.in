@@ -1,0 +1,59 @@
+#Programmer: Valerie Gray
+#Purpose: The macro file for the LightWeight study on LH2 
+#
+#Date: 11-22-2012
+#Modified:1-25-2013
+#Assisted By:
+#
+
+/control/execute myQweakConfiguration.mac
+/control/execute macros/peiqing_2011.mac
+/control/execute macros/noTracking.mac
+
+
+/random/setSavingFlag 0
+/random/setDirectoryName random/%name%_%jobid%
+/random/setSeeds %seedA% %seedB%
+
+/TrackingAction/TrackingFlag 3
+
+#set reaction region and type
+/EventGen/SelectReactionRegion 1
+/EventGen/SelectReactionType 1
+
+/Trigger/Disable all
+/Trigger/Enable cer
+/Trigger/Show
+
+#set ideal poitions
+/Cerenkov/Cerenkov1/SetCenterPositionInY  335.17 cm
+/Cerenkov/Cerenkov1/SetCenterPositionInZ  577.88 cm
+
+/Cerenkov/Cerenkov2/SetCenterPositionInY  335.17 cm
+/Cerenkov/Cerenkov2/SetCenterPositionInZ  577.88 cm
+
+/Cerenkov/Cerenkov3/SetCenterPositionInY  335.17 cm
+/Cerenkov/Cerenkov3/SetCenterPositionInZ  577.88 cm
+
+/Cerenkov/Cerenkov4/SetCenterPositionInY  335.17 cm
+/Cerenkov/Cerenkov4/SetCenterPositionInZ  577.88 cm
+
+/Cerenkov/Cerenkov5/SetCenterPositionInY  335.17 cm
+/Cerenkov/Cerenkov5/SetCenterPositionInZ  577.88 cm
+
+/Cerenkov/Cerenkov6/SetCenterPositionInY  335.17 cm
+/Cerenkov/Cerenkov6/SetCenterPositionInZ  577.88 cm
+
+/Cerenkov/Cerenkov7/SetCenterPositionInY  335.17 cm
+/Cerenkov/Cerenkov7/SetCenterPositionInZ  577.88 cm
+
+/Cerenkov/Cerenkov8/SetCenterPositionInY  335.17 cm
+/Cerenkov/Cerenkov8/SetCenterPositionInZ  577.88 cm
+
+
+#set the rootfile name
+/Analysis/RootFileName rootfiles/%name%_%jobid%_workdir/%name%_%jobid%.root
+
+#number of events
+/run/beamOn %nevents%
+

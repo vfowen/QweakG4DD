@@ -1,0 +1,12 @@
+/TriggerScintillator/SetCenterPositionInY   158.0 cm
+/TriggerScintillator/TriggerScintillator2/SetCenterPositionInY 158.0 cm
+
+/VDC/SetRotationAngleInPhi 90.0 degree
+/VDC/SetFrontCenterPositionInY      115.255 cm
+/VDC/VDC2/SetFrontCenterPositionInY -115.255 cm
+/HDC/SetRotationAngleInPhi 90.0 degree
+/HDC/SetFrontCenterPositionInY      151.104  cm
+/HDC/SetBackCenterPositionInY       154.872  cm
+/HDC/HDC2/SetFrontCenterPositionInY 250.0 cm
+/HDC/HDC2/SetBackCenterPositionInY  254.0 cm
+

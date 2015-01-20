@@ -1,0 +1,18 @@
+/MagneticField/SetTranslation 0.0 cm
+/MagneticField/SetRotation 0.0 degree
+
+/MagneticField/SetMinZ -250 cm
+/MagneticField/SetMaxZ  250 cm
+/MagneticField/SetStepZ 2 cm
+
+/MagneticField/SetMinR 18 cm
+/MagneticField/SetMaxR 260 cm
+/MagneticField/SetStepR 2 cm
+
+/MagneticField/SetMinPhi 0.0 degree
+/MagneticField/SetMaxPhi 360.0 degree
+/MagneticField/SetStepPhi 1 degree
+/MagneticField/SetWrapPhi 1
+
+/MagneticField/SetReferenceCurrent 8960.0
+/MagneticField/ReadFieldMap peiqing_2010_zc.dat

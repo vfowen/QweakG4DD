@@ -1,0 +1,44 @@
+#=======================================
+# Macro file when runing in batch mode 
+#      (no graphical output)
+#
+# usage: Puts pmtltg in octant3
+#
+#=======================================
+
+
+# execute these macros to get Run 2 configurations:
+/control/execute myQweakConfiguration_run2.mac
+/control/execute macros/noTracking.mac
+
+# Track all particles
+/TrackingAction/TrackingFlag 3
+
+#====================================
+# Set PMTOnly On and In Position
+#====================================
+
+/PMTOnly/Enable
+/PMTOnly/SetMaterial Air
+#Reversed X coordinates from real life since 
+#simulated MD9 is in Octant 1
+/PMTOnly/SetCenterPositionInX 50 cm
+/PMTOnly/SetCenterPositionInY 320 cm
+/PMTOnly/SetCenterPositionInZ 775 cm
+
+
+#====================================
+# Software Triggers (all => keep every event)
+#====================================
+
+/Trigger/PrintHits false
+/Trigger/Disable cer
+/Trigger/Enable all
+/Trigger/Show
+
+#====================================
+# Throw a tighter angular range in the octant
+#====================================
+
+/EventGen/SetThetaMax 12.5
+/EventGen/SetThetaMin 5

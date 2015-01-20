@@ -1,0 +1,30 @@
+#=======================================
+# Macro file when runing in batch mode 
+#      (no graphical output)
+#
+# usage: Throws to Octant 3 w/ Tracking Detectors in place
+#
+#=======================================
+
+
+# execute these macros to get Run 2 configurations:
+/control/execute myQweakConfiguration_run2.mac
+
+# Track all particles
+/TrackingAction/TrackingFlag 3
+
+#====================================
+# Software Triggers (all => keep every event)
+#====================================
+
+/Trigger/PrintHits false
+/Trigger/Disable cer
+/Trigger/Enable all
+/Trigger/Show
+
+#====================================
+# Throw to octant with Trig. Scint.
+#====================================
+
+/EventGen/SelectOctant 3
+

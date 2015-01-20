@@ -1,0 +1,3 @@
+/control/execute myQweakConfiguration.mac
+
+/HallC/DumpGeometry true

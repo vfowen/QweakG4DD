@@ -1,0 +1,11 @@
+#========================================================================
+#  Macro file  Al_TargetWindow_Dummy_Upstream.mac
+#========================================================================
+# This macro isolates the upstream aluminum window of the target.
+#
+#------------------------------------------------------------------------
+
+/Target/SetTargetMaterial Air
+/Target/SetTargetCellMaterial Air
+/Target/SetTargetExitWindowMaterial Air
+/Target/SetTargetExitWindowNippleMaterial Air

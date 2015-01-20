@@ -1,0 +1,10 @@
+/control/execute myQweakConfiguration.mac
+
+#==========================
+# Set beam rastering region
+#==========================
+/PrimaryEvent/SetRasterXmin 0 mm
+/PrimaryEvent/SetRasterXmax 0 mm
+/PrimaryEvent/SetRasterYmin 0 mm
+/PrimaryEvent/SetRasterYmax 0 mm
+
