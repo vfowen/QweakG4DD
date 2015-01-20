@@ -12,17 +12,32 @@ file(GLOB my_project_sources ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 # Custom target that is always built
-add_custom_target(QweakSimVersion ALL)
-
+#add_custom_target(QweakSimVersion ALL)
 # Creates QweakSimVersion.hh using cmake script
-add_custom_command(TARGET QweakSimVersion
-	COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
-	-P ${CMAKE_CURRENT_SOURCE_DIR}/GetQweakSimVersion.cmake)
-
+#add_custom_command(TARGET QweakSimVersion
+#	COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
+#	-P ${CMAKE_CURRENT_SOURCE_DIR}/GetQweakSimVersion.cmake)
 # QweakSimVersion.hh is a generated file
-set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/QweakSimVersion.h
-	PROPERTIES GENERATED TRUE
-	HEADER_FILE_ONLY TRUE)
+#set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/QweakSimVersion.h
+#	PROPERTIES GENERATED TRUE
+#	HEADER_FILE_ONLY TRUE)
+
+#MAC specific variable
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(CMAKE_MACOSX_RPATH ON)
+    set(CMAKE_SKIP_BUILD_RPATH FALSE)
+    set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+    list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
+    if("${isSystemDir}" STREQUAL "-1")
+        set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+    endif()
+endif()
+
+# Update header file
+add_custom_target( gitinfo ALL COMMAND ${PROJECT_SOURCE_DIR}/pullgitinfo.py ${PROJECT_SOURCE_DIR} COMMENT "Creating gitinfo.hh" )
+
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # Load ROOT and setup include directory
@@ -49,7 +64,7 @@ include(${Geant4_USE_FILE})
 
 # Link the ROOT and Geant4 libraries
 add_library(QweakSim SHARED ${my_project_sources})
-add_dependencies(QweakSim QweakSimVersion)
+#add_dependencies(QweakSim QweakSimVersion)
 target_link_libraries(QweakSim ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 
 # Add the target executables:
