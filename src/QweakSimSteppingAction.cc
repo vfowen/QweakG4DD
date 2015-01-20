@@ -55,7 +55,7 @@ QweakSimSteppingAction::QweakSimSteppingAction(QweakSimUserInformation* myUInfo,
     evtGenStatus = 0;
     targetCenterPositionZ = myUserInfo->TargetCenterPositionZ;
     //RandomPositionZ = myEvent->GetVertexZ();
-
+    _primaryID.push_back(0);
     //std::ofstream EventDataFile("Event.dat", std::ios::out);
 
     G4cout << "###### Leaving QweakSimSteppingAction::QweakSimSteppingAction() " << G4endl;
@@ -333,10 +333,28 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
 //       }
 //     }
 //   }
+// Events that happen in the Pb FIXME
     G4Material *_material=thePostPoint->GetMaterial();
     if(_material)
         if(_material->GetName()=="PBA") {
-            TString _pn=thePostPoint->GetProcessDefinedStep()->GetProcessName();
+	    int _priID=theStep->GetTrack()->GetTrackID(); 
+	    int _priParentID = theStep->GetTrack()->GetParentID();
+	    double _priE=theStep->GetTrack()->GetTotalEnergy();
+	    TString _pn=thePostPoint->GetProcessDefinedStep()->GetProcessName();
+	    int _foundP=0;
+	    int _found=0;
+	    for(int i=0;i<(int)_primaryID.size() && (!_foundP || !_found);i++){
+		if(_priParentID==_primaryID[i]) _foundP++;
+		if(_priID==_primaryID[i]) _found++;
+	    }
+	   
+	   //G4cout<<"~Primary: "<<_priID<<" "<<_priParentID<<" "<<_priE<<" "<<_pn.Data()<<G4endl;
+	   
+	   if(_foundP){
+	      if(!_found && _priE>0) _primaryID.push_back(_priID);
+		G4cout<<"~Primary: "<<_priID<<" "<<_priParentID<<" "<<_priE<<" "<<_pn.Data()<<G4endl;
+	    }
+	    
             int found=-1;
             for(int i=0; i<(int)_procName.size() && found==-1; i++)
                 if(strcmp(_pn.Data(),_procName[i].Data())==0) found=i;
@@ -345,6 +363,17 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
                 _nProc.push_back(1);
             }
             else _nProc[found]++;
+	    
+	    if ( _pn == "compt" ){
+	      
+	      double _priE=theStep->GetTrack()->GetTotalEnergy();
+	      	    
+	      const std::vector<const G4Track*> *_a=theStep->GetSecondaryInCurrentStep();
+	      for( int i = 0 ; i < (int)(*_a).size() ; i++ ){
+		G4cout<<"Secondaries: "<<(*_a)[i]->GetTrackID() << " "
+		<< (*_a)[i]->GetParentID() << " "<< (*_a)[i]->GetTotalEnergy()<<G4endl;
+	      }
+	    }
         }
 
     if(particleType==G4Electron::ElectronDefinition())
