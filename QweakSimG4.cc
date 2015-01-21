@@ -43,6 +43,8 @@
 #include "QweakSimEPEvent.hh"
 #include "G4UIExecutive.hh"
 
+#include <time.h>
+
 #ifdef G4UI_USE_QT
     #include "G4UIQt.hh"
 #endif
@@ -62,7 +64,7 @@ int main(int argc,char** argv) {
 
   // Verbose output class
   //G4VSteppingVerbose::SetInstance( new QweakSimSteppingVerbose() ); 
-
+  clock_t tStart=clock();
   // Run manager
   G4RunManager * runManager = new G4RunManager();
 
@@ -173,7 +175,7 @@ int main(int argc,char** argv) {
 
   delete runManager;
   delete myEPEvent;
-
+  G4cout<<" Running time: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<G4endl;
   return 0;
 }
 
