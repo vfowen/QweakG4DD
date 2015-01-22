@@ -1,3 +1,4 @@
+// Author Ciprian
 #include <string.h>
 #include "stdio.h"
 #include "iostream"
@@ -7,6 +8,8 @@
 #include "TH1D.h"
 #include "TH2D.h"
 #include "QweakSimUserMainEvent.hh"
+#include "math.h"
+#include "stdlib.h"
 
 using namespace std;
 void addNm(TString a,std::vector<TString> &pn, std::vector<int> &np);
@@ -54,10 +57,10 @@ int main(int argc, char** argv)
         //if(i==4) fullPrint(event,i);
         //loop over hits
         for (int hit = 0; hit < event->Cerenkov.Detector.GetDetectorNbOfHits(); hit++) {
-            double _p=sqrt(pow(event->Cerenkov.Detector.GetGlobalMomentumX()[hit],2)+
+	  double _p=sqrt(pow(event->Cerenkov.Detector.GetGlobalMomentumX()[hit],2)+
                                  pow(event->Cerenkov.Detector.GetGlobalMomentumY()[hit],2)+
                                  pow(event->Cerenkov.Detector.GetGlobalMomentumZ()[hit],2));
-	    double v=sqrt(pow(_p,2)/(pow(emass,2)+pow(_p,2)));
+	  double v=sqrt(pow(_p,2)/(pow(emass,2)+pow(_p,2)));
 // 	    std::cout<<"v cutoff:"<<std::setw(10)<<v<<" "<<cutoff<<std::endl;
                             TString pn=event->Cerenkov.Detector.GetCreatorProcessName()[hit];
             //cout<<i<<" "<<hit<<" "<<pn.Data()<<endl;
