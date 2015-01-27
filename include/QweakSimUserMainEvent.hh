@@ -104,27 +104,32 @@ class QweakSimUserMainEvent : public TObject
  *  This group contains all variables that are included in the ROOT file.
  */
 
+/*
+Buddhiin 01-27-2015 - Strip down the root output for PMT DD analysis. We dont need;
+Target, Region 1, Region 2, Region 3, Trigger Scintillator and Lumi
+
+*/
 private:
 
 public:
 
   QweakSimUserPrimaryEvent                     Primary;              ///< object containing primary particle info
 
-  QweakSimUserTarget_MainEvent                 Target;               ///< object containing target hits
+  //QweakSimUserTarget_MainEvent                 Target;               ///< object containing target hits
 
-  QweakSimUserGEM_MainEvent                    Region1;              ///< object containing HDC info
-  QweakSimUserHDC_MainEvent                    Region2;              ///< object containing HDC info
-  QweakSimUserVDC_MainEvent                    Region3;              ///< object containing VDC info
+  // QweakSimUserGEM_MainEvent                    Region1;              ///< object containing HDC info
+  // QweakSimUserHDC_MainEvent                    Region2;              ///< object containing HDC info
+  // QweakSimUserVDC_MainEvent                    Region3;              ///< object containing VDC info
 
-  QweakSimUserTriggerScintillator_MainEvent    TriggerScintillator;  ///< object containing TriggerScintilliator info
+  //  QweakSimUserTriggerScintillator_MainEvent    TriggerScintillator;  ///< object containing TriggerScintilliator info
 	
-  QweakSimUserLeadGlass_MainEvent              LeadGlass;            ///< tree containing LeadGlass info
+  // QweakSimUserLeadGlass_MainEvent              LeadGlass;            ///< tree containing LeadGlass info
   
-  QweakSimUserPMTOnly_MainEvent		       PMTOnly;	             ///< tree containing PMTOnly info
+  //  QweakSimUserPMTOnly_MainEvent		       PMTOnly;	             ///< tree containing PMTOnly info
 	
   QweakSimUserCerenkov_MainEvent               Cerenkov;             ///< object containing Cerenkov detector info
 
-  QweakSimUserLumi_MainEvent                   Lumi;                 ///< tree containing Lumi detector info
+  // QweakSimUserLumi_MainEvent                   Lumi;                 ///< tree containing Lumi detector info
 
 public:
     
