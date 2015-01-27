@@ -118,7 +118,8 @@ QweakSimEventAction::QweakSimEventAction(QweakSimAnalysis* AN, QweakSimUserInfor
     fTrigger[kTriggerCer] = true;
 
     // By default, enable print out of hit information
-    printhits = true;
+    //printhits = true;
+    printhits = false;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -470,8 +471,8 @@ void QweakSimEventAction::EndOfEventAction(const G4Event* evt) {
     //##########################################################################################################################
     //##########################################################################################################################
     //
-    G4cout<<" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Ana: "<<" "<<myUserInfo->GetPrimaryEventNumber()
-      <<" "<<fTrigger[kTriggerCer]<<" "<<n_hitCerenkov<<G4endl;
+//     G4cout<<" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Ana: "<<" "<<myUserInfo->GetPrimaryEventNumber()
+//       <<" "<<fTrigger[kTriggerCer]<<" "<<n_hitCerenkov<<G4endl;//FIXME
     if ( fTrigger[kTriggerAll] /* Trigger on every event */
             || (fTrigger[kTrigger4Fold] && (n_VDChitWirePlane == 4) && (n_VDChitDCFront > 0) && (n_VDChitDCBack > 0) && (n_hitCerenkov > 0) ) /* 4-fold coincidence */
             || (fTrigger[kTrigger3Fold] && (n_VDChitWirePlane >= 2) && (n_VDChitDCFront > 0) && (n_VDChitDCBack > 0) ) /* 3-fold coincidence */
@@ -1063,7 +1064,7 @@ void QweakSimEventAction::EndOfEventAction(const G4Event* evt) {
 
                 analysis->fRootEvent->Cerenkov.Detector.StoreEdgeEventFlag(edgeEvent);
 
-                // G4cout << "Edge Event Flag = " << edgeEvent << G4endl;
+                // << "Edge Event Flag = " << edgeEvent << G4endl;
                 //--------------------------------------------------------------------------------------------
 
 
