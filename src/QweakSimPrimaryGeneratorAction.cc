@@ -43,27 +43,27 @@ QweakSimPrimaryGeneratorAction::QweakSimPrimaryGeneratorAction( QweakSimUserInfo
     fPositionX_max =  2.0*mm;
     fPositionY_min = -2.0*mm;
     fPositionY_max =  2.0*mm;
-
-  fPolarization = "L";
-
-  myUserInfo = myUI;
-  myEvent = myEPEvent;
-   
-  // get my messenger
-  myMessenger = new QweakSimPrimaryGeneratorActionMessenger(this);
-
+    
+    fPolarization = "L";
+    
+    myUserInfo = myUI;
+    myEvent = myEPEvent;
+    
     // get my messenger
     myMessenger = new QweakSimPrimaryGeneratorActionMessenger(this);
-
+    
+    // get my messenger
+    myMessenger = new QweakSimPrimaryGeneratorActionMessenger(this);
+    
     // initialize my own event counter
     // myEventCounter = 0;
-
+    
     G4int n_particle = 1;
     particleGun = new G4ParticleGun(n_particle);
     SetParticleType("e-");
-
+    
     myEvent->SetBeamEnergy();
-
+    
     G4cout << "###### Leaving QweakSimPrimaryGeneratorAction::QweakSimPrimaryGeneratorAction " << G4endl;
 }
 
@@ -175,54 +175,53 @@ void QweakSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
 
     particleGun->SetParticlePosition(G4ThreeVector(myPositionX,
-                                     myPositionY,
-                                     myPositionZ ));
+						   myPositionY,
+						   myPositionZ ));
+    
+    //Buddhini - Hard code the gun to spit out particles in +-20 deg angles in the horizontal plane.
 
-    particleGun->SetParticleMomentumDirection(G4ThreeVector(myNormMomentumX,
-            myNormMomentumY,
-            myNormMomentumZ));
+    G4double theta_x = 0.0;
+    theta_x = CLHEP::RandFlat::shoot(-20,20);
+    G4cout<<"$$$$ theta_x "<<theta_x<<G4endl;
+    G4ThreeVector momDir;
+    momDir.setRThetaPhi(1.,theta_x*deg,0*deg);
+    particleGun->SetParticleMomentumDirection(momDir);
 
-    particleGun->SetParticlePolarization(-(G4ThreeVector(myNormMomentumX,
-                                           myNormMomentumY,
-                                           myNormMomentumZ)));
-
+    // particleGun->SetParticleMomentumDirection(G4ThreeVector(myNormMomentumX,
+    // 							    myNormMomentumY,
+    // 							    myNormMomentumZ));
+    
+    if (fPolarization == "L") {
+      // longitudinal polarization (after generation)
+      particleGun->SetParticlePolarization((G4ThreeVector(myNormMomentumX,
+							  myNormMomentumY,
+							  myNormMomentumZ)));
+    }
+    if (fPolarization == "V") {
+      // vertical transverse polarization (after generation)
+      particleGun->SetParticlePolarization(G4ThreeVector(myNormMomentumX,
+							 myNormMomentumY,
+							 myNormMomentumZ)
+					   .cross(G4ThreeVector(1,0,0)));
+    }
+    if (fPolarization == "H") {
+      // horizontal transverse polarization (after generation)
+      particleGun->SetParticlePolarization(G4ThreeVector(myNormMomentumX,
+							 myNormMomentumY,
+							 myNormMomentumZ)
+					   .cross(G4ThreeVector(0,1,0)));
+    }
+    
     particleGun->SetParticleEnergy(E_beam);
-
-    particleGun->SetParticleMomentumDirection(G4ThreeVector(myNormMomentumX,
-							    myNormMomentumY,
-							    myNormMomentumZ));
-
-  if (fPolarization == "L") {
-    // longitudinal polarization (after generation)
-    particleGun->SetParticlePolarization((G4ThreeVector(myNormMomentumX,
-                                                        myNormMomentumY,
-                                                        myNormMomentumZ)));
-  }
-  if (fPolarization == "V") {
-    // vertical transverse polarization (after generation)
-    particleGun->SetParticlePolarization(G4ThreeVector(myNormMomentumX,
-                                                       myNormMomentumY,
-                                                       myNormMomentumZ)
-                                  .cross(G4ThreeVector(1,0,0)));
-  }
-  if (fPolarization == "H") {
-    // horizontal transverse polarization (after generation)
-    particleGun->SetParticlePolarization(G4ThreeVector(myNormMomentumX,
-                                                       myNormMomentumY,
-                                                       myNormMomentumZ)
-                                  .cross(G4ThreeVector(0,1,0)));
-  }
-
-  particleGun->SetParticleEnergy(E_beam);
-
-  // finally : fire !!!
-  particleGun->GeneratePrimaryVertex(anEvent);  // takes an event, generates primary vertex, and associates primary particles with the vertex
-  myUserInfo->StorePrimaryEventNumber(myEventCounter+1);
-  //myUserInfo->SetBeamEnergy(myEvent->GetBeamEnergy());
+    
+    // finally : fire !!!
+    particleGun->GeneratePrimaryVertex(anEvent);  // takes an event, generates primary vertex, and associates primary particles with the vertex
+    myUserInfo->StorePrimaryEventNumber(myEventCounter+1);
+    //myUserInfo->SetBeamEnergy(myEvent->GetBeamEnergy());
     // rest of userInfo filled in QweakSimSteppingAction.cc
-
-//  G4cout << "###### Leaving QweakSimPrimaryGeneratorAction::GeneratePrimaries" << G4endl;
-
+    
+    //  G4cout << "###### Leaving QweakSimPrimaryGeneratorAction::GeneratePrimaries" << G4endl;
+    
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

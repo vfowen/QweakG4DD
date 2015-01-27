@@ -103,7 +103,7 @@ QweakSimDetectorConstruction::QweakSimDetectorConstruction(QweakSimUserInformati
 
   pMagneticField = NULL;
 
-  pTriggerScintillator  = NULL;
+  //pTriggerScintillator  = NULL;
   pCerenkovDetector     = NULL;
   pLumiDetector     = NULL;
 
@@ -126,12 +126,12 @@ QweakSimDetectorConstruction::QweakSimDetectorConstruction(QweakSimUserInformati
   pPMTOnly		 = NULL;
 
   // pGEM               = NULL;
-  pHDC               = NULL;
-  pVDC               = NULL;
-  pVDCRotator        = NULL;
+  //pHDC               = NULL;
+  //pVDC               = NULL;
+  //pVDCRotator        = NULL;
 
   pTarget            = NULL;
-  pBeamLine          = NULL;
+  // pBeamLine          = NULL;
   pMainMagnet        = NULL;
 
   fWorldLengthInX = 0.0*cm;
@@ -164,14 +164,14 @@ QweakSimDetectorConstruction::~QweakSimDetectorConstruction()
 
   if (pMagneticField) delete pMagneticField;
 
-  if (pVDCRotator) delete pVDCRotator;
+  //if (pVDCRotator) delete pVDCRotator;
   // if (pGEM)        delete pGEM;
-  if (pHDC)        delete pHDC;
-  if (pVDC)        delete pVDC;
+  //if (pHDC)        delete pHDC;
+  //if (pVDC)        delete pVDC;
 
   if (pLumiDetector)    delete pLumiDetector;
   if (pCerenkovDetector)    delete pCerenkovDetector;
-  if (pTriggerScintillator) delete pTriggerScintillator;
+  // if (pTriggerScintillator) delete pTriggerScintillator;
 
   if (pTungstenPlug)        delete pTungstenPlug;
   if (pCollimator1)         delete pCollimator1;
@@ -192,7 +192,7 @@ QweakSimDetectorConstruction::~QweakSimDetectorConstruction()
   if (pPMTOnly)		    delete pPMTOnly;
 
   if (pTarget)              delete pTarget;
-  if (pBeamLine)            delete pBeamLine;
+  // if (pBeamLine)            delete pBeamLine;
   if (pMainMagnet)          delete pMainMagnet;
 
   if (detectorMessenger)    delete detectorMessenger;
@@ -210,7 +210,7 @@ G4VPhysicalVolume* QweakSimDetectorConstruction::Construct()
 G4VPhysicalVolume* QweakSimDetectorConstruction::ConstructQweak()
 {
   pTarget              = new QweakSimTarget(myUserInfo);
-  pBeamLine            = new QweakSimBeamLine(myUserInfo);
+  //pBeamLine            = new QweakSimBeamLine(myUserInfo);
   
   pTungstenPlug        = new QweakSimTungstenPlug();
   pCollimator1         = new QweakSimCollimator();
@@ -232,14 +232,14 @@ G4VPhysicalVolume* QweakSimDetectorConstruction::ConstructQweak()
   pMainMagnet          = new QweakSimMainMagnet(); // QTOR Geometry (decoupled from field)
 
   //pGEM                 = new QweakSimGEM();
-  pHDC                 = new QweakSimHDC();
-  pVDC                 = new QweakSimVDC();
-  pVDCRotator          = new QweakSimVDCRotator();
+  //pHDC                 = new QweakSimHDC();
+  //pVDC                 = new QweakSimVDC();
+  //pVDCRotator          = new QweakSimVDCRotator();
 
   pCerenkovDetector    = new QweakSimCerenkovDetector(myUserInfo);
   pLumiDetector        = new QweakSimLumiDetector();
 
-  pTriggerScintillator = new QweakSimTriggerScintillator();
+  //pTriggerScintillator = new QweakSimTriggerScintillator();
 
 
   //--------- Definitions of Solids, Logical Volumes, Physical Volumes ---------
@@ -348,15 +348,15 @@ G4VPhysicalVolume* QweakSimDetectorConstruction::ConstructQweak()
     pGeometry->AddModule(pTarget->getTargetPhysicalVolume());
   }
 
-  //============================================
-  // create/place beamline body into MotherVolume
-  //============================================
-  //
-  if (pBeamLine) {
-    pBeamLine -> ConstructComponent(experimentalHall_Physical);
-    //pBeamLine -> SetBeamLineCenterPositionInZ(300.0*cm);
-    //pGeometry->AddModule(pBeamLine->getBeamLinePhysicalVolume());
-  }
+  // //============================================
+  // // create/place beamline body into MotherVolume
+  // //============================================
+  // //
+  // if (pBeamLine) {
+  //   pBeamLine -> ConstructComponent(experimentalHall_Physical);
+  //   //pBeamLine -> SetBeamLineCenterPositionInZ(300.0*cm);
+  //   //pGeometry->AddModule(pBeamLine->getBeamLinePhysicalVolume());
+  // }
   
   //================================================
   // create/place MainMagnet body into MotherVolume
@@ -612,46 +612,46 @@ G4VPhysicalVolume* QweakSimDetectorConstruction::ConstructQweak()
   //  pGeometry->AddModule(pGEM->getGEMBack_PhysicalVolume());
   //}
   //
-  if (pHDC) {
-    pHDC->ConstructComponent(experimentalHall_Physical);
-    pGeometry->AddModule(pHDC->getHDCFront_PhysicalVolume());
-    pGeometry->AddModule(pHDC->getHDCBack_PhysicalVolume());
-  }
+  // if (pHDC) {
+  //   pHDC->ConstructComponent(experimentalHall_Physical);
+  //   pGeometry->AddModule(pHDC->getHDCFront_PhysicalVolume());
+  //   pGeometry->AddModule(pHDC->getHDCBack_PhysicalVolume());
+  // }
   //===============================================
   // create/place VDC Rotator into MotherVolume
   //===============================================
   //
-  if (pVDCRotator) {
-    pVDCRotator->SetMotherVolume(experimentalHall_Physical);
-    pVDCRotator->ConstructRotatorMasterContainer();
-    pVDCRotator->ConstructRings();
-    pVDCRotator->ConstructRails();
-    pVDCRotator->ConstructMount();
-    pVDCRotator->ConstructSliderSupport();
-    pVDCRotator->SetRotationAngleInPhi( 90.0*degree);
-  }
+  // if (pVDCRotator) {
+  //   pVDCRotator->SetMotherVolume(experimentalHall_Physical);
+  //   pVDCRotator->ConstructRotatorMasterContainer();
+  //   pVDCRotator->ConstructRings();
+  //   pVDCRotator->ConstructRails();
+  //   pVDCRotator->ConstructMount();
+  //   pVDCRotator->ConstructSliderSupport();
+  //   pVDCRotator->SetRotationAngleInPhi( 90.0*degree);
+  // }
 
 
   //=====================================================
   // create/place Trigger Scintillator into MotherVolume
   //=====================================================
   //
-  if (pTriggerScintillator) {
-    pTriggerScintillator->ConstructComponent(experimentalHall_Physical);
-    //
-    pGeometry->AddModule(pTriggerScintillator->GetTriggerScintillator_PhysicalVolume());
-  }
+  // if (pTriggerScintillator) {
+  //   pTriggerScintillator->ConstructComponent(experimentalHall_Physical);
+  //   //
+  //   pGeometry->AddModule(pTriggerScintillator->GetTriggerScintillator_PhysicalVolume());
+  // }
 
   //
-  if (pVDC) {
-    pVDC->ConstructComponent(experimentalHall_Physical);
-    pGeometry->AddModule(pVDC->getVDCFront_PhysicalVolume());
-    pGeometry->AddModule(pVDC->getVDCBack_PhysicalVolume());
-    pVDC->SetVDCRotator(pVDCRotator);
-    pVDC->SetTriggerScintillator(pTriggerScintillator);
-    pVDC->SetVDC_RotationAngleInPhi(90.0*degree,0);
-    pVDC->SetVDC_RotationAngleInPhi(270.0*degree,1);
-  }
+  // if (pVDC) {
+  //   pVDC->ConstructComponent(experimentalHall_Physical);
+  //   pGeometry->AddModule(pVDC->getVDCFront_PhysicalVolume());
+  //   pGeometry->AddModule(pVDC->getVDCBack_PhysicalVolume());
+  //   pVDC->SetVDCRotator(pVDCRotator);
+  //   pVDC->SetTriggerScintillator(pTriggerScintillator);
+  //   pVDC->SetVDC_RotationAngleInPhi(90.0*degree,0);
+  //   pVDC->SetVDC_RotationAngleInPhi(270.0*degree,1);
+  // }
 
 
   //=========================================

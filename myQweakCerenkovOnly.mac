@@ -117,10 +117,13 @@
 # If below set points are not given, the beam starts
 # at (0,0,0) (inside QTOR)
 #
+# place beam after pre-radiator of MD3
 /PrimaryEvent/SetBeamPositionX 0.0 cm
-/PrimaryEvent/SetBeamPositionY 250.0 cm
-/PrimaryEvent/SetBeamPositionZ 560.0 cm
+/PrimaryEvent/SetBeamPositionY 335.0 cm
+/PrimaryEvent/SetBeamPositionZ 575.0 cm
 
+# Set energy of primary particle
+/EventGen/SetBeamEnergy    50 MeV
 
 #====================================
 # Random Seed Handling
