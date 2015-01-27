@@ -97,6 +97,20 @@ void QweakSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     G4double myNormMomentumX, myNormMomentumY, myNormMomentumZ;
     G4double E_beam;  // Energy of the incoming and outgoing particle
 
+
+    myPositionX =  myUserInfo->GetBeamPositionX();
+    myPositionY =  myUserInfo->GetBeamPositionY();
+    myPositionZ =  myUserInfo->GetBeamPositionZ();
+
+    myNormMomentumX  = tan(myUserInfo->GetNormMomentumX()); // = 0
+    myNormMomentumY  = tan(myUserInfo->GetNormMomentumY()); // = 0
+    myNormMomentumZ  = sqrt(1.0 - myNormMomentumX * myNormMomentumX - myNormMomentumY * myNormMomentumY);  // = 1
+
+    E_beam = myUserInfo->GetBeamEnergy() - 0.511*MeV;
+
+    myUserInfo->StoreOriginVertexPositionZ(myEvent->GetVertexZ());
+    myUserInfo->EvtGenStatus = 0; // checked in QweakSimSteppingAction.cc
+
 //   if (myEventCounter%3 == 0) { // for even myEventCounter
 //     // select position in x & y randomly
 //     myPositionX =  myUserInfo->GetBeamPositionX() + (G4UniformRand()-0.5)*(fPositionX_max-fPositionX_min)+(fPositionX_max+fPositionX_min)/2.0;
@@ -137,27 +151,28 @@ void QweakSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 //     }
 //   }
 //
-    //   Relocate the beam gun to the Cerenkov bar to test the light distributions
-    E_beam = myUserInfo->GetBeamEnergy() - 0.511*MeV;
-    myUserInfo->StoreOriginVertexPositionZ(myEvent->GetVertexZ());
-    myUserInfo->EvtGenStatus = 0; // checked in QweakSimSteppingAction.cc
+    // //   Relocate the beam gun to the Cerenkov bar to test the light distributions
+    // E_beam = myUserInfo->GetBeamEnergy() - 0.511*MeV;
+    // myUserInfo->StoreOriginVertexPositionZ(myEvent->GetVertexZ());
+    // myUserInfo->EvtGenStatus = 0; // checked in QweakSimSteppingAction.cc
 
-    G4double PositionX_min = -100.0*cm;
-    G4double PositionX_max =  100.0*cm;
-    myPositionX =  (G4UniformRand()-0.5)*(PositionX_max-PositionX_min)+(PositionX_max+PositionX_min)/2.0;
+    // // G4double PositionX_min = -100.0*cm;
+    // // G4double PositionX_max =  100.0*cm;
+    // // myPositionX =  (G4UniformRand()-0.5)*(PositionX_max-PositionX_min)+(PositionX_max+PositionX_min)/2.0;
 
-    G4double PositionY_min = (328.-9.0)*cm;
-    G4double PositionY_max = (328.+9.0)*cm;
-    myPositionY =  (G4UniformRand()-0.5)*(PositionY_max-PositionY_min)+(PositionY_max+PositionY_min)/2.0;
+    // // G4double PositionY_min = (328.-9.0)*cm;
+    // // G4double PositionY_max = (328.+9.0)*cm;
+    // // myPositionY =  (G4UniformRand()-0.5)*(PositionY_max-PositionY_min)+(PositionY_max+PositionY_min)/2.0;
 
-    myPositionX =   0.0*cm;
-    myPositionY = 335.0*cm;
-    myPositionZ = 560.0*cm;
-    //G4cout<<" Particle with x,y,z "<<myPositionX/cm<<" "<<myPositionY/cm<<" "<<myPositionZ/cm<<G4endl;
-    myNormMomentumX  = 0.0;
-    myNormMomentumY  = 0.0;
-    myNormMomentumZ  = 1.0;
-    //
+    // // myPositionX =   0.0*cm;
+    // // myPositionY = 335.0*cm;
+    // // myPositionZ = 560.0*cm;
+    // // //G4cout<<" Particle with x,y,z "<<myPositionX/cm<<" "<<myPositionY/cm<<" "<<myPositionZ/cm<<G4endl;
+    // // myNormMomentumX  = 0.0;
+    // // myNormMomentumY  = 0.0;
+    // // myNormMomentumZ  = 1.0;
+    // // //
+
 
     particleGun->SetParticlePosition(G4ThreeVector(myPositionX,
                                      myPositionY,
@@ -173,9 +188,9 @@ void QweakSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
     particleGun->SetParticleEnergy(E_beam);
 
-  particleGun->SetParticleMomentumDirection(G4ThreeVector(myNormMomentumX,
-                                                          myNormMomentumY,
-                                                          myNormMomentumZ));
+    particleGun->SetParticleMomentumDirection(G4ThreeVector(myNormMomentumX,
+							    myNormMomentumY,
+							    myNormMomentumZ));
 
   if (fPolarization == "L") {
     // longitudinal polarization (after generation)

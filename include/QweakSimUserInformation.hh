@@ -67,13 +67,15 @@ public:
   //setter functions
   void SetBeamPositionX(G4double x) { fPositionX = x; };
   void SetBeamPositionY(G4double y) { fPositionY = y; };
+  void SetBeamPositionZ(G4double z) { fPositionZ = z; };
   void SetBeamDirectionX(G4double x) { fNormMomentumX = x; };
   void SetBeamDirectionY(G4double y) { fNormMomentumY = y; };
   
   //getter functions 
   G4double    GetBeamPositionX() const {return fPositionX;};
   G4double    GetBeamPositionY() const {return fPositionY;};
-  
+  G4double    GetBeamPositionZ() const {return fPositionZ;};
+
   G4double    GetNormMomentumX() const {return fNormMomentumX;};
   G4double    GetNormMomentumY() const {return fNormMomentumY;};
   G4ThreeVector GetNormMomentum() const {
@@ -93,6 +95,7 @@ private:
 
   G4double fPositionX;
   G4double fPositionY;
+  G4double fPositionZ;
   G4double fNormMomentumX;
   G4double fNormMomentumY;
 
