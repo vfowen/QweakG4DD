@@ -82,6 +82,13 @@ QweakSimPrimaryGeneratorActionMessenger::QweakSimPrimaryGeneratorActionMessenger
   SetPositionY_Cmd->SetDefaultValue(0.0*mm);
   SetPositionY_Cmd->AvailableForStates(G4State_PreInit,G4State_Idle);
 
+  SetPositionZ_Cmd = new G4UIcmdWithADoubleAndUnit("/PrimaryEvent/SetBeamPositionZ",this);
+  SetPositionZ_Cmd->SetGuidance("Set beam position in z");
+  SetPositionZ_Cmd->SetParameterName("z",true);
+  SetPositionZ_Cmd->SetUnitCategory("Length");
+  SetPositionZ_Cmd->SetDefaultValue(0.0*mm);
+  SetPositionZ_Cmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+
   SetDirectionX_Cmd = new G4UIcmdWithADoubleAndUnit("/PrimaryEvent/SetBeamDirectionX",this);
   SetDirectionX_Cmd->SetGuidance("Set beam direction in x");
   SetDirectionX_Cmd->SetParameterName("x",true);
@@ -175,6 +182,12 @@ void QweakSimPrimaryGeneratorActionMessenger::SetNewValue(G4UIcommand* command, 
       G4cout << "#### Messenger: Setting Beam Position in Y to " << newValue << G4endl;
       G4double y = SetPositionY_Cmd->GetNewDoubleValue(newValue);
       pPrimaryGeneratorAction->GetUserInfo()->SetBeamPositionY(y);
+    }
+  if( command == SetPositionZ_Cmd )
+    {
+      G4cout << "#### Messenger: Setting Beam Position in Z to " << newValue << G4endl;
+      G4double z = SetPositionZ_Cmd->GetNewDoubleValue(newValue);
+      pPrimaryGeneratorAction->GetUserInfo()->SetBeamPositionZ(z);
     }
   if( command == SetDirectionX_Cmd )
     {

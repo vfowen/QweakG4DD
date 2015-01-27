@@ -2177,7 +2177,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
     Radiator_Logical->SetVisAttributes(RadiatorVisAtt);
     
     G4VisAttributes* PMT_PbShieldVisAtt = new G4VisAttributes(blue);
-    PMT_PbShieldVisAtt->SetVisibility(true);
+    PMT_PbShieldVisAtt->SetVisibility(false);
     PMT_PbShield_Logical->SetVisAttributes(PMT_PbShieldVisAtt);    
 //------------------------------------------
 // Visual Attributes for:  CerenkovContainer
@@ -2192,7 +2192,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 
 //Visual Attributes for:  Exo-Skelton
     G4VisAttributes* ExoSkeltonFrameVisAtt = new G4VisAttributes(darkbrown);
-    ExoSkeltonFrameVisAtt->SetVisibility(true);
+    ExoSkeltonFrameVisAtt->SetVisibility(false);
 //FrameVisAtt->SetForceWireframe(true);
 //FrameVisAtt->SetForceSolid(true);
     ExoSkeltonFrame_Logical->SetVisAttributes(ExoSkeltonFrameVisAtt);
@@ -2201,7 +2201,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 // Visual Attributes for:  Detector Housing
 //------------------------------------------
     G4VisAttributes* FrameVisAtt = new G4VisAttributes(grey);
-    FrameVisAtt->SetVisibility(true);
+    FrameVisAtt->SetVisibility(false);
 //FrameVisAtt->SetForceWireframe(true);
 //FrameVisAtt->SetForceSolid(true);
     Frame_Logical->SetVisAttributes(FrameVisAtt);
@@ -2210,7 +2210,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 // Visual Attributes for:  Side Brackets
 //------------------------------------------
     G4VisAttributes* SideBracketVisAtt = new G4VisAttributes(blue);
-    SideBracketVisAtt->SetVisibility(true);
+    SideBracketVisAtt->SetVisibility(false);
 //SideBracketVisAtt->SetForceWireframe(true);
 //SideBracketVisAtt->SetForceSolid(true);
     SideBracket_Logical->SetVisAttributes(SideBracketVisAtt);
@@ -2219,7 +2219,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 // Visual Attributes for:  End Brackets
 //------------------------------------------
     G4VisAttributes* EndBracketVisAtt = new G4VisAttributes(blue);
-    EndBracketVisAtt->SetVisibility(true);
+    EndBracketVisAtt->SetVisibility(false);
 //EndBracketVisAtt->SetForceWireframe(true);
 //EndBracketVisAtt->SetForceSolid(true);
     EndBracket_Logical->SetVisAttributes(EndBracketVisAtt);
@@ -2228,7 +2228,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 // Visual Attributes for:  Side Bracket Pads
 //------------------------------------------
     G4VisAttributes* SideBracketPadVisAtt = new G4VisAttributes(brown);
-    SideBracketPadVisAtt->SetVisibility(true);
+    SideBracketPadVisAtt->SetVisibility(false);
 //SideBracketPadVisAtt->SetForceWireframe(true);
     SideBracketPadVisAtt->SetForceSolid(true);
     SideBracketPad_Logical->SetVisAttributes(SideBracketPadVisAtt);
@@ -2237,7 +2237,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 // Visual Attributes for:  End Bracket Pads
 //------------------------------------------
     G4VisAttributes* EndBracketPadVisAtt = new G4VisAttributes(brown);
-    EndBracketPadVisAtt->SetVisibility(true);
+    EndBracketPadVisAtt->SetVisibility(false);
 //EndBracketPadVisAtt->SetForceWireframe(true);
 EndBracketPadVisAtt->SetForceSolid(true);
     EndBracketPad_Logical->SetVisAttributes(EndBracketPadVisAtt);
@@ -2247,7 +2247,7 @@ EndBracketPadVisAtt->SetForceSolid(true);
 // Visual Attributes for:  Detector Window Clip
 //------------------------------------------
     G4VisAttributes* ClipVisAtt = new G4VisAttributes(lightorange);
-    ClipVisAtt->SetVisibility(true);
+    ClipVisAtt->SetVisibility(false);
 //ClipVisAtt->SetForceWireframe(true);
 //ClipVisAtt->SetForceSolid(true);
     FrontClip_Logical->SetVisAttributes(ClipVisAtt);
@@ -2259,7 +2259,7 @@ EndBracketPadVisAtt->SetForceSolid(true);
     G4VisAttributes* CerenkovDetectorVisAtt = new G4VisAttributes(orange);
     CerenkovDetectorVisAtt->SetVisibility(true);
 // Needed for the correct visualization using Coin3D
-//CerenkovDetectorVisAtt->SetForceSolid(true);
+    //CerenkovDetectorVisAtt->SetForceSolid(true);
     CerenkovDetectorVisAtt->SetForceWireframe(true);
 //  ActiveArea_Logical->SetVisAttributes(CerenkovDetectorVisAtt);
     QuartzBar_LogicalLeft->SetVisAttributes(CerenkovDetectorVisAtt);
@@ -2272,7 +2272,7 @@ EndBracketPadVisAtt->SetForceSolid(true);
 // Visual Attributes for:  PMTContainer
 //------------------------------------------------
     G4VisAttributes* PMTContainerVisAtt = new G4VisAttributes(blue);
-    PMTContainerVisAtt->SetVisibility(true);
+    PMTContainerVisAtt->SetVisibility(false);
     PMTContainerVisAtt->SetForceWireframe(true);
 //PMTContainerVisAtt->SetForceSolid(true);
     PMTContainer_Logical->SetVisAttributes(PMTContainerVisAtt);
@@ -2281,7 +2281,7 @@ EndBracketPadVisAtt->SetForceSolid(true);
 // Visual Attributes for:  PMTEntranceWindow
 //-----------------------------------------------------
     G4VisAttributes* PMTEntranceWindowVisAtt = new G4VisAttributes(grey);
-    PMTEntranceWindowVisAtt->SetVisibility(true);
+    PMTEntranceWindowVisAtt->SetVisibility(false);
 //PMTEntranceWindowVisAtt->SetForceWireframe(true);
     PMTEntranceWindowVisAtt->SetForceSolid(true);
     PMTEntranceWindow_Logical->SetVisAttributes(PMTEntranceWindowVisAtt);
