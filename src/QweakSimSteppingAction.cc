@@ -55,9 +55,11 @@ QweakSimSteppingAction::QweakSimSteppingAction(QweakSimUserInformation* myUInfo,
     evtGenStatus = 0;
     targetCenterPositionZ = myUserInfo->TargetCenterPositionZ;
     //RandomPositionZ = myEvent->GetVertexZ();
-    _primaryID.push_back(0);
-    //std::ofstream EventDataFile("Event.dat", std::ios::out);
 
+    //std::ofstream EventDataFile("Event.dat", std::ios::out);
+    fout=new TFile("o_tuple.root","RECREATE");	
+    tout=new TNtuple("t","Ntuple primary info in Pb",
+		     "be:bx:by:bz:bpx:bpy:bpz:bdpx:bdpy:bdpz:ae:ax:ay:az:apx:apy:apz:adpx:adpy:adpz:angle:process:stepL");
     G4cout << "###### Leaving QweakSimSteppingAction::QweakSimSteppingAction() " << G4endl;
 
 }
@@ -253,128 +255,77 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
         }
     }
 
-//now this is handled in the TrackingAction with the control of the tracking flag
-//  else  //secondary, umcomment to disregard all secondaries to speed up the primary particle simulation
-//   {
-//      theTrack->SetTrackStatus(fStopAndKill);
-//      return;
-//   }
 
-//jpan@nuclear.uwinnipeg
-//kill a track if it is in collimators or shielding wall
-//   if(thePrePV->GetName()=="CollimatorHousing" || thePrePV->GetName()=="ShieldingWallHousing"){
-//   theTrack->SetTrackStatus(fStopAndKill); return;
-//   }
-
-// Peiqing : storing secondary information makes the simulation very slow
-//           I commented them out. Uncomment them only in case we really
-//           want to spend time to study the details of secondaries.
-//
-//  QweakSimTrackInformation* info = (QweakSimTrackInformation*)(theTrack->GetUserInformation());
-//
-//   for(G4int i = GetTrackVectorSize()-nSecTotal; i < GetTrackVectorSize(); i++)
-//   {
-//     if((*fSecondary)[i]->GetUserInformation()==0)
-//     {
-//       QweakSimTrackInformation* infoNew = new QweakSimTrackInformation(info);
-//
-//       infoNew->StoreParticleDefinition(GetSecondaryParticleDefinition(i));
-//       infoNew->StoreParentEnergy(theTrack->GetTotalEnergy());
-//       infoNew->StorePrimaryKineticEnergy(GetSecondaryParticleKineticEnergy(i));
-//       infoNew->StoreCerenkovHitEnergy(-1,-1.0*MeV);
-//       infoNew->StoreCreatorProcess(GetSecondaryCreatorProcessName(i));
-//       infoNew->StoreOriginVertex(GetSecondaryParticleOrigin(i));
-//       (*fSecondary)[i]->SetUserInformation(infoNew);
-//     }
-//
-//     if(particleType==G4Electron::ElectronDefinition() && theTrack->GetParentID() == 0 &&
-// //        !strcmp(thePrePV->GetName(),"CerenkovDetector_Physical")){
-//        (!strcmp(thePrePV->GetName(),"QuartzBar_PhysicalRight") || !strcmp(thePrePV->GetName(),"QuartzBar_PhysicalLeft") ))
-//     {
-//       if(GetSecondaryParticleDefinition(i) == G4OpticalPhoton::OpticalPhotonDefinition() &&
-// 	 GetSecondaryParticleTotalEnergy(i)/eV <= 4.9594)
-//       {
-// 	myUserInfo->IncrementCerenkovOpticalPhotonCount();
-// 	myUserInfo->StoreCerenkovPhotonEnergy(GetSecondaryParticleTotalEnergy(i));
-//       }
-//     }
-//  }
-
-
-//jpan@nuclear.uwinnipeg.ca
-// commented out the cout statements for speeding up
-
-//  G4cout << "Particle Name = " << particleType->GetParticleName() << G4endl;
-
-//   if(!strcmp(thePrePV->GetName(),"CerenkovDetector_Physical")){
-//!strcmp(thePrePV->GetName(),"LightGuide_PhysicalRight") || !strcmp(thePrePV->GetName(),"LightGuide_PhysicalLeft")
-
-// Peiqing:  commented out the followings for speeding up
-//
-//   if(!strcmp(thePrePV->GetName(),"QuartzBar_PhysicalRight") || !strcmp(thePrePV->GetName(),"QuartzBar_PhysicalLeft"))
-//   {
-//
-//     myUserInfo->AddCerenkovEnergyDeposit(theStep->GetTotalEnergyDeposit());
-//
-//     if(theTrack->GetParentID() > 0 && (particleType==G4Electron::ElectronDefinition() ||
-// 				       particleType==G4Positron::PositronDefinition() ||
-// 				       particleType==G4Gamma::GammaDefinition())){
-//
-// //       if(!strcmp(myUserInfo->GetStoredStepVolumeName(),"CerenkovContainer_Physical") &&
-// 	 // 	 !strcmp(thePrePV->GetName(),"CerenkovDetector_Physical")
-// // 	 ){
-//
-//       if(!strcmp(myUserInfo->GetStoredStepVolumeName(),"ActiveArea_Physical")){
-//
-// 	myUserInfo->StoreCerenkovSecondaryParticleInfo(theTrack->GetVertexPosition(),
-// 						       theTrack->GetMomentum(),
-// 						       theTrack->GetTotalEnergy(),
-// 						       charge);
-//       }
-//     }
-//   }
+    
 // Events that happen in the Pb FIXME
-    G4Material *_material=thePostPoint->GetMaterial();
-    if(_material)
-        if(_material->GetName()=="PBA") {
-	    int _priID=theStep->GetTrack()->GetTrackID(); 
-	    int _priParentID = theStep->GetTrack()->GetParentID();
-	    double _priE=theStep->GetTrack()->GetTotalEnergy();
-	    TString _pn=thePostPoint->GetProcessDefinedStep()->GetProcessName();
-	    int _foundP=0;
-	    int _found=0;
-	    for(int i=0;i<(int)_primaryID.size() && (!_foundP || !_found);i++){
-		if(_priParentID==_primaryID[i]) _foundP++;
-		if(_priID==_primaryID[i]) _found++;
-	    }
-	   
-	   //G4cout<<"~Primary: "<<_priID<<" "<<_priParentID<<" "<<_priE<<" "<<_pn.Data()<<G4endl;
-	   
-	   if(_foundP){
-	      if(!_found && _priE>0) _primaryID.push_back(_priID);
-		G4cout<<"~Primary: "<<_priID<<" "<<_priParentID<<" "<<_priE<<" "<<_pn.Data()<<G4endl;
-	    }
-	    
-            int found=-1;
-            for(int i=0; i<(int)_procName.size() && found==-1; i++)
-                if(strcmp(_pn.Data(),_procName[i].Data())==0) found=i;
-            if(found==-1) {
-                _procName.push_back(_pn);
-                _nProc.push_back(1);
-            }
-            else _nProc[found]++;
-	    
-	    if ( _pn == "compt" ){
-	      
-	      double _priE=theStep->GetTrack()->GetTotalEnergy();
-	      	    
-	      const std::vector<const G4Track*> *_a=theStep->GetSecondaryInCurrentStep();
-	      for( int i = 0 ; i < (int)(*_a).size() ; i++ ){
-		G4cout<<"Secondaries: "<<(*_a)[i]->GetTrackID() << " "
-		<< (*_a)[i]->GetParentID() << " "<< (*_a)[i]->GetTotalEnergy()<<G4endl;
-	      }
-	    }
-        }
+      //G4bool debugPrint=true;//FIXME
+      G4bool debugPrint=false;//FIXME
+//       if(myUserInfo->GetPrimaryEventNumber() > 126 && myUserInfo->GetPrimaryEventNumber() < 130 )
+// 	  debugPrint=true;
+      int _priID=theStep->GetTrack()->GetTrackID(); 
+      int _priParentID = theStep->GetTrack()->GetParentID();
+      double _priE=theStep->GetTrack()->GetTotalEnergy();
+      TString _name=theStep->GetTrack()->GetDefinition()->GetParticleName();
+      TString _pn=thePostPoint->GetProcessDefinedStep()->GetProcessName();
+      G4ThreeVector _polarziation=theStep->GetTrack()->GetPolarization();
+      G4Material *_material=thePostPoint->GetMaterial();
+
+      if(_polarziation.getR()>=0.1 
+	  && _priID==1 && _priParentID==0
+	  && _material->GetName()=="PBA" 
+	  && particleType==G4Electron::ElectronDefinition()){
+	float _var[23];// "be:bx:by:bz:bpx:bpy:bpz:bdpx:bdpy:bdpz:ae:ax:ay:az:apx:apy:apz:adpx:adpy:adpz:angle:process:stepL"
+	_var[0] = thePrePoint->GetTotalEnergy();
+	_var[1] = thePrePoint->GetPosition().getX();
+	_var[2] = thePrePoint->GetPosition().getY();
+	_var[3] = thePrePoint->GetPosition().getZ();
+	_var[4] = thePrePoint->GetMomentum().getX();
+	_var[5] = thePrePoint->GetMomentum().getY();
+	_var[6] = thePrePoint->GetMomentum().getZ();
+	_var[7] = thePrePoint->GetMomentumDirection().getX();
+	_var[8] = thePrePoint->GetMomentumDirection().getY();
+	_var[9] = thePrePoint->GetMomentumDirection().getZ();
+	_var[10]= thePostPoint->GetTotalEnergy();
+	_var[11]= thePostPoint->GetPosition().getX();
+	_var[12]= thePostPoint->GetPosition().getY();
+	_var[13]= thePostPoint->GetPosition().getZ();
+	_var[14]= thePostPoint->GetMomentum().getX();
+	_var[15]= thePostPoint->GetMomentum().getY();
+	_var[16]= thePostPoint->GetMomentum().getZ();
+	_var[17]= thePostPoint->GetMomentumDirection().getX();
+	_var[18]= thePostPoint->GetMomentumDirection().getY();
+	_var[19]= thePostPoint->GetMomentumDirection().getZ();
+	
+	const G4ThreeVector _preP=thePrePoint->GetMomentumDirection();
+	const G4ThreeVector _postP=thePostPoint->GetMomentumDirection();
+	float scatAng=_postP.angle(_preP);
+	_var[20]=scatAng;
+	if(strcmp(_pn.Data(),"msc")==0)
+	  _var[21]=1;
+	else if(strcmp(_pn.Data(),"CoulombScat")==0)
+	  _var[21]=2;
+	else if(strcmp(_pn.Data(),"eBrem")==0)
+	  _var[21]=3;
+	else if(strcmp(_pn.Data(),"Transportation")==0)
+	  _var[21]=4;
+	else if(strcmp(_pn.Data(),"eIoni")==0)
+	  _var[21]=5;
+	else
+	  _var[21]=0;
+	
+	double _steplength=theStep->GetStepLength(); // gives slightly larger values that the diff in position
+	_var[22]=_steplength;
+	tout->Fill(_var);
+	
+	if(debugPrint){
+	  G4cout<<"~Primary: "<<_priID<<" "<<_priParentID<<" "<<_priE<<" "<<_pn.Data()<<" "<<_name.Data()<<" "
+		<<_material->GetName()<<" angle "<<scatAng<<G4endl;
+	  G4cout<<"  preP R th phi "<<_preP.getR()<<" "<<_preP.getTheta()<<" "<<_preP.getPhi()<<G4endl;
+	  G4cout<<" postP R th phi "<<_postP.getR()<<" "<<_postP.getTheta()<<" "<<_postP.getPhi()<<G4endl;
+	  G4cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<G4endl;
+	}
+      }
+	
 
     if(particleType==G4Electron::ElectronDefinition())
     {

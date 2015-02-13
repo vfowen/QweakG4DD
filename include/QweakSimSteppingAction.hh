@@ -12,7 +12,12 @@
 #include "G4SteppingManager.hh"
 #include "G4UserSteppingAction.hh"
 #include <TString.h>
+#include "TFile.h"
+//#include "TH2D.h"
+//#include "TH1D.h"
+#include "TNtuple.h"
 
+class TH1;
 // geant4 classes
 class G4ParticleDefinition;
 
@@ -28,13 +33,10 @@ public:
     QweakSimSteppingAction(QweakSimUserInformation* myUInfo, QweakSimEPEvent* myEPEvent);
     ~QweakSimSteppingAction() {
         G4cout<<"Stepping Action Desctructor"<<G4endl;
-        double allp=0;
-        for(int i=0; i<(int)_nProc.size(); i++) allp+=_nProc[i];
-        for(int i=0; i<(int)_procName.size(); i++)
-            G4cout<<i<<"\t"<<_procName[i].Data()<<"\t\t"<<_nProc[i]<<"\t"<<_nProc[i]/allp<<G4endl;
-	G4cout<<"~~~ Primary ids ~~~ "<<G4endl;
-	for(int i=0; i<(int)_primaryID.size(); i++)
-	  G4cout<<i<<" "<<_primaryID[i]<<G4endl;
+	
+	fout->cd();
+	tout->Write();
+	fout->Close();
     };
 
     void UserSteppingAction(const G4Step*);
@@ -68,14 +70,13 @@ public:
 
 private:
 
-    std::vector<int> _primaryID;
-    std::vector<TString> _procName;
-    std::vector<int> _nProc;
     G4int evtGenStatus;
     G4int myEventCounter;
     G4TrackVector *fSecondary;
     QweakSimUserInformation* myUserInfo;
-
+    TFile *fout;
+    TNtuple *tout;
+    
     QweakSimEPEvent *myEvent;
     G4double RandomPositionZ;
     G4double targetCenterPositionZ;
