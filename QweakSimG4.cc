@@ -98,7 +98,7 @@ int main(int argc,char** argv) {
   runManager->SetUserAction( new QweakSimEventAction(myQweakSimAnalysis, myQweakSimUserInformation) );
   runManager->SetUserAction( new QweakSimRunAction(myQweakSimAnalysis) );  
 
-  runManager->StoreRandomNumberStatusToG4Event(1);
+  runManager->StoreRandomNumberStatusToG4Event(1);//FIXME is the seed?
 
   //Initialize G4 kernel
   runManager->Initialize();
@@ -175,7 +175,7 @@ int main(int argc,char** argv) {
 
   delete runManager;
   delete myEPEvent;
-  G4cout<<" Running time: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<G4endl;
+  G4cout<<" Running time[s]: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<G4endl;
   return 0;
 }
 
