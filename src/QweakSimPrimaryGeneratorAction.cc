@@ -115,6 +115,7 @@ void QweakSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 						   myPositionY,
 						   myPositionZ ));
     
+    
     //Buddhini - Hard code the gun to spit out particles in +-20 deg angles in the horizontal plane.
 //     G4double theta_x = 0.0;
 //     theta_x = CLHEP::RandFlat::shoot(-20,20);
@@ -123,9 +124,9 @@ void QweakSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 //     momDir.setRThetaPhi(1.,theta_x*deg,0*deg);
 //     particleGun->SetParticleMomentumDirection(momDir);
 
-    // particleGun->SetParticleMomentumDirection(G4ThreeVector(myNormMomentumX,
-    // 							    myNormMomentumY,
-    // 							    myNormMomentumZ));
+    particleGun->SetParticleMomentumDirection(G4ThreeVector(myNormMomentumX,
+    							    myNormMomentumY,
+    							    myNormMomentumZ));
     
     if (fPolarization == "L") {
       // longitudinal polarization (after generation)
