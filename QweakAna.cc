@@ -41,16 +41,27 @@ int main(int argc, char** argv)
     TH1D *hEg = new TH1D("hEg","Total Energy of gamma",200,0,1000);
     TH1D *hxg = new TH1D("hxg","hx gamma",200,-20.0,20.0);
     TH1D *hyg = new TH1D("hyg","hy gamma",200,325.0,345.0);
-    TH1D *hxe = new TH1D("hxe","hx e",200,-20.0,20.0);
-    TH1D *hye = new TH1D("hye","hy e",200,325.0,345.0);
-    TH1D *hphie= new TH1D("hphie","{#phi} angle e^{#pm}",100,-300,100);
-    TH1D *hthe= new TH1D("hthe","{#theta} angle e^{#pm}",100,0,180);
     TH2D *hAngles=new TH2D("hAngles","{#phi} vs {#theta}",100,-300,100,100,0,180);
+
+    TH1D *hxe = new TH1D("hxe","e x coord",200,-20.0,20.0);
+    TH1D *hye = new TH1D("hye","e y coord",200,326.0,343.0);
+    TH1D *hze = new TH1D("hze","e z coord",100,570.0,580.0);
+    
+    TH1D *Lphie= new TH1D("Lphie","local {#phi} angle e^{#pm}",100,-300,100);
+    TH1D *Lthe= new TH1D("Lthe","local {#theta} angle e^{#pm}",100,0,180);
+    TH1D *Gphie= new TH1D("Gphie","global {#phi} angle e^{#pm}",100,-300,100);
+    TH1D *Gthe= new TH1D("Gthe","global {#theta} angle e^{#pm}",100,0,180);
+    
+    TH2D *xLphi=new TH2D("xLphi","e x vs local phi",200,-20,20,100,-360,360);    
+    TH2D *xGphi=new TH2D("xGphi","e x vs global phi",200,-20,20,100,-280,100);
+    TH2D *xE   =new TH2D("xE",   "e x vs E",200,-20,20,100,0,1000);
     
     std::vector<TString> ProcessName;
     std::vector<int> nProc;
     double cutoff=1./1.458;
     double emass=0.510998910;//MeV
+    double _xL=0;
+    double _xR=0;
     for (int i = 0; i < QweakSimG4_Tree->GetEntries(); i++) {
         QweakSimG4_Tree->GetEntry(i);
 
@@ -61,13 +72,13 @@ int main(int argc, char** argv)
                                  pow(event->Cerenkov.Detector.GetGlobalMomentumY()[hit],2)+
                                  pow(event->Cerenkov.Detector.GetGlobalMomentumZ()[hit],2));
 	  double v=sqrt(pow(_p,2)/(pow(emass,2)+pow(_p,2)));
-// 	    std::cout<<"v cutoff:"<<std::setw(10)<<v<<" "<<cutoff<<std::endl;
-                            TString pn=event->Cerenkov.Detector.GetCreatorProcessName()[hit];
-            //cout<<i<<" "<<hit<<" "<<pn.Data()<<endl;
-            if(event->Cerenkov.Detector.GetDetectorGlobalPositionZ()[hit] > 580 ||
-                    event->Cerenkov.Detector.GetDetectorGlobalPositionZ()[hit] < 570) continue;
 
-            addNm(pn,ProcessName,nProc);
+	  TString pn=event->Cerenkov.Detector.GetCreatorProcessName()[hit];
+            //cout<<i<<" "<<hit<<" "<<pn.Data()<<endl;
+          if(event->Cerenkov.Detector.GetDetectorGlobalPositionZ()[hit] > 580 ||
+             event->Cerenkov.Detector.GetDetectorGlobalPositionZ()[hit] < 570) continue;
+
+            //addNm(pn,ProcessName,nProc);
             double E=event->Cerenkov.Detector.GetTotalEnergy()[hit];
             //if(strcmp(pn.Data(),"eIoni")!=0) continue;
             hE->Fill(E);
@@ -83,17 +94,27 @@ int main(int argc, char** argv)
             if(abs(event->Cerenkov.Detector.GetParticleType()[hit])==11) {
                 hxe->Fill(event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit]);
                 hye->Fill(event->Cerenkov.Detector.GetDetectorGlobalPositionY()[hit]);
-                hphie->Fill(event->Cerenkov.Detector.GetGlobalPhiAngle()[hit]);
-                hthe->Fill(event->Cerenkov.Detector.GetGlobalThetaAngle()[hit]);
+		hze->Fill(event->Cerenkov.Detector.GetDetectorGlobalPositionZ()[hit]);
+		Gphie->Fill(event->Cerenkov.Detector.GetGlobalPhiAngle()[hit]);
+                Gthe->Fill(event->Cerenkov.Detector.GetGlobalThetaAngle()[hit]);
 		hAngles->Fill(event->Cerenkov.Detector.GetGlobalPhiAngle()[hit],
 			      event->Cerenkov.Detector.GetGlobalThetaAngle()[hit]);
                 hEe->Fill(E);
+		
+		Lphie->Fill(event->Cerenkov.Detector.GetLocalPhiAngle()[hit]);
+		Lthe->Fill(event->Cerenkov.Detector.GetLocalThetaAngle()[hit]);
+		xLphi->Fill(event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit],event->Cerenkov.Detector.GetLocalPhiAngle()[hit]);
+		xGphi->Fill(event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit],event->Cerenkov.Detector.GetGlobalPhiAngle()[hit]);
+		xE->Fill(event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit],E);
+		if(event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit]>0) _xR+=E;
+		else _xL+=E;
 		if(v>cutoff) hEeC->Fill(E);
             }
 
         }
     }
-
+  
+    cout<<_xL<<" LR "<<_xR<<endl;
     printProcess(ProcessName,nProc);
     h2dhit->Write();
     hE->Write();
@@ -106,8 +127,14 @@ int main(int argc, char** argv)
     hyg->Write();
     hxe->Write();
     hye->Write();
-    hphie->Write();
-    hthe->Write();
+    hze->Write();
+    Gphie->Write();
+    Gthe->Write();
+    Lphie->Write();
+    Lthe->Write();
+    xLphi->Write();
+    xGphi->Write();
+    xE->Write();
     hAngles->Write();
     fout->Close();
 
