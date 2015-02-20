@@ -109,83 +109,19 @@ void QweakSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     E_beam = myUserInfo->GetBeamEnergy() - 0.511*MeV;
 
     myUserInfo->StoreOriginVertexPositionZ(myEvent->GetVertexZ());
-    myUserInfo->EvtGenStatus = 0; // checked in QweakSimSteppingAction.cc
-
-//   if (myEventCounter%3 == 0) { // for even myEventCounter
-//     // select position in x & y randomly
-//     myPositionX =  myUserInfo->GetBeamPositionX() + (G4UniformRand()-0.5)*(fPositionX_max-fPositionX_min)+(fPositionX_max+fPositionX_min)/2.0;
-//     myPositionY =  myUserInfo->GetBeamPositionY() + (G4UniformRand()-0.5)*(fPositionY_max-fPositionY_min)+(fPositionY_max+fPositionY_min)/2.0;
-//     // select the z position 30 cm upstream of the target center (this is basically a constant)
-//     myPositionZ = myUserInfo->TargetCenterPositionZ - 30.0*cm - G4UniformRand();
-//
-//     myNormMomentumX  = tan(myUserInfo->GetNormMomentumX()); // = 0
-//     myNormMomentumY  = tan(myUserInfo->GetNormMomentumY()); // = 0
-//     myNormMomentumZ  = sqrt(1.0 - myNormMomentumX * myNormMomentumX - myNormMomentumY * myNormMomentumY);  // = 1
-//
-//     E_beam = myUserInfo->GetBeamEnergy() - 0.511*MeV;
-//
-//     myUserInfo->StoreOriginVertexPositionZ(myEvent->GetVertexZ());
-//     myUserInfo->EvtGenStatus = 0; // checked in QweakSimSteppingAction.cc
-//
-//   }
-//   else{ // for odd myEventCounter
-//
-//     myPositionX = myUserInfo->GetOriginVertexPositionX();
-//     myPositionY = myUserInfo->GetOriginVertexPositionY();
-//     myPositionZ = myUserInfo->GetOriginVertexPositionZ();
-//
-//     myNormMomentumX  = myUserInfo->GetOriginVertexMomentumDirectionX();
-//     myNormMomentumY  = myUserInfo->GetOriginVertexMomentumDirectionY();
-//     myNormMomentumZ  = myUserInfo->GetOriginVertexMomentumDirectionZ();
-//
-//     E_beam = myUserInfo->GetOriginVertexKineticEnergy();
-//
-//     if (myEvent->GetReactionType() == 7) {
-//       myVertexZ = myPositionZ;
-//       myPositionZ = myUserInfo->TargetCenterPositionZ + 0.5*myUserInfo->TargetLength
-// 	+ myUserInfo->TargetExitWindowThickness + 1.0*cm;
-//
-//       // Project x & y positions from vertex to 1 cm downstream of the target exit window
-//       myPositionX += (myPositionZ-myVertexZ)*myNormMomentumX/myNormMomentumZ;
-//       myPositionY += (myPositionZ-myVertexZ)*myNormMomentumY/myNormMomentumZ;
-//     }
-//   }
-//
-    // //   Relocate the beam gun to the Cerenkov bar to test the light distributions
-    // E_beam = myUserInfo->GetBeamEnergy() - 0.511*MeV;
-    // myUserInfo->StoreOriginVertexPositionZ(myEvent->GetVertexZ());
-    // myUserInfo->EvtGenStatus = 0; // checked in QweakSimSteppingAction.cc
-
-    // // G4double PositionX_min = -100.0*cm;
-    // // G4double PositionX_max =  100.0*cm;
-    // // myPositionX =  (G4UniformRand()-0.5)*(PositionX_max-PositionX_min)+(PositionX_max+PositionX_min)/2.0;
-
-    // // G4double PositionY_min = (328.-9.0)*cm;
-    // // G4double PositionY_max = (328.+9.0)*cm;
-    // // myPositionY =  (G4UniformRand()-0.5)*(PositionY_max-PositionY_min)+(PositionY_max+PositionY_min)/2.0;
-
-    // // myPositionX =   0.0*cm;
-    // // myPositionY = 335.0*cm;
-    // // myPositionZ = 560.0*cm;
-    // // //G4cout<<" Particle with x,y,z "<<myPositionX/cm<<" "<<myPositionY/cm<<" "<<myPositionZ/cm<<G4endl;
-    // // myNormMomentumX  = 0.0;
-    // // myNormMomentumY  = 0.0;
-    // // myNormMomentumZ  = 1.0;
-    // // //
-
-
+    myUserInfo->EvtGenStatus = 0;   
+    
     particleGun->SetParticlePosition(G4ThreeVector(myPositionX,
 						   myPositionY,
 						   myPositionZ ));
     
     //Buddhini - Hard code the gun to spit out particles in +-20 deg angles in the horizontal plane.
-
-    G4double theta_x = 0.0;
-    theta_x = CLHEP::RandFlat::shoot(-20,20);
-    G4cout<<"$$$$ theta_x "<<theta_x<<G4endl;
-    G4ThreeVector momDir;
-    momDir.setRThetaPhi(1.,theta_x*deg,0*deg);
-    particleGun->SetParticleMomentumDirection(momDir);
+//     G4double theta_x = 0.0;
+//     theta_x = CLHEP::RandFlat::shoot(-20,20);
+//     G4cout<<"$$$$ theta_x "<<theta_x<<G4endl;
+//     G4ThreeVector momDir;
+//     momDir.setRThetaPhi(1.,theta_x*deg,0*deg);
+//     particleGun->SetParticleMomentumDirection(momDir);
 
     // particleGun->SetParticleMomentumDirection(G4ThreeVector(myNormMomentumX,
     // 							    myNormMomentumY,
