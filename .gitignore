@@ -17,12 +17,13 @@
 *.mod
 
 # Compiled Static libraries
+build
 *.lai
 *.la
 *.a
 *.lib
 
-# Executables
+# Executables 
 *.exe
 *.out
 *.app
@@ -59,3 +60,6 @@ Thumbs.db
 # Output files #
 ################
 *.root
+*.pdf
+.kdev4
+*.kdev*
