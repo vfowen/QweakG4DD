@@ -879,7 +879,8 @@ G4UrbanMscModel96::SampleScattering(const G4ThreeVector& oldDirection,
   if(ePolarized){//FIXME
     if(debugPrint) G4cout<<" Urban fix "<<G4endl;
     G4double _prob=G4UniformRand();
-    G4double _amplitude=1.0/eEnergy * sth;
+    G4double _amplitude=1.0/eEnergy * sth * 
+			sqrt(pow(polarization.getX(),2)+pow(polarization.getY(),2));//scale by transvers polarization
     if(_amplitude > 1 ) _amplitude=1;
     if( _prob < _amplitude * sin(phi-pi) )
       phi-=pi;

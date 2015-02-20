@@ -511,7 +511,8 @@ G4WentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
       if(ePolarized){
 	if(debugPrint) G4cout<<" ~~sc~~ "<<nMscSteps<<G4endl;
 	G4double _prob=G4UniformRand();
-	G4double _amplitude=1.0/eEnergy * sint;
+	G4double _amplitude=1.0/eEnergy * sint * 
+			     sqrt(pow(polarization.getX(),2)+pow(polarization.getY(),2));//scale by transvers polarization
 	if(_amplitude > 1 ) _amplitude=1;
 	if( _prob < _amplitude * sin(phi-pi) )
 	  phi-=pi;
@@ -553,7 +554,8 @@ G4WentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
       if(ePolarized){//FIXME
 	if(debugPrint) G4cout<<" ~~msc~~ "<<nMscSteps<<G4endl;
 	G4double _prob=G4UniformRand();
-	G4double _amplitude=1.0/eEnergy * sint;
+	G4double _amplitude=1.0/eEnergy * sint* 
+			     sqrt(pow(polarization.getX(),2)+pow(polarization.getY(),2));//scale by transvers polarization
 	if(_amplitude > 1 ) _amplitude=1;
 	if( _prob < _amplitude * sin(phi-pi) )
 	  phi-=pi;
