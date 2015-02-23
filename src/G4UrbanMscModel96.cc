@@ -67,6 +67,7 @@
 #include "G4Poisson.hh"
 #include "globals.hh"
 #include "G4Pow.hh"
+#include "math.h"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -886,6 +887,7 @@ G4UrbanMscModel96::SampleScattering(const G4ThreeVector& oldDirection,
       phi-=pi;
     phi+= polarization.getPhi() - oldDirection.getPhi();
     if(phi<0) phi+=twopi;
+    else if(phi>twopi) phi=fmod(phi,twopi);
   }//FIXME
     
   G4double dirx = sth*cos(phi);

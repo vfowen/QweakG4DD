@@ -69,6 +69,7 @@
 
 //FIXME compare to electron later
 #include "G4Electron.hh"
+#include "math.h"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -518,6 +519,7 @@ G4WentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	  phi-=pi;
 	phi+= polarization.getPhi() - oldDirection.getPhi();
 	if(phi<0) phi+=twopi;
+	else if(phi>twopi) phi=fmod(phi,twopi);
 	G4double vx1 = sint*cos(phi);
 	G4double vy1 = sint*sin(phi);
 	temp.set(vx1,vy1,cost);	
@@ -561,6 +563,7 @@ G4WentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	  phi-=pi;
 	phi+= polarization.getPhi() - oldDirection.getPhi();
 	if(phi<0) phi+=twopi;
+	else if(phi>twopi) phi=fmod(phi,twopi);
       }//FIXME
       G4double vx1 = sint*cos(phi);
       G4double vy1 = sint*sin(phi);
