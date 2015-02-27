@@ -1,4 +1,4 @@
-#!/opt/phenix/bin/python
+#!/apps/python/PRO/bin/python
 from subprocess import call
 import sys
 import os
@@ -8,20 +8,20 @@ def createMacFile(directory,idname,xPos,yPos,zPos,beamE,nEv,nr):
     if not os.path.exists(directory+"/jobs/"+idname):
         os.makedirs(directory+"/jobs/"+idname)
    
-    f=open(directory+"/jobs/"+idname+"myRun.mac",'w')
+    f=open(directory+"/jobs/"+idname+"/myRun.mac",'w')
     f.write("/control/execute myQweakCerenkovOnly.mac\n")
-    f.write("/PrimaryEvent/SetBeamPositionX "+xPos+" cm\n")
-    f.write("/PrimaryEvent/SetBeamPositionY "+yPos+" cm\n")
-    f.write("/PrimaryEvent/SetBeamPositionZ "+zPos+" cm\n")
-    f.write("/EventGen/SetBeamEnergy    "+beamE+" MeV\n")
+    f.write("/PrimaryEvent/SetBeamPositionX "+str(xPos)+" cm\n")
+    f.write("/PrimaryEvent/SetBeamPositionY "+str(yPos)+" cm\n")
+    f.write("/PrimaryEvent/SetBeamPositionZ "+str(zPos)+" cm\n")
+    f.write("/EventGen/SetBeamEnergy    "+str(beamE)+" MeV\n")
     f.write("/TrackingAction/TrackingFlag 3\n")
     f.write("/EventGen/SelectOctant 1\n")
     seedA=int(time.time())+100000000000+nr
     seedB=int(time.time()*100)++10000000000000+nr
     f.write("/random/setSeeds "+str(seedA)+" "+str(seedB)+"\n")
-    f.write("/run/beamOn "+nEv+"\n")
+    f.write("/run/beamOn "+str(nEv)+"\n")
     f.close()
-    return fname
+    return 0
 
 def createXMLfile(idname,directory,email,source):
     if not os.path.exists(directory+"/jobs/"+idname+"/log"):
@@ -57,12 +57,12 @@ def main():
     
     _xPos=[0]
     _email="ciprian@jlab.org"
-    _source=""
-    _directory=""
-    _nEv=10000
+    _source="/w/hallc-scifs2/qweak/ciprian/QweakG4DD"
+    _directory="/lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput"
+    _nEv=100
     _beamE=1160
     _nr=1
-    _submit=0
+    submit=1
     
     for xP in _xPos: # x position of the beam
       for nr in range(0,_nr): # repeat for nr jobs
@@ -73,8 +73,8 @@ def main():
 	createXMLfile(_idN,_directory,_email,_source)
 
 	if submit==1:
-	  print "submitting"
-	  call(["condor_submit",directory+"/condor/"+idName+"/condor.job"])
+	  print "submitting X position", xP," for the ",nr," time"
+	  call(["jsub","-xml",_directory+"/jobs/"+_idN+"/job.xml"])
 	else:
 	  print "do not submit ",submit
     
