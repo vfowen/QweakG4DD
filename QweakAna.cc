@@ -19,13 +19,18 @@ void fullPrint(QweakSimUserMainEvent* event, int nr);
 int main(int argc, char** argv)
 {
     if(argc != 2) {
-        cout<<" Please specify file "<<endl;
+        cout<<" Please specify infile with paths to output QweakSimG4 trees "<<endl;
         return 1;
     }
     string fin(argv[1]);
 
     TChain* QweakSimG4_Tree = new TChain("QweakSimG4_Tree");
-    QweakSimG4_Tree->Add(fin.c_str());
+    ifstream ifile(fin.c_str());
+    char _data[500];
+    while(ifile>>_data){
+      QweakSimG4_Tree->Add(_data);
+      cout<<_data<<endl;
+    }
 
     //set addresses of leafs
     QweakSimUserMainEvent* event = 0;
@@ -56,18 +61,29 @@ int main(int argc, char** argv)
     TH2D *xGphi=new TH2D("xGphi","e x vs global phi",200,-20,20,100,-280,100);
     TH2D *xE   =new TH2D("xE",   "e x vs E",200,-20,20,100,0,1000);
     
+    TH1D *LnPEs=new TH1D("LnPEs","Number of PEs Left" ,240,0,240);
+    TH1D *RnPEs=new TH1D("RnPEs","Number of PEs Right",240,0,240);
+    
+    TH1D *LTnPEs=new TH1D("LTnPEs","Number of PEs / event Left" ,200,0,200);
+    TH1D *RTnPEs=new TH1D("RTnPEs","Number of PEs / event Right",200,0,200);
+    
+    TH1D *LRasym=new TH1D("LRasym","PMT LR asymmetry (L-R)/(L+R)",100,-1,1);
+    
     std::vector<TString> ProcessName;
     std::vector<int> nProc;
     double cutoff=1./1.458;
     double emass=0.510998910;//MeV
     double _xL=0;
     double _xR=0;
+    cout<<" total nr ev: "<<QweakSimG4_Tree->GetEntries()<<endl;
+    
     for (int i = 0; i < QweakSimG4_Tree->GetEntries(); i++) {
         QweakSimG4_Tree->GetEntry(i);
 
-        //if(i==4) fullPrint(event,i);
+        if(i%10000==1) cout<<" at event: "<<i<<endl;
         //loop over hits
         for (int hit = 0; hit < event->Cerenkov.Detector.GetDetectorNbOfHits(); hit++) {
+	  
 	  double _p=sqrt(pow(event->Cerenkov.Detector.GetGlobalMomentumX()[hit],2)+
                                  pow(event->Cerenkov.Detector.GetGlobalMomentumY()[hit],2)+
                                  pow(event->Cerenkov.Detector.GetGlobalMomentumZ()[hit],2));
@@ -112,6 +128,20 @@ int main(int argc, char** argv)
             }
 
         }
+    
+	float _ltnPE=0;
+	float _rtnPE=0;
+	for (int hit = 0; hit < event->Cerenkov.PMT.GetDetectorNbOfHits(); hit++){
+	  float _lpe=event->Cerenkov.PMT.GetPMTLeftNbOfPEs()[hit];
+	  float _rpe=event->Cerenkov.PMT.GetPMTRightNbOfPEs()[hit];
+	  if(_lpe>0) LnPEs->Fill(_lpe);
+	  if(_rpe>0) LnPEs->Fill(_rpe);
+	  _rtnPE+=_rpe;
+	  _ltnPE+=_lpe;
+	}
+	LTnPEs->Fill(_ltnPE);
+	RTnPEs->Fill(_rtnPE);
+	LRasym->Fill((_ltnPE-_rtnPE)/(_ltnPE+_rtnPE));
     }
   
     cout<<_xL<<" LR "<<_xR<<endl;
@@ -136,6 +166,11 @@ int main(int argc, char** argv)
     xGphi->Write();
     xE->Write();
     hAngles->Write();
+    LTnPEs->Write();
+    RTnPEs->Write();
+    LnPEs->Write();
+    RnPEs->Write();
+    LRasym->Write();
     fout->Close();
 
     return 0;
