@@ -258,10 +258,8 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
 
     
 // Events that happen in the Pb FIXME
-      //G4bool debugPrint=true;//FIXME
-      G4bool debugPrint=false;//FIXME
-//       if(myUserInfo->GetPrimaryEventNumber() > 126 && myUserInfo->GetPrimaryEventNumber() < 130 )
-// 	  debugPrint=true;
+      G4bool debugPrint=false;
+//       G4bool debugPrint=true;
       int _priID=theStep->GetTrack()->GetTrackID(); 
       int _priParentID = theStep->GetTrack()->GetParentID();
       double _priE=theStep->GetTrack()->GetTotalEnergy();
@@ -269,7 +267,7 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
       TString _pn=thePostPoint->GetProcessDefinedStep()->GetProcessName();
       G4ThreeVector _polarziation=theStep->GetTrack()->GetPolarization();
       G4Material *_material=thePostPoint->GetMaterial();
-
+      
       if(_polarziation.getR()>=0.1 
 	  && _priID==1 && _priParentID==0
 	  && _material->GetName()=="PBA" 
