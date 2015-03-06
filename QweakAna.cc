@@ -77,6 +77,8 @@ int main(int argc, char** argv)
     double emass=0.510998910;//MeV
     double _xL=0;
     double _xR=0;
+    double _peMin=100;
+    double _peMax=0;
     cout<<" total nr ev: "<<QweakSimG4_Tree->GetEntries()<<endl;
     
     for (int i = 0; i < QweakSimG4_Tree->GetEntries(); i++) {
@@ -85,7 +87,7 @@ int main(int argc, char** argv)
         if(i%10000==1) cout<<" at event: "<<i<<endl;
         //loop over hits
         for (int hit = 0; hit < event->Cerenkov.Detector.GetDetectorNbOfHits(); hit++) {
-	  if(event->Cerenkov.Detector.GetDetectorID()!=3) continue;
+	  if(event->Cerenkov.Detector.GetDetectorID()[hit]!=3) continue;
 	  
 	  double _p=sqrt(pow(event->Cerenkov.Detector.GetGlobalMomentumX()[hit],2)+
                                  pow(event->Cerenkov.Detector.GetGlobalMomentumY()[hit],2)+
@@ -135,6 +137,7 @@ int main(int argc, char** argv)
 	float _ltnPE=0;
 	float _rtnPE=0;
 	for (int hit = 0; hit < event->Cerenkov.PMT.GetDetectorNbOfHits(); hit++){
+	  if(abs(event->Cerenkov.PMT.GetPMTOctantOfHits()[hit])!=3) continue;
 	  float _lpe=event->Cerenkov.PMT.GetPMTLeftNbOfPEs()[hit];
 	  float _rpe=event->Cerenkov.PMT.GetPMTRightNbOfPEs()[hit];
 	  if(_lpe>0) LnPEs->Fill(_lpe);
@@ -144,11 +147,15 @@ int main(int argc, char** argv)
 	}
 	LTnPEs->Fill(_ltnPE);
 	RTnPEs->Fill(_rtnPE);
+	if(_ltnPE>_peMax) _peMax=_ltnPE;
+	if(_ltnPE<_peMin) _peMin=_ltnPE;
 	if(_ltnPE>5 && _rtnPE>5)
 	  LRasym->Fill((_ltnPE-_rtnPE)/(_ltnPE+_rtnPE));
     }
   
-    cout<<_xL<<" LR "<<_xR<<endl;
+    cout<<_xL<<" L Energy of electrons R "<<_xR<<endl;
+    cout<<" X position mean rms "<<hxe->GetMean()<<" "<<hxe->GetRMS()<<endl;
+    cout<<" L Min Max NPE event "<<_peMin<<" "<<_peMax<<endl;
     LRasym ->Scale(1.0/scale);
     LnPEs  ->Scale(1.0/scale);
     RnPEs  ->Scale(1.0/scale);
