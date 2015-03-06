@@ -27,7 +27,9 @@ int main(int argc, char** argv)
     TChain* QweakSimG4_Tree = new TChain("QweakSimG4_Tree");
     ifstream ifile(fin.c_str());
     char _data[500];
+    int scale=0;
     while(ifile>>_data){
+      scale+=10000;
       QweakSimG4_Tree->Add(_data);
       cout<<_data<<endl;
     }
@@ -61,8 +63,8 @@ int main(int argc, char** argv)
     TH2D *xGphi=new TH2D("xGphi","e x vs global phi",200,-20,20,100,-280,100);
     TH2D *xE   =new TH2D("xE",   "e x vs E",200,-20,20,100,0,1000);
     
-    TH1D *LnPEs=new TH1D("LnPEs","Number of PEs Left" ,240,0,240);
-    TH1D *RnPEs=new TH1D("RnPEs","Number of PEs Right",240,0,240);
+    TH1D *LnPEs=new TH1D("LnPEs","Number of PEs Left / hit" ,240,0,240);
+    TH1D *RnPEs=new TH1D("RnPEs","Number of PEs Right/ hit" ,240,0,240);
     
     TH1D *LTnPEs=new TH1D("LTnPEs","Number of PEs / event Left" ,200,0,200);
     TH1D *RTnPEs=new TH1D("RTnPEs","Number of PEs / event Right",200,0,200);
@@ -83,6 +85,7 @@ int main(int argc, char** argv)
         if(i%10000==1) cout<<" at event: "<<i<<endl;
         //loop over hits
         for (int hit = 0; hit < event->Cerenkov.Detector.GetDetectorNbOfHits(); hit++) {
+	  if(event->Cerenkov.Detector.GetDetectorID()!=3) continue;
 	  
 	  double _p=sqrt(pow(event->Cerenkov.Detector.GetGlobalMomentumX()[hit],2)+
                                  pow(event->Cerenkov.Detector.GetGlobalMomentumY()[hit],2)+
@@ -135,17 +138,23 @@ int main(int argc, char** argv)
 	  float _lpe=event->Cerenkov.PMT.GetPMTLeftNbOfPEs()[hit];
 	  float _rpe=event->Cerenkov.PMT.GetPMTRightNbOfPEs()[hit];
 	  if(_lpe>0) LnPEs->Fill(_lpe);
-	  if(_rpe>0) LnPEs->Fill(_rpe);
+	  if(_rpe>0) RnPEs->Fill(_rpe);
 	  _rtnPE+=_rpe;
 	  _ltnPE+=_lpe;
 	}
 	LTnPEs->Fill(_ltnPE);
 	RTnPEs->Fill(_rtnPE);
-	LRasym->Fill((_ltnPE-_rtnPE)/(_ltnPE+_rtnPE));
+	if(_ltnPE>5 && _rtnPE>5)
+	  LRasym->Fill((_ltnPE-_rtnPE)/(_ltnPE+_rtnPE));
     }
   
     cout<<_xL<<" LR "<<_xR<<endl;
-    printProcess(ProcessName,nProc);
+    LRasym ->Scale(1.0/scale);
+    LnPEs  ->Scale(1.0/scale);
+    RnPEs  ->Scale(1.0/scale);
+    LTnPEs ->Scale(1.0/scale);
+    RTnPEs ->Scale(1.0/scale);
+    
     h2dhit->Write();
     hE->Write();
     hEe->Write();
