@@ -39,13 +39,16 @@ int main(int argc, char** argv)
     QweakSimG4_Tree->SetBranchAddress("QweakSimUserMainEvent",&event);
 
     TFile *fout=new TFile("o_ana.root","RECREATE");
+
     TH1D *hx = new TH1D("hx","hx",200,-20.0,20.0);
     TH1D *hy = new TH1D("hy","hy",200,325.0,345.0);
     TH2D *h2dhit=new TH2D("h2dHit","Cerenkov Detector Hit Postion", 200, -20, 20,200,325,345);
-    TH1D *hE = new TH1D("hE","Total Energy of Track",200,0,1000);
-    TH1D *hEe = new TH1D("hEe","Total Energy of e",200,0,1000);
-    TH1D *hEeC = new TH1D("hEeC","Total Energy of e with Cerenkov Threshold cut",200,0,1000);
-    TH1D *hEg = new TH1D("hEg","Total Energy of gamma",200,0,1000);
+
+    TH1D *hE = new TH1D("hE","Total Energy of Track",300,0,1200);
+    TH1D *hEe = new TH1D("hEe","Total Energy of e",300,0,1200);
+    TH1D *hEeC = new TH1D("hEeC","Total Energy of e with Cerenkov Threshold cut",300,0,1200);
+    TH1D *hEg = new TH1D("hEg","Total Energy of gamma",300,0,1200);
+
     TH1D *hxg = new TH1D("hxg","hx gamma",200,-20.0,20.0);
     TH1D *hyg = new TH1D("hyg","hy gamma",200,325.0,345.0);
     TH2D *hAngles=new TH2D("hAngles","{#phi} vs {#theta}",100,-300,100,100,0,180);
@@ -63,16 +66,17 @@ int main(int argc, char** argv)
     TH2D *xGphi=new TH2D("xGphi","e x vs global phi",200,-20,20,100,-280,100);
     TH2D *xE   =new TH2D("xE",   "e x vs E",200,-20,20,100,0,1000);
     
-    TH1D *LnPEs=new TH1D("LnPEs","Number of PEs Left / hit" ,240,0,240);
-    TH1D *RnPEs=new TH1D("RnPEs","Number of PEs Right/ hit" ,240,0,240);
+    TH1D *LTnPEs=new TH1D("LTnPEs","Number of PEs / event Left" ,300,0,300);
+    TH1D *RTnPEs=new TH1D("RTnPEs","Number of PEs / event Right",300,0,300);
     
-    TH1D *LTnPEs=new TH1D("LTnPEs","Number of PEs / event Left" ,200,0,200);
-    TH1D *RTnPEs=new TH1D("RTnPEs","Number of PEs / event Right",200,0,200);
+    TH1D *LEtot=new TH1D("LEtot","Total E / event Left [MeV]" ,300,0,1200);
+    TH1D *REtot=new TH1D("REtot","Total E / event Right[MeV]" ,300,0,1200);
     
-    TH1D *LRasym=new TH1D("LRasym","PMT LR asymmetry (L-R)/(L+R)",100,-1,1);
+    TH1D *LRasymPMT=new TH1D("LRasymPMT","PMT LR asymmetry (L-R)/(L+R)",100,-1,1);
+    TH1D *LRasymE=new TH1D("LRasymE","Total E LR asymmetry (L-R)/(L+R)",100,-1,1);
     
-    std::vector<TString> ProcessName;
-    std::vector<int> nProc;
+    TH1D *vRel=new TH1D("vrel","relativistic velocity",100,0,1);
+    
     double cutoff=1./1.458;
     double emass=0.510998910;//MeV
     double _xL=0;
@@ -86,22 +90,23 @@ int main(int argc, char** argv)
 
         if(i%10000==1) cout<<" at event: "<<i<<endl;
         //loop over hits
+	float _lE=0;
+	float _rE=0;
         for (int hit = 0; hit < event->Cerenkov.Detector.GetDetectorNbOfHits(); hit++) {
 	  if(event->Cerenkov.Detector.GetDetectorID()[hit]!=3) continue;
 	  
 	  double _p=sqrt(pow(event->Cerenkov.Detector.GetGlobalMomentumX()[hit],2)+
                                  pow(event->Cerenkov.Detector.GetGlobalMomentumY()[hit],2)+
                                  pow(event->Cerenkov.Detector.GetGlobalMomentumZ()[hit],2));
-	  double v=sqrt(pow(_p,2)/(pow(emass,2)+pow(_p,2)));
-
+	  double v=sqrt(pow(_p,2)/(pow(emass,2)+pow(_p,2)));// relativistic velocity /c which should be compared to 1/refractive index
+	  vRel->Fill(v);
+	  
 	  TString pn=event->Cerenkov.Detector.GetCreatorProcessName()[hit];
-            //cout<<i<<" "<<hit<<" "<<pn.Data()<<endl;
+            
           if(event->Cerenkov.Detector.GetDetectorGlobalPositionZ()[hit] > 580 ||
              event->Cerenkov.Detector.GetDetectorGlobalPositionZ()[hit] < 570) continue;
 
-            //addNm(pn,ProcessName,nProc);
             double E=event->Cerenkov.Detector.GetTotalEnergy()[hit];
-            //if(strcmp(pn.Data(),"eIoni")!=0) continue;
             hE->Fill(E);
             hx->Fill(event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit]);
             hy->Fill(event->Cerenkov.Detector.GetDetectorGlobalPositionY()[hit]);
@@ -127,40 +132,49 @@ int main(int argc, char** argv)
 		xLphi->Fill(event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit],event->Cerenkov.Detector.GetLocalPhiAngle()[hit]);
 		xGphi->Fill(event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit],event->Cerenkov.Detector.GetGlobalPhiAngle()[hit]);
 		xE->Fill(event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit],E);
-		if(event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit]>0) _xR+=E;
-		else _xL+=E;
+		if(event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit]>0) {
+		   _xR+=E;
+		   if(v>cutoff){
+		     _rE+=E;
+		     REtot->Fill(E);
+		   }
+		}else {
+		  _xL+=E;
+		  if(v>cutoff){
+		    _lE+=E;
+		    LEtot->Fill(E);
+		  }
+		}
 		if(v>cutoff) hEeC->Fill(E);
             }
 
         }
-    
-	float _ltnPE=0;
-	float _rtnPE=0;
-	for (int hit = 0; hit < event->Cerenkov.PMT.GetDetectorNbOfHits(); hit++){
-	  if(abs(event->Cerenkov.PMT.GetPMTOctantOfHits()[hit])!=3) continue;
-	  float _lpe=event->Cerenkov.PMT.GetPMTLeftNbOfPEs()[hit];
-	  float _rpe=event->Cerenkov.PMT.GetPMTRightNbOfPEs()[hit];
-	  if(_lpe>0) LnPEs->Fill(_lpe);
-	  if(_rpe>0) RnPEs->Fill(_rpe);
-	  _rtnPE+=_rpe;
-	  _ltnPE+=_lpe;
+        
+        if((_lE+_rE)>0)LRasymE->Fill((_lE-_rE)/(_lE+_rE));
+	  
+	  
+	if(event->Cerenkov.PMT.GetDetectorNbOfHits()>0){
+	  float _rtnPE=event->Cerenkov.PMT.GetPMTRightNbOfHits()[3];
+	  float _ltnPE=event->Cerenkov.PMT.GetPMTLeftNbOfHits()[3];
+	  
+	  LTnPEs->Fill(_ltnPE);
+	  RTnPEs->Fill(_rtnPE);
+	  if(_rtnPE>_peMax) _peMax=_rtnPE;
+	  if(_rtnPE<_peMin) _peMin=_rtnPE;
+	  if(_ltnPE>1 && _rtnPE>1)
+	    LRasymPMT->Fill((_ltnPE-_rtnPE)/(_ltnPE+_rtnPE));
 	}
-	LTnPEs->Fill(_ltnPE);
-	RTnPEs->Fill(_rtnPE);
-	if(_ltnPE>_peMax) _peMax=_ltnPE;
-	if(_ltnPE<_peMin) _peMin=_ltnPE;
-	if(_ltnPE>5 && _rtnPE>5)
-	  LRasym->Fill((_ltnPE-_rtnPE)/(_ltnPE+_rtnPE));
     }
   
     cout<<_xL<<" L Energy of electrons R "<<_xR<<endl;
     cout<<" X position mean rms "<<hxe->GetMean()<<" "<<hxe->GetRMS()<<endl;
     cout<<" L Min Max NPE event "<<_peMin<<" "<<_peMax<<endl;
-    LRasym ->Scale(1.0/scale);
-    LnPEs  ->Scale(1.0/scale);
-    RnPEs  ->Scale(1.0/scale);
+    LRasymE ->Scale(1.0/scale);
+    LRasymPMT ->Scale(1.0/scale);
     LTnPEs ->Scale(1.0/scale);
     RTnPEs ->Scale(1.0/scale);
+    LEtot  ->Scale(1.0/scale);
+    REtot  ->Scale(1.0/scale);
     
     h2dhit->Write();
     hE->Write();
@@ -184,9 +198,11 @@ int main(int argc, char** argv)
     hAngles->Write();
     LTnPEs->Write();
     RTnPEs->Write();
-    LnPEs->Write();
-    RnPEs->Write();
-    LRasym->Write();
+    LRasymPMT->Write();
+    LRasymE->Write();
+    LEtot->Write();
+    REtot->Write();
+    vRel->Write();
     fout->Close();
 
     return 0;
