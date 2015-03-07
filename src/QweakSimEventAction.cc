@@ -1150,7 +1150,7 @@ void QweakSimEventAction::EndOfEventAction(const G4Event* evt) {
                         PmtOctant.back() = -octantID;
                         PmtHitsLeft[octantID]++;
                         PmtNPELeft[octantID] += myUserInfo->GetNumberOfPhotoelectronsS20(aHit->GetPhotonEnergy()*1.0e6);
-                        // G4cout<<"pmtNPELeft: "<<pmtNPELeft[octantID]<<G4endl;
+			//G4cout<<"   pmtNPELeft: "<<i1<<" "<<aHit->GetPhotonEnergy()<<" "<<myUserInfo->GetNumberOfPhotoelectronsS20(aHit->GetPhotonEnergy()*1.0e6)<<" "<<PmtNPELeft[octantID]<<" "<<PmtHitsLeft[octantID]<<G4endl;
                     }
                 }
 
