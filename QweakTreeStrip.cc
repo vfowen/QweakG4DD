@@ -37,7 +37,7 @@ int main(int argc, char** argv)
   //hit
   int evNr;
   int hitNr;
-  char pTypeHit;
+  int pTypeHit;
   double x,y,z;
   double px,py,pz;
   double Gphi,Gtheta;
@@ -54,7 +54,7 @@ int main(int argc, char** argv)
   TTree *th=new TTree("th","Stripped QweakSimG4 tree for hits");
   th->Branch("evNr",&evNr,"evNr/I");
   th->Branch("hitNr",&hitNr,"hitNr/I");
-  th->Branch("pType",&pTypeHit,"pType/C");
+  th->Branch("pType",&pTypeHit,"pType/I");
   th->Branch("x",&x,"x/F");
   th->Branch("y",&y,"y/F");
   th->Branch("z",&z,"z/F");
@@ -69,6 +69,7 @@ int main(int argc, char** argv)
   th->Branch("E",&E,"E/F");
   
   TTree *te=new TTree("te","Event level info for e#pm");
+  te->Branch("evNr",&evNr,"evNr/I");
   te->Branch("LnPMThit",&LnPMThit,"LnPMThit/F");
   te->Branch("RnPMThit",&RnPMThit,"RnPMThit/F");
   te->Branch("LEtot",&LEtot,"LEtot/F");
@@ -91,14 +92,13 @@ int main(int argc, char** argv)
     asymPMT=-2;
     LEtot=0;
     REtot=0;
+    evNr  = i;
     
     for (int hit = 0; hit < event->Cerenkov.Detector.GetDetectorNbOfHits(); hit++) {
       if(event->Cerenkov.Detector.GetDetectorID()[hit]!=3) continue;
-      if(abs(event->Cerenkov.Detector.GetParticleType()[hit])==11) pTypeHit='e';
-      else if(abs(event->Cerenkov.Detector.GetParticleType()[hit])==22) pTypeHit='g';
-      else continue;
+      pTypeHit=event->Cerenkov.Detector.GetParticleType()[hit];
+      if(abs(pTypeHit)!=11  && abs(pTypeHit)!=22 ) continue;
       
-      evNr  = i;
       hitNr = hit;
       
       x=event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit];
@@ -128,8 +128,10 @@ int main(int argc, char** argv)
       th->Fill();
     }
     
-    LnPMThit=event->Cerenkov.PMT.GetPMTLeftNbOfHits()[3];//seems to be the same as NbOfPEs
-    RnPMThit=event->Cerenkov.PMT.GetPMTRightNbOfHits()[3];
+    if(event->Cerenkov.PMT.GetDetectorNbOfHits()>0){
+      LnPMThit=event->Cerenkov.PMT.GetPMTLeftNbOfHits()[3];//seems to be the same as NbOfPEs
+      RnPMThit=event->Cerenkov.PMT.GetPMTRightNbOfHits()[3];
+    }
     
     if( (LnPMThit+RnPMThit)>0 ) asymPMT=(LnPMThit-RnPMThit)/(LnPMThit+RnPMThit);
     if( (LEtot + REtot)>0 ) asymE=(LEtot - REtot)/(LEtot + REtot);
