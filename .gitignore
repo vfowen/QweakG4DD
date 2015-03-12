@@ -61,5 +61,6 @@ Thumbs.db
 ################
 *.root
 *.pdf
-.kdev4
+*.kdev4
 *.kdev*
+*~
