@@ -123,7 +123,7 @@ G4bool QweakSimCerenkov_DetectorSD::ProcessHits(G4Step* aStep, G4TouchableHistor
 
   G4ThreeVector worldMomentum = preStepPoint->GetMomentum();
   G4ThreeVector localMomentum = theTouchable->GetHistory()->GetTopTransform().TransformPoint(worldMomentum);
-
+  
  // Vertex: where this track was generated
   G4ThreeVector originVertexPosition          = aStep->GetTrack()->GetVertexPosition();
   G4ThreeVector originVertexMomentumDirection = aStep->GetTrack()->GetVertexMomentumDirection();
