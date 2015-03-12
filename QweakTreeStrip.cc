@@ -38,17 +38,20 @@ int main(int argc, char** argv)
   int evNr;
   int hitNr;
   int pTypeHit;
-  double x,y,z;
-  double px,py,pz;
-  double Gphi,Gtheta;
-  double Lphi,Ltheta;
-  double vRel;
-  double E;
+  float x,y,z;
+  float px,py,pz;
+  float Gphi,Gtheta;
+  float Lphi,Ltheta;
+  float vRel;
+  float E;
   
   //event
-  double LnPMThit,RnPMThit;
-  double LEtot,REtot;
-  double asymE,asymPMT;
+  float LnPMThit,RnPMThit;
+  float LEtot,REtot;
+  float gLEtot,gREtot;
+  float gasymE;
+  float asymE,asymPMT;
+  float polx,poly,polz;
   
   TFile *fout=new TFile("o_anaTree.root","RECREATE");
   TTree *th=new TTree("th","Stripped QweakSimG4 tree for hits");
@@ -67,6 +70,9 @@ int main(int argc, char** argv)
   th->Branch("Lth",&Ltheta,"Lth/F");
   th->Branch("vRel",&vRel,"vRel/F");
   th->Branch("E",&E,"E/F");
+  th->Branch("polx",&polx,"polx/F");
+  th->Branch("poly",&poly,"poly/F");
+  th->Branch("polz",&polz,"polz/F");
   
   TTree *te=new TTree("te","Event level info for e#pm");
   te->Branch("evNr",&evNr,"evNr/I");
@@ -74,6 +80,9 @@ int main(int argc, char** argv)
   te->Branch("RnPMThit",&RnPMThit,"RnPMThit/F");
   te->Branch("LEtot",&LEtot,"LEtot/F");
   te->Branch("REtot",&REtot,"REtot/F");
+  te->Branch("gLEtot",&gLEtot,"gLEtot/F");
+  te->Branch("gREtot",&gREtot,"gREtot/F");
+  te->Branch("gasymE",&gasymE,"gasymE/F");
   te->Branch("asymE",&asymE,"asymE/F");
   te->Branch("asymPMT",&asymPMT,"asymPMT/F");
   
@@ -90,6 +99,9 @@ int main(int argc, char** argv)
     RnPMThit=-2;
     asymE=-2;
     asymPMT=-2;
+    gasymE=-2;
+    gLEtot=0;
+    gREtot=0;
     LEtot=0;
     REtot=0;
     evNr  = i;
@@ -109,6 +121,10 @@ int main(int argc, char** argv)
       py=event->Cerenkov.Detector.GetGlobalMomentumY()[hit];
       pz=event->Cerenkov.Detector.GetGlobalMomentumZ()[hit];
       
+      polx=event->Cerenkov.Detector.GetPolarizationX()[hit];
+      poly=event->Cerenkov.Detector.GetPolarizationY()[hit];
+      polz=event->Cerenkov.Detector.GetPolarizationZ()[hit];
+      
       E=event->Cerenkov.Detector.GetTotalEnergy()[hit];
       
       double _p=sqrt(pow(px,2)+pow(py,2)+pow(pz,2));
@@ -120,11 +136,15 @@ int main(int argc, char** argv)
       Lphi   = event->Cerenkov.Detector.GetLocalPhiAngle()[hit];
       Ltheta = event->Cerenkov.Detector.GetLocalThetaAngle()[hit];
       
-      if(vRel>cutoff){
+      if(vRel>cutoff && abs(pTypeHit)==11 && z>577.6){ //over cerenkov th, electrons, in the qurtz
 	if(x>0) REtot+=E;
 	else LEtot+=E;
       }
       
+      if(z>577.6 && pTypeHit==22){
+	if(x>0) gREtot+=E;
+	else gLEtot+=E;
+      }
       th->Fill();
     }
     
@@ -133,9 +153,10 @@ int main(int argc, char** argv)
       RnPMThit=event->Cerenkov.PMT.GetPMTRightNbOfHits()[3];
     }
     
-    if( (LnPMThit+RnPMThit)>0 ) asymPMT=(LnPMThit-RnPMThit)/(LnPMThit+RnPMThit);
-    if( (LEtot + REtot)>0 ) asymE=(LEtot - REtot)/(LEtot + REtot);
-    
+    if( LnPMThit!=-2 && RnPMThit!=-2 && (LnPMThit+RnPMThit)>0 ) asymPMT=(LnPMThit-RnPMThit)/(LnPMThit+RnPMThit);
+    if( LEtot!=0 && REtot!=0 && (LEtot + REtot)>0 ) asymE=(LEtot - REtot)/(LEtot + REtot);
+    if( gLEtot!=0 && gREtot!=0 && (gLEtot + gREtot)>0 ) gasymE=(gLEtot - gREtot)/(gLEtot + gREtot);
+    //if( asymE>1 || asymE < -1 ) cout<<LEtot<<" "<<REtot<<" "<<(LEtot - REtot)<<" "<<(LEtot + REtot)<<" "<<asymE<<endl;
     te->Fill();
   }
   
