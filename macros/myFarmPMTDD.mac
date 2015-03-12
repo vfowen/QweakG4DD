@@ -1,0 +1,9 @@
+/control/execute myQweakCerenkovOnly.mac
+/PrimaryEvent/SetBeamPositionX 0.0 cm
+/PrimaryEvent/SetBeamPositionY 335.0 cm
+/PrimaryEvent/SetBeamPositionZ 560.0 cm
+/PrimaryEvent/SetPolarization L
+/EventGen/SetBeamEnergy    1160 MeV
+/TrackingAction/TrackingFlag 3
+/EventGen/SelectOctant 1
+/run/beamOn 10000
