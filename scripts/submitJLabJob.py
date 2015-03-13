@@ -37,10 +37,6 @@ def createXMLfile(idname,directory,email,source):
     f.write("  <OS name=\"centos62\"/>\n")
     f.write("  <Command><![CDATA[\n")
     f.write("cd "+directory+"/jobs/"+idname+"\n")
-    f.write("rm -rf QweakSimG4\n")
-    f.write("rm -rf myQweakCerenkovOnly.mac\n")
-    f.write("ln -s "+source+"/build/QweakSimG4 QweakSimG4\n")
-    f.write("ln -s "+source+"/myQweakCerenkovOnly.mac myQweakCerenkovOnly.mac\n")
     f.write("QweakSimG4 myRun.mac\n")
     f.write("  ]]></Command>\n")
     f.write("  <Memory space=\"1200\" unit=\"MB\"/>\n")
@@ -53,7 +49,6 @@ def createXMLfile(idname,directory,email,source):
     f.write("</Request>\n")
     f.close()
 
-#    os.chmod(directory+"/condor/"+idname+"/cheOther.csh",0755)
     return 0
 
 def main():
@@ -73,9 +68,11 @@ def main():
       for nr in range(25,_nr+25): # repeat for nr jobs
 	yP=335.0
 	zP=560.0
-	_idN= 'L_%04d_%06.2f_%06.2f_%06.2f_%03d'% (_beamE,xP,yP,zP,nr) 
+	_idN= _pol+'_%04d_%06.2f_%06.2f_%06.2f_%03d'% (_beamE,xP,yP,zP,nr) 
 	createMacFile(_directory,_idN,xP,yP,zP,_beamE,_pol,_nEv,nr)
 	createXMLfile(_idN,_directory,_email,_source)
+        call(["cp",_source+"/build/QweakSimG4",_directory+"/"+_idN+"/QweakSimG4"])
+        call(["cp",_source+"myQweakCerenkovOnly.mac",_directory+"/"+_idN+"/myQweakCerenkovOnly.mac"])
 
 	if submit==1:
 	  print "submitting X position", xP," for the ",nr," time"
