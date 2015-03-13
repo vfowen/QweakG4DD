@@ -60,19 +60,19 @@ def main():
     _directory="/lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput"
     _nEv=10000
     _beamE=1160
-    _nr=20
+    _nr=1
     _pol="mV"
-    submit=1
+    submit=0
     
     for xP in _xPos: # x position of the beam
-      for nr in range(25,_nr+25): # repeat for nr jobs
+      for nr in range(5,_nr+5): # repeat for nr jobs
 	yP=335.0
 	zP=560.0
 	_idN= _pol+'_%04d_%06.2f_%06.2f_%06.2f_%03d'% (_beamE,xP,yP,zP,nr) 
 	createMacFile(_directory,_idN,xP,yP,zP,_beamE,_pol,_nEv,nr)
 	createXMLfile(_idN,_directory,_email,_source)
-        call(["cp",_source+"/build/QweakSimG4",_directory+"/"+_idN+"/QweakSimG4"])
-        call(["cp",_source+"myQweakCerenkovOnly.mac",_directory+"/"+_idN+"/myQweakCerenkovOnly.mac"])
+        call(["cp",_source+"/build/QweakSimG4",_directory+"/jobs/"+_idN+"/QweakSimG4"])
+        call(["cp",_source+"/myQweakCerenkovOnly.mac",_directory+"/jobs/"+_idN+"/myQweakCerenkovOnly.mac"])
 
 	if submit==1:
 	  print "submitting X position", xP," for the ",nr," time"
