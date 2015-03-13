@@ -4,7 +4,7 @@ import sys
 import os
 import time
 
-def createMacFile(directory,idname,xPos,yPos,zPos,beamE,nEv,nr):
+def createMacFile(directory,idname,xPos,yPos,zPos,beamE,pol,nEv,nr):
     if not os.path.exists(directory+"/jobs/"+idname):
         os.makedirs(directory+"/jobs/"+idname)
    
@@ -13,9 +13,10 @@ def createMacFile(directory,idname,xPos,yPos,zPos,beamE,nEv,nr):
     f.write("/PrimaryEvent/SetBeamPositionX "+str(xPos)+" cm\n")
     f.write("/PrimaryEvent/SetBeamPositionY "+str(yPos)+" cm\n")
     f.write("/PrimaryEvent/SetBeamPositionZ "+str(zPos)+" cm\n")
+    f.write("/PrimaryEvent/SetPolarization "+pol+"\n")
     f.write("/EventGen/SetBeamEnergy    "+str(beamE)+" MeV\n")
     f.write("/TrackingAction/TrackingFlag 3\n")
-    f.write("/EventGen/SelectOctant 1\n")
+    f.write("/EventGen/SelectOctant 3\n")
     seedA=int(time.time())+100000000000+nr
     seedB=int(time.time()*100)++10000000000000+nr
     f.write("/random/setSeeds "+str(seedA)+" "+str(seedB)+"\n")
@@ -65,6 +66,7 @@ def main():
     _nEv=10000
     _beamE=1160
     _nr=20
+    _pol="mV"
     submit=1
     
     for xP in _xPos: # x position of the beam
@@ -72,7 +74,7 @@ def main():
 	yP=335.0
 	zP=560.0
 	_idN= 'L_%04d_%06.2f_%06.2f_%06.2f_%03d'% (_beamE,xP,yP,zP,nr) 
-	createMacFile(_directory,_idN,xP,yP,zP,_beamE,_nEv,nr)
+	createMacFile(_directory,_idN,xP,yP,zP,_beamE,_pol,_nEv,nr)
 	createXMLfile(_idN,_directory,_email,_source)
 
 	if submit==1:
