@@ -36,8 +36,10 @@ def createXMLfile(idname,directory,email,source):
     f.write("  <OS name=\"centos62\"/>\n")
     f.write("  <Command><![CDATA[\n")
     f.write("cd "+directory+"/jobs/"+idname+"\n")
+    f.write("rm -rf QweakSimG4\n")
+    f.write("rm -rf myQweakCerenkovOnly.mac\n")
     f.write("ln -s "+source+"/build/QweakSimG4 QweakSimG4\n")
-    f.write("ln -s "+source+"/myQweakConfiguration.mac myQweakConfiguration.mac\n")
+    f.write("ln -s "+source+"/myQweakCerenkovOnly.mac myQweakCerenkovOnly.mac\n")
     f.write("QweakSimG4 myRun.mac\n")
     f.write("  ]]></Command>\n")
     f.write("  <Memory space=\"1200\" unit=\"MB\"/>\n")
@@ -56,19 +58,20 @@ def createXMLfile(idname,directory,email,source):
 def main():
     
     _xPos=[0]
+#    _xPos=[-10,-5,0,5,10]
     _email="ciprian@jlab.org"
     _source="/w/hallc-scifs2/qweak/ciprian/QweakG4DD"
     _directory="/lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput"
-    _nEv=100
+    _nEv=10000
     _beamE=1160
-    _nr=1
+    _nr=20
     submit=1
     
     for xP in _xPos: # x position of the beam
-      for nr in range(0,_nr): # repeat for nr jobs
+      for nr in range(25,_nr+25): # repeat for nr jobs
 	yP=335.0
 	zP=560.0
-	_idN= '%04d_%06.2f_%06.2f_%06.2f_%03d'% (_beamE,xP,yP,zP,nr) 
+	_idN= 'L_%04d_%06.2f_%06.2f_%06.2f_%03d'% (_beamE,xP,yP,zP,nr) 
 	createMacFile(_directory,_idN,xP,yP,zP,_beamE,_nEv,nr)
 	createXMLfile(_idN,_directory,_email,_source)
 
