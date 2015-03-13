@@ -145,17 +145,17 @@ void QweakSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 							 myNormMomentumY,
 							 myNormMomentumZ)
 					   .cross(G4ThreeVector(0,1,0)));
-    }else if(fPolarization == "-V"){
+    }else if(fPolarization == "mV"){
       particleGun->SetParticlePolarization(G4ThreeVector(myNormMomentumX,
 							 myNormMomentumY,
 							 myNormMomentumZ)
                                            .cross(G4ThreeVector(-1,0,0)));
-    }else if(fPolarization == "-H"){
+    }else if(fPolarization == "mH"){
       particleGun->SetParticlePolarization(G4ThreeVector(myNormMomentumX,
 							 myNormMomentumY,
 							 myNormMomentumZ)
 					   .cross(G4ThreeVector(0,-1,0)));
-    }else if(fPolarization == "-L"){
+    }else if(fPolarization == "mL"){
       particleGun->SetParticlePolarization(G4ThreeVector(-myNormMomentumX,
 							 -myNormMomentumY,
 							 -myNormMomentumZ));
