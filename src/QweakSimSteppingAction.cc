@@ -59,7 +59,7 @@ QweakSimSteppingAction::QweakSimSteppingAction(QweakSimUserInformation* myUInfo,
     //std::ofstream EventDataFile("Event.dat", std::ios::out);
     fout=new TFile("o_tuple.root","RECREATE");	
     tout=new TNtuple("t","Ntuple primary info in Pb",
-		     "be:bx:by:bz:bpx:bpy:bpz:bdpx:bdpy:bdpz:ae:ax:ay:az:apx:apy:apz:adpx:adpy:adpz:angle:process:stepL");
+		     "be:bx:by:bz:bpx:bpy:bpz:bdpx:bdpy:bdpz:ae:ax:ay:az:apx:apy:apz:adpx:adpy:adpz:angle:process:stepL:evN");
     G4cout << "###### Leaving QweakSimSteppingAction::QweakSimSteppingAction() " << G4endl;
 
 }
@@ -272,7 +272,7 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
        && _priID==1 && _priParentID==0
        && _material->GetName()=="PBA" 
        && particleType==G4Electron::ElectronDefinition()){
-      float _var[23];// "be:bx:by:bz:bpx:bpy:bpz:bdpx:bdpy:bdpz:ae:ax:ay:az:apx:apy:apz:adpx:adpy:adpz:angle:process:stepL"
+      float _var[24];// "be:bx:by:bz:bpx:bpy:bpz:bdpx:bdpy:bdpz:ae:ax:ay:az:apx:apy:apz:adpx:adpy:adpz:angle:process:stepL:evN"
       _var[0] = thePrePoint->GetTotalEnergy();
       _var[1] = thePrePoint->GetPosition().getX();
       _var[2] = thePrePoint->GetPosition().getY();
@@ -313,6 +313,7 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
       
       double _steplength=theStep->GetStepLength(); // gives slightly larger values that the diff in position
       _var[22]=_steplength;
+      _var[23]=myUserInfo->GetPrimaryEventNumber();
       tout->Fill(_var);
       
       if(debugPrint){
