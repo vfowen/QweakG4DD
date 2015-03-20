@@ -44,7 +44,7 @@ QweakSimPrimaryGeneratorAction::QweakSimPrimaryGeneratorAction( QweakSimUserInfo
     fPositionY_min = -2.0*mm;
     fPositionY_max =  2.0*mm;
     
-    fPolarization = "L";
+    fPolarization = "0";
     
     myUserInfo = myUI;
     myEvent = myEPEvent;
@@ -160,7 +160,7 @@ void QweakSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 							 -myNormMomentumY,
 							 -myNormMomentumZ));
     }else if(fPolarization == "0"){
-      particleGun->SetParticlePolarization(0,0,0);
+      particleGun->SetParticlePolarization(G4ThreeVector(0,0,0));
     }else particleGun->SetParticlePolarization(G4ThreeVector(myNormMomentumX,myNormMomentumY,myNormMomentumZ)); //longitudinal by default
     
     particleGun->SetParticleEnergy(E_beam);
