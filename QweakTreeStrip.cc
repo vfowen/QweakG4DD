@@ -9,26 +9,28 @@
 #include "QweakSimUserMainEvent.hh"
 #include "math.h"
 #include "stdlib.h"
+#include "TString.h"
 
 using namespace std;
+int findInt(std::vector<int> &inter,std::vector<int> &val, int check, int parent, int &hasPar);
 
 int main(int argc, char** argv)
 {
-  if(argc != 2) {
-    cout<<" Please specify infile with paths to output QweakSimG4 trees "<<endl;
+  if(argc != 3) {
+    cout<<" run as: build/QweakTreeStrip [detector number] [path to infile with list of output QweakSimG4 trees] "<<endl;
     return 1;
   }
-  
-  string fin(argv[1]);
-  TChain* QweakSimG4_Tree = new TChain("QweakSimG4_Tree");
+  int ndet=atoi(argv[1]);
+  string fin(argv[2]);
+
   ifstream ifile(fin.c_str());
   char _data[500];
-  int scale=0;
+
   while(ifile>>_data){
-    scale+=10000;
-    QweakSimG4_Tree->Add(_data);
-    cout<<_data<<endl;
-  }
+    TFile *fin=TFile::Open(_data);
+    TTree *QweakSimG4_Tree=(TTree*)fin->Get("QweakSimG4_Tree");
+    cout<<"processing : "<<_data<<" for detector "<<ndet<<endl;
+  
   
   //set addresses of leafs
   QweakSimUserMainEvent* event = 0;
@@ -44,6 +46,9 @@ int main(int argc, char** argv)
   float Lphi,Ltheta;
   float vRel;
   float E;
+  float angX, angY;
+  int nInt;
+  int hasParent;
   
   //event
   float LnPMThit,RnPMThit;
@@ -53,17 +58,23 @@ int main(int argc, char** argv)
   float asymE,asymPMT;
   float polx,poly,polz;
   
-  TFile *fout=new TFile("o_anaTree.root","RECREATE");
+  TString onm(_data);
+  onm.Remove(onm.Last('/'),onm.Length());
+  TFile *fout=new TFile(Form("%s/o_anaTree.root",onm.Data()),"RECREATE");
   TTree *th=new TTree("th","Stripped QweakSimG4 tree for hits");
   th->Branch("evNr",&evNr,"evNr/I");
   th->Branch("hitNr",&hitNr,"hitNr/I");
   th->Branch("pType",&pTypeHit,"pType/I");
+  th->Branch("nInt",&nInt,"nInt/I");
+  th->Branch("hasParent",&hasParent,"hasParent/I");
   th->Branch("x",&x,"x/F");
   th->Branch("y",&y,"y/F");
   th->Branch("z",&z,"z/F");
   th->Branch("px",&x,"px/F");
   th->Branch("py",&y,"py/F");
   th->Branch("pz",&z,"pz/F");
+  th->Branch("angY",&angY,"angY/F");
+  th->Branch("angX",&angX,"angX/F");
   th->Branch("Gph",&Gphi,"Gph/F");
   th->Branch("Lph",&Lphi,"Lph/F");
   th->Branch("Gth",&Gtheta,"Gth/F");
@@ -90,6 +101,9 @@ int main(int argc, char** argv)
   double emass=0.510998910;//MeV
 
   cout<<" total nr ev: "<<QweakSimG4_Tree->GetEntries()<<endl;
+  std::vector<int> interaction;
+  std::vector<int> trackID;
+  double pi=3.14159265358979323846;
   
   for (int i = 0; i < QweakSimG4_Tree->GetEntries(); i++) {
     QweakSimG4_Tree->GetEntry(i);
@@ -105,12 +119,16 @@ int main(int argc, char** argv)
     LEtot=0;
     REtot=0;
     evNr  = i;
+    //cout<<" interaction trackid "<<interaction.size()<<" "<<trackID.size()<<endl;
+    interaction.clear();
+    trackID.clear();
     
     for (int hit = 0; hit < event->Cerenkov.Detector.GetDetectorNbOfHits(); hit++) {
-      if(event->Cerenkov.Detector.GetDetectorID()[hit]!=3) continue;
+      if(event->Cerenkov.Detector.GetDetectorID()[hit]!=ndet) continue;
       pTypeHit=event->Cerenkov.Detector.GetParticleType()[hit];
       if(abs(pTypeHit)!=11  && abs(pTypeHit)!=22 ) continue;
       
+      nInt=findInt(interaction,trackID,event->Cerenkov.Detector.GetParticleID()[hit],event->Cerenkov.Detector.GetParentID()[hit],hasParent);
       hitNr = hit;
       
       x=event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit];
@@ -127,11 +145,16 @@ int main(int argc, char** argv)
       
       E=event->Cerenkov.Detector.GetTotalEnergy()[hit];
       
-      double _p=sqrt(pow(px,2)+pow(py,2)+pow(pz,2));
-      double vRel=sqrt(pow(_p,2)/(pow(emass,2)+pow(_p,2)));// relativistic velocity /c which should be compared to 1/refractive index
-
+      float _p=sqrt(pow(px,2)+pow(py,2)+pow(pz,2));
+      vRel=sqrt(pow(_p,2)/(pow(emass,2)+pow(_p,2)));// relativistic velocity /c which should be compared to 1/refractive index
+      
       Gphi   = event->Cerenkov.Detector.GetGlobalPhiAngle()[hit];
       Gtheta = event->Cerenkov.Detector.GetGlobalThetaAngle()[hit];
+      
+      double _Gtheta=Gtheta/180.*pi;
+      double _Gphi=(Gphi+90)/180.*pi; //+90 to account for the offset in the output
+      angY = atan2(sin(_Gtheta)*sin(_Gphi),cos(_Gtheta)) * 180.0 / pi;
+      angX = atan2(sin(_Gtheta)*cos(_Gphi),cos(_Gtheta)) * 180.0 / pi;
       
       Lphi   = event->Cerenkov.Detector.GetLocalPhiAngle()[hit];
       Ltheta = event->Cerenkov.Detector.GetLocalThetaAngle()[hit];
@@ -149,8 +172,8 @@ int main(int argc, char** argv)
     }
     
     if(event->Cerenkov.PMT.GetDetectorNbOfHits()>0){
-      LnPMThit=event->Cerenkov.PMT.GetPMTLeftNbOfHits()[3];//seems to be the same as NbOfPEs
-      RnPMThit=event->Cerenkov.PMT.GetPMTRightNbOfHits()[3];
+      LnPMThit=event->Cerenkov.PMT.GetPMTLeftNbOfHits()[ndet];//is the same as NbOfPEs
+      RnPMThit=event->Cerenkov.PMT.GetPMTRightNbOfHits()[ndet];
     }
     
     if( LnPMThit!=-2 && RnPMThit!=-2 && (LnPMThit+RnPMThit)>0 ) asymPMT=(LnPMThit-RnPMThit)/(LnPMThit+RnPMThit);
@@ -163,6 +186,36 @@ int main(int argc, char** argv)
   th->Write();
   te->Write();
   fout->Close();
+  }
   
   return 0;
 }
+
+int findInt(std::vector<int> &inter,std::vector<int> &val, int check,int parent, int &hasPar){
+  int found=0;
+  int ret=-1;
+  int findParent=0;
+  for(unsigned int i=0;i<val.size();i++){
+    if(check==val[i]){
+      inter[i]++;
+      ret=inter[i];
+      found++;
+    }
+    if(parent==val[i])
+      findParent++;
+  }
+  
+  if(findParent) hasPar=1;
+  else hasPar=0;
+  
+  if(!found){
+    val.push_back(check);
+    inter.push_back(1);
+    ret=1;
+  }
+  if(found>1){
+    cout<<"multiple entries for track "<<check<<endl;
+  }
+  return ret;
+}
+
