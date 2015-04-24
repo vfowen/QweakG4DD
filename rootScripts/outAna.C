@@ -2,7 +2,9 @@ void outAna()
 {
   gStyle->SetOptFit(1);
   gStyle->SetOptStat(0);
-  TFile *fin=new TFile("o_ana.root","READ");
+  TFile *fin=new TFile("../o_ana_AroundPolNoOldDir_V.root","READ");
+  //TFile *fin=new TFile("../o_ana_L.root","READ");
+  //TFile *fin=new TFile("../o_ana.root","READ");
   TH2D *h2=(TH2D*)fin->Get("h2dHit");
   TH1D *hx=(TH1D*)fin->Get("hx");
   TH1D *hy=(TH1D*)fin->Get("hy");
@@ -56,15 +58,15 @@ void outAna()
   pt2->SetFillStyle(0);
   pt2->SetBorderSize(0);
   pt2->Draw("");
-  c1->Print("scripts/y_outAna.pdf[","pdf");
-  c1->Print("scripts/y_outAna.pdf","pdf");
+  c1->Print("y_outAna.pdf[","pdf");
+  c1->Print("y_outAna.pdf","pdf");
   c1->cd(1);
   gPad->SetLogz(1);
   c1->cd(2);
   gPad->SetLogy(1);
   c1->cd(3);
   gPad->SetLogy(1);
-  c1->Print("scripts/y_outAna.pdf","pdf");
+  c1->Print("y_outAna.pdf","pdf");
 
   c2=new TCanvas("c2","c2",1600,800);
   c2->Divide(2);
@@ -88,7 +90,7 @@ void outAna()
   hEeC->SetLineColor(3);
   hEeC->DrawCopy("same");
   gPad->SetLogy(1);
-  c2->Print("scripts/y_outAna.pdf","pdf"); 
+  c2->Print("y_outAna.pdf","pdf"); 
 
   c2->cd(1);
   hphi->DrawCopy();
@@ -96,18 +98,18 @@ void outAna()
   c2->cd(2);
   hthe->DrawCopy();
   gPad->SetLogy(0);
-  c2->Print("scripts/y_outAna.pdf","pdf"); 
+  c2->Print("y_outAna.pdf","pdf"); 
   c2->cd(1);
   hphi->DrawCopy();
   gPad->SetLogy(1);
   c2->cd(2);
   hthe->DrawCopy();
   gPad->SetLogy(1);
-  c2->Print("scripts/y_outAna.pdf","pdf"); 
+  c2->Print("y_outAna.pdf","pdf"); 
 
 
   fin->Close();
-  c1->Print("scripts/y_outAna.pdf]","pdf");
+  c1->Print("y_outAna.pdf]","pdf");
 }
 
 // Lorenzian Peak function
