@@ -13,6 +13,10 @@ def createMacFile(directory,idname,xPos,yPos,zPos,xAng,yAng,beamE,pol,nEv,nr):
     f.write("/PrimaryEvent/SetBeamPositionX "+str(xPos)+" cm\n")
     f.write("/PrimaryEvent/SetBeamPositionY "+str(yPos)+" cm\n")
     f.write("/PrimaryEvent/SetBeamPositionZ "+str(zPos)+" cm\n")
+
+    #### these values are really not degrees ...
+    ## normMomX= tan (this value) same for Y ... Z = sqrt (1 - normMomX^2 - Y)
+    ## seems to work well enough for small angles
     f.write("/PrimaryEvent/SetBeamDirectionX "+str(xAng)+" deg\n") 
     f.write("/PrimaryEvent/SetBeamDirectionY "+str(yAng)+" deg\n")
 
