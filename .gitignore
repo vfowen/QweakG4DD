@@ -17,7 +17,7 @@
 *.mod
 
 # Compiled Static libraries
-build
+build*
 *.lai
 *.la
 *.a
@@ -66,3 +66,4 @@ Thumbs.db
 *~
 output/*
 *.in
+z_*
