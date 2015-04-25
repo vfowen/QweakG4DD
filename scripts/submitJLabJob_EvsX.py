@@ -54,16 +54,16 @@ def createXMLfile(idname,directory,email,source):
 def main():
     
 #    _xPos=[0]
-    _xPos=[-0.1,-0.05,-0.04,-0.03,-0.02,-0.01,0,0.01,0.02,0.03,0.04,0.05,0.1]
+    _xPos=[-20,-15,-10,-5,-3,-1,0,1,3,5,10,15,20]
     _email="ciprian@jlab.org"
     _source="/w/hallc-scifs2/qweak/ciprian/QweakG4DD"
-    _directory="/lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput"
-    _nEv=10000
-    _beamE=[5,10,15,20,25,30,35,40,45,50]
-    _nr=1
-    _nSt=0
+    _directory="/lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput/eVSx"
+    _nEv=30000
+    _beamE=[10,15,20,25,30,40,50]
+    _nr=5
+    _nSt=1
     _pol="V"
-    submit=0
+    submit=1
     
     for xP in _xPos: # x position of the beam
       for beamE in _beamE: # E of the beam
