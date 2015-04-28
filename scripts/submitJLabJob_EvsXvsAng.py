@@ -63,14 +63,14 @@ def main():
     _xPos=[-0.1,-0.05,-0.04,-0.03,-0.02,-0.01,0,0.01,0.02,0.03,0.04,0.05,0.1]
     _email="ciprian@jlab.org"
     _source="/w/hallc-scifs2/qweak/ciprian/QweakG4DD"
-    _directory="/lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput"
+    _directory="/lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput/xVSangVSe"
     _nEv=30000
     _beamE=[5,10,15,20,25,30,35,40,45,50]
     _xAng=[-0.5,-0.4,-0.3,-0.2,-0.1,-0.05,-0.03,-0.02,-0.01,0,0.01,0.02,0.03,0.04,0.05,0.1,0.2,0.3,0.4,0.5]
     _nr=5
     _nSt=0
-    _pol="V"
-    submit=0
+    _pol="L"
+    submit=1
 
     for xA in _xAng: # angle along x axis (along MD3, perp MD1)
         for xP in _xPos: # x position of the beam
@@ -79,11 +79,12 @@ def main():
                     yP=335.0
                     yA=0
                     zP=576.0 #in front of MD no Pb
-                    _idN= _pol+'_%04d_%06.2f_%06.2f_%06.2f_%06.2f_%03d'% (beamE,xP,yP,zP,xA,yA,nr) 
-                    createMacFile(_directory,_idN,xP,yP,zP,beamE,_pol,_nEv,nr)
+                    _idN= _pol+'_%04d_%06.2f_%06.2f_%06.2f_%06.2f_%03d'% (beamE,xP,yP,zP,xA,nr) 
+                    createMacFile(_directory,_idN,xP,yP,zP,xA,yA,beamE,_pol,_nEv,nr)
                     createXMLfile(_idN,_directory,_email,_source)
                     call(["cp",_source+"/build/QweakSimG4",_directory+"/jobs/"+_idN+"/QweakSimG4"])
                     call(["cp",_source+"/myQweakCerenkovOnly.mac",_directory+"/jobs/"+_idN+"/myQweakCerenkovOnly.mac"])
+                    #sys.exit()#for testing purposes
 
                     if submit==1:
                         print "submitting X position", xP," for the ",nr," time"," with E ",beamE
