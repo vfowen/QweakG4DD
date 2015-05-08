@@ -2,7 +2,7 @@ TCanvas *c1=new TCanvas("c1","c1",1800,1200);
 string onm;
 
 void nTreeEnergyAsym(){
-  onm="y_MD_firstInt_V.pdf";
+  onm="y_MD_firstInt_energyAsym_V.pdf";
   nTreeFirstIntOneSet("../fName_V.lst");
 }
 void nTreeFirstIntOneSet(string flist){
@@ -12,7 +12,7 @@ void nTreeFirstIntOneSet(string flist){
   string gnm[4]={"primary e+","non primary e+","non primary e-","gamma"};
 
   TH1F *Asym[4];
-  for(int i=0;i<4;i++) Asym[i]=new TH1F(Form("Asym%d",i),Form("Energy asym %s",gnm[i].c_str()),200,0,30);
+  for(int i=0;i<4;i++) Asym[i]=new TH1F(Form("Asym%d",i),Form("log10(E) asym %s",gnm[i].c_str()),400,-2,3.5);
 
   c1->cd(0);
   c1->Divide(2,2);
@@ -61,21 +61,23 @@ double doAna(char *fn,TH1F *hA[15], int n)
     he[i+4]=new TH1F(Form("her%d_%d",i,n),Form("(+ - -)/(+ + -); log10(E)[MeV]"),400,-2,3.5);
   }
     
-  t->Project(Form("hel0_%d",n), "log10(E)","x>0.1 && hasParent==0 && nInt==1 && pType==11 && sqrt(pow(poly,2)+pow(polz,2))>0.1 && abs(angX)<=90");
-  t->Project(Form("hel1_%d",n), "log10(E)","x>0.1 && hasParent==0 && nInt==1 && pType==-11&& sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
-  t->Project(Form("hel2_%d",n), "log10(E)","x>0.1 && hasParent==0 && nInt==1 && pType==11 && sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
-  t->Project(Form("hel3_%d",n), "log10(E)","x>0.1 && hasParent==0 && nInt==1 && abs(pType)==22  && abs(angX)<=90");
-
-  t->Project(Form("her0_%d",n), "log10(E)","x<0.1 && hasParent==0 && nInt==1 && pType==11 && sqrt(pow(poly,2)+pow(polz,2))>0.1 && abs(angX)<=90");
-  t->Project(Form("her1_%d",n), "log10(E)","x<0.1 && hasParent==0 && nInt==1 && pType==-11&& sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
-  t->Project(Form("her2_%d",n), "log10(E)","x<0.1 && hasParent==0 && nInt==1 && pType==11 && sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
-  t->Project(Form("her3_%d",n), "log10(E)","x<0.1 && hasParent==0 && nInt==1 && abs(pType)==22  && abs(angX)<=90");
+  t->Project(Form("hel0_%d",n), "log10(E)","x>0.00001 && hasParent==0 && nInt==1 && pType==11 && sqrt(pow(poly,2)+pow(polz,2))>0.1 && abs(angX)<=90");
+  t->Project(Form("hel1_%d",n), "log10(E)","x>0.00001 && hasParent==0 && nInt==1 && pType==-11&& sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
+  t->Project(Form("hel2_%d",n), "log10(E)","x>0.00001 && hasParent==0 && nInt==1 && pType==11 && sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
+  t->Project(Form("hel3_%d",n), "log10(E)","x>0.00001 && hasParent==0 && nInt==1 && abs(pType)==22  && abs(angX)<=90");
+						
+  t->Project(Form("her0_%d",n), "log10(E)","x<0.00001 && hasParent==0 && nInt==1 && pType==11 && sqrt(pow(poly,2)+pow(polz,2))>0.1 && abs(angX)<=90");
+  t->Project(Form("her1_%d",n), "log10(E)","x<0.00001 && hasParent==0 && nInt==1 && pType==-11&& sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
+  t->Project(Form("her2_%d",n), "log10(E)","x<0.00001 && hasParent==0 && nInt==1 && pType==11 && sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
+  t->Project(Form("her3_%d",n), "log10(E)","x<0.00001 && hasParent==0 && nInt==1 && abs(pType)==22  && abs(angX)<=90");
 
   for(int i=0;i<4;i++)
-    calcAsym(he[i],he[i+4]);
+    calcAsym(he[i],he[i+4],ha[i]);
 
   for(int i=0;i<4;i++) addAsym(hA[i],ha[i]);
   
+  
+
   fin->Close();
 }
  
@@ -102,13 +104,11 @@ void addAsym(TH1F *A,TH1F *a){
   }
 }
 
-void calcAsym(TH1F *a, TH1F *A){
+void calcAsym(TH1F *a, TH1F *b,TH1F *A){
   int nb=a->GetXaxis()->GetNbins();
-  for(int i=0;i<nb/2;i++){
-    double mx=a->GetBinCenter(i+1);
-    int bp=a->GetXaxis()->FindBin(fabs(mx));
+  for(int i=0;i<nb;i++){
     double vm=a->GetBinContent(i+1);
-    double vp=a->GetBinContent(bp);
+    double vp=b->GetBinContent(i+1);
     double as,das;
     if(vp+vm==0){
       as=0;
@@ -117,9 +117,8 @@ void calcAsym(TH1F *a, TH1F *A){
       as=(vp-vm)/(vp+vm);
       das=2./pow(vp+vm,2)*sqrt(vp*vm*vm + vp*vp*vm);
     }
-    int bA=A->GetXaxis()->FindBin(fabs(mx));
-    A->SetBinContent(bA,as);
-    A->SetBinError(bA,das);
+    A->SetBinContent(i+1,as);
+    A->SetBinError(i+1,das);
   }
 }
  
