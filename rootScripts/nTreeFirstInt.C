@@ -23,6 +23,10 @@ void nTreeFirstIntOneSet(string flist){
   int ng=15;
   TGraph *mean[15];
 
+  TH1F *Asym[15];
+  for(int i=0;i<5;i++) Asym[i]=new TH1F(Form("Asym%d",i),Form("Asym %s",gnm[i].c_str()),50,0,30);
+  for(int i=5;i<15;i++) Asym[i]=new TH1F(Form("Asym%d",i),Form("Asym %s",gnm[i].c_str()),180,0,90);
+
   c1->cd(0);
   c1->Divide(5,3);
   c1->Print(Form("%s[",onm.c_str()),"pdf");
@@ -37,7 +41,8 @@ void nTreeFirstIntOneSet(string flist){
     doAna(fl.Data(),
 	  val[n][0], val[n][1], val[n][2], val[n][3], val[n][4],//xpos
 	  val[n][5], val[n][6], val[n][7], val[n][8], val[n][9],//angX
-	  val[n][10],val[n][11],val[n][12],val[n][13],val[n][14);//angY
+	  val[n][10],val[n][11],val[n][12],val[n][13],val[n][14],//angY
+	  Asym);//asym
 
     if( bad(n,val,0) &&  bad(n,val,1) && bad(n,val,4) && bad(n,val,10)) continue;
 
@@ -73,7 +78,8 @@ void nTreeFirstIntOneSet(string flist){
 
 double doAna(char *fn, double &epx, double &epnx, double &emnx,double &ex, double &gx,
 	     double &epax, double &epnax,double &emnax, double &eax, double &gax,
-	     double &epay, double &epnay,double &emnay, double &eay, double &gay)
+	     double &epay, double &epnay,double &emnay, double &eay, double &gay,
+	     TH1F *hA[15])
 {
   double pi=3.14159265;
   TString nb(fn);
@@ -84,23 +90,28 @@ double doAna(char *fn, double &epx, double &epnx, double &emnx,double &ex, doubl
   TFile *fin=TFile::Open(fn,"READ");
   TTree *t=(TTree*)fin->Get("th");
 
-  TH1F *hepx=new TH1F(Form("hepx%d",n),Form("First interaction primary e %d;Xpos [cm]",n) ,101,-30,30);
-  TH1F *hepnx=new TH1F(Form("hepnx%d",n),Form("First interaction nonP e+ %d;Xpos [cm]",n) ,101,-30,30);
-  TH1F *hemnx=new TH1F(Form("hemnx%d",n),Form("First interaction nonP e- %d;Xpos [cm]",n) ,101,-30,30);
-  TH1F *hex =new TH1F(Form("hex%d" ,n),Form("First interaction all e %d;Xpos [cm]",n)     ,101,-30,30);
-  TH1F *hgx =new TH1F(Form("hgx%d" ,n),Form("First interaction #gamma %d;Xpos [cm]"   ,n) ,101,-30,30);
+  TH1F *ha[15];
+  for(int i=0;i<5;i++)ha[i]=new TH1F(Form("ha%d_%d",i,n),Form("(+ - -)/(+ + -); Xpos[cm]"),50,0,30);
+  for(int i=5;i<10;i++)ha[i]=new TH1F(Form("ha%d_%d",i,n),Form("(+ - -)/(+ + -); Ang X[deg]"),180,0,90);
+  for(int i=10;i<15;i++)ha[i]=new TH1F(Form("ha%d_%d",i,n),Form("(+ - -)/(+ + -); Ang Y[deg]"),180,0,90);
+  
+  TH1F *hepx=new TH1F(Form("hepx%d",n),Form("First interaction primary e %d;Xpos [cm]",n) ,100,-30,30);
+  TH1F *hepnx=new TH1F(Form("hepnx%d",n),Form("First interaction nonP e+ %d;Xpos [cm]",n) ,100,-30,30);
+  TH1F *hemnx=new TH1F(Form("hemnx%d",n),Form("First interaction nonP e- %d;Xpos [cm]",n) ,100,-30,30);
+  TH1F *hex =new TH1F(Form("hex%d" ,n),Form("First interaction all e %d;Xpos [cm]",n)     ,100,-30,30);
+  TH1F *hgx =new TH1F(Form("hgx%d" ,n),Form("First interaction #gamma %d;Xpos [cm]"   ,n) ,100,-30,30);
 
-  TH1F *hepax=new TH1F(Form("hepax%d",n),Form("first interaction primary e %d;ang along x",n)     ,361,-90,90);
-  TH1F *hepnax=new TH1F(Form("hepnax%d",n),Form("first interaction nonP e+ %d;ang along x",n)     ,361,-90,90);
-  TH1F *hemnax=new TH1F(Form("hemnax%d",n),Form("first interaction nonP e- %d;ang along x",n)     ,361,-90,90);
-  TH1F *heax =new TH1F(Form("heax%d" ,n),Form("first interaction all e %d;ang along x",n)         ,361,-90,90);
-  TH1F *hgax =new TH1F(Form("hgax%d" ,n),Form("first interaction #gamma %d;ang along x"   ,n)     ,361,-90,90);
-
-  TH1F *hepay=new TH1F(Form("hepay%d",n),Form("first interaction primary e %d;ang along y",n)     ,361,-90,90);
-  TH1F *hepnay=new TH1F(Form("hepnay%d",n),Form("first interaction nonP e+ %d;ang along y",n)     ,361,-90,90);
-  TH1F *hemnay=new TH1F(Form("hemnay%d",n),Form("first interaction nonP e- %d;ang along y",n)     ,361,-90,90);
-  TH1F *heay =new TH1F(Form("heay%d" ,n),Form("first interaction all e %d;ang along y",n)         ,361,-90,90);
-  TH1F *hgay =new TH1F(Form("hgay%d" ,n),Form("first interaction #gamma %d;ang along y"   ,n)     ,361,-90,90);
+  TH1F *hepax=new TH1F(Form("hepax%d",n),Form("first interaction primary e %d;ang along x",n)     ,360,-90,90);
+  TH1F *hepnax=new TH1F(Form("hepnax%d",n),Form("first interaction nonP e+ %d;ang along x",n)     ,360,-90,90);
+  TH1F *hemnax=new TH1F(Form("hemnax%d",n),Form("first interaction nonP e- %d;ang along x",n)     ,360,-90,90);
+  TH1F *heax =new TH1F(Form("heax%d" ,n),Form("first interaction all e %d;ang along x",n)         ,360,-90,90);
+  TH1F *hgax =new TH1F(Form("hgax%d" ,n),Form("first interaction #gamma %d;ang along x"   ,n)     ,360,-90,90);
+  
+  TH1F *hepay=new TH1F(Form("hepay%d",n),Form("first interaction primary e %d;ang along y",n)     ,360,-90,90);
+  TH1F *hepnay=new TH1F(Form("hepnay%d",n),Form("first interaction nonP e+ %d;ang along y",n)     ,360,-90,90);
+  TH1F *hemnay=new TH1F(Form("hemnay%d",n),Form("first interaction nonP e- %d;ang along y",n)     ,360,-90,90);
+  TH1F *heay =new TH1F(Form("heay%d" ,n),Form("first interaction all e %d;ang along y",n)         ,360,-90,90);
+  TH1F *hgay =new TH1F(Form("hgay%d" ,n),Form("first interaction #gamma %d;ang along y"   ,n)     ,360,-90,90);
     
   t->Project(Form("hepx%d",n),"x","hasParent==0 && nInt==1 &&  pType==11 && sqrt(pow(poly,2)+pow(polz,2))>0.1 && abs(angX)<=90");
   t->Project(Form("hepnx%d",n),"x","hasParent==0 && nInt==1 && pType==-11  && sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
@@ -118,6 +129,25 @@ double doAna(char *fn, double &epx, double &epnx, double &emnx,double &ex, doubl
   t->Project(Form("hemnay%d",n),"angY","hasParent==0 && nInt==1 && pType==11 && sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angY)<=90");
   t->Project(Form("hemnax%d",n),"angX","hasParent==0 && nInt==1 && pType==11 && sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=60");
 
+  calcAsym(hepx,ha[0]);
+  calcAsym(hepnx,ha[1]);
+  calcAsym(hemnx,ha[2]);
+  calcAsym(hex,ha[3]);
+  calcAsym(hgx,ha[4]);
+
+  calcAsym(hepax,ha[5]);
+  calcAsym(hepnax,ha[6]);
+  calcAsym(hemnax,ha[7]);
+  calcAsym(heax,ha[8]);
+  calcAsym(hgax,ha[9]);
+
+  calcAsym(hepay,ha[10]);
+  calcAsym(hepnay,ha[11]);
+  calcAsym(hemnay,ha[12]);
+  calcAsym(heay,ha[13]);
+  calcAsym(hgay,ha[14]);
+
+  
   c1->cd(1);
   hepx->DrawCopy();
   gPad->SetLogy(1);
@@ -177,6 +207,20 @@ double doAna(char *fn, double &epx, double &epnx, double &emnx,double &ex, doubl
   gPad->SetLogy(1);  
   c1->Print(onm.c_str(),"pdf");
 
+
+  for(int i=0;i<15;i++){
+    c1->cd(i+1);
+    ha[i]->GetYaxis()->SetRangeUser(-1.1,1.1);
+    ha[i]->SetMarkerStyle(20);
+    ha[i]->SetMarkerColor(2);
+    ha[i]->SetLineColor(4);
+    ha[i]->DrawCopy();
+    gPad->SetLogy(0);
+  }
+  c1->Print(onm.c_str(),"pdf");
+
+  for(int i=0;i<15;i++) addAsym(hA[i],ha[i]);
+  
   epx=hepx->GetMean();
   epnx=hepnx->GetMean();
   emnx=hemnx->GetMean();
@@ -195,8 +239,43 @@ double doAna(char *fn, double &epx, double &epnx, double &emnx,double &ex, doubl
   
   fin->Close();
 }
+ 
+void addAsym(TH1F *A,TH1F *a){
+  int nb=A->GetXaxis()->GetNbins();
+  for(int i=1;i<=nb;i++){
+    double vA=A->GetBinContent(i);
+    double vdA=A->GetBinError(i);
+    double va=a->GetBinContent(i);
+    double vda=a->GetBinError(i);
+    double as,das;
+    if(vdA==0){
+      as=va;
+      das=vda;
+    }else if(vda==0){
+      as=vA;
+      das=vdA;
+    }else{
+      as=(vA/pow(vdA,2)+va/pow(vda,2))/(1./pow(vdA,2)+1./pow(vda,2));
+      das=sqrt(1./(1./pow(vdA,2)+1./pow(vda,2)));
+    }
+    A->SetBinContent(i,as);
+    A->SetBinError(i,das);
+  }
+}
 
-
+void calcAsym(TH1F *a, TH1F *A){
+  int nb=a->GetXaxis()->GetNbins();
+  for(int i=0;i<nb/2;i++){
+    double vm=a->GetBinContent(i+1);
+    double vp=a->GetBinContent(nb-i);
+    double as=(vp-vm)/(vp+vm);
+    double das=2./pow(vp+vm,2)*sqrt(vp*vm*vm + vp*vp*vm);
+    A->SetBinContent(i+1,as);
+    A->SetBinError(i+1,das);
+  }
+}
+ 
+ 
 int bad(int n, double a[500][15],int m){
   for(int i=0;i<n;i++)
     if(fabs(a[n][m]-a[i][m])<0.0001) return 1;
