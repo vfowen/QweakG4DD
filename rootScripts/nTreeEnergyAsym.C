@@ -39,7 +39,6 @@ void nTreeFirstIntOneSet(string flist){
     c1->cd(i+1);
     gPad->SetLogy(0);
     Asym[i]->GetYaxis()->SetRangeUser(-0.1,0.1);
-    //Asym[i]->GetXaxis()->SetRangeUser(0,_xh[i]);
     Asym[i]->DrawCopy();    
   }
   c1->Print(onm.c_str(),"pdf");
@@ -48,7 +47,7 @@ void nTreeFirstIntOneSet(string flist){
 }
 
 
-double doAna(char *fn,TH1F *hA[15], int n)
+double doAna(char *fn,TH1F *hA[4], int n)
 {
   TFile *fin=TFile::Open(fn,"READ");
   TTree *t=(TTree*)fin->Get("th");
@@ -61,15 +60,14 @@ double doAna(char *fn,TH1F *hA[15], int n)
     he[i+4]=new TH1F(Form("her%d_%d",i,n),Form("(+ - -)/(+ + -); log10(E)[MeV]"),400,-2,3.5);
   }
     
-  t->Project(Form("hel0_%d",n), "log10(E)","x>0.00001 && hasParent==0 && nInt==1 && pType==11 && sqrt(pow(poly,2)+pow(polz,2))>0.1 && abs(angX)<=90");
-  t->Project(Form("hel1_%d",n), "log10(E)","x>0.00001 && hasParent==0 && nInt==1 && pType==-11&& sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
-  t->Project(Form("hel2_%d",n), "log10(E)","x>0.00001 && hasParent==0 && nInt==1 && pType==11 && sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
-  t->Project(Form("hel3_%d",n), "log10(E)","x>0.00001 && hasParent==0 && nInt==1 && abs(pType)==22  && abs(angX)<=90");
-						
-  t->Project(Form("her0_%d",n), "log10(E)","x<0.00001 && hasParent==0 && nInt==1 && pType==11 && sqrt(pow(poly,2)+pow(polz,2))>0.1 && abs(angX)<=90");
-  t->Project(Form("her1_%d",n), "log10(E)","x<0.00001 && hasParent==0 && nInt==1 && pType==-11&& sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
-  t->Project(Form("her2_%d",n), "log10(E)","x<0.00001 && hasParent==0 && nInt==1 && pType==11 && sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
-  t->Project(Form("her3_%d",n), "log10(E)","x<0.00001 && hasParent==0 && nInt==1 && abs(pType)==22  && abs(angX)<=90");
+  t->Project(Form("hel0_%d",n), "log10(E)","x> 0.00001 && hasParent==0 && nInt==1 && pType==11 && sqrt(pow(poly,2)+pow(polz,2))>0.1 && abs(angX)<=90");
+  t->Project(Form("hel1_%d",n), "log10(E)","x> 0.00001 && hasParent==0 && nInt==1 && pType==-11&& sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
+  t->Project(Form("hel2_%d",n), "log10(E)","x> 0.00001 && hasParent==0 && nInt==1 && pType==11 && sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
+  t->Project(Form("hel3_%d",n), "log10(E)","x> 0.00001 && hasParent==0 && nInt==1 && abs(pType)==22  && abs(angX)<=90");						
+  t->Project(Form("her0_%d",n), "log10(E)","x<-0.00001 && hasParent==0 && nInt==1 && pType==11 && sqrt(pow(poly,2)+pow(polz,2))>0.1 && abs(angX)<=90");
+  t->Project(Form("her1_%d",n), "log10(E)","x<-0.00001 && hasParent==0 && nInt==1 && pType==-11&& sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
+  t->Project(Form("her2_%d",n), "log10(E)","x<-0.00001 && hasParent==0 && nInt==1 && pType==11 && sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
+  t->Project(Form("her3_%d",n), "log10(E)","x<-0.00001 && hasParent==0 && nInt==1 && abs(pType)==22  && abs(angX)<=90");
 
   for(int i=0;i<4;i++)
     calcAsym(he[i],he[i+4],ha[i]);
