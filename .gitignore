@@ -60,6 +60,7 @@ Thumbs.db
 # Output files #
 ################
 *.root
+*.lst*
 *.pdf
 *.kdev4
 *.kdev*
