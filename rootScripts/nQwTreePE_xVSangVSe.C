@@ -1,8 +1,8 @@
 TCanvas *c1=new TCanvas("c1","c1",1600,1200);
 string onm;
 
-void nTreePE_xVSangVSe(){
-  int ne=2;
+void nQwTreePE_xVSangVSe(){
+  int ne=10;
   for(int i=0;i<ne;i++){    
     onm=Form("y_MD3_nPE_xVSang_e%d.pdf",(i+1)*5);
     //gSystem->Exec(Form("ls /lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput/xVSangVSe/jobs/L_%04d_*/QwSim_0.root > z_list_%d.in",(i+1)*5,i));
@@ -121,24 +121,6 @@ void asymPMT(string flist, int energ){
   gPad->SetLogy(0);
   c1->cd(2);
   gr->Draw("PCOL");
-  gPad->SetLogy(0);
-  
-  c1->Print(onm.c_str(),"pdf");
-
-  c1->cd(1);
-  gl->Draw("CONT");
-  gPad->SetLogy(0);
-  c1->cd(2);
-  gr->Draw("CONT");
-  gPad->SetLogy(0);
-  
-  c1->Print(onm.c_str(),"pdf");
-
-  c1->cd(1);
-  gl->Draw("TRI");
-  gPad->SetLogy(0);
-  c1->cd(2);
-  gr->Draw("TRI");
   gPad->SetLogy(0);
   
   c1->Print(onm.c_str(),"pdf");
