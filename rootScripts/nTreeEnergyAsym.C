@@ -35,10 +35,13 @@ void nTreeFirstIntOneSet(string flist){
   }
   c1->Print(onm.c_str(),"pdf");
 
+  gStyle->SetOptFit(1);
   for(int i=0;i<4;i++){
     c1->cd(i+1);
     gPad->SetLogy(0);
+    gPad->SetGridy(1);
     Asym[i]->GetYaxis()->SetRangeUser(-0.1,0.1);
+    Asym[i]->Fit("pol0");
     Asym[i]->DrawCopy();    
   }
   c1->Print(onm.c_str(),"pdf");
