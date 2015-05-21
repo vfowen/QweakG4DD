@@ -59,7 +59,7 @@ QweakSimSteppingAction::QweakSimSteppingAction(QweakSimUserInformation* myUInfo,
     //std::ofstream EventDataFile("Event.dat", std::ios::out);
     fout=new TFile("o_tuple.root","RECREATE");	
     tout=new TNtuple("t","Ntuple primary info in Pb",
-		     "be:bx:by:bz:bpx:bpy:bpz:bdpx:bdpy:bdpz:ae:ax:ay:az:apx:apy:apz:adpx:adpy:adpz:angle:process:stepL:evN");
+		     "be:bx:by:bz:bpx:bpy:bpz:bdpx:bdpy:bdpz:ae:ax:ay:az:apx:apy:apz:adpx:adpy:adpz:angle:process:stepL:evN:trackID:parentID:pType");
     G4cout << "###### Leaving QweakSimSteppingAction::QweakSimSteppingAction() " << G4endl;
 
 }
@@ -263,68 +263,79 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
     int _priID=theStep->GetTrack()->GetTrackID(); 
     int _priParentID = theStep->GetTrack()->GetParentID();
     double _priE=theStep->GetTrack()->GetTotalEnergy();
-    TString _name=theStep->GetTrack()->GetDefinition()->GetParticleName();
-    TString _pn=thePostPoint->GetProcessDefinedStep()->GetProcessName();
+    G4String _name=theStep->GetTrack()->GetDefinition()->GetParticleName();
+    G4String _pn=thePostPoint->GetProcessDefinedStep()->GetProcessName();
     G4ThreeVector _polarziation=theStep->GetTrack()->GetPolarization();
     G4Material *_material=thePostPoint->GetMaterial();
     
-    if(_polarziation.getR()>=0.1 
-       && _priID==1 && _priParentID==0
-       && _material->GetName()=="PBA" 
-       && particleType==G4Electron::ElectronDefinition()){
-      float _var[24];// "be:bx:by:bz:bpx:bpy:bpz:bdpx:bdpy:bdpz:ae:ax:ay:az:apx:apy:apz:adpx:adpy:adpz:angle:process:stepL:evN"
-      _var[0] = thePrePoint->GetTotalEnergy();
-      _var[1] = thePrePoint->GetPosition().getX();
-      _var[2] = thePrePoint->GetPosition().getY();
-      _var[3] = thePrePoint->GetPosition().getZ();
-      _var[4] = thePrePoint->GetMomentum().getX();
-      _var[5] = thePrePoint->GetMomentum().getY();
-      _var[6] = thePrePoint->GetMomentum().getZ();
-      _var[7] = thePrePoint->GetMomentumDirection().getX();
-      _var[8] = thePrePoint->GetMomentumDirection().getY();
-      _var[9] = thePrePoint->GetMomentumDirection().getZ();
-      _var[10]= thePostPoint->GetTotalEnergy();
-      _var[11]= thePostPoint->GetPosition().getX();
-      _var[12]= thePostPoint->GetPosition().getY();
-      _var[13]= thePostPoint->GetPosition().getZ();
-      _var[14]= thePostPoint->GetMomentum().getX();
-      _var[15]= thePostPoint->GetMomentum().getY();
-      _var[16]= thePostPoint->GetMomentum().getZ();
-      _var[17]= thePostPoint->GetMomentumDirection().getX();
-      _var[18]= thePostPoint->GetMomentumDirection().getY();
-      _var[19]= thePostPoint->GetMomentumDirection().getZ();
-      
-      const G4ThreeVector _preP=thePrePoint->GetMomentumDirection();
-      const G4ThreeVector _postP=thePostPoint->GetMomentumDirection();
-      float scatAng=_postP.angle(_preP);
-      _var[20]=scatAng;
-      if(strcmp(_pn.Data(),"msc")==0)
-	_var[21]=1;
-      else if(strcmp(_pn.Data(),"CoulombScat")==0)
-	_var[21]=2;
-      else if(strcmp(_pn.Data(),"eBrem")==0)
-	_var[21]=3;
-      else if(strcmp(_pn.Data(),"Transportation")==0)
-	_var[21]=4;
-      else if(strcmp(_pn.Data(),"eIoni")==0)
-	_var[21]=5;
-      else
-	_var[21]=0;
-      
-      double _steplength=theStep->GetStepLength(); // gives slightly larger values that the diff in position
-      _var[22]=_steplength;
-      _var[23]=myUserInfo->GetPrimaryEventNumber();
-      tout->Fill(_var);
-      
-      if(debugPrint){
-	G4cout<<"~Primary: "<<_priID<<" "<<_priParentID<<" "<<_priE<<" "<<_pn.Data()<<" "<<_name.Data()<<" "
-	      <<_material->GetName()<<" angle "<<scatAng<<G4endl;
-	G4cout<<"  preP R th phi "<<_preP.getR()<<" "<<_preP.getTheta()<<" "<<_preP.getPhi()<<G4endl;
-	G4cout<<" postP R th phi "<<_postP.getR()<<" "<<_postP.getTheta()<<" "<<_postP.getPhi()<<G4endl;
-	G4cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<G4endl;
-      }
+    if(_material){
+        
+        if((particleType==G4Positron::PositronDefinition() ||
+            particleType==G4Gamma::GammaDefinition() ||
+            particleType==G4Electron::ElectronDefinition()) &&
+           _material->GetName().compare("PBA")==0) {
+
+            float _var[27];// "be:bx:by:bz:bpx:bpy:bpz:bdpx:bdpy:bdpz:ae:ax:ay:az:apx:apy:apz:adpx:adpy:adpz:angle:process:stepL:evN:trackID:parentID:pType"
+            _var[0] = thePrePoint->GetTotalEnergy();
+            _var[1] = thePrePoint->GetPosition().getX();
+            _var[2] = thePrePoint->GetPosition().getY();
+            _var[3] = thePrePoint->GetPosition().getZ();
+            _var[4] = thePrePoint->GetMomentum().getX();
+            _var[5] = thePrePoint->GetMomentum().getY();
+            _var[6] = thePrePoint->GetMomentum().getZ();
+            _var[7] = thePrePoint->GetMomentumDirection().getX();
+            _var[8] = thePrePoint->GetMomentumDirection().getY();
+            _var[9] = thePrePoint->GetMomentumDirection().getZ();
+            _var[10]= thePostPoint->GetTotalEnergy();
+            _var[11]= thePostPoint->GetPosition().getX();
+            _var[12]= thePostPoint->GetPosition().getY();
+            _var[13]= thePostPoint->GetPosition().getZ();
+            _var[14]= thePostPoint->GetMomentum().getX();
+            _var[15]= thePostPoint->GetMomentum().getY();
+            _var[16]= thePostPoint->GetMomentum().getZ();
+            _var[17]= thePostPoint->GetMomentumDirection().getX();
+            _var[18]= thePostPoint->GetMomentumDirection().getY();
+            _var[19]= thePostPoint->GetMomentumDirection().getZ();
+
+            const G4ThreeVector _preP=thePrePoint->GetMomentumDirection();
+            const G4ThreeVector _postP=thePostPoint->GetMomentumDirection();
+            float scatAng=_postP.angle(_preP);
+            _var[20]=scatAng;
+            if(_pn.compare("msc")==0)
+                _var[21]=1;
+            else if(_pn.compare("CoulombScat")==0)
+                _var[21]=2;
+            else if(_pn.compare("eBrem")==0)
+                _var[21]=3;
+            else if(_pn.compare("Transportation")==0)
+                _var[21]=4;
+            else if(_pn.compare("eIoni")==0)
+                _var[21]=5;
+            else
+                _var[21]=0;
+            
+            double _steplength=theStep->GetStepLength(); // gives slightly larger values that the diff in position
+            _var[22]=_steplength;
+            _var[23]=myUserInfo->GetPrimaryEventNumber();
+            _var[24]=_priID;
+            _var[25]=_priParentID;
+            
+            if(particleType==G4Positron::PositronDefinition()) _var[26]=-11;
+            else if(particleType==G4Gamma::GammaDefinition()) _var[26]=22;
+            else if(particleType==G4Electron::ElectronDefinition()) _var[26]=11;
+            else _var[26]=-999;
+
+            tout->Fill(_var);
+            
+            if(debugPrint){
+                G4cout<<"~Primary: "<<_priID<<" "<<_priParentID<<" "<<_priE<<" "<<_pn<<" "<<_name<<" "
+                <<_material->GetName()<<" angle "<<scatAng<<G4endl;
+                G4cout<<"  preP R th phi "<<_preP.getR()<<" "<<_preP.getTheta()<<" "<<_preP.getPhi()<<G4endl;
+                G4cout<<" postP R th phi "<<_postP.getR()<<" "<<_postP.getTheta()<<" "<<_postP.getPhi()<<G4endl;
+                G4cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<G4endl;
+            }
+        }
     }
-    
     
     if(particleType==G4Electron::ElectronDefinition())
     {

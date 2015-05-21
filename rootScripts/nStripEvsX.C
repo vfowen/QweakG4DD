@@ -1,4 +1,5 @@
 TCanvas *c1=new TCanvas("c1","c1",1200,800);
+TCanvas *c2=new TCanvas("c2","c2",800,600);
 string onm;
 
 void nStripEvsX(){
@@ -34,9 +35,23 @@ void nStripEvsX(){
   double rp1[25],drp1[25];
   double lp0[25],dlp0[25];
   double rp0[25],drp0[25];
+  double as[25],das[25];
   double dx[25]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
   double _xval[25];
 
+  leg = new TLegend(0.14,0.45,0.40,0.9);
+  double _dummyx[2]={-23,23};
+  double _dummyy[2]={-0.3,0.3};
+  TGraph *dummy=new TGraph(2,_dummyx,_dummyy);
+  dummy->SetTitle("Asymmetry as a function of x deviation");
+  dummy->SetMarkerStyle(1);
+  dummy->GetXaxis()->SetTitle("x position [cm]");
+  dummy->GetYaxis()->SetTitle("(L-R)/(L+R)");
+
+  c2->cd();
+  dummy->Draw("AP");
+  TGraphErrors *asym[10];
+  
   for(int i=0;i<10;i++){
     double ly[25],ldy[25],ry[25],rdy[25];
     int npts=0;
@@ -46,10 +61,12 @@ void nStripEvsX(){
       ry[npts] = rpe[i][j];
       rdy[npts]=drpe[i][j];
       _xval[npts]=xVal[j];
+      as[npts]=(lpe[i][j]-rpe[i][j])/(lpe[i][j]+rpe[i][j]);
+      das[npts]=2/pow(lpe[i][j]+rpe[i][j],2)*sqrt(pow(rpe[i][j],2)*dlpe[i][j] + pow(lpe[i][j],2)*drpe[i][j]);
       if(lpe[i][j]!=-999) npts++;
     }
 
-    TF1 *p1=new TF1("p1","pol1");    
+    TF1 *p1=new TF1("p1","pol1");
     c1->cd(1);
     TGraphErrors *gl=new TGraphErrors(npts,_xval,ly,dx,ldy);
     gl->SetMarkerStyle(20);
@@ -74,8 +91,34 @@ void nStripEvsX(){
     rp0[i]=p1->GetParameter(0);
     drp0[i]=p1->GetParError(0);
     c1->Print(onm.c_str(),"pdf");
-  }
+    
+    c2->cd();
+    asym[i]=new TGraphErrors(npts,_xval,as,dx,das);
+    asym[i]->SetName(Form("asym_%d",i));
+    asym[i]->SetTitle("Asymmetry as a function of x deviation");
+    asym[i]->SetMarkerStyle(20+i);
+    asym[i]->SetMarkerColor(i%4+1);
+    asym[i]->SetLineColor(i%4+1);
+    asym[i]->GetXaxis()->SetTitle("x position [cm]");
+    asym[i]->GetYaxis()->SetTitle("(L-R)/(L+R)");
+    leg->AddEntry(asym[i],Form("%f MeV",eVal[i]),"lep");
+    asym[i]->Draw("PL");
 
+    c1->cd(0);
+    c1->Clear();
+    asym[i]->Draw("APL");
+    c1->Print(onm.c_str(),"pdf");
+    c1->cd(0);
+    c1->Clear();
+    c1->Divide(2);
+  }
+  c2->cd();
+  gPad->SetGridy(1);
+  leg->Draw();
+  c2->Print(onm.c_str(),"pdf");
+
+  c1->Clear();
+  c1->Divide(2);
   c1->cd(1);
   TGraphErrors *glp=new TGraphErrors(10,eVal,lp1,dx,dlp1);
   glp->SetMarkerStyle(20);
@@ -112,8 +155,6 @@ void nStripEvsX(){
 
   double _rat[10],_drat[10];
   for(int i=0;i<10;i++){
-    // _rat[i] =(lp0[i]/pow(dlp0[i],2)+rp0[i]/pow(drp0[i],2))/(1./pow(dlp0[i],2)+1./pow(drp0[i],2));
-    // _drat[i]=sqrt((1.)/(1./pow(dlp0[i],2)+1./pow(drp0[i],2)));
     _rat[i] =(lp0[i]/rp0[i]);
     _drat[i]=sqrt(pow(dlp0[i]/lp0[i],2)+pow(drp0[i]/rp0[i],2));
   }

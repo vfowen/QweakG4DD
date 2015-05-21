@@ -142,8 +142,10 @@ double doAna(char *fn, double &l, double &dl, double &r, double &dr, int n)
   TH1F *hl=new TH1F(Form("hl%d",n),Form("%s",nb.Data())  ,300,-0.5,299.5);
   TH1F *hr=new TH1F(Form("hr%d",n),Form("R PMT hit %d",n),300,-0.5,299.5);
   
-  t->Project(Form("hl%d",n),"Cerenkov.PMT.PMTLeftNbOfPEs[3]", "Cerenkov.PMT.PMTLeftNbOfPEs[3]>0 && Cerenkov.PMT.PMTRightNbOfPEs[3]>0");
-  t->Project(Form("hr%d",n),"Cerenkov.PMT.PMTRightNbOfPEs[3]","Cerenkov.PMT.PMTLeftNbOfPEs[3]>0 && Cerenkov.PMT.PMTRightNbOfPEs[3]>0");
+  t->Project(Form("hl%d",n),"Cerenkov.PMT.PMTLeftNbOfPEs[3]",
+	     "Cerenkov.PMT.PMTLeftNbOfPEs[3]>0 && Cerenkov.PMT.PMTRightNbOfPEs[3]>0");
+  t->Project(Form("hr%d",n),"Cerenkov.PMT.PMTRightNbOfPEs[3]",
+	     "Cerenkov.PMT.PMTLeftNbOfPEs[3]>0 && Cerenkov.PMT.PMTRightNbOfPEs[3]>0");
 
   TF1 *gs=new TF1("gs","gaus(0)");
   c1->cd(1);
