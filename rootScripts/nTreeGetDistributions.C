@@ -59,20 +59,20 @@ double doAna(char *fn, TH1F *hA[10])
     ha[i+5]=new TH1F(Form("ha%d_%d",i+5,n),Form(" Particle %d; Ang X[deg]",i),180,-90,90);
   }
 
-  t->Project(Form("ha_0_%d",n),"x"   ,"E>1 && hasParent==0 && nInt==1 && pType==11  && sqrt(pow(poly,2)+pow(polz,2))>0.1 && abs(angX)<=90");
-  t->Project(Form("ha_1_%d",n),"x"   ,"E>1 && hasParent==0 && nInt==1 && pType==11  && sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
-  t->Project(Form("ha_2_%d",n),"x"   ,"E>1 && hasParent==0 && nInt==1 && pType==-11 && sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
-  t->Project(Form("ha_3_%d",n),"x"   ,"E>1 && hasParent==0 && nInt==1 && abs(pType)==11  && abs(angX)<=90");
-  t->Project(Form("ha_4_%d",n),"x"   ,"E>1 && hasParent==0 && nInt==1 && abs(pType)==22  && abs(angX)<=90");
-  t->Project(Form("ha_5_%d",n),"angX","E>1 && hasParent==0 && nInt==1 && pType==11  && sqrt(pow(poly,2)+pow(polz,2))>0.1 && abs(angX)<=90");
-  t->Project(Form("ha_6_%d",n),"angX","E>1 && hasParent==0 && nInt==1 && pType==11  && sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
-  t->Project(Form("ha_7_%d",n),"angX","E>1 && hasParent==0 && nInt==1 && pType==-11 && sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
-  t->Project(Form("ha_8_%d",n),"angX","E>1 && hasParent==0 && nInt==1 && abs(pType)==11  && abs(angX)<=90");
-  t->Project(Form("ha_9_%d",n),"angX","E>1 && hasParent==0 && nInt==1 && abs(pType)==22  && abs(angX)<=90");
+  t->Project(Form("ha0_%d",n),"x"   ,"E>1 && hasParent==0 && nInt==1 && pType==11  && sqrt(pow(poly,2)+pow(polz,2))>0.1 && abs(angX)<=90");
+  t->Project(Form("ha1_%d",n),"x"   ,"E>1 && hasParent==0 && nInt==1 && pType==11  && sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
+  t->Project(Form("ha2_%d",n),"x"   ,"E>1 && hasParent==0 && nInt==1 && pType==-11 && sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
+  t->Project(Form("ha3_%d",n),"x"   ,"E>1 && hasParent==0 && nInt==1 && abs(pType)==11  && abs(angX)<=90");
+  t->Project(Form("ha4_%d",n),"x"   ,"E>1 && hasParent==0 && nInt==1 && abs(pType)==22  && abs(angX)<=90");
+  t->Project(Form("ha5_%d",n),"angX","E>1 && hasParent==0 && nInt==1 && pType==11  && sqrt(pow(poly,2)+pow(polz,2))>0.1 && abs(angX)<=90");
+  t->Project(Form("ha6_%d",n),"angX","E>1 && hasParent==0 && nInt==1 && pType==11  && sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
+  t->Project(Form("ha7_%d",n),"angX","E>1 && hasParent==0 && nInt==1 && pType==-11 && sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
+  t->Project(Form("ha8_%d",n),"angX","E>1 && hasParent==0 && nInt==1 && abs(pType)==11  && abs(angX)<=90");
+  t->Project(Form("ha9_%d",n),"angX","E>1 && hasParent==0 && nInt==1 && abs(pType)==22  && abs(angX)<=90");
 
   for(int i=0;i<10;i++)
     hA[i]->Add(ha[i]);
-  
+
   fin->Close();
 }
  
