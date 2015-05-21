@@ -49,6 +49,8 @@ int main(int argc, char** argv)
   float angX, angY;
   int nInt;
   int hasParent;
+  int tID;
+      int _parentID;
   
   //event
   float LnPMThit,RnPMThit;
@@ -65,7 +67,9 @@ int main(int argc, char** argv)
   th->Branch("evNr",&evNr,"evNr/I");
   th->Branch("hitNr",&hitNr,"hitNr/I");
   th->Branch("pType",&pTypeHit,"pType/I");
-  th->Branch("nInt",&nInt,"nInt/I");
+      th->Branch("tID",&tID,"tID/I");
+      th->Branch("parentID",&_parentID,"parentID/I");
+      th->Branch("nInt",&nInt,"nInt/I");
   th->Branch("hasParent",&hasParent,"hasParent/I");
   th->Branch("x",&x,"x/F");
   th->Branch("y",&y,"y/F");
@@ -118,7 +122,7 @@ int main(int argc, char** argv)
     gREtot=0;
     LEtot=0;
     REtot=0;
-    evNr  = i;
+    evNr  = event->Primary.GetPrimaryEventNumber();
     //cout<<" interaction trackid "<<interaction.size()<<" "<<trackID.size()<<endl;
     interaction.clear();
     trackID.clear();
@@ -128,8 +132,10 @@ int main(int argc, char** argv)
       pTypeHit=event->Cerenkov.Detector.GetParticleType()[hit];
       if(abs(pTypeHit)!=11  && abs(pTypeHit)!=22 ) continue;
       
-      nInt=findInt(interaction,trackID,event->Cerenkov.Detector.GetParticleID()[hit],event->Cerenkov.Detector.GetParentID()[hit],hasParent);
+        tID=event->Cerenkov.Detector.GetParticleID()[hit];
+      nInt=findInt(interaction,trackID,tID,event->Cerenkov.Detector.GetParentID()[hit],hasParent);
       hitNr = hit;
+        _parentID=event->Cerenkov.Detector.GetParentID()[hit];
       
       x=event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit];
       y=event->Cerenkov.Detector.GetDetectorGlobalPositionY()[hit];
@@ -183,6 +189,7 @@ int main(int argc, char** argv)
     te->Fill();
   }
   
+      cout<<"Done loop writting out!"<<endl;
   th->Write();
   te->Write();
   fout->Close();
