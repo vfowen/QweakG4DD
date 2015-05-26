@@ -1,15 +1,18 @@
 string onm;
+string fnm;
+
 void nTreeGetDistributions(){
-  TFile *fout=new TFile("o_distributions.root","RECREATE");
-  fout->Close();
   onm="V";
+  fnm="o_distributions_05Ecut.root";
+  TFile *fout=new TFile(fnm.c_str(),"RECREATE");
+  fout->Close();
   nTreeFirstIntOneSet("../fName_V.lst");
-  // onm="L";
-  // nTreeFirstIntOneSet("../fName_L.lst");
-  // onm="mV";
-  // nTreeFirstIntOneSet("../fName_mV.lst");
-  // onm="mL";
-  // nTreeFirstIntOneSet("../fName_mL.lst");
+  onm="L";
+  nTreeFirstIntOneSet("../fName_L.lst");
+  onm="mV";
+  nTreeFirstIntOneSet("../fName_mV.lst");
+  //onm="mL";
+  //nTreeFirstIntOneSet("../fName_mL.lst");
 }
 
 void nTreeFirstIntOneSet(string flist){
@@ -18,7 +21,7 @@ void nTreeFirstIntOneSet(string flist){
   string data;
   string gnm[5]={"Primary e-","Non primary e-","Non primary e+","All e#pm","Photons"};
   
-  TFile *fout=new TFile("o_distributions.root","UPDATE");
+  TFile *fout=new TFile(fnm.c_str(),"UPDATE");
   TH1F *distr[20];
   for(int i=0;i<5;i++){
     distr[i]  =new TH1F(Form("hX_%s_%d",onm.c_str(),i)   ,Form("%s ; Xpos[cm]",gnm[i].c_str())  ,200,-100,100);
@@ -63,16 +66,16 @@ void doAna(char *fn, TH1F *hA[10])
     ha[i+5]=new TH1F(Form("ha%d_%d",i+5,n),Form(" Particle %d; Ang X[deg]",i),180,-90,90);
   }
 
-  t->Project(Form("ha0_%d",n),"x"   ,"E>1 && hasParent==0 && nInt==1 && pType==11  && sqrt(pow(poly,2)+pow(polz,2))>0.1 && abs(angX)<=90");
-  t->Project(Form("ha1_%d",n),"x"   ,"E>1 && hasParent==0 && nInt==1 && pType==11  && sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
-  t->Project(Form("ha2_%d",n),"x"   ,"E>1 && hasParent==0 && nInt==1 && pType==-11 && sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
-  t->Project(Form("ha3_%d",n),"x"   ,"E>1 && hasParent==0 && nInt==1 && abs(pType)==11  && abs(angX)<=90");
-  t->Project(Form("ha4_%d",n),"x"   ,"E>1 && hasParent==0 && nInt==1 && abs(pType)==22  && abs(angX)<=90");
-  t->Project(Form("ha5_%d",n),"angX","E>1 && hasParent==0 && nInt==1 && pType==11  && sqrt(pow(poly,2)+pow(polz,2))>0.1 && abs(angX)<=90");
-  t->Project(Form("ha6_%d",n),"angX","E>1 && hasParent==0 && nInt==1 && pType==11  && sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
-  t->Project(Form("ha7_%d",n),"angX","E>1 && hasParent==0 && nInt==1 && pType==-11 && sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
-  t->Project(Form("ha8_%d",n),"angX","E>1 && hasParent==0 && nInt==1 && abs(pType)==11  && abs(angX)<=90");
-  t->Project(Form("ha9_%d",n),"angX","E>1 && hasParent==0 && nInt==1 && abs(pType)==22  && abs(angX)<=90");
+  t->Project(Form("ha0_%d",n),"x"   ,"E>0.5 && hasParent==0 && nInt==1 && pType==11  && sqrt(pow(poly,2)+pow(polz,2))>0.1 && abs(angX)<=90");
+  t->Project(Form("ha1_%d",n),"x"   ,"E>0.5 && hasParent==0 && nInt==1 && pType==11  && sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
+  t->Project(Form("ha2_%d",n),"x"   ,"E>0.5 && hasParent==0 && nInt==1 && pType==-11 && sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
+  t->Project(Form("ha3_%d",n),"x"   ,"E>0.5 && hasParent==0 && nInt==1 && abs(pType)==11  && abs(angX)<=90");
+  t->Project(Form("ha4_%d",n),"x"   ,"E>0.5 && hasParent==0 && nInt==1 && abs(pType)==22  && abs(angX)<=90");
+  t->Project(Form("ha5_%d",n),"angX","E>0.5 && hasParent==0 && nInt==1 && pType==11  && sqrt(pow(poly,2)+pow(polz,2))>0.1 && abs(angX)<=90");
+  t->Project(Form("ha6_%d",n),"angX","E>0.5 && hasParent==0 && nInt==1 && pType==11  && sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
+  t->Project(Form("ha7_%d",n),"angX","E>0.5 && hasParent==0 && nInt==1 && pType==-11 && sqrt(pow(poly,2)+pow(polz,2))<0.1 && abs(angX)<=90");
+  t->Project(Form("ha8_%d",n),"angX","E>0.5 && hasParent==0 && nInt==1 && abs(pType)==11  && abs(angX)<=90");
+  t->Project(Form("ha9_%d",n),"angX","E>0.5 && hasParent==0 && nInt==1 && abs(pType)==22  && abs(angX)<=90");
 
   for(int i=0;i<10;i++)
     hA[i]->Add(ha[i]);
