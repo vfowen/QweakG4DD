@@ -93,9 +93,10 @@ void nStripEvsX(){
     c1->Print(onm.c_str(),"pdf");
     
     c2->cd();
+    TFile *fas=TFile::Open("o_PEasyms.root","UPDATE");
     asym[i]=new TGraphErrors(npts,_xval,as,dx,das);
     asym[i]->SetName(Form("asym_%d",i));
-    asym[i]->SetTitle("Asymmetry as a function of x deviation");
+    asym[i]->SetTitle(Form("Asymmetry E=%f;x deviation",eVal[i]));
     asym[i]->SetMarkerStyle(20+i);
     asym[i]->SetMarkerColor(i%4+1);
     asym[i]->SetLineColor(i%4+1);
@@ -103,7 +104,9 @@ void nStripEvsX(){
     asym[i]->GetYaxis()->SetTitle("(L-R)/(L+R)");
     leg->AddEntry(asym[i],Form("%f MeV",eVal[i]),"lep");
     asym[i]->Draw("PL");
-
+    asym[i]->Write();
+    fas->Close();
+    
     c1->cd(0);
     c1->Clear();
     asym[i]->Draw("APL");
