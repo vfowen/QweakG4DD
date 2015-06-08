@@ -260,6 +260,9 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
 // Events that happen in the Pb FIXME
     G4bool debugPrint=false;
     //G4bool debugPrint=true;
+    G4bool writeOutAll=false;
+    //G4bool writeOutAll=true;
+
     int _priID=theStep->GetTrack()->GetTrackID(); 
     int _priParentID = theStep->GetTrack()->GetParentID();
     double _priE=theStep->GetTrack()->GetTotalEnergy();
@@ -270,10 +273,10 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
     
     if(_material){
         
-        if((particleType==G4Positron::PositronDefinition() ||
-            particleType==G4Gamma::GammaDefinition() ||
-            particleType==G4Electron::ElectronDefinition()) &&
-           _material->GetName().compare("PBA")==0) {
+      if((((particleType==G4Positron::PositronDefinition() ||
+	    particleType==G4Gamma::GammaDefinition()) && writeOutAll) ||
+	  particleType==G4Electron::ElectronDefinition()) &&
+	 _material->GetName().compare("PBA")==0) {
 
             float _var[27];// "be:bx:by:bz:bpx:bpy:bpz:bdpx:bdpy:bdpz:ae:ax:ay:az:apx:apy:apz:adpx:adpy:adpz:angle:process:stepL:evN:trackID:parentID:pType"
             _var[0] = thePrePoint->GetTotalEnergy();
