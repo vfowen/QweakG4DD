@@ -6,6 +6,8 @@
 // system includes
 #include <vector>
 
+#include "QweakSimSystemOfUnits.hh"
+
 // geant4 includes
 #include "G4ios.hh"
 #include "G4String.hh"

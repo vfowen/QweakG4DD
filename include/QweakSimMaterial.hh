@@ -49,6 +49,8 @@
 #define QweakSimMaterial_H 1
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+#include "QweakSimSystemOfUnits.hh"
+
 // geant4 includes
 #include "G4NistManager.hh"
 

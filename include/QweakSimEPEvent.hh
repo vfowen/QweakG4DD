@@ -21,7 +21,8 @@
 #include "G4ThreeVector.hh"
 
 //  user includes
-#include <QweakSimFieldMap.hh>
+#include "QweakSimFieldMap.hh"
+#include "QweakSimSystemOfUnits.hh"
 #include "Randomize.hh"
 
 // user classes

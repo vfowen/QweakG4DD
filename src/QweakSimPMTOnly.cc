@@ -354,10 +354,10 @@ void QweakSimPMTOnly::ConstructComponent(G4VPhysicalVolume* MotherVolume)
 
     G4double Reflectivity[nEntries];
     for (G4int kk= 0; kk < nEntries; kk++) {
-        G4double mylambda = (h_Planck*c_light/PhotonEnergy[kk])/nanometer;
+      G4double mylambda = (CLHEP::h_Planck*CLHEP::c_light/PhotonEnergy[kk])/nanometer;
 
-        // Nevens empiric formular for the reflectivity
-        Reflectivity[kk] =  1.0 - 0.027*exp(-0.004608*mylambda);	        
+      // Nevens empiric formular for the reflectivity
+      Reflectivity[kk] =  1.0 - 0.027*exp(-0.004608*mylambda);	        
     };
     
     G4OpticalSurface* LightGuide_OpticalSurface = new G4OpticalSurface("LightGuideOpticalSurface");

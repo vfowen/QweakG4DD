@@ -1,6 +1,8 @@
 #ifndef QweakSimHit_h
 #define QweakSimHit_h 1
 
+#include "QweakSimSystemOfUnits.hh"
+
 // geant4 includes
 #include "G4VHit.hh"
 #include "G4THitsCollection.hh"

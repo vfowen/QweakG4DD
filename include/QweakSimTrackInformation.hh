@@ -34,6 +34,8 @@
 // system includes
 #include <vector>
 
+#include "QweakSimSystemOfUnits.hh"
+
 // geant4 includes
 #include "G4Allocator.hh"
 #include "G4ThreeVector.hh"

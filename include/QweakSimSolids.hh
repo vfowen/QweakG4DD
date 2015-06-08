@@ -1,6 +1,8 @@
 #ifndef QweakSimSolids_h
 #define QweakSimSolids_h
 
+#include "QweakSimSystemOfUnits.hh"
+
 // geant4 includes
 #include "G4Box.hh"
 #include "G4Orb.hh"

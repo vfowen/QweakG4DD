@@ -1,6 +1,8 @@
 #ifndef QweakSimTrackHistory_h
 #define QweakSimTrackHistory_h 1
 
+#include "QweakSimSystemOfUnits.hh"
+
 // geant4 includes
 #include "G4Types.hh"
 #include "G4String.hh"

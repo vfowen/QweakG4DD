@@ -9,6 +9,7 @@
 
 #include "G4PhysicsOrderedFreeVector.hh"
 
+#include "QweakSimSystemOfUnits.hh"
 #include "QweakSimPrimaryGeneratorAction.hh"
 
 // forward declarations

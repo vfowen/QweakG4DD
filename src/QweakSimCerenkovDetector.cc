@@ -1795,9 +1795,9 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
         // Nevens empiric formular for the reflectivity
         // lamda = h*c/E
 
-        mylambda = (h_Planck*c_light/PhotonEnergy[kk])/nanometer;
-        Reflectivity[kk] =  1.0 - 0.027*exp(-0.004608*mylambda);
-        //Reflectivity[kk] =  1.0;
+      mylambda = (CLHEP::h_Planck*CLHEP::c_light/PhotonEnergy[kk])/nanometer;
+      Reflectivity[kk] =  1.0 - 0.027*exp(-0.004608*mylambda);
+      //Reflectivity[kk] =  1.0;
     };
 
     G4OpticalSurface* QuartzBarLeft_OpticalSurface = new G4OpticalSurface("QuartzBarLeftOpticalSurface");
