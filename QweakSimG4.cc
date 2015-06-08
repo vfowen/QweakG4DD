@@ -43,7 +43,7 @@
     #include "G4VisExecutive.hh"
 #endif
 
-#define USE_CUSTOM_NUCLEAR_SCATTERING 0
+#define USE_CUSTOM_NUCLEAR_SCATTERING 1
 #if USE_CUSTOM_NUCLEAR_SCATTERING
 #include "physics_lists/constructors/electromagnetic/QweakSimEmStandardPhysics.hh"
 #include "physics_lists/constructors/electromagnetic/QweakSimEmLivermorePhysics.hh"
