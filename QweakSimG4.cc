@@ -18,7 +18,6 @@
 // user includes
 #include "QweakSimUserInformation.hh"
 #include "QweakSimDetectorConstruction.hh"
-#include "QweakSimPhysicsList.hh"
 #include "QweakSimPrimaryGeneratorAction.hh"
 #include "QweakSimRunAction.hh"
 #include "QweakSimEventAction.hh"
