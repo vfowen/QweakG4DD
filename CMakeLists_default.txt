@@ -4,9 +4,29 @@ cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 # Name of this project
 project(QweakSimG4)
 
+# Find Geant4
+if(NOT DEFINED Geant4_DIR)
+	set(Geant4_DIR $ENV{G4INSTALL}/build)
+endif(NOT DEFINED Geant4_DIR)
+find_package(Geant4 REQUIRED COMPONENTS gdml qt ui_all vis_all)
+execute_process(COMMAND geant4-config --version
+                OUTPUT_VARIABLE GEANT4_VERSION
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+message(STATUS "Found Geant4 ${GEANT4_VERSION}")
+
 # Add the project include directory and put all source files in my_project_sources
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-file(GLOB my_project_sources ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc)
+if(GEANT4_VERSION VERSION_LESS "10.0.0")
+       message(STATUS "Geant4 is < 10.0.0: skip building custom physics processes")
+       file(GLOB my_project_sources ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc)
+else(GEANT4_VERSION VERSION_LESS "10.0.0")
+       message(STATUS "Geant4 > 10.0.0: include building custom physics processes")
+       file(GLOB_RECURSE my_project_sources ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc)
+endif(GEANT4_VERSION VERSION_LESS "10.0.0")
+
+
+# Explicitly add compiler flag -fPIC as required by geant4.10 on ifarm65
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
 # Local path for cmake modules, before ${CMAKE_ROOT}/Modules/ is checked
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
@@ -54,12 +74,7 @@ ROOT_GENERATE_DICTIONARY(${CMAKE_CURRENT_BINARY_DIR}/QweakSimDict
 	OPTIONS -p)
 set(my_project_sources ${my_project_sources} ${CMAKE_CURRENT_BINARY_DIR}/QweakSimDict.cxx)
 
-# Load Geant4 through Find and Use files (the Geant4_DIR directory is where
-# the Geant4 cmake Find and Use files can be found)
-if(NOT DEFINED Geant4_DIR)
-	set(Geant4_DIR $ENV{G4INSTALL}/build)
-endif(NOT DEFINED Geant4_DIR)
-find_package(Geant4 REQUIRED COMPONENTS gdml qt ui_all vis_all)
+# Load Geant4 through Find and Use files
 include(${Geant4_USE_FILE})
 
 # Link the ROOT and Geant4 libraries
