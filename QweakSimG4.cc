@@ -83,10 +83,8 @@ int main(int argc,char** argv) {
 #if USE_CUSTOM_NUCLEAR_SCATTERING
   physlist->ReplacePhysics(new QweakSimEmLivermorePhysics());
 #endif
-
-  // Original Qweak Physics List, uncomment to use, comment out block above
-  //runManager->SetUserInitialization(new QweakSimPhysicsList() );
-
+  runManager->SetUserInitialization(physlist);
+ 
   // UserAction classes
   runManager->SetUserAction( new QweakSimPrimaryGeneratorAction(myQweakSimUserInformation, myEPEvent) );
   //runManager->SetUserAction( new QweakSimPrimaryGeneratorAction( ) );
@@ -96,7 +94,7 @@ int main(int argc,char** argv) {
   runManager->SetUserAction( new QweakSimEventAction(myQweakSimAnalysis, myQweakSimUserInformation) );
   runManager->SetUserAction( new QweakSimRunAction(myQweakSimAnalysis) );  
 
-  runManager->StoreRandomNumberStatusToG4Event(1);//FIXME is the seed?
+  runManager->StoreRandomNumberStatusToG4Event(1);
 
   //Initialize G4 kernel
   runManager->Initialize();
