@@ -1,28 +1,15 @@
-//=============================================================================
-// 
-//   ---------------------------
-//  | Doxygen File Information |
-//  ---------------------------
-// 
-/**
- 
-   \file QweakSimG4.cc
-
-   $Revision: 1.2 $	
-   $Date: 2005/12/27 19:09:32 $
-
-   \author Klaus Hans Grimm   
-
-*/
-//=============================================================================
-
 // geant4 includes
 #include "G4RunManager.hh"
 #include "G4UImanager.hh"
 #include "G4UIterminal.hh"
 #include "G4UItcsh.hh"
 
+#include "G4Version.hh"
+#if G4VERSION_NUMBER < 1000
 #include "G4StepLimiterBuilder.hh"
+#else
+#include "G4StepLimiterPhysics.hh"
+#endif
 
 #include "G4OpticalPhysics.hh"
 #include "G4PhysListFactory.hh"
@@ -57,6 +44,11 @@
     #include "G4VisExecutive.hh"
 #endif
 
+#define USE_CUSTOM_NUCLEAR_SCATTERING 0
+#if USE_CUSTOM_NUCLEAR_SCATTERING
+#include "physics_lists/constructors/electromagnetic/QweakSimEmStandardPhysics.hh"
+#include "physics_lists/constructors/electromagnetic/QweakSimEmLivermorePhysics.hh"
+#endif
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -83,8 +75,15 @@ int main(int argc,char** argv) {
   G4PhysListFactory factory;
   G4VModularPhysicsList* physlist = factory.GetReferencePhysList("QGSP_BERT_LIV");
   physlist->RegisterPhysics(new G4OpticalPhysics());
-  physlist->RegisterPhysics(new G4StepLimiterBuilder()); // new, Jan16, 2014b
-  runManager->SetUserInitialization(physlist);
+#if G4VERSION_NUMBER < 1000
+  physlist->RegisterPhysics(new G4StepLimiterBuilder());
+#else
+  physlist->RegisterPhysics(new G4StepLimiterPhysics());
+#endif
+  // Replace the standard EM with the customized version to add Pb A_T
+#if USE_CUSTOM_NUCLEAR_SCATTERING
+  physlist->ReplacePhysics(new QweakSimEmLivermorePhysics());
+#endif
 
   // Original Qweak Physics List, uncomment to use, comment out block above
   //runManager->SetUserInitialization(new QweakSimPhysicsList() );
