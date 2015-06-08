@@ -447,14 +447,14 @@ G4double QweakSimUrbanMscModel::ComputeTruePathLengthLimit(
   if(strcmp(track.GetParticleDefinition()->GetParticleName().data() , "e-") == 0)
     if(strcmp(track.GetMaterial()->GetName(),"PBA") == 0){
       if(track.GetPolarization().getR() >= 0.1) debugPrint=true;
-      if(sqrt(G4Exp(G4Log(track.GetPolarization().getX())*2)+
-	      G4Exp(G4Log(track.GetPolarization().getY())*2))>0.01){
+      if(sqrt(pow(track.GetPolarization().getX(),2)+
+	      pow(track.GetPolarization().getY(),2))>0.01){
 	ePolarized=true;
 	polarization=track.GetPolarization();
 	eEnergy=track.GetTotalEnergy();
       }
     }
-  debugPrint=false;
+  debugPrint=false;//comment this line if you want to print out
   // FIXME
   
   G4StepPoint* sp = track.GetStep()->GetPreStepPoint();
@@ -957,8 +957,7 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
     
     //scale by 1/energy, sin Theta and transvers polarization
     G4double _amplitude=1.0/eEnergy * sth *
-                        sqrt(G4Exp(G4Log(polarization.getX())*2)+
-			     G4Exp(G4Log(polarization.getY())*2));
+	                sqrt(pow(polarization.getX(),2)+pow(polarization.getY(),2));
 
     //if E<1 AN could be larger than 1
     if(_amplitude > 1 ) _amplitude=1;
