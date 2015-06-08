@@ -68,7 +68,7 @@ class QweakSimWentzelVIModel : public G4VMscModel
 
 public:
 
-  QweakSimWentzelVIModel(G4bool comb = true, const G4String& nam = "WentzelVIUni");
+  QweakSimWentzelVIModel(G4bool comb = true, const G4String& nam = "WentzelVIUni-Qweak");
 
   virtual ~QweakSimWentzelVIModel();
 

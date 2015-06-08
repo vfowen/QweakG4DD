@@ -76,7 +76,7 @@ class QweakSimUrbanMscModel : public G4VMscModel
 
 public:
 
-  QweakSimUrbanMscModel(const G4String& nam = "UrbanMsc");
+  QweakSimUrbanMscModel(const G4String& nam = "UrbanMsc-Qweak");
 
   virtual ~QweakSimUrbanMscModel();
 
