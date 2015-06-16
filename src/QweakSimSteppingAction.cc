@@ -278,7 +278,10 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
 	  particleType==G4Electron::ElectronDefinition()) &&
 	 _material->GetName().compare("PBA")==0) {
 
-            float _var[27];// "be:bx:by:bz:bpx:bpy:bpz:bdpx:bdpy:bdpz:ae:ax:ay:az:apx:apy:apz:adpx:adpy:adpz:angle:process:stepL:evN:trackID:parentID:pType"
+	    // "be:bx:by:bz:bpx:bpy:bpz:bdpx:bdpy:bdpz:
+	    //  ae:ax:ay:az:apx:apy:apz:adpx:adpy:adpz:
+	    //  angle:process:stepL:evN:trackID:parentID:pType"
+            float _var[27];
             _var[0] = thePrePoint->GetTotalEnergy();
             _var[1] = thePrePoint->GetPosition().getX();
             _var[2] = thePrePoint->GetPosition().getY();
@@ -332,7 +335,7 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
             
             if(debugPrint){
                 G4cout<<"~Primary: "<<_priID<<" "<<_priParentID<<" "<<_priE<<" "<<_pn<<" "<<_name<<" "
-                <<_material->GetName()<<" angle "<<scatAng<<G4endl;
+		      <<_material->GetName()<<" angle "<<scatAng<<" "<<_pn<<" "<<_steplength<<G4endl;
                 G4cout<<"  preP R th phi "<<_preP.getR()<<" "<<_preP.getTheta()<<" "<<_preP.getPhi()<<G4endl;
                 G4cout<<" postP R th phi "<<_postP.getR()<<" "<<_postP.getTheta()<<" "<<_postP.getPhi()<<G4endl;
                 G4cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<G4endl;
