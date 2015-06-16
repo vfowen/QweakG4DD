@@ -475,7 +475,13 @@ void QweakSimEventAction::EndOfEventAction(const G4Event* evt) {
     //##########################################################################################################################
     //##########################################################################################################################
     //
-//     G4cout<<" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Ana: "<<" "<<myUserInfo->GetPrimaryEventNumber()
+
+    // G4cout<<G4endl;
+    // G4cout<<G4endl;
+    // G4cout<<" !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Ana: "<<" "<<myUserInfo->GetPrimaryEventNumber()<<G4endl;
+    // G4cout<<G4endl;
+    // G4cout<<G4endl;
+
 //       <<" "<<fTrigger[kTriggerCer]<<" "<<n_hitCerenkov<<G4endl;//FIXME
     if ( fTrigger[kTriggerAll] /* Trigger on every event */
 	 //|| (fTrigger[kTrigger4Fold] && (n_VDChitWirePlane == 4) && (n_VDChitDCFront > 0) && (n_VDChitDCBack > 0) && (n_hitCerenkov > 0) ) /* 4-fold coincidence */
