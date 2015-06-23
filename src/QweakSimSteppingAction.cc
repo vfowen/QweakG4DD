@@ -1,20 +1,3 @@
-//=============================================================================
-//
-//   ---------------------------
-//  | Doxygen File Information |
-//  ---------------------------
-//
-/**
-
-   \file QweakSimSteppingAction.cc
-
-   $Revision: 1.4 $
-   $Date: 2006/05/05 21:46:05 $
-
-   \author Klaus Hans Grimm
-
-*/
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #include "QweakSimSteppingAction.hh"
@@ -54,9 +37,7 @@ QweakSimSteppingAction::QweakSimSteppingAction(QweakSimUserInformation* myUInfo,
 
     evtGenStatus = 0;
     targetCenterPositionZ = myUserInfo->TargetCenterPositionZ;
-    //RandomPositionZ = myEvent->GetVertexZ();
 
-    //std::ofstream EventDataFile("Event.dat", std::ios::out);
     fout=new TFile("o_tuple.root","RECREATE");	
     tout=new TNtuple("t","Ntuple primary info in Pb",
 		     "be:bx:by:bz:bpx:bpy:bpz:bdpx:bdpy:bdpz:ae:ax:ay:az:apx:apy:apz:adpx:adpy:adpz:angle:process:stepL:evN:trackID:parentID:pType");
@@ -77,7 +58,6 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
     G4StepPoint*          thePostPoint = theStep->GetPostStepPoint();
     G4VPhysicalVolume*    thePostPV    = thePostPoint->GetPhysicalVolume();
     G4TouchableHistory*   theTouchable = (G4TouchableHistory*)(thePrePoint->GetTouchable());
-    //   G4int                 ReplicaNo    = 0;
     G4String              particleName = theTrack->GetDefinition()->GetParticleName();
     G4ProcessManager*     pm           = particleType->GetProcessManager();
 
@@ -94,11 +74,6 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
     //   G4int nSecPost         = GetNumOfPostStepSecondaries();
     //   G4int nSecTotal        = GetTotalNumOfSecondaries();
 
-    //RandomPositionZ = myEvent->GetVertexZ();
-    RandomPositionZ = myUserInfo->GetOriginVertexPositionZ();
-
-    //jpan@nuclear.uwinnipeg.ca Thu Apr 16 01:33:14 CDT 2009
-    // check if it is primary
 
     //to get the kryptonie to work
     if(theMaterial->GetName()=="Kryptonite")
@@ -118,141 +93,28 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
         G4double theX = thePosition.getX();
         G4double theY = thePosition.getY();
         G4double theZ = thePosition.getZ();
-        // G4cout << "Track pos:: " << theX/mm << "\t" << theY/mm << "\t" << theZ/mm << G4endl;
-        // G4cout << "RandomPositionZ :: " << RandomPositionZ << G4endl;
 
         G4String procName = thePostPoint->GetProcessDefinedStep()->GetProcessName();
         // dEE in MeV -> all Elosses are in MeV
         G4double dEE = thePrePoint->GetKineticEnergy()/MeV-thePostPoint->GetKineticEnergy()/MeV;
 
-        if(myUserInfo->GetPrimaryEventNumber() %2!=3) {
 
-            //    if( theZ > targetCenterPositionZ+35*cm*0.5+5*(2.54*cm*0.001) || sqrt(theX*theX+theY*theY)>2.54*cm)
-            //     {
-            //        evtGenStatus = 0;
-            //     }
+	// need this here, else the track might get out of physical volume,
+	//  and crash the program
+	if(!thePostPV || !thePrePV)	return;
+	
+	// various energy losses at the target
+	if(((thePrePV->GetName()).contains("QweakTarget") ||
+	    (thePostPV->GetName()).contains("QweakTarget"))) {
+	  if (procName.compare("msc")==0)
+	    myUserInfo->AddTodEMscOut(dEE);
+	  else if(procName.compare("eIoni")==0)
+	    myUserInfo->AddTodEIonOut(dEE);
+	  else if(procName.compare("eBrem")==0)
+	    myUserInfo->AddTodEBremOut(dEE);
+	  
+	}
 
-            if( myUserInfo->EvtGenStatus == 0) { // true for primary event # = 0,2,4,...
-                // see QweakSimPrimaryGeneratorAction.cc
-
-                // // various energy losses at the target
-                // // IMP:: all the Elosses upto the vertex, theZ, is stored here
-                if ( thePrePV && thePostPV) {  // Added check to prevent a seg fault
-                    if(((thePrePV->GetName()).contains("QweakTarget") ||
-                            (thePostPV->GetName()).contains("QweakTarget"))) {
-                        if (procName.compare("msc")==0)
-                            myUserInfo->AddTodEMscIn(dEE);
-                        else if(procName.compare("eIoni")==0)
-                            myUserInfo->AddTodEIonIn(dEE);
-                        else if(procName.compare("eBrem")==0)
-                            myUserInfo->AddTodEBremIn(dEE);
-                    }
-                }
-
-                G4double theStepLength = theStep->GetStepLength();
-
-                // if the z-position of the particle, theZ, is within
-                // the stepLength of RandomPositionZ,
-                // then kill the particle, and reset the origin vertex Z as theZ
-                if( 1==2 && fabs(theZ - RandomPositionZ)<=theStepLength && sqrt(theX*theX+theY*theY)<2.54*cm) {
-
-                    std::vector< G4double > CrossSection;
-                    for (Int_t i = 0; i<16; i++) {
-                        CrossSection.push_back(0.0);
-                    }
-
-                    G4double WeightN, Q2, E_out, theta, phi;
-                    G4double Asymmetry;
-                    G4ThreeVector MomentumDirection = theTrack->GetMomentumDirection();
-                    G4double E_in = theTrack->GetTotalEnergy()/MeV;  //Event generator needs units of MeV
-
-                    // evaluate the MomentumDirection, E_out ..
-                    myEvent->GetanEvent(E_in, CrossSection, WeightN, Q2, E_out, MomentumDirection, theta, phi, Asymmetry);
-
-                    //theTrack->SetKineticEnergy(E_out*MeV);
-                    //theTrack->SetMomentumDirection(MomentumDirection);
-
-                    myUserInfo->EvtGenStatus = 1;
-
-                    // set track info
-                    //theTrack->SetVertexPosition(thePosition);
-                    //theTrack->SetVertexMomentumDirection(MomentumDirection);
-                    //theTrack->SetVertexKineticEnergy(E_out);
-
-                    //fill user info
-                    myUserInfo->StoreTrackID(theTrack->GetTrackID());
-                    myUserInfo->StoreGlobalTime(theTrack->GetGlobalTime());
-                    myUserInfo->StoreOriginVertexPositionX(theX);
-                    myUserInfo->StoreOriginVertexPositionY(theY);
-                    //	  myUserInfo->StoreOriginVertexPositionZ(theZ);
-                    myUserInfo->StoreOriginVertexPositionZ(RandomPositionZ);
-                    myUserInfo->StoreOriginVertexMomentumDirectionX(MomentumDirection.getX());
-                    myUserInfo->StoreOriginVertexMomentumDirectionY(MomentumDirection.getY());
-                    myUserInfo->StoreOriginVertexMomentumDirectionZ(MomentumDirection.getZ());
-                    myUserInfo->StoreOriginVertexThetaAngle(theta);
-                    myUserInfo->StoreOriginVertexPhiAngle(phi);
-                    //myUserInfo->StoreOriginVertexKineticEnergy(theTrack->GetKineticEnergy());
-                    //myUserInfo->StoreOriginVertexTotalEnergy(theTrack->GetTotalEnergy());
-
-                    myUserInfo->StorePreScatteringKineticEnergy(E_in - 0.511*MeV);
-                    if(particleType==G4Electron::ElectronDefinition()) {
-                        myUserInfo->StoreOriginVertexKineticEnergy(E_out - 0.511*MeV);
-                        //	    G4cout << "Stepping Action E_out:: " << (E_out - 0.511*MeV)/MeV << G4endl;
-                    }
-                    if(particleType==G4PionMinus::PionMinusDefinition())
-                    {
-                        myUserInfo->StoreOriginVertexKineticEnergy(E_out - 139.57*MeV);
-                    }
-                    myUserInfo->StoreOriginVertexTotalEnergy(E_out);
-
-                    myUserInfo->StorePrimaryQ2(Q2*0.000001); //in units of GeV^2
-                    myUserInfo->StoreCrossSection(CrossSection[0]);
-                    myUserInfo->StoreCrossSectionWeight(WeightN);
-                    myUserInfo->StoreCrossSectionBornTotal    (CrossSection[1]);
-                    myUserInfo->StoreCrossSectionBornInelastic(CrossSection[2]);
-                    myUserInfo->StoreCrossSectionBornQE       (CrossSection[3]);
-                    myUserInfo->StoreCrossSectionRadTotal     (CrossSection[4]);
-                    myUserInfo->StoreCrossSectionRadElastic   (CrossSection[5]);
-                    myUserInfo->StoreCrossSectionRadQE        (CrossSection[6]);
-                    myUserInfo->StoreCrossSectionRadDIS       (CrossSection[7]);
-                    myUserInfo->StoreCrossSectionRadTotalIntOnly   (CrossSection[8]);
-                    myUserInfo->StoreCrossSectionRadElasticIntOnly (CrossSection[9]);
-                    myUserInfo->StoreCrossSectionRadQEIntOnly      (CrossSection[10]);
-                    myUserInfo->StoreCrossSectionRadDISIntOnly     (CrossSection[11]);
-                    myUserInfo->StoreCrossSectionRadElasticPeak    (CrossSection[12]);
-                    myUserInfo->StoreAsymmetry ( Asymmetry );
-                    //myUserInfo->StorePrimaryEventNumber(myEventCounter);
-                    myUserInfo->StoreReactionType(myEvent->GetReactionType());
-                    myUserInfo->StorePDGcode(theTrack->GetDefinition()->GetPDGEncoding());
-
-                    // print the stored values
-                    // G4cout << "*********** myEventCounter = " << myEventCounter << G4endl;
-                    // G4cout << "Pre scat KE:: "<<E_in<< G4endl;
-                    // G4cout << "Org ver scat KE:: "<<E_out<< G4endl;
-
-                    //             myUserInfo->Print();
-                    theTrack->SetTrackStatus(fStopAndKill);
-                } // end of if( fabs(theZ - RandomPositionZ)<=theStepLength && sqrt(theX*theX+theY*theY)<2.54*cm)
-            } // end of  if( myUserInfo->EvtGenStatus == 0){  // true for primary event # = 0,2,4,...
-        } // end of    if(myUserInfo->GetPrimaryEventNumber() %2!=0)
-        else {
-
-            // need this here, else the track might get out of physical volume,
-            //  and crash the program
-            if(!thePostPV || !thePrePV)	return;
-
-            // various energy losses at the target
-            if(((thePrePV->GetName()).contains("QweakTarget") ||
-                    (thePostPV->GetName()).contains("QweakTarget"))) {
-                if (procName.compare("msc")==0)
-                    myUserInfo->AddTodEMscOut(dEE);
-                else if(procName.compare("eIoni")==0)
-                    myUserInfo->AddTodEIonOut(dEE);
-                else if(procName.compare("eBrem")==0)
-                    myUserInfo->AddTodEBremOut(dEE);
-
-            }
-        }
     }
 
 
@@ -268,7 +130,12 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
     double _priE=theStep->GetTrack()->GetTotalEnergy();
     G4String _name=theStep->GetTrack()->GetDefinition()->GetParticleName();
     G4String _pn=thePostPoint->GetProcessDefinedStep()->GetProcessName();
-    G4ThreeVector _polarziation=theStep->GetTrack()->GetPolarization();
+    G4ThreeVector _polarization=theStep->GetTrack()->GetPolarization();
+    // if(_polarization.getR()>0.2 && particleType==G4Electron::ElectronDefinition() ){
+    //   G4cout<<G4endl<<_polarization.getR()<<" "<<_polarization.getX()<<" "<<_polarization.getY()<<" "<<_polarization.getZ()<<" "<<G4endl;
+    //   theStep->GetTrack()->SetPolarization(_polarization*0.9);
+    //   G4cout<<_polarization.getR()<<" "<<_polarization.getX()<<" "<<_polarization.getY()<<" "<<_polarization.getZ()<<" "<<G4endl;
+    // }    
     G4Material *_material=thePostPoint->GetMaterial();
     
     if(_material){
