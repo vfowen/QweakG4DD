@@ -1,20 +1,3 @@
-
-//=============================================================================
-// 
-//   ---------------------------
-//  | Doxygen File Information |
-//  ---------------------------
-/**
- 
-   \file QweakSimPrimaryGeneratorAction.hh
-   $Revision: 1.4 $	
-   $Date: 2006/05/05 21:34:59 $
-   \author Klaus Hans Grimm
-     
-*/
-//=============================================================================
-// 
-//=============================================================================
 // 
 //   ---------------------------
 //  | Doxygen Class Information |
@@ -82,9 +65,6 @@ public:
 
 
   void GeneratePrimaries(G4Event* anEvent);
-  void ResetNtupleEventCounter() {myEventCounter = 0;}
-  void SetNtupleEventCounter(G4int cnt) {myEventCounter = cnt;}
-
   void SetPolarization(G4String polarization) {
     fPolarization = polarization;
   }
@@ -100,8 +80,6 @@ public:
 
   QweakSimUserInformation* GetUserInfo() const { return myUserInfo; };
 
-  G4int             myEventCounter;
-  
 private:
 
   G4ParticleGun*                      particleGun;
