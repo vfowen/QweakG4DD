@@ -11,13 +11,12 @@
 #include "G4TrackVector.hh"
 #include "G4SteppingManager.hh"
 #include "G4UserSteppingAction.hh"
-#include <TString.h>
-#include "TFile.h"
-//#include "TH2D.h"
-//#include "TH1D.h"
-#include "TNtuple.h"
 
-class TH1;
+#include "TString.h"
+#include "TFile.h"
+#include "TNtuple.h"
+#include "TGraph.h"
+
 // geant4 classes
 class G4ParticleDefinition;
 
@@ -70,16 +69,17 @@ public:
 
 private:
 
-    G4int evtGenStatus;
-    G4int myEventCounter;
-    G4TrackVector *fSecondary;
-    QweakSimUserInformation* myUserInfo;
-    TFile *fout;
-    TNtuple *tout;
-    
-    QweakSimEPEvent *myEvent;
-    G4double RandomPositionZ;
-    G4double targetCenterPositionZ;
+  TGraph perpDepol;
+  
+  G4int evtGenStatus;
+  G4int myEventCounter;
+  G4TrackVector *fSecondary;
+  QweakSimUserInformation* myUserInfo;
+  TFile *fout;
+  TNtuple *tout;
+  
+  QweakSimEPEvent *myEvent;
+  G4double targetCenterPositionZ;
 
 };
 
