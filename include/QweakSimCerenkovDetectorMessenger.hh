@@ -1,34 +1,3 @@
-//=============================================================================
-// 
-//   ---------------------------
-//  | Doxygen File Information |
-//  ---------------------------
-/**
- 
-   \file QweakSimCerenkovDetectorMessenger.hh
-   $Revision: 1.2 $	
-   $Date: 2005/12/27 19:23:04 $
-   \author Klaus Hans Grimm
-     
-*/
-//=============================================================================
-// 
-//=============================================================================
-// 
-//   ---------------------------
-//  | Doxygen Class Information |
-//  ---------------------------
-/**
-   \class QweakSimCerenkovDetectorMessenger
-    
-   \brief Scans the input file for /Cerenkov/xyz commands
-
-   Placeholder for a long explaination
-    
- */
-//=============================================================================
-//
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 #ifndef QweakSimCerenkovDetectorMessenger_h
 #define QweakSimCerenkovDetectorMessenger_h 1
