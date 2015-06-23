@@ -641,7 +641,7 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	G4double _prob=G4UniformRand();
   
 	if(debugPrint){
-	  G4cout<<" ~~ Wentzel ~~ polarization.R: "<<track.GetPolarization().getR()<<G4endl;
+	  G4cout<<" ~~ Wentzel ~~ polarization.R: "<<polarization.getR()<<G4endl;
 	}
       
 	//scale by 1/energy, sin Theta and transvers polarization
@@ -699,7 +699,7 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	G4double _prob=G4UniformRand();
 
 	if(debugPrint){
-	  G4cout<<" ~~ Wentzel ~~ polarization.R: "<<track.GetPolarization().getR()<<G4endl;
+	  G4cout<<" ~~ Wentzel ~~ polarization.R: "<<polarization.getR()<<G4endl;
 	}
 	
 	//scale by 1/energy, sin Theta and transvers polarization

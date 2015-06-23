@@ -956,7 +956,7 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
     G4double _prob=rndmEngineMod->flat();
 
     if(debugPrint){
-      G4cout<<" ~~ Urban ~~ polarization.R: "<<track.GetPolarization().getR()<<G4endl;
+      G4cout<<" ~~ Urban ~~ polarization.R: "<<polarization.getR()<<G4endl;
     }
     
     //scale by 1/energy, sin Theta and transvers polarization
