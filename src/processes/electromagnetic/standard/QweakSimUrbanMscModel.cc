@@ -453,7 +453,7 @@ G4double QweakSimUrbanMscModel::ComputeTruePathLengthLimit(
 	polarization=track.GetPolarization();
 	eEnergy=track.GetTotalEnergy();
       }
-    }
+    }      
   debugPrint=false;//comment this line if you want to print out
   // FIXME
   
@@ -954,6 +954,10 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
   if(ePolarized){
     if(debugPrint) G4cout<<" ~~Urban fix ~~ "<<G4endl;
     G4double _prob=rndmEngineMod->flat();
+
+    if(debugPrint){
+      G4cout<<" ~~ Urban ~~ polarization.R: "<<track.GetPolarization().getR()<<G4endl;
+    }
     
     //scale by 1/energy, sin Theta and transvers polarization
     G4double _amplitude=1.0/eEnergy * sth *
