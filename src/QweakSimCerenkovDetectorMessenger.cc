@@ -1,22 +1,3 @@
-//=============================================================================
-// 
-//   ---------------------------
-//  | Doxygen File Information |
-//  ---------------------------
-// 
-/**
- 
-   \file QweakSimCerenkovDetectorMessenger.cc
-
-   $Revision: 1.2 $	
-   $Date: 2005/12/27 19:07:14 $
-
-   \author Klaus Hans Grimm   
-
-*/
-//=============================================================================
-
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #include "QweakSimCerenkovDetectorMessenger.hh"
@@ -148,7 +129,8 @@ QweakSimCerenkovDetectorMessenger::~QweakSimCerenkovDetectorMessenger()
 
 void QweakSimCerenkovDetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
 { 
-  G4cout << "#### Calling QweakSimCerenkovDetectorMessenger::SetNewValue() " << newValue << G4endl;
+  G4cout << "#### Calling QweakSimCerenkovDetectorMessenger::SetNewValue() " << command->GetCommandName()
+	 <<" "<<newValue << G4endl;
    
   if( command == NumberOfDetectorsCmd )
    {
@@ -166,21 +148,21 @@ void QweakSimCerenkovDetectorMessenger::SetNewValue(G4UIcommand* command,G4Strin
 
   if( command == ContainerXPositionCmd )
    {
-     G4cout << "#### Messenger: Setting CerenkovDetector Container X position to " << newValue << G4endl;
+     G4cout << "#### Messenger: Setting CerenkovDetector Container X position to " << newValue <<" for octant "<<fOctant << G4endl;
      
      myCerenkovDetector->SetCerenkovDetectorCenterPositionInX(ContainerXPositionCmd->GetNewDoubleValue(newValue), fOctant);
    }
 
   if( command == ContainerYPositionCmd )
   {
-      G4cout << "#### Messenger: Setting CerenkovDetector Container Y position to " << newValue << G4endl;
+      G4cout << "#### Messenger: Setting CerenkovDetector Container Y position to " << newValue <<" for octant "<<fOctant << G4endl;
       
       myCerenkovDetector->SetCerenkovDetectorCenterPositionInY(ContainerYPositionCmd->GetNewDoubleValue(newValue), fOctant);
    }
   
   if( command == ContainerZPositionCmd )
   {
-      G4cout << "#### Messenger: Setting CerenkovDetector Container Z position to " << newValue << G4endl;
+    G4cout << "#### Messenger: Setting CerenkovDetector Container Z position to " << newValue <<" for octant "<<fOctant << G4endl;
 
       myCerenkovDetector->SetCerenkovDetectorCenterPositionInZ(ContainerZPositionCmd->GetNewDoubleValue(newValue), fOctant);
   }
@@ -222,7 +204,7 @@ void QweakSimCerenkovDetectorMessenger::SetNewValue(G4UIcommand* command,G4Strin
    }
 
 
-  G4cout << "#### Leaving QweakSimCerenkovDetector Messenger::SetNewValue() " << newValue << G4endl;
+  //G4cout << "#### Leaving QweakSimCerenkovDetectorMessenger::SetNewValue() " << newValue << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
