@@ -1,21 +1,3 @@
-//=============================================================================
-// 
-//   ---------------------------
-//  | Doxygen File Information |
-//  ---------------------------
-// 
-/**
- 
-   \file QweakSimPrimaryGeneratorActionMessenger.cc
-
-   $Revision: 1.3 $	
-   $Date: 2006/05/05 21:33:44 $
-
-   \author Klaus Hans Grimm   
-
-*/
-//=============================================================================
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #include "QweakSimPrimaryGeneratorActionMessenger.hh"
@@ -44,11 +26,6 @@ QweakSimPrimaryGeneratorActionMessenger::QweakSimPrimaryGeneratorActionMessenger
   verboseCmd->SetRange("verbose>=0");
   verboseCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
   
-  resetCmd = new G4UIcmdWithoutParameter("/PrimaryEvent/ResetNtupleEventCounter",this);  
-  resetCmd->SetGuidance("resets Neven's Ntuple Event Counter");
-  //resetCmd->AvailableForStates(G4State_PreInit,G4State_Idle);  
-  resetCmd->AvailableForStates(G4State_Idle);  
-
   SetParticleType_Cmd = new G4UIcmdWithAString("/PrimaryEvent/SetParticleType",this);
   SetParticleType_Cmd->SetGuidance("set particle type for primary generator");
   SetParticleType_Cmd->SetParameterName("type",true);
@@ -60,13 +37,6 @@ QweakSimPrimaryGeneratorActionMessenger::QweakSimPrimaryGeneratorActionMessenger
   SetPolarization_Cmd->SetParameterName("polarization",true);
   SetPolarization_Cmd->SetDefaultValue("L");
   SetPolarization_Cmd->AvailableForStates(G4State_PreInit,G4State_Idle);
-
-  InitEventCounterCmd = new G4UIcmdWithAnInteger("/PrimaryEvent/StartingEvent",this);
-  InitEventCounterCmd->SetGuidance("set starting event count for primary generator");
-  InitEventCounterCmd->SetParameterName("StartingEvent",true);
-  InitEventCounterCmd->SetDefaultValue(1);
-  InitEventCounterCmd->SetRange("StartingEvent>=0");
-  InitEventCounterCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
 
   SetPositionX_Cmd = new G4UIcmdWithADoubleAndUnit("/PrimaryEvent/SetBeamPositionX",this);
   SetPositionX_Cmd->SetGuidance("Set beam position in x");
@@ -145,10 +115,8 @@ QweakSimPrimaryGeneratorActionMessenger::~QweakSimPrimaryGeneratorActionMessenge
   delete SetRasterXmax_Cmd;
   delete SetRasterYmin_Cmd;
   delete SetRasterYmax_Cmd;
-  delete InitEventCounterCmd;
   delete SetPolarization_Cmd;
   delete verboseCmd;
-  delete resetCmd;
   delete Dir;
 }
 
@@ -159,12 +127,6 @@ void QweakSimPrimaryGeneratorActionMessenger::SetNewValue(G4UIcommand* command, 
   //if( command == verboseCmd )
     //{ pPrimaryGeneratorAction->SetVerbose(verboseCmd->GetNewIntValue(newValue));}
    
-  if( command == resetCmd )
-    {pPrimaryGeneratorAction->ResetNtupleEventCounter(); }
-
-  if( command == InitEventCounterCmd )
-    { pPrimaryGeneratorAction->SetNtupleEventCounter(InitEventCounterCmd->GetNewIntValue(newValue)); }
-
   if( command == SetParticleType_Cmd )
     { pPrimaryGeneratorAction->SetParticleType(newValue); }
 
