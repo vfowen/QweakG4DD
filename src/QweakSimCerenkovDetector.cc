@@ -3,6 +3,7 @@
 // no assembly object.
 //
 
+#include "G4UserLimits.hh"
 #include "QweakSimCerenkovDetector.hh"
 
 static const G4double inch = 2.54*cm;
@@ -181,8 +182,8 @@ QweakSimCerenkovDetector::~QweakSimCerenkovDetector() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void QweakSimCerenkovDetector::DefineCerenkovGeometry() {
-    G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::DefineCerenkovGeometry() " << G4endl << G4endl;
-    G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::DefineCerenkovGeometry() " << G4endl << G4endl;
+    // G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::DefineCerenkovGeometry() " << G4endl << G4endl;
+    // G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::DefineCerenkovGeometry() " << G4endl << G4endl;
 }
 
 
@@ -1526,10 +1527,9 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 					  "Radiator_Log",
 					  0,0,0);
   //FIXME -- define step limitation for this container
-  /*
-    G4double MaxStepInPbRadiator = 0.001*2.0*cm;
-    Radiator_Logical->SetUserLimits(new G4UserLimits(MaxStepInPbRadiator));
-   */
+  //0.001 produces 10x more output in o-tuple
+  // G4double MaxStepInPbRadiator = 0.000001*2.0*cm;
+  // Radiator_Logical->SetUserLimits(new G4UserLimits(MaxStepInPbRadiator));
   //FIXME -- define step limitation for this container
 
   G4ThreeVector Position_Radiator  = G4ThreeVector(0, 0,-5.0*cm);//-2.0*cm);
@@ -2391,7 +2391,7 @@ void QweakSimCerenkovDetector::DestroyComponent() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void QweakSimCerenkovDetector::SetCerenkovDetectorThickness(G4double /*thickness*/) {
-    G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::SetCerenkovDetectorThickness() " << G4endl << G4endl;
+  //G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::SetCerenkovDetectorThickness() " << G4endl << G4endl;
 
 //     G4Box *box = NULL;
 
@@ -2419,73 +2419,73 @@ void QweakSimCerenkovDetector::SetCerenkovDetectorThickness(G4double /*thickness
 
 //     G4RunManager::GetRunManager()->GeometryHasBeenModified();
 
-    G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::SetCerenkovDetectorThickness() " << G4endl << G4endl;
+    //G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::SetCerenkovDetectorThickness() " << G4endl << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void QweakSimCerenkovDetector::SetCerenkovDetectorCenterPositionInX(G4double xPos, G4int octant) {
-    G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::SetCerenkovCenterPositionInX() " << G4endl << G4endl;
+  //G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::SetCerenkovCenterPositionInX() " << G4endl << G4endl;
 
     Position_CerenkovContainer_X[octant] =xPos;
 
     CerenkovGeometryPVUpdate();
 
-    G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::SetCerenkovCenterPositionInX() " << G4endl << G4endl;
+    //G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::SetCerenkovCenterPositionInX() " << G4endl << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void QweakSimCerenkovDetector::SetCerenkovDetectorCenterPositionInY(G4double yPos, G4int octant) {
-    G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::SetCerenkovCenterPositionInY() " << G4endl << G4endl;
+  //G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::SetCerenkovCenterPositionInY() " << G4endl << G4endl;
 
     Position_CerenkovContainer_Y[octant] = yPos;
 
     CerenkovGeometryPVUpdate();
 
-    G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::SetCerenkovCenterPositionInY() " << G4endl << G4endl;
+    //G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::SetCerenkovCenterPositionInY() " << G4endl << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void QweakSimCerenkovDetector::SetCerenkovDetectorCenterPositionInZ(G4double zPos, G4int octant) {
-    G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::SetCerenkovCenterPositionInZ() " << G4endl << G4endl;
+  //G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::SetCerenkovCenterPositionInZ() " << G4endl << G4endl;
 
     Position_CerenkovContainer_Z[octant] = zPos-Container_Center_Z;
 
     CerenkovGeometryPVUpdate();
 
-    G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::SetCerenkovCenterPositionInZ() " << G4endl << G4endl;
+    //G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::SetCerenkovCenterPositionInZ() " << G4endl << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void QweakSimCerenkovDetector::SetCerenkovDetectorTiltAngle(G4double tiltangle) {
-    G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::SetCerenkovDetectorTiltAngle() " << G4endl << G4endl;
+  //G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::SetCerenkovDetectorTiltAngle() " << G4endl << G4endl;
 
     // assign new tilting
     Tilting_Angle = tiltangle;
 
     CerenkovGeometryPVUpdate();
 
-    G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::SetCerenkovDetectorTiltAngle() " << G4endl << G4endl;
+    //G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::SetCerenkovDetectorTiltAngle() " << G4endl << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void QweakSimCerenkovDetector::CerenkovGeometryPVUpdate() {
-    G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::CerenkovGeometryPVUpdate()" << G4endl << G4endl;
+  //G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::CerenkovGeometryPVUpdate()" << G4endl << G4endl;
 
-    for (size_t i=0; i< CerenkovMasterContainer_Physical.size();i++) {
-        if (CerenkovContainer_Logical)
-          CerenkovContainer_Logical->RemoveDaughter(CerenkovMasterContainer_Physical[i]);
-
-        delete CerenkovMasterContainer_Physical[i];
-        CerenkovMasterContainer_Physical[i] = 0;
-
-        delete Rotation_CerenkovMasterContainer[i];
-        Rotation_CerenkovMasterContainer[i] = 0;
-    }
-
-    // Place the physical volume of the rods with the new phi angle
-    PlacePVCerenkovMasterContainer();
-
-    G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::CerenkovGeometryPVUpdate()" << G4endl << G4endl;
+  for (size_t i=0; i< CerenkovMasterContainer_Physical.size();i++) {
+    if (CerenkovContainer_Logical)
+      CerenkovContainer_Logical->RemoveDaughter(CerenkovMasterContainer_Physical[i]);
+    
+    delete CerenkovMasterContainer_Physical[i];
+    CerenkovMasterContainer_Physical[i] = 0;
+    
+    delete Rotation_CerenkovMasterContainer[i];
+    Rotation_CerenkovMasterContainer[i] = 0;
+  }
+  
+  // Place the physical volume of the rods with the new phi angle
+  PlacePVCerenkovMasterContainer();
+  
+  //G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::CerenkovGeometryPVUpdate()" << G4endl << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
