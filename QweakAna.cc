@@ -1,270 +1,139 @@
-// Author Ciprian
-#include <string.h>
-#include "stdio.h"
-#include "iostream"
+#include <string>
+#include <iostream>
 #include <iomanip>
-#include "TChain.h"
-#include "TFile.h"
-#include "TH1D.h"
-#include "TH2D.h"
+#include <math.h>
+
 #include "QweakSimUserMainEvent.hh"
-#include "math.h"
-#include "stdlib.h"
+#include "QweakSimSystemOfUnits.hh"
+#include "TH1F.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TString.h"
+#include "TGraph.h"
+#include "TGraphErrors.h"
 
 using namespace std;
-void addNm(TString a,std::vector<TString> &pn, std::vector<int> &np);
-void printProcess(std::vector<TString> pn,std::vector<int> np);
-void fullPrint(QweakSimUserMainEvent* event, int nr);
+float calcAsym(int posAng,float val);
 
 int main(int argc, char** argv)
 {
-    if(argc != 2) {
-        cout<<" Please specify infile with paths to output QweakSimG4 trees "<<endl;
-        return 1;
-    }
-    string fin(argv[1]);
+  if(argc < 3 || argc > 4 ) {
+    cout<<" usage: build/QweakAna [detector number] [path to infile with list of output QweakSimG4 trees] [optional: E cut]"<<endl;
+    return 1;
+  }
+  float nDet=atoi(argv[1]);
+  string files(argv[2]);
+  float Ecut=0;
+  if(argc == 4) Ecut=atof(argv[3]);
+  
+  TFile *fout=new TFile(Form("o_dist_asym_%04.2Ecut.root",Ecut),"RECREATE");
+  
+  TH1F *distXposPe =new TH1F("distXposPe" ,"X position distribution primary e-;x pos [cm]",200,-100,100);
+  TH1F *distXposNPe=new TH1F("distXposNPe","X position distribution All e;x pos [cm]"     ,200,-100,100);
+  TH1F *distXposPh =new TH1F("distXposPh" ,"X position distribution photons;x pos [cm]"   ,200,-100,100);
 
-    TChain* QweakSimG4_Tree = new TChain("QweakSimG4_Tree");
-    ifstream ifile(fin.c_str());
-    char _data[500];
-    int scale=0;
-    while(ifile>>_data){
-      scale+=10000;
-      QweakSimG4_Tree->Add(_data);
-      cout<<_data<<endl;
-    }
+  TH1F *distXangPe =new TH1F("distXangPe" ,"Angle along X distribution primary e-;ang X [deg]",180,-90,90);
+  TH1F *distXangNPe=new TH1F("distXangNPe","Angle along X distribution All e;ang X [deg]"     ,180,-90,90);
+  TH1F *distXangPh =new TH1F("distXangPh" ,"Angle along X distribution photons;ang X [deg]"   ,180,-90,90);
 
+  TH1F *asymXposPe =new TH1F("asymXposPe" ,"DD Asymmetry for X position deviation primary e-",200,-1,1);
+  TH1F *asymXposNPe=new TH1F("asymXposNPe","DD Asymmetry for X position deviation all e"     ,200,-1,1);
+
+  TH1F *asymXangPe =new TH1F("asymXangPe" ,"DD Asymmetry for angle deviation primary e-",200,-1,1);
+  TH1F *asymXangNPe=new TH1F("asymXangNPe","DD Asymmetry for angle deviation all e"     ,200,-1,1);
+  
+  ifstream ifile(files.c_str());
+  string data;
+
+  while(ifile>>data){
+    TFile *fin=TFile::Open(data.c_str());
+    TTree *QweakSimG4_Tree=(TTree*)fin->Get("QweakSimG4_Tree");
+    cout<<"processing : "<<data.c_str()<<" for detector "<<nDet<<" with E cut "<<Ecut<<endl;    
+    
     //set addresses of leafs
     QweakSimUserMainEvent* event = 0;
     QweakSimG4_Tree->SetBranchAddress("QweakSimUserMainEvent",&event);
-
-    TFile *fout=new TFile("o_ana.root","RECREATE");
-
-    TH1D *hx = new TH1D("hx","hx",200,-20.0,20.0);
-    TH1D *hy = new TH1D("hy","hy",200,325.0,345.0);
-    TH2D *h2dhit=new TH2D("h2dHit","Cerenkov Detector Hit Postion", 200, -20, 20,200,325,345);
-
-    TH1D *hE = new TH1D("hE","Total Energy of Track",300,0,1200);
-    TH1D *hEe = new TH1D("hEe","Total Energy of e",300,0,1200);
-    TH1D *hEeC = new TH1D("hEeC","Total Energy of e with Cerenkov Threshold cut",300,0,1200);
-    TH1D *hEg = new TH1D("hEg","Total Energy of gamma",300,0,1200);
-
-    TH1D *hxg = new TH1D("hxg","hx gamma",200,-20.0,20.0);
-    TH1D *hyg = new TH1D("hyg","hy gamma",200,325.0,345.0);
-    TH2D *hAngles=new TH2D("hAngles","{#phi} vs {#theta}",100,-300,100,100,0,180);
-
-    TH1D *hxe = new TH1D("hxe","e x coord",200,-20.0,20.0);
-    TH1D *hye = new TH1D("hye","e y coord",200,326.0,343.0);
-    TH1D *hze = new TH1D("hze","e z coord",100,570.0,580.0);
-    
-    TH1D *Lphie= new TH1D("Lphie","local {#phi} angle e^{#pm}",100,-300,100);
-    TH1D *Lthe= new TH1D("Lthe","local {#theta} angle e^{#pm}",100,0,180);
-    TH1D *Gphie= new TH1D("Gphie","global {#phi} angle e^{#pm}",100,-300,100);
-    TH1D *Gthe= new TH1D("Gthe","global {#theta} angle e^{#pm}",100,0,180);
-    
-    TH2D *xLphi=new TH2D("xLphi","e x vs local phi",200,-20,20,100,-360,360);    
-    TH2D *xGphi=new TH2D("xGphi","e x vs global phi",200,-20,20,100,-280,100);
-    TH2D *xE   =new TH2D("xE",   "e x vs E",200,-20,20,100,0,1000);
-    
-    TH1D *LTnPEs=new TH1D("LTnPEs","Number of PEs / event Left" ,300,0,300);
-    TH1D *RTnPEs=new TH1D("RTnPEs","Number of PEs / event Right",300,0,300);
-    
-    TH1D *LEtot=new TH1D("LEtot","Total E / event Left [MeV]" ,300,0,1200);
-    TH1D *REtot=new TH1D("REtot","Total E / event Right[MeV]" ,300,0,1200);
-    
-    TH1D *LRasymPMT=new TH1D("LRasymPMT","PMT LR asymmetry (L-R)/(L+R)",100,-1,1);
-    TH1D *LRasymE=new TH1D("LRasymE","Total E LR asymmetry (L-R)/(L+R)",100,-1,1);
-    
-    TH1D *vRel=new TH1D("vrel","relativistic velocity",100,0,1);
-    
-    double cutoff=1./1.458;
-    double emass=0.510998910;//MeV
-    double _xL=0;
-    double _xR=0;
-    double _peMin=100;
-    double _peMax=0;
     cout<<" total nr ev: "<<QweakSimG4_Tree->GetEntries()<<endl;
     
     for (int i = 0; i < QweakSimG4_Tree->GetEntries(); i++) {
-        QweakSimG4_Tree->GetEntry(i);
+      QweakSimG4_Tree->GetEntry(i);
+      if(i%10000==1) cout<<"   at event: "<<i<<endl;
+      
+      for (int hit = 0; hit < event->Cerenkov.Detector.GetDetectorNbOfHits(); hit++) {	
+	if(event->Cerenkov.Detector.GetDetectorID()[hit]!=nDet) continue;
+	int pTypeHit=event->Cerenkov.Detector.GetParticleType()[hit];
+	if(abs(pTypeHit)!=11  && abs(pTypeHit)!=22 ) continue;
+	float E=event->Cerenkov.Detector.GetTotalEnergy()[hit];
+	if(E<Ecut) continue;
+	
+	float x=event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit];
+	
+	double Gphi   = event->Cerenkov.Detector.GetGlobalPhiAngle()[hit];
+	double Gtheta = event->Cerenkov.Detector.GetGlobalThetaAngle()[hit];	
 
-        if(i%10000==1) cout<<" at event: "<<i<<endl;
-        //loop over hits
-	float _lE=0;
-	float _rE=0;
-        for (int hit = 0; hit < event->Cerenkov.Detector.GetDetectorNbOfHits(); hit++) {
-	  if(event->Cerenkov.Detector.GetDetectorID()[hit]!=3) continue;
-	  
-	  double _p=sqrt(pow(event->Cerenkov.Detector.GetGlobalMomentumX()[hit],2)+
-                                 pow(event->Cerenkov.Detector.GetGlobalMomentumY()[hit],2)+
-                                 pow(event->Cerenkov.Detector.GetGlobalMomentumZ()[hit],2));
-	  double v=sqrt(pow(_p,2)/(pow(emass,2)+pow(_p,2)));// relativistic velocity /c which should be compared to 1/refractive index
-	  vRel->Fill(v);
-	  
-	  TString pn=event->Cerenkov.Detector.GetCreatorProcessName()[hit];
-            
-          if(event->Cerenkov.Detector.GetDetectorGlobalPositionZ()[hit] > 580 ||
-             event->Cerenkov.Detector.GetDetectorGlobalPositionZ()[hit] < 570) continue;
+	double _Gtheta=Gtheta/180.*pi;
+	double _Gphi=(Gphi+90)/180.*pi; //+90 to account for the offset in the output
 
-            double E=event->Cerenkov.Detector.GetTotalEnergy()[hit];
-            hE->Fill(E);
-            hx->Fill(event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit]);
-            hy->Fill(event->Cerenkov.Detector.GetDetectorGlobalPositionY()[hit]);
-            h2dhit->Fill(event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit],
-                         event->Cerenkov.Detector.GetDetectorGlobalPositionY()[hit]);
-            if(event->Cerenkov.Detector.GetParticleType()[hit]==22) {
-                hxg->Fill(event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit]);
-                hyg->Fill(event->Cerenkov.Detector.GetDetectorGlobalPositionY()[hit]);
-                hEg->Fill(E);
-            }
-            if(abs(event->Cerenkov.Detector.GetParticleType()[hit])==11) {
-                hxe->Fill(event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit]);
-                hye->Fill(event->Cerenkov.Detector.GetDetectorGlobalPositionY()[hit]);
-		hze->Fill(event->Cerenkov.Detector.GetDetectorGlobalPositionZ()[hit]);
-		Gphie->Fill(event->Cerenkov.Detector.GetGlobalPhiAngle()[hit]);
-                Gthe->Fill(event->Cerenkov.Detector.GetGlobalThetaAngle()[hit]);
-		hAngles->Fill(event->Cerenkov.Detector.GetGlobalPhiAngle()[hit],
-			      event->Cerenkov.Detector.GetGlobalThetaAngle()[hit]);
-                hEe->Fill(E);
-		
-		Lphie->Fill(event->Cerenkov.Detector.GetLocalPhiAngle()[hit]);
-		Lthe->Fill(event->Cerenkov.Detector.GetLocalThetaAngle()[hit]);
-		xLphi->Fill(event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit],event->Cerenkov.Detector.GetLocalPhiAngle()[hit]);
-		xGphi->Fill(event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit],event->Cerenkov.Detector.GetGlobalPhiAngle()[hit]);
-		xE->Fill(event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit],E);
-		if(event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit]>0) {
-		   _xR+=E;
-		   if(v>cutoff){
-		     _rE+=E;
-		     REtot->Fill(E);
-		   }
-		}else {
-		  _xL+=E;
-		  if(v>cutoff){
-		    _lE+=E;
-		    LEtot->Fill(E);
-		  }
-		}
-		if(v>cutoff) hEeC->Fill(E);
-            }
+	float angX = atan2(sin(_Gtheta)*cos(_Gphi),cos(_Gtheta)) * 180.0 / pi;
 
-        }
-        
-        if((_lE+_rE)>0)LRasymE->Fill((_lE-_rE)/(_lE+_rE));
+	int parentID=event->Cerenkov.Detector.GetParentID()[hit];
+	int tID     =event->Cerenkov.Detector.GetParticleID()[hit];
+	
+	if(abs(pTypeHit)==22){ //
+	  distXposPh->Fill(x);
+	  distXangPh->Fill(angX);
+	}else if(abs(pTypeHit)==11){
+	  double posAsym=calcAsym(0,x);
+	  double angAsym=calcAsym(1,angX);
 	  
-	  
-	if(event->Cerenkov.PMT.GetDetectorNbOfHits()>0){
-	  float _rtnPE=event->Cerenkov.PMT.GetPMTRightNbOfHits()[3];
-	  float _ltnPE=event->Cerenkov.PMT.GetPMTLeftNbOfHits()[3];
-	  
-	  LTnPEs->Fill(_ltnPE);
-	  RTnPEs->Fill(_rtnPE);
-	  if(_rtnPE>_peMax) _peMax=_rtnPE;
-	  if(_rtnPE<_peMin) _peMin=_rtnPE;
-	  if(_ltnPE>1 && _rtnPE>1)
-	    LRasymPMT->Fill((_ltnPE-_rtnPE)/(_ltnPE+_rtnPE));
+	  if(tID==1 && parentID==0){ //primary
+	    distXposPe->Fill(x);
+	    distXangPe->Fill(angX);
+	    asymXposPe->Fill(posAsym);
+	    asymXangPe->Fill(angAsym);
+	  }
+	  distXposNPe->Fill(x);
+	  distXangNPe->Fill(angX);
+	  asymXposNPe->Fill(posAsym);
+	  asymXangNPe->Fill(angAsym);	    
 	}
+      }
     }
-  
-    cout<<_xL<<" L Energy of electrons R "<<_xR<<endl;
-    cout<<" X position mean rms "<<hxe->GetMean()<<" "<<hxe->GetRMS()<<endl;
-    cout<<" L Min Max NPE event "<<_peMin<<" "<<_peMax<<endl;
-    LRasymE ->Scale(1.0/scale);
-    LRasymPMT ->Scale(1.0/scale);
-    LTnPEs ->Scale(1.0/scale);
-    RTnPEs ->Scale(1.0/scale);
-    LEtot  ->Scale(1.0/scale);
-    REtot  ->Scale(1.0/scale);
     
-    h2dhit->Write();
-    hE->Write();
-    hEe->Write();
-    hEeC->Write();
-    hEg->Write();
-    hx->Write();
-    hy->Write();
-    hxg->Write();
-    hyg->Write();
-    hxe->Write();
-    hye->Write();
-    hze->Write();
-    Gphie->Write();
-    Gthe->Write();
-    Lphie->Write();
-    Lthe->Write();
-    xLphi->Write();
-    xGphi->Write();
-    xE->Write();
-    hAngles->Write();
-    LTnPEs->Write();
-    RTnPEs->Write();
-    LRasymPMT->Write();
-    LRasymE->Write();
-    LEtot->Write();
-    REtot->Write();
-    vRel->Write();
-    fout->Close();
+    cout<<"Done looping!"<<endl;
+    fin->Close();
+  }
 
-    return 0;
+  distXposPe ->Write();
+  distXposPh ->Write();
+  distXposNPe->Write();
+  distXangPe ->Write();
+  distXangPh ->Write();
+  distXangNPe->Write();
+  
+  asymXposPe ->Write();
+  asymXposNPe->Write();
+  asymXangPe ->Write();
+  asymXangNPe->Write();
+  fout->Close();
+
+  ifile.close();
+  return 0;
 }
 
-void addNm(TString a,std::vector<TString> &pn, std::vector<int> &np)
-{
-    int found=-1;
-    for(int i=0; i<(int)pn.size() && found==-1; i++) {
-        if(strcmp(a.Data(),pn[i].Data())==0) found=i;
-    }
-    if(found==-1) {
-        pn.push_back(a);
-        np.push_back(1);
-    }
-    else
-        np[found]++;
+float calcAsym(int posAng,float val){
+  TFile *fin=TFile::Open("output/o_PEasyms.root","READ");
+  TGraph *singleAsym;
+  if(posAng==0)      singleAsym=(TGraphErrors*)fin->Get("asym_9");
+  else if(posAng==1) singleAsym=(TGraph*)      fin->Get("angle");
+
+  double asym=-2;
+  if( (posAng==0 && fabs(val)<20) || (posAng==1 && fabs(val)<45) )
+    asym=singleAsym->Eval(val,0,"S");
+  else if(posAng==1 && fabs(val)>=45)
+    asym=0.90;
+  
+  fin->Close();
+  return asym;
 }
 
-void printProcess(std::vector<TString> pn,std::vector<int> np)
-{
-    double allp=0;
-    for(int i=0; i<(int)np.size(); i++) allp+=np[i];
-    for(int i=0; i<(int)pn.size(); i++)
-        std::cout<<i<<" "<<pn[i].Data()<<" "<<np[i]<<" "<<np[i]/allp<<endl;
-
-}
-
-void fullPrint(QweakSimUserMainEvent* event, int nr)
-{
-    cout<<"event "<<nr <<" with Nhits: "<<event->Cerenkov.Detector.GetDetectorNbOfHits()<<endl;
-    for (int i = 0; i < event->Cerenkov.Detector.GetDetectorNbOfHits(); i++) {
-//     if(event->Cerenkov.Detector.GetParticleType()[i]!=11) continue;
-        cout<<"Hit # "<<i<<" name type id Parent-id creator "<<event->Cerenkov.Detector.GetParticleName()[i]<<" "
-            <<event->Cerenkov.Detector.GetParticleType()[i]<<" "
-            <<event->Cerenkov.Detector.GetParticleID()[i]<<" "
-            <<event->Cerenkov.Detector.GetParentID()[i]<<" "
-            <<event->Cerenkov.Detector.GetCreatorProcessName()[i]<<endl;
-        if(event->Cerenkov.Detector.GetPolarizationZ()[i]!=0 && event->Cerenkov.Detector.GetPolarizationZ()[i]!=1)
-            cout<<"~~~~~~~~~~~~~~~~";
-        cout<<" tE kE Polarziation xyz "<<event->Cerenkov.Detector.GetTotalEnergy()[i]<<" "
-            <<event->Cerenkov.Detector.GetKineticEnergy()[i]<<" "
-            <<event->Cerenkov.Detector.GetPolarizationX()[i]<<" "
-            <<event->Cerenkov.Detector.GetPolarizationY()[i]<<" "
-            <<event->Cerenkov.Detector.GetPolarizationZ()[i]<<endl;
-//     //cout<<"~~~~~~~~~~~~~Secondary particles: "<< event->Cerenkov.Detector.
-//     cout<<" Cerenkov photon energy: "<<event->Cerenkov.Detector.GetCerenkovPhotonEnergy()[i]<<endl;
-//     cout<<" Hit locations: "<<endl;
-//     cout<<" Local x y z : "<<event->Cerenkov.Detector.GetDetectorLocalPositionX()[i]<<" "
-//     <<event->Cerenkov.Detector.GetDetectorLocalPositionY()[i]<<" "
-//     <<event->Cerenkov.Detector.GetDetectorLocalPositionZ()[i]<<endl;
-//     cout<<" Local Exit x y z : "<<event->Cerenkov.Detector.GetDetectorLocalExitPositionX()[i]<<" "
-//     <<event->Cerenkov.Detector.GetDetectorLocalExitPositionY()[i]<<" "
-//     <<event->Cerenkov.Detector.GetDetectorLocalExitPositionZ()[i]<<endl;
-//     cout<<" Global x y z : "<<event->Cerenkov.Detector.GetDetectorGlobalPositionX()[i] <<" "
-//     <<event->Cerenkov.Detector.GetDetectorGlobalPositionY()[i]<<" "
-//     <<event->Cerenkov.Detector.GetDetectorGlobalPositionZ()[i]<<endl;
-//     cout<<" Origin Vertex x y z : "<<event->Cerenkov.Detector.GetOriginVertexPositionX()[i] <<" "
-//     <<event->Cerenkov.Detector.GetOriginVertexPositionY()[i]<<" "
-//     <<event->Cerenkov.Detector.GetOriginVertexPositionZ()[i]<<endl;
-//
-
-
-    }
-}
