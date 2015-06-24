@@ -34,7 +34,7 @@ int main(int argc, char** argv)
   angAsym=(TGraph*)      finAsym->Get("angle");
   
   
-  TFile *fout=new TFile(Form("o_dist_asym_%04.2Ecut.root",Ecut),"RECREATE");
+  TFile *fout=new TFile(Form("o_dist_asym_%04.2fEcut.root",Ecut),"RECREATE");
   
   TH1F *distXposPe =new TH1F("distXposPe" ,"X position distribution primary e-;x pos [cm]",200,-100,100);
   TH1F *distXposNPe=new TH1F("distXposNPe","X position distribution All e;x pos [cm]"     ,200,-100,100);
