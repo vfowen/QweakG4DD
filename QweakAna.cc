@@ -112,6 +112,7 @@ int main(int argc, char** argv)
     fin->Close();
   }
 
+  fout->cd();
   distXposPe ->Write();
   distXposPh ->Write();
   distXposNPe->Write();
