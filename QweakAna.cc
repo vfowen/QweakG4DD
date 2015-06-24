@@ -14,6 +14,9 @@
 
 using namespace std;
 float calcAsym(int posAng,float val);
+TGraph *singleAsym;
+TGraphErrors *posAsym;
+TGraph       *angAsym;
 
 int main(int argc, char** argv)
 {
@@ -25,6 +28,11 @@ int main(int argc, char** argv)
   string files(argv[2]);
   float Ecut=0;
   if(argc == 4) Ecut=atof(argv[3]);
+
+  TFile *finAsym=TFile::Open("output/o_PEasyms.root","READ");
+  posAsym=(TGraphErrors*)finAsym->Get("asym_9");
+  angAsym=(TGraph*)      finAsym->Get("angle");
+  
   
   TFile *fout=new TFile(Form("o_dist_asym_%04.2Ecut.root",Ecut),"RECREATE");
   
@@ -83,19 +91,19 @@ int main(int argc, char** argv)
 	  distXposPh->Fill(x);
 	  distXangPh->Fill(angX);
 	}else if(abs(pTypeHit)==11){
-	  double posAsym=calcAsym(0,x);
-	  double angAsym=calcAsym(1,angX);
+	  double posAsymV=calcAsym(0,x);
+	  double angAsymV=calcAsym(1,angX);
 	  
 	  if(tID==1 && parentID==0){ //primary
 	    distXposPe->Fill(x);
 	    distXangPe->Fill(angX);
-	    asymXposPe->Fill(posAsym);
-	    asymXangPe->Fill(angAsym);
+	    asymXposPe->Fill(posAsymV);
+	    asymXangPe->Fill(angAsymV);
 	  }
 	  distXposNPe->Fill(x);
 	  distXangNPe->Fill(angX);
-	  asymXposNPe->Fill(posAsym);
-	  asymXangNPe->Fill(angAsym);	    
+	  asymXposNPe->Fill(posAsymV);
+	  asymXangNPe->Fill(angAsymV);	    
 	}
       }
     }
@@ -116,16 +124,14 @@ int main(int argc, char** argv)
   asymXangPe ->Write();
   asymXangNPe->Write();
   fout->Close();
-
+  finAsym->Close();  
   ifile.close();
   return 0;
 }
 
 float calcAsym(int posAng,float val){
-  TFile *fin=TFile::Open("output/o_PEasyms.root","READ");
-  TGraph *singleAsym;
-  if(posAng==0)      singleAsym=(TGraphErrors*)fin->Get("asym_9");
-  else if(posAng==1) singleAsym=(TGraph*)      fin->Get("angle");
+  if(posAng==0)      singleAsym=posAsym;
+  else if(posAng==1) singleAsym=angAsym;
 
   double asym=-2;
   if( (posAng==0 && fabs(val)<20) || (posAng==1 && fabs(val)<45) )
@@ -133,7 +139,6 @@ float calcAsym(int posAng,float val){
   else if(posAng==1 && fabs(val)>=45)
     asym=0.90;
   
-  fin->Close();
   return asym;
 }
 
