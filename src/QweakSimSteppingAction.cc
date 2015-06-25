@@ -35,23 +35,23 @@ static const double perpYDepol[perpNval]={0.203,0.277,0.399,0.522,0.764,0.890,1.
 QweakSimSteppingAction::QweakSimSteppingAction(QweakSimUserInformation* myUInfo, QweakSimEPEvent* myEPEvent)
 {
 
-    G4cout << "###### Calling QweakSimSteppingAction::QweakSimSteppingAction() " << G4endl;
+  G4cout << "###### Calling QweakSimSteppingAction::QweakSimSteppingAction() " << G4endl;
+  
+  myEventCounter = 0;
+  fSecondary = NULL;
+  myUserInfo = myUInfo;
 
-    myEventCounter = 0;
-    fSecondary = NULL;
-    myUserInfo = myUInfo;
-
-    myEvent = myEPEvent;
-
-    evtGenStatus = 0;
-    targetCenterPositionZ = myUserInfo->TargetCenterPositionZ;
-
-    for(int i=0;i<perpNval;i++) perpDepol.SetPoint(i,perpXDepol[i],perpYDepol[i]);    
-
-    fout=new TFile("o_tuple.root","RECREATE");	
-    tout=new TNtuple("t","Ntuple primary info in Pb",
-		     "be:bx:by:bz:bpx:bpy:bpz:bdpx:bdpy:bdpz:ae:ax:ay:az:apx:apy:apz:adpx:adpy:adpz:angle:process:stepL:evN:trackID:parentID:pType:polX:polY:polZ");
-    G4cout << "###### Leaving QweakSimSteppingAction::QweakSimSteppingAction() " << G4endl;
+  myEvent = myEPEvent;
+  
+  evtGenStatus = 0;
+  targetCenterPositionZ = myUserInfo->TargetCenterPositionZ;
+  
+  for(int i=0;i<perpNval;i++) perpDepol.SetPoint(i,perpXDepol[i],perpYDepol[i]);    
+  
+  fout=new TFile("o_tuple.root","RECREATE");	
+  tout=new TNtuple("t","Ntuple primary info in Pb",
+		   "be:bx:by:bz:bpx:bpy:bpz:bdpx:bdpy:bdpz:ae:ax:ay:az:apx:apy:apz:adpx:adpy:adpz:angle:process:stepL:evN:trackID:parentID:pType:polX:polY:polZ");
+  G4cout << "###### Leaving QweakSimSteppingAction::QweakSimSteppingAction() " << G4endl;
 
 }
 
@@ -141,9 +141,9 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
 	*/
 	G4double eLossPercent = 1. - thePostPoint->GetKineticEnergy()/thePrePoint->GetKineticEnergy();
 	G4double depol=0;
-	if( eLossPercent > perpXDepol[perpNval-1]) depol = 1;
+	if( eLossPercent > perpXDepol[perpNval-1]) depol = 1.;
 	else if( eLossPercent >= perpXDepol[0] ) depol = perpDepol.Eval(eLossPercent,0,"S")/100.;
-	else depol = 0;
+	else depol = 0.;
 
 	if(debugPrint){
 	  G4cout<<" ~~~ eBrem depol : "<<eLossPercent<<"% E loss means "<< depol <<" depolarization"<<G4endl;
@@ -153,7 +153,8 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
 		<<_polarization.getY()<<" "
 		<<_polarization.getZ()<<" => ";
 	}
-	theStep->GetTrack()->SetPolarization(_polarization * (1-depol));
+	_polarization *= (1.-depol);
+	theStep->GetTrack()->SetPolarization(_polarization);
 	if(debugPrint){
 	  G4cout<<_polarization.getX()<<" "
 		<<_polarization.getY()<<" "
