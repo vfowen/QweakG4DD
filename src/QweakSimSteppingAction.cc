@@ -118,7 +118,7 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
   // toggle to write out e\pm/gammas on top of primary electrons !! really big files
   G4bool writeOutAll=false;
   // toggle for filling the Pb ntuple
-  G4bool fillNtuple=true; 
+  G4bool fillNtuple=false; 
   
   int _trackID=theStep->GetTrack()->GetTrackID(); 
   int _parentID = theStep->GetTrack()->GetParentID();
