@@ -147,12 +147,11 @@ double calcAsym(int posAng,double val){
   else if(posAng==1) singleAsym=angAsym;
 
   double asym=-2;
-  if( (posAng==0 && fabs(val)<20) || (posAng==1 && fabs(val)<45) )
+  if( (posAng==0 && fabs(val)<20) || (posAng==1 && fabs(val)<40) )
     asym=singleAsym->Eval(val,0,"S");
-  else if(posAng==1 && fabs(val)>=45)
-    asym=0.90*val/fabs(val);
+  else if(posAng==1 && fabs(val)>=40)
+    asym=0.85*val/fabs(val);
 
-  if(asym>0.9) cout<<"calcAsym: " <<posAng<<" "<<val<<" "<<asym<<endl;
   return asym;
 }
 
