@@ -13,6 +13,7 @@
 #include "TGraphErrors.h"
 
 using namespace std;
+void findInt(std::vector<int> &inter,std::vector<int> &val, int trackID,int parent, int &hasPar, int &nInt);
 float calcAsym(int posAng,float val);
 TGraph *singleAsym;
 TGraphErrors *posAsym;
@@ -52,7 +53,9 @@ int main(int argc, char** argv)
   
   ifstream ifile(files.c_str());
   string data;
-
+  std::vector<int> interaction;
+  std::vector<int> trackID;
+    
   while(ifile>>data){
     TFile *fin=TFile::Open(data.c_str());
     TTree *QweakSimG4_Tree=(TTree*)fin->Get("QweakSimG4_Tree");
@@ -66,6 +69,9 @@ int main(int argc, char** argv)
     for (int i = 0; i < QweakSimG4_Tree->GetEntries(); i++) {
       QweakSimG4_Tree->GetEntry(i);
       if(i%10000==1) cout<<"   at event: "<<i<<endl;
+
+      interaction.clear();
+      trackID.clear();
       
       for (int hit = 0; hit < event->Cerenkov.Detector.GetDetectorNbOfHits(); hit++) {	
 	if(event->Cerenkov.Detector.GetDetectorID()[hit]!=nDet) continue;
@@ -73,6 +79,13 @@ int main(int argc, char** argv)
 	if(abs(pTypeHit)!=11  && abs(pTypeHit)!=22 ) continue;
 	float E=event->Cerenkov.Detector.GetTotalEnergy()[hit];
 	if(E<Ecut) continue;
+
+	int parentID=event->Cerenkov.Detector.GetParentID()[hit];
+	int tID     =event->Cerenkov.Detector.GetParticleID()[hit];
+
+	int hasParent(-1),nInt(-1);
+	findInt(interaction,trackID,tID,parentID,hasParent,nInt);
+	if(nInt!=1 || hasParent==1) continue;
 	
 	float x=event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit];
 	
@@ -83,9 +96,6 @@ int main(int argc, char** argv)
 	double _Gphi=(Gphi+90)/180.*pi; //+90 to account for the offset in the output
 
 	float angX = atan2(sin(_Gtheta)*cos(_Gphi),cos(_Gtheta)) * 180.0 / pi;
-
-	int parentID=event->Cerenkov.Detector.GetParentID()[hit];
-	int tID     =event->Cerenkov.Detector.GetParticleID()[hit];
 	
 	if(abs(pTypeHit)==22){ //
 	  distXposPh->Fill(x);
@@ -143,3 +153,29 @@ float calcAsym(int posAng,float val){
   return asym;
 }
 
+void findInt(std::vector<int> &inter,std::vector<int> &val, int trackID,int parent, int &hasPar, int &nInt){
+  int found=0;
+  nInt=-2;
+  int findParent=0;
+  for(unsigned int i=0;i<val.size();i++){
+    if(trackID==val[i]){
+      inter[i]++;
+      nInt=inter[i];
+      found++;
+    }
+    if(parent==val[i])
+      findParent++;
+  }
+  
+  if(findParent) hasPar=1;
+  else hasPar=0;
+  
+  if(!found){
+    val.push_back(trackID);
+    inter.push_back(1);
+    nInt=1;
+  }
+  if(found>1){
+    cout<<"multiple entries for track "<<trackID<<endl;
+  }
+}
