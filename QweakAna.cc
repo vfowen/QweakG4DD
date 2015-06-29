@@ -5,7 +5,7 @@
 
 #include "QweakSimUserMainEvent.hh"
 #include "QweakSimSystemOfUnits.hh"
-#include "TH1F.h"
+#include "TH1D.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TString.h"
@@ -14,7 +14,7 @@
 
 using namespace std;
 void findInt(std::vector<int> &inter,std::vector<int> &val, int trackID,int parent, int &hasPar, int &nInt);
-float calcAsym(int posAng,float val);
+double calcAsym(int posAng,double val);
 TGraph *singleAsym;
 TGraphErrors *posAsym;
 TGraph       *angAsym;
@@ -25,9 +25,9 @@ int main(int argc, char** argv)
     cout<<" usage: build/QweakAna [detector number] [path to infile with list of output QweakSimG4 trees] [optional: E cut]"<<endl;
     return 1;
   }
-  float nDet=atoi(argv[1]);
+  double nDet=atoi(argv[1]);
   string files(argv[2]);
-  float Ecut=0;
+  double Ecut=0;
   if(argc == 4) Ecut=atof(argv[3]);
 
   TFile *finAsym=TFile::Open("output/o_PEasyms.root","READ");
@@ -37,19 +37,19 @@ int main(int argc, char** argv)
   
   TFile *fout=new TFile(Form("o_dist_asym_%04.2fEcut.root",Ecut),"RECREATE");
   
-  TH1F *distXposPe =new TH1F("distXposPe" ,"X position distribution primary e-;x pos [cm]",200,-100,100);
-  TH1F *distXposNPe=new TH1F("distXposNPe","X position distribution All e;x pos [cm]"     ,200,-100,100);
-  TH1F *distXposPh =new TH1F("distXposPh" ,"X position distribution photons;x pos [cm]"   ,200,-100,100);
+  TH1D *distXposPe =new TH1D("distXposPe" ,"X position distribution primary e-;x pos [cm]",200,-100,100);
+  TH1D *distXposNPe=new TH1D("distXposNPe","X position distribution All e;x pos [cm]"     ,200,-100,100);
+  TH1D *distXposPh =new TH1D("distXposPh" ,"X position distribution photons;x pos [cm]"   ,200,-100,100);
 
-  TH1F *distXangPe =new TH1F("distXangPe" ,"Angle along X distribution primary e-;ang X [deg]",180,-90,90);
-  TH1F *distXangNPe=new TH1F("distXangNPe","Angle along X distribution All e;ang X [deg]"     ,180,-90,90);
-  TH1F *distXangPh =new TH1F("distXangPh" ,"Angle along X distribution photons;ang X [deg]"   ,180,-90,90);
+  TH1D *distXangPe =new TH1D("distXangPe" ,"Angle along X distribution primary e-;ang X [deg]",180,-90,90);
+  TH1D *distXangNPe=new TH1D("distXangNPe","Angle along X distribution All e;ang X [deg]"     ,180,-90,90);
+  TH1D *distXangPh =new TH1D("distXangPh" ,"Angle along X distribution photons;ang X [deg]"   ,180,-90,90);
 
-  TH1F *asymXposPe =new TH1F("asymXposPe" ,"DD Asymmetry for X position deviation primary e-",200,-1,1);
-  TH1F *asymXposNPe=new TH1F("asymXposNPe","DD Asymmetry for X position deviation all e"     ,200,-1,1);
+  TH1D *asymXposPe =new TH1D("asymXposPe" ,"DD Asymmetry for X position deviation primary e-",200,-1,1);
+  TH1D *asymXposNPe=new TH1D("asymXposNPe","DD Asymmetry for X position deviation all e"     ,200,-1,1);
 
-  TH1F *asymXangPe =new TH1F("asymXangPe" ,"DD Asymmetry for angle deviation primary e-",200,-1,1);
-  TH1F *asymXangNPe=new TH1F("asymXangNPe","DD Asymmetry for angle deviation all e"     ,200,-1,1);
+  TH1D *asymXangPe =new TH1D("asymXangPe" ,"DD Asymmetry for angle deviation primary e-",200,-1,1);
+  TH1D *asymXangNPe=new TH1D("asymXangNPe","DD Asymmetry for angle deviation all e"     ,200,-1,1);
   
   ifstream ifile(files.c_str());
   string data;
@@ -77,7 +77,7 @@ int main(int argc, char** argv)
 	if(event->Cerenkov.Detector.GetDetectorID()[hit]!=nDet) continue;
 	int pTypeHit=event->Cerenkov.Detector.GetParticleType()[hit];
 	if(abs(pTypeHit)!=11  && abs(pTypeHit)!=22 ) continue;
-	float E=event->Cerenkov.Detector.GetTotalEnergy()[hit];
+	double E=event->Cerenkov.Detector.GetTotalEnergy()[hit];
 	if(E<Ecut) continue;
 
 	int parentID=event->Cerenkov.Detector.GetParentID()[hit];
@@ -87,7 +87,7 @@ int main(int argc, char** argv)
 	findInt(interaction,trackID,tID,parentID,hasParent,nInt);
 	if(nInt!=1 || hasParent==1) continue;
 	
-	float x=event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit];
+	double x=event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit];
 	
 	double Gphi   = event->Cerenkov.Detector.GetGlobalPhiAngle()[hit];
 	double Gtheta = event->Cerenkov.Detector.GetGlobalThetaAngle()[hit];	
@@ -95,7 +95,9 @@ int main(int argc, char** argv)
 	double _Gtheta=Gtheta/180.*pi;
 	double _Gphi=(Gphi+90)/180.*pi; //+90 to account for the offset in the output
 
-	float angX = atan2(sin(_Gtheta)*cos(_Gphi),cos(_Gtheta)) * 180.0 / pi;
+	double angX = atan2(sin(_Gtheta)*cos(_Gphi),cos(_Gtheta)) * 180.0 / pi;
+
+	if(fabs(angX)>90) continue;
 	
 	if(abs(pTypeHit)==22){ //
 	  distXposPh->Fill(x);
@@ -140,7 +142,7 @@ int main(int argc, char** argv)
   return 0;
 }
 
-float calcAsym(int posAng,float val){
+double calcAsym(int posAng,double val){
   if(posAng==0)      singleAsym=posAsym;
   else if(posAng==1) singleAsym=angAsym;
 
