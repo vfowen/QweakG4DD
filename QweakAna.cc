@@ -86,7 +86,7 @@ int main(int argc, char** argv)
   string data;
   std::vector<int> interaction;
   std::vector<int> trackID;
-    
+
   while(ifile>>data){
     TFile *fin=TFile::Open(data.c_str());
     TTree *QweakSimG4_Tree=(TTree*)fin->Get("QweakSimG4_Tree");
@@ -134,7 +134,6 @@ int main(int argc, char** argv)
 
 	for(int j=0;j<3;j++){
 	  if(E<eCut[j]) continue;
-		
 	  if(abs(pTypeHit)==22){ //photons
 	    distXposPh[j]->Fill(x);
 	    distXangPh[j]->Fill(angX);
@@ -145,12 +144,12 @@ int main(int argc, char** argv)
 	      if( posAsymV > -1 ) {
 		asymXposPe[j]->Fill(posAsymV);
 		updateMean(j,posAsymV,runningAverages,nAverages);
-		distAsymXposPe[i]->Fill(x,posAsymV);
+		distAsymXposPe[j]->Fill(x,posAsymV);
 	      }
 	      if( angAsymV > -1 ) {
 		asymXangPe[j]->Fill(angAsymV);
 		updateMean(j+3,angAsymV,runningAverages,nAverages);
-		distAsymXangPe[i]->Fill(angX,angAsymV);
+		distAsymXangPe[j]->Fill(angX,angAsymV);
 	      }
 
 	      double mean=0;
@@ -167,12 +166,12 @@ int main(int argc, char** argv)
 	    if( posAsymV > -1 ) {
 	      asymXposAe[j]->Fill(posAsymV);
 	      updateMean(j+6,posAsymV,runningAverages,nAverages);
-	      distAsymXposAe[i]->Fill(x,posAsymV);
+	      distAsymXposAe[j]->Fill(x,posAsymV);
 	    }
 	    if( angAsymV > -1 ){
 	      asymXangAe[j]->Fill(angAsymV);	    
 	      updateMean(j+9,angAsymV,runningAverages,nAverages);
-	      distAsymXangAe[i]->Fill(angX,angAsymV);
+	      distAsymXangAe[j]->Fill(angX,angAsymV);
 	    }
 
 	    double mean=0;
@@ -208,8 +207,8 @@ int main(int argc, char** argv)
   }
   
   fout->cd();
+  averages->Write();
   for(int j=0;j<3;j++){
-    averages->Write();
     
     distXposPe[j]->Write();
     distXposPh[j]->Write();
@@ -254,7 +253,7 @@ void calcAsym(TH1D *dist,TH1D *mean, TH1D *asym,int posAng){
     double aL=getAsym(posAng,mean->GetBinContent(middleBin-i));
     double aR=getAsym(posAng,mean->GetBinContent(middleBin+i+1));
 
-    if( aL < -1 || aR < -1 ) continue;
+    if( aL < -1 || aR < -1 || (nR+nL == 0) ) continue;
     
     asym->SetBinContent( i+1, (nR*aR-nL*aL)/(nR+nL) );
     asym->SetBinError( i+1, sqrt(pow(nR*(aL+aR),2)*nL+pow(nL*(aR+aL),2)*nR)/pow(nL+nR,2) );
