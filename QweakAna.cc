@@ -142,12 +142,16 @@ int main(int argc, char** argv)
 	    if(tID==1 && parentID==0){ //primary
 	      distXposPe[j]->Fill(x);
 	      distXangPe[j]->Fill(angX);
-	      asymXposPe[j]->Fill(posAsymV);
-	      updateMean(j,posAsymV,runningAverages,nAverages);
-	      asymXangPe[j]->Fill(angAsymV);
-	      updateMean(j+3,angAsymV,runningAverages,nAverages);
-	      distAsymXposPe[i]->Fill(x,posAsymV);
-	      distAsymXangPe[i]->Fill(angX,angAsymV);
+	      if( posAsymV > -1 ) {
+		asymXposPe[j]->Fill(posAsymV);
+		updateMean(j,posAsymV,runningAverages,nAverages);
+		distAsymXposPe[i]->Fill(x,posAsymV);
+	      }
+	      if( angAsymV > -1 ) {
+		asymXangPe[j]->Fill(angAsymV);
+		updateMean(j+3,angAsymV,runningAverages,nAverages);
+		distAsymXangPe[i]->Fill(angX,angAsymV);
+	      }
 
 	      double mean=0;
 	      int nb=-1;
@@ -160,12 +164,16 @@ int main(int argc, char** argv)
 	    }
 	    distXposAe[j]->Fill(x);
 	    distXangAe[j]->Fill(angX);
-	    asymXposAe[j]->Fill(posAsymV);
-	    updateMean(j+6,posAsymV,runningAverages,nAverages);
-	    asymXangAe[j]->Fill(angAsymV);	    
-	    updateMean(j+9,angAsymV,runningAverages,nAverages);
-	    distAsymXposAe[i]->Fill(x,posAsymV);
-	    distAsymXangAe[i]->Fill(angX,angAsymV);
+	    if( posAsymV > -1 ) {
+	      asymXposAe[j]->Fill(posAsymV);
+	      updateMean(j+6,posAsymV,runningAverages,nAverages);
+	      distAsymXposAe[i]->Fill(x,posAsymV);
+	    }
+	    if( angAsymV > -1 ){
+	      asymXangAe[j]->Fill(angAsymV);	    
+	      updateMean(j+9,angAsymV,runningAverages,nAverages);
+	      distAsymXangAe[i]->Fill(angX,angAsymV);
+	    }
 
 	    double mean=0;
 	    int nb=-1;
@@ -246,6 +254,8 @@ void calcAsym(TH1D *dist,TH1D *mean, TH1D *asym,int posAng){
     double aL=getAsym(posAng,mean->GetBinContent(middleBin-i));
     double aR=getAsym(posAng,mean->GetBinContent(middleBin+i+1));
 
+    if( aL < -1 || aR < -1 ) continue;
+    
     asym->SetBinContent( i+1, (nR*aR-nL*aL)/(nR+nL) );
     asym->SetBinError( i+1, sqrt(pow(nR*(aL+aR),2)*nL+pow(nL*(aR+aL),2)*nR)/pow(nL+nR,2) );
   }
@@ -257,10 +267,10 @@ double getAsym(int posAng,double val){
   else if(posAng==1) singleAsym=angAsym;
 
   double asym=-2;
-  if( (posAng==0 && fabs(val)<20) || (posAng==1 && fabs(val)<40) )
+  if( (posAng==0 && fabs(val)<20) || (posAng==1 && fabs(val)<35) )
     asym=( singleAsym->Eval(val,0,"S") + singleAsym->Eval(-val,0,"S") )/2;
-  else if(posAng==1 && fabs(val)>=40)
-    asym=0.85*val/fabs(val);
+  // else if(posAng==1 && fabs(val)>=40)
+  //   asym=0.85*val/fabs(val);
 
   return asym;
 }
