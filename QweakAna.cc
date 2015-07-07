@@ -267,7 +267,7 @@ double getAsym(int posAng,double val){
 
   double asym=-2;
   if( (posAng==0 && fabs(val)<20) || (posAng==1 && fabs(val)<35) )
-    asym=( singleAsym->Eval(val,0,"S") + singleAsym->Eval(-val,0,"S") )/2;
+    asym=( singleAsym->Eval(val,0,"S") - singleAsym->Eval(-val,0,"S") )/2;
   // else if(posAng==1 && fabs(val)>=40)
   //   asym=0.85*val/fabs(val);
 
