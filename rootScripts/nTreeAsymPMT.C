@@ -13,10 +13,7 @@ void nTreeAsymPMT(){
 
   ifstream fin(flist.c_str());
   string data;
-  double val[500];
-  double dv[500];
-  double x[500];
-  double dx[500];
+  std::vector<double> vy,vdy,vx;
   c1->Print(Form("%s[",onm.c_str()),"pdf");
   int n=0;
   double min=100;
@@ -25,15 +22,26 @@ void nTreeAsymPMT(){
   c1->Divide(3);
   while(fin>>data){
     cout<<data.c_str()<<endl;
-    nTupleAna(data,n,val[n],dv[n]);
-    if(val[n]<min) min=val[n];
-    if(val[n]>max) max=val[n];
-    x[n]=n;
-    dx[n]=0;
-    if(bad(n,val)) continue;
+    double val, uncert;
+    nTupleAna(data,n,val,uncert);
+    vy.push_back(val);
+    vdy.push_back(uncert);
+    if(y[n]<min) min=y[n];
+    if(y[n]>max) max=y[n];
+    vx.push_back(n);    
     n++;
   }
-  TGraphErrors *xMean=new TGraphErrors(n,x,val,dx,dv);
+
+  const int size=n;
+  double y[size],dy[size],x[size],dx[size];
+  for(int i=0;i<size;i++){
+    y[i]=vy[i];
+    dy[i]=vdy[i];
+    x[i]=vx[i];
+    dy[i]=0;
+  }
+  
+  TGraphErrors *xMean=new TGraphErrors(size,x,y,dx,dy);
   xMean->GetXaxis()->SetTitle("simulation file number");
   xMean->GetYaxis()->SetTitle("PMT asymmetry");
   xMean->Fit("pol0");
@@ -53,7 +61,7 @@ double nTupleAna(string fn, int n,double &a, double &da)
 {    
   TFile *fin=TFile::Open(fn.c_str());
   TTree *t=(TTree*)fin->Get("QweakSimG4_Tree");
-  TH1F *h=new TH1F(Form("h%d",n),Form("PMT asym for sim file %d",n),101,-1,1);
+  TH1F *h=new TH1F(Form("h%d",n),Form("PMT asym for sim file %d",n),200,-1,1);
   t->Draw(Form("(Cerenkov.PMT.PMTLeftNbOfPEs[3] - Cerenkov.PMT.PMTRightNbOfPEs[3])/(Cerenkov.PMT.PMTLeftNbOfPEs[3] + Cerenkov.PMT.PMTRightNbOfPEs[3])>>h%d",n),"Cerenkov.PMT.PMTLeftNbOfPEs[3]!=0 && Cerenkov.PMT.PMTRightNbOfPEs[3]!=0");
   TF1 *fg=new TF1("fg","gaus(0)");
   fg->SetParameters(h->GetMaximum(),h->GetMean(),h->GetRMS());
@@ -63,11 +71,4 @@ double nTupleAna(string fn, int n,double &a, double &da)
   gStyle->SetOptFit(1);
   c1->Print(onm.c_str(),"pdf");
   fin->Close();
-}
-
-
-int bad(int n, double a[500]){
-  for(int i=0;i<n;i++)
-    if(fabs(a[n]-a[i])<0.0001) return 1;
-  return 0;
 }
