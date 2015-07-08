@@ -255,8 +255,8 @@ void calcAsym(TH1D *dist,TH1D *mean, TH1D *asym,int posAng){
 
     if( aL < -1 || aR < -1 || (nR+nL == 0) ) continue;
     
-    asym->SetBinContent( i+1, (nR*aR-nL*aL)/(nR+nL) );
-    asym->SetBinError( i+1, sqrt(pow(nR*(aL+aR),2)*nL+pow(nL*(aR+aL),2)*nR)/pow(nL+nR,2) );
+    asym->SetBinContent( i+1, (nR*aR+nL*aL)/(nR+nL) );
+    asym->SetBinError( i+1, sqrt(pow(nR*(aL-aR),2)*nL+pow(nL*(aR-aL),2)*nR)/pow(nL+nR,2) );
   }
   
 }
