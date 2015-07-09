@@ -39,7 +39,7 @@ int main(int argc, char** argv)
 
   double eCut[3]={0.,1.,2.};
   TFile *fout=new TFile("o_dist_asym.root","RECREATE");
-  TH1D *averages=new TH1D("averages","averages",20,0,20);
+  TH1D *averages=new TH1D("averages","averages",24,0,24);
   TH1D *distXposPe[3],*distXposAe[3],*distXposPh[3];
   TH1D *distXangPe[3],*distXangAe[3],*distXangPh[3];
   TH1D *meanXposPe[3],*meanXposAe[3];
@@ -78,7 +78,7 @@ int main(int argc, char** argv)
     distAsymXangAe[i]=new TH2D(Form("distAsymXangAe_%d",i),";xAng [deg];Asym ",180,-90, 90,200,-1,1);
   }
 
-  std::vector<double> runningAverages(12,0);
+  std::vector<double> runningAverages(24,0);//12 averages and 12 variances
   std::vector<int> nAverages(12,0);
   string aveName[4]={"asymXposPe","asymXangPe","asymXposAe","asymXangAe"};
   
@@ -196,6 +196,9 @@ int main(int argc, char** argv)
     for(int j=0;j<3;j++){
       averages->GetXaxis()->SetBinLabel(i*3+j+1,Form("%s_%d",aveName[i].c_str(),j));
       averages->SetBinContent(i*3+j+1,runningAverages[i*3+j]);
+
+      averages->GetXaxis()->SetBinLabel(i*3+j+13,Form("%s_%d #sigma^2",aveName[i].c_str(),j));
+      averages->SetBinContent(i*3+j+13,runningAverages[i*3+j+12]);
     }
 
   
@@ -275,13 +278,16 @@ double getAsym(int posAng,double val){
 }
 
 void updateMean(int i,double val, std::vector<double> &average, std::vector<int> &n){
-  average[i]=(average[i]*(double)n[i]+val)/((double)n[i]+1);
-  n[i]++;    
+  double delta=val-average[i];
+  n[i]++; 
+  average[i]+=delta/(double)n[i];
+  if(n[i]>=2)
+    average[i+12]+=delta*(val-average[i]);    
 }
 
-double updateMean(double vOld, double vNew, int nOld){
+double updateMean(double vOld, double vNew, int nOld){  
   if(nOld==0) return vNew;
-  else return (vOld*(double)nOld+vNew)/((double)nOld+1.);
+  else return (vOld*(double)nOld+vNew)/((double)nOld+1.);  
 }
 
 void findInt(std::vector<int> &inter,std::vector<int> &val, int trackID,int parent, int &hasPar, int &nInt){
