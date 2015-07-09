@@ -157,7 +157,7 @@ int main(int argc, char** argv)
 	      nb=distXposPe[j]->GetXaxis()->FindBin(x);
 	      mean=updateMean(meanXposPe[j]->GetBinContent(nb), x, distXposPe[j]->GetBinContent(nb)-1);
 	      meanXposPe[j]->SetBinContent(nb,mean);
-	      nb=distXangPe[j]->GetXaxis()->FindBin(x);
+	      nb=distXangPe[j]->GetXaxis()->FindBin(angX);
 	      mean=updateMean(meanXangPe[j]->GetBinContent(nb), angX, distXangPe[j]->GetBinContent(nb)-1);
 	      meanXangPe[j]->SetBinContent(nb,mean);
 	    }
@@ -179,7 +179,7 @@ int main(int argc, char** argv)
 	    nb=distXposAe[j]->GetXaxis()->FindBin(x);
 	    mean=updateMean(meanXposAe[j]->GetBinContent(nb), x, distXposAe[j]->GetBinContent(nb)-1);
 	    meanXposAe[j]->SetBinContent(nb,mean);
-	    nb=distXangAe[j]->GetXaxis()->FindBin(x);
+	    nb=distXangAe[j]->GetXaxis()->FindBin(angX);
 	    mean=updateMean(meanXangAe[j]->GetBinContent(nb), angX, distXangAe[j]->GetBinContent(nb)-1);
 	    meanXangAe[j]->SetBinContent(nb,mean);
 	  }
