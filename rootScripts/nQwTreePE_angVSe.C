@@ -86,7 +86,7 @@ void asymPMT(string flist, int energ){
   fout->cd();
   al->Write();
   ar->Write();
-  fout->Close()
+  fout->Close();
 
 }
 
@@ -127,7 +127,7 @@ double doAna(char *fn, double &l, double &dl, double &r, double &dr, int n)
   dr=gs->GetParError(1);
   gPad->SetLogy(1);
 
-  if(n%30==1)
+  //if(n%30==1)
     c1->Print(onm.c_str(),"pdf");//probably not worth drawing all the crap here
 
   fin->Close();
