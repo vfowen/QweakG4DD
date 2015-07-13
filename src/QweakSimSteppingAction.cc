@@ -50,7 +50,7 @@ QweakSimSteppingAction::QweakSimSteppingAction(QweakSimUserInformation* myUInfo,
   
   fout=new TFile("o_tuple.root","RECREATE");	
   tout=new TNtuple("t","Ntuple primary info in Pb",
-		   "be:bx:by:bz:bpx:bpy:bpz:bdpx:bdpy:bdpz:ae:ax:ay:az:apx:apy:apz:adpx:adpy:adpz:angle:process:stepL:evN:trackID:parentID:pType:polX:polY:polZ");
+		   "be:bx:by:bz:bpx:bpy:bpz:bdpx:bdpy:bdpz:ae:ax:ay:az:apx:apy:apz:adpx:adpy:adpz:angle:process:stepL:evN:trackID:parentID:pType:polX:polY:polZ:eLoss:bremDepol");
   G4cout << "###### Leaving QweakSimSteppingAction::QweakSimSteppingAction() " << G4endl;
 
 }
@@ -118,7 +118,7 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
   // toggle to write out e\pm/gammas on top of primary electrons !! really big files
   G4bool writeOutAll=false;
   // toggle for filling the Pb ntuple
-  G4bool fillNtuple=false; 
+  G4bool fillNtuple=true; 
   
   int _trackID=theStep->GetTrack()->GetTrackID(); 
   int _parentID = theStep->GetTrack()->GetParentID();
@@ -127,11 +127,14 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
   G4String _pn=thePostPoint->GetProcessDefinedStep()->GetProcessName();
   G4ThreeVector _polarization=theStep->GetTrack()->GetPolarization();
   G4Material *_material=thePostPoint->GetMaterial();
+  G4double depol(0),eLossPercent(0);
   
   if(_material){
 
     if(_material->GetName().compare("PBA")==0){ // perform this only in the Radiator
 
+      eLossPercent = 1. - thePostPoint->GetKineticEnergy()/thePrePoint->GetKineticEnergy();
+      
       if(_pn.compare("eBrem")==0 &&                           // only for eBrem
 	 (_polarization.getX()>0 || _polarization.getY()>0)){ // only for transverse polarization
 	/*
@@ -139,8 +142,7 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
 	  implemented only for transverse polarization
 	  will decrease the overall polarization by a functional form from figure 5 in the paper      
 	*/
-	G4double eLossPercent = 1. - thePostPoint->GetKineticEnergy()/thePrePoint->GetKineticEnergy();
-	G4double depol=0;
+	depol=0;
 	if( eLossPercent > perpXDepol[perpNval-1]) depol = 1.;
 	else if( eLossPercent >= perpXDepol[0] ) depol = perpDepol.Eval(eLossPercent,0,"S")/100.;
 	else depol = 0.;
@@ -171,8 +173,8 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
 	// "be:bx:by:bz:bpx:bpy:bpz:bdpx:bdpy:bdpz:
 	//  ae:ax:ay:az:apx:apy:apz:adpx:adpy:adpz:
 	//  angle:process:stepL:evN:trackID:parentID:pType:
-	//  polX:polY:polZ"
-	float _var[30];
+	//  polX:polY:polZ:eLoss:bremDepol"
+	float _var[32];
 	_var[0] = thePrePoint->GetTotalEnergy();
 	_var[1] = thePrePoint->GetPosition().getX();
 	_var[2] = thePrePoint->GetPosition().getY();
@@ -220,6 +222,9 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
 	_var[27]=_polarization.getX();
 	_var[28]=_polarization.getY();
 	_var[29]=_polarization.getZ();
+
+	_var[30]=eLossPercent;
+	_var[31]=depol;
 	
 	if(fillNtuple)
 	  tout->Fill(_var);
