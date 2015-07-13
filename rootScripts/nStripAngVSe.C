@@ -1,6 +1,6 @@
 string fnm;
 
-void nStripEvsX(){
+void nStripAngVSe(){
   fnm="o_PEangle_distributions.root";
   TFile *fout=new TFile(fnm.c_str(),"RECREATE");
   fout->Close();
@@ -25,6 +25,7 @@ void doOneEnergy(int energy){
 
   while(fin>>data)
     doOneFile(data,LX,LY,RX,RY);    
+  fin.close();
 
   fout->cd();
   LX->Write();
@@ -34,15 +35,15 @@ void doOneEnergy(int energy){
   fout->Close();
 }
 
-void doOneFile(string fnm,TH2D *LangX, TH2D *LangY,TH2D *RangX, TH2D *RangY){
+void doOneFile(string fname,TH2D *LangX, TH2D *LangY,TH2D *RangX, TH2D *RangY){
 
-  cout<<"Processing: "<<data.c_str()<<endl;
+  cout<<"Processing: "<<fname.c_str()<<endl;
       
-  TFile *rf=TFile::Open(fnm.c_str(),"READ");
+  TFile *rf=TFile::Open(fname.c_str(),"READ");
   TTree *te=(TTree*)rf->Get("te");
   TTree *th=(TTree*)rf->Get("th");
 
-  double lpe(0),rpe(0),aX(0),aY(0);
+  float lpe(0),rpe(0),aX(0),aY(0);
   int nEvTH(0),nEvTE(0);
   int tID(0),nInt(0),pType(0),hasParent(0);
 
@@ -57,11 +58,12 @@ void doOneFile(string fnm,TH2D *LangX, TH2D *LangY,TH2D *RangX, TH2D *RangY){
   th->SetBranchAddress("hasParent",&hasParent);
   th->SetBranchAddress("nInt",&nInt);
   th->SetBranchAddress("pType",&pType);
-
   
   int nev=th->GetEntries();
   int currentEv=-1;
   int evTE=0;
+
+  int statL(0),statR(0),statAx(0),statAy(0),statN(0);
   
   for(int i=0;i<nev;i++){
     th->GetEntry(i);
@@ -72,21 +74,25 @@ void doOneFile(string fnm,TH2D *LangX, TH2D *LangY,TH2D *RangX, TH2D *RangY){
     if(nInt!=1) continue;
 
     do{
-      te->GetEntry(evTe);
+      te->GetEntry(evTE);
       evTE++;
     }while(nEvTH!=nEvTE);
 
-    if(fabs(angX)>90 || fabs(angY)>90 || lpe<0 || rpe<0) {
-      cout<<"~~ "<<nEvTH<<" "<<nEvTE<<" "<<aX<<" "<<aY<<" "<<lpe<<" "<<rpe<<endl;
+    if(fabs(aX)>90 || fabs(aY)>90 || lpe<0 || rpe<0) {
+      if(fabs(aX)>90) statAx++;
+      if(fabs(aY)>90) statAy++;
+      if(lpe<0) statL++;
+      if(rpe<0) statR++;
+      statN++;
+      //cout<<"~~ "<<nEvTH<<" "<<nEvTE<<" "<<aX<<" "<<aY<<" "<<lpe<<" "<<rpe<<endl;
       continue;
     }
-    LangX->Fill(angX,lpe);
-    LangY->Fill(angY,lpe);
-    RangX->Fill(angX,rpe);
-    RangY->Fill(angY,rpe);
+    LangX->Fill(aX,lpe);
+    LangY->Fill(aY,lpe);
+    RangX->Fill(aX,rpe);
+    RangY->Fill(aY,rpe);
   }
 
-  c1->Print(onm.c_str(),"pdf");
-
+  cout<<"~~ skipped "<<statN<<" "<<statL<<" "<<statR<<" "<<statAx<<" "<<statAy<<endl;
   rf->Close();
 }
