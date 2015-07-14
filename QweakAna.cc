@@ -196,9 +196,10 @@ int main(int argc, char** argv)
     for(int j=0;j<3;j++){
       averages->GetXaxis()->SetBinLabel(i*3+j+1,Form("%s_%d",aveName[i].c_str(),j));
       averages->SetBinContent(i*3+j+1,runningAverages[i*3+j]);
-
+      averages->SetBinError(i*3+j+1,nAverages[i*3+j]);
+      
       averages->GetXaxis()->SetBinLabel(i*3+j+13,Form("%s_%d #sigma^2",aveName[i].c_str(),j));
-      averages->SetBinContent(i*3+j+13,runningAverages[i*3+j+12]);
+      averages->SetBinContent(i*3+j+13,sqrt(runningAverages[i*3+j+12]/(double)nAverages[i*3+j]));
     }
 
   
@@ -278,11 +279,10 @@ double getAsym(int posAng,double val){
 }
 
 void updateMean(int i,double val, std::vector<double> &average, std::vector<int> &n){
-  double delta=val-average[i];
   n[i]++; 
+  double delta=val-average[i];
   average[i]+=delta/(double)n[i];
-  if(n[i]>=2)
-    average[i+12]+=delta*(val-average[i]);    
+  average[i+12]+=delta*(val-average[i]);    
 }
 
 double updateMean(double vOld, double vNew, int nOld){  
