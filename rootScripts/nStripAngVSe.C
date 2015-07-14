@@ -18,10 +18,10 @@ void doOneEnergy(int energy){
   string data;
 
   TFile *fout=TFile::Open(fnm.c_str(),"UPDATE");
-  TH2D *LX=new TH2D(Form("LX_%04d",energy),"; angX [deg] ; left number of PEs",180,-90,90,50,-0.5,49.5);
-  TH2D *LY=new TH2D(Form("LY_%04d",energy),"; angY [deg] ; left number of PEs",180,-90,90,50,-0.5,49.5);
-  TH2D *RX=new TH2D(Form("RX_%04d",energy),"; angX [deg] ; left number of PEs",180,-90,90,50,-0.5,49.5);
-  TH2D *RY=new TH2D(Form("RY_%04d",energy),"; angY [deg] ; left number of PEs",180,-90,90,50,-0.5,49.5);
+  TH2D *LX=new TH2D(Form("LX_%04d",energy),"; angX [deg] ; left number of PEs",180,-90,90,150,-0.5,149.5);
+  TH2D *LY=new TH2D(Form("LY_%04d",energy),"; angY [deg] ; left number of PEs",180,-90,90,150,-0.5,149.5);
+  TH2D *RX=new TH2D(Form("RX_%04d",energy),"; angX [deg] ; left number of PEs",180,-90,90,150,-0.5,149.5);
+  TH2D *RY=new TH2D(Form("RY_%04d",energy),"; angY [deg] ; left number of PEs",180,-90,90,150,-0.5,149.5);
 
   while(fin>>data)
     doOneFile(data,LX,LY,RX,RY);    
