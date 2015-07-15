@@ -19,6 +19,8 @@ void doOneConfig(string fnm, string sufix){
 
   string energyCut[3]={"0MeV","1MeV","2MeV"};
   string cases[4]={"posPe","posAe","angPe","angAe"};
+
+  TH1D *ave=(TH1D*)fin->Get("averages");
   
   for(int i=0;i<3;i++)
     for(int j=0;j<4;j++){      
@@ -30,6 +32,8 @@ void doOneConfig(string fnm, string sufix){
       }
       h->SetTitle(Form("%s %s",h->GetTitle(),sufix.c_str()));
       calcMean(h,d);
+      TH1D *m=(TH1D*)fin->Get(Form("asymX%s_%d",cases[j].c_str(),i));
+      plotMarkDAsym(m,ave->GetBinContent(j*3+i+1),ave->GetBinContent(12+j*3+i+1),j);		    
   }
   
   fin->Close();
@@ -40,7 +44,7 @@ void calcMean(TH1D *a, TH1D *d){
   int maxBin=-1;
   for(int i=1;i<=a->GetXaxis()->GetNbins() && maxBin==-1;i++)
     if(a->GetBinError(i)==0) maxBin=i-1;
-  cout<<maxBin<<" "<<endl;
+  //cout<<maxBin<<" "<<endl;
 
   int b1=d->GetXaxis()->FindBin(-a->GetBinCenter(maxBin));
   int b2=d->GetXaxis()->FindBin( a->GetBinCenter(maxBin));
@@ -81,4 +85,25 @@ void calcMean(TH1D *a, TH1D *d){
   leg->Draw();
   c1->Print(onm.c_str(),"pdf");
   
+}
+
+void plotMarkDAsym(TH1D *a, double mean, double dmean, int log){
+
+  int maxBin=-1;
+  for(int i=1;i<=a->GetXaxis()->GetNbins() && maxBin==-1;i++)
+    if(a->GetBinError(i)==0) maxBin=i-1;
+
+  c1->cd(0);
+  a->GetXaxis()->SetRangeUser(0,a->GetBinCenter(maxBin+1));
+  a->DrawCopy();
+  if(log==0 || log==1) gPad->SetLogy(1);
+  double entries=a->GetEntries();
+  TLegend *leg=new TLegend(0.15,0.8,0.75,0.95);
+  leg->SetFillStyle(0);
+  leg->SetTextSize(0.045);
+  leg->AddEntry(a,Form("mean:  %4.0f ppm",mean*1e6,"lep"));
+  leg->Draw();
+  c1->Print(onm.c_str(),"pdf");
+  
+  if(log==0 || log==1) gPad->SetLogy(0);
 }
