@@ -3,6 +3,7 @@ string onm;
 
 void calcDDmeanForDist(){
   onm="y_DDasym_depol.pdf";
+  gStyle->SetOptStat(1211);
 
   c1->Print(Form("%s[",onm.c_str()),"pdf");
 
@@ -33,6 +34,7 @@ void doOneConfig(string fnm, string sufix){
       h->SetTitle(Form("%s %s",h->GetTitle(),sufix.c_str()));
       calcMean(h,d);
       TH1D *m=(TH1D*)fin->Get(Form("asymX%s_%d",cases[j].c_str(),i));
+      m->SetTitle(Form("%s %s",m->GetTitle(),sufix.c_str()));
       plotMarkDAsym(m,ave->GetBinContent(j*3+i+1),ave->GetBinContent(12+j*3+i+1),j);		    
   }
   
@@ -102,7 +104,7 @@ void plotMarkDAsym(TH1D *a, double mean, double dmean, int log){
   leg->SetFillStyle(0);
   leg->SetTextSize(0.045);
   leg->AddEntry(a,Form("mean:  %4.0f ppm",mean*1e6,"lep"));
-  leg->Draw();
+  //leg->Draw();
   c1->Print(onm.c_str(),"pdf");
   
   if(log==0 || log==1) gPad->SetLogy(0);
