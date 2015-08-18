@@ -48,6 +48,7 @@ int main(int argc, char** argv)
   TH1D *ddAsXposPe[3],*ddAsXangPe[3],*ddAsXposAe[3],*ddAsXangAe[3];
   TH2D *distAsymXposPe[3],*distAsymXposAe[3];
   TH2D *distAsymXangPe[3],*distAsymXangAe[3];
+  TH2D *distPe[3],*distAe[3],*distPh[3];
   
   for(int i=0;i<3;i++){
     distXposPe[i]=new TH1D(Form("distXposPe_%d",i),"X position distribution primary e-;x pos [cm]",200,-100,100);
@@ -76,6 +77,10 @@ int main(int argc, char** argv)
     distAsymXposAe[i]=new TH2D(Form("distAsymXposAe_%d",i),";xPos [cm];Asym ",200,-100,100,200,-1,1);
     distAsymXangPe[i]=new TH2D(Form("distAsymXangPe_%d",i),";xAng [deg];Asym ",180,-90, 90,200,-1,1);
     distAsymXangAe[i]=new TH2D(Form("distAsymXangAe_%d",i),";xAng [deg];Asym ",180,-90, 90,200,-1,1);
+
+    distPe[i]=new TH2D(Form("distPe_%d",i),";xPos [cm];angX [deg] ",200,-100,100,180,-90,90);
+    distAe[i]=new TH2D(Form("distAe_%d",i),";xPos [cm];angX [deg] ",200,-100,100,180,-90,90);
+    distPh[i]=new TH2D(Form("distPh_%d",i),";xPos [cm];angX [deg] ",200,-100,100,180,-90,90);
   }
 
   std::vector<double> runningAverages(24,0);//12 averages and 12 variances
@@ -137,10 +142,12 @@ int main(int argc, char** argv)
 	  if(abs(pTypeHit)==22){ //photons
 	    distXposPh[j]->Fill(x);
 	    distXangPh[j]->Fill(angX);
+	    distPh[j]->Fill(x,angX);
 	  }else if(abs(pTypeHit)==11){ //electrons
 	    if(tID==1 && parentID==0){ //primary
 	      distXposPe[j]->Fill(x);
 	      distXangPe[j]->Fill(angX);
+	      distPe[j]->Fill(x,angX);
 	      if( posAsymV > -1 ) {
 		asymXposPe[j]->Fill(posAsymV);
 		updateMean(j,posAsymV,runningAverages,nAverages);
@@ -163,6 +170,7 @@ int main(int argc, char** argv)
 	    }
 	    distXposAe[j]->Fill(x);
 	    distXangAe[j]->Fill(angX);
+	    distAe[j]->Fill(x,angX);
 	    if( posAsymV > -1 ) {
 	      asymXposAe[j]->Fill(posAsymV);
 	      updateMean(j+6,posAsymV,runningAverages,nAverages);
@@ -240,6 +248,10 @@ int main(int argc, char** argv)
     distAsymXposAe[j]->Write();
     distAsymXangPe[j]->Write();
     distAsymXangAe[j]->Write();
+
+    distPe[j]->Write();
+    distAe[j]->Write();
+    distPh[j]->Write();
   }
   fout->Close();
   finAsym->Close();  
