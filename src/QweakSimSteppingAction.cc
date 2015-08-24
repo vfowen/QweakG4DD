@@ -118,7 +118,10 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
   // toggle to write out e\pm/gammas on top of primary electrons !! really big files
   G4bool writeOutAll=false;
   // toggle for filling the Pb ntuple
-  G4bool fillNtuple=true; 
+  G4bool fillNtuple=false; 
+
+  if(debugPrint)
+    G4cout<<"Start Pb nTuple stepping block"<<G4endl;
   
   int _trackID=theStep->GetTrack()->GetTrackID(); 
   int _parentID = theStep->GetTrack()->GetParentID();
@@ -130,18 +133,16 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
   G4double depol(0),eLossPercent(0);
   
   if(_material){
+    if(debugPrint)
+      G4cout<<"   "<<_material->GetName()<<G4endl;
 
     if(_material->GetName().compare("PBA")==0){ // perform this only in the Radiator
-
+	
       eLossPercent = 1. - thePostPoint->GetKineticEnergy()/thePrePoint->GetKineticEnergy();
       
       if(_pn.compare("eBrem")==0 &&                           // only for eBrem
 	 (_polarization.getX()>0 || _polarization.getY()>0)){ // only for transverse polarization
-	/*
-	  Brem depolarization: PhysRev.114.887
-	  implemented only for transverse polarization
-	  will decrease the overall polarization by a functional form from figure 5 in the paper      
-	*/
+
 	depol=0;
 	if( eLossPercent > perpXDepol[perpNval-1]) depol = 1.;
 	else if( eLossPercent >= perpXDepol[0] ) depol = perpDepol.Eval(eLossPercent,0,"S")/100.;
@@ -162,6 +163,7 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
 		<<_polarization.getY()<<" "
 		<<_polarization.getZ()<<G4endl;
 	}
+
       }
       
       // either write out only the primaries or all e\pm and gammas
@@ -239,6 +241,10 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
       }
     }
   }
+
+  if(debugPrint)
+    G4cout<<"End Pb nTuple stepping block"<<G4endl;
+
   
   if(particleType==G4Electron::ElectronDefinition())
     {
@@ -363,10 +369,12 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
   
   //jpan@nuclear.uwinnipeg.ca
   //The following codes cause the electron tracks killed at the edge of magnetic field
-  //This must be avoid by increasing the 10000 steps to 100000.
-  
+  //This must be avoid by increasing the 10000 steps to 100000.  
   if ( theStep->GetTrack()->GetCurrentStepNumber() > 100000 )
     theStep->GetTrack()->SetTrackStatus(fStopAndKill);
+
+  if(debugPrint)
+    G4cout<<"Finished step"<<G4endl;
   return;
 }       // end of QweakSimSteppingAction::UserSteppingAction
 
