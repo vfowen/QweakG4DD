@@ -227,50 +227,40 @@ void QweakSimEventAction::BeginOfEventAction(const G4Event* /*evt*/)
 
 void QweakSimEventAction::EndOfEventAction(const G4Event* evt) {
 
-//-----------------------------------------------------------------------------
-// I'm playing with the QweakSimTrajectory
-// Startup: LXe example
-// Goal: sace track or track points into ROOT file
-//
-    G4TrajectoryContainer* trajectoryContainer = evt->GetTrajectoryContainer();
+  const G4bool debugPrint=false;
+  if(debugPrint)
+    G4cout<<G4endl<<"Start EndOfEvenAction"<<G4endl;
+  
+  G4TrajectoryContainer* trajectoryContainer = evt->GetTrajectoryContainer();
+  G4int n_trajectories = 0;  
+  if (trajectoryContainer) n_trajectories = trajectoryContainer->entries();
 
-    G4int n_trajectories = 0;
+  if(debugPrint)
+    G4cout<<" n_trajectories: "<<n_trajectories<<G4endl;
 
-    if (trajectoryContainer) n_trajectories = trajectoryContainer->entries();
+  //FIXME cg -- not sure why but this block crashes the code when running without optical photons
+  // // extract the trajectories and draw them
+  // if (G4VVisManager::GetConcreteInstance()) {
+  //   G4cout<<" apparently there is a vis manager"<<G4endl;
+  //   for (G4int i=0; i<n_trajectories; i++) {
+  //     G4cout<<"   "<<i<<" "<<G4endl;
+  //     if((*(evt->GetTrajectoryContainer()))[i]){
+  // 	QweakSimTrajectory* trj = (QweakSimTrajectory*) ((*(evt->GetTrajectoryContainer()))[i]);
+  // 	trj->DrawTrajectory(50);
+  //     }
+  //   }
+  // }
 
-    // extract the trajectories and draw them
-    if (G4VVisManager::GetConcreteInstance()) {
+  if(debugPrint)
+    G4cout<<" done drawing trajectories"<<G4endl;
 
-        for (G4int i=0; i<n_trajectories; i++) {
+  //-----------------------------------------------------------------------------
 
-            QweakSimTrajectory* trj = (QweakSimTrajectory*) ((*(evt->GetTrajectoryContainer()))[i]);
-            trj->DrawTrajectory(50);
-
-        }
-    }
-
-//-----------------------------------------------------------------------------
-
-    // preset variables for hit collection
-    Initialize();
-
-    // Get event number
-    G4int myEventCounter = myUserInfo->GetPrimaryEventNumber();
-
-
-//     // Odd events: generated upstream and used to calculate prescattering energy loss
-//     if (myEventCounter%2 == 1) {
-// 
-//       // Initialize Primary information
-//       analysis->fRootEvent->Primary.Initialize();
-// 
-//       // Store random seed
-//       G4String RandomSeed = evt->GetRandomNumberStatus();
-//       analysis->fRootEvent->Primary.StoreRandomSeed(TString(RandomSeed));
-// 
-//       // That's all for the prescattering energy loss events
-//       return;
-//     }
+  // preset variables for hit collection
+  Initialize();    
+  
+  // Get event number
+  G4int myEventCounter = myUserInfo->GetPrimaryEventNumber();
 
 
     // Get hit collection
@@ -475,13 +465,9 @@ void QweakSimEventAction::EndOfEventAction(const G4Event* evt) {
     //##########################################################################################################################
     //##########################################################################################################################
     //
-
-    // G4cout<<G4endl;
-    // G4cout<<G4endl;
-    // G4cout<<" !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Ana: "<<" "<<myUserInfo->GetPrimaryEventNumber()<<G4endl;
-    // G4cout<<G4endl;
-    // G4cout<<G4endl;
-
+    if(debugPrint){
+      G4cout<<" !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Ana: "<<" "<<myUserInfo->GetPrimaryEventNumber()<<G4endl;
+    }
 //       <<" "<<fTrigger[kTriggerCer]<<" "<<n_hitCerenkov<<G4endl;//FIXME
     if ( fTrigger[kTriggerAll] /* Trigger on every event */
 	 //|| (fTrigger[kTrigger4Fold] && (n_VDChitWirePlane == 4) && (n_VDChitDCFront > 0) && (n_VDChitDCBack > 0) && (n_hitCerenkov > 0) ) /* 4-fold coincidence */
@@ -2465,7 +2451,7 @@ void QweakSimEventAction::EndOfEventAction(const G4Event* evt) {
         // } // end	if (n_hitPMTOnlyPMT >0)
         
 
-//  G4cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" << G4endl;
+	//G4cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" << G4endl;
 
         // Finally fill our event ntuple
         analysis->FillRootNtuple();
@@ -2512,8 +2498,6 @@ void QweakSimEventAction::EndOfEventAction(const G4Event* evt) {
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void QweakSimEventAction::Initialize()
 {
-    //----------------------
-    octantID   = 0;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
