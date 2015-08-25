@@ -944,8 +944,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 //****************************************************************************************************
 
 
-    G4double PI = 4.0*std::atan(1.0);
-    G4double ChamferRotation = 45.0*PI/180.0;
+    G4double ChamferRotation = 45.0*degree;
     G4double ChamferScew = 0.0;
     G4double delta = 0.0;
 
@@ -973,10 +972,10 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
     //Boolean Union:
     //Upper-upstream edge chamfer
 
-    ChamferScew = 0.021486*PI/180.0;
+    ChamferScew = 0.021486*degree;
     delta = 0.5*(Chamfer_FullHeight - 1.0*mm)/sqrt(2.0);
-    G4double ChamferAdjRotZ = std::atan(sin(ChamferScew)*std::cos(PI/2.0 - ChamferRotation));
-    G4double ChamferAdjRotY = std::atan(sin(ChamferScew)*std::sin(PI/2.0 - ChamferRotation));
+    G4double ChamferAdjRotZ = atan(sin(ChamferScew)*cos(90*degree - ChamferRotation));
+    G4double ChamferAdjRotY = atan(sin(ChamferScew)*sin(90*degree - ChamferRotation));
     Position_Chamfer1.setX(0.0*cm);//33.333333*cm);
     Position_Chamfer1.setY(0.5*QuartzBar_FullHeight + delta);
     Position_Chamfer1.setZ(-(0.5*QuartzBar_FullThickness + delta));
@@ -997,8 +996,8 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 
     delta = 0.5*(Chamfer_FullHeight - 0.5*mm)/sqrt(2.0);
     ChamferScew = 0.0;//0.014*PI/180.0;
-    ChamferAdjRotZ = std::atan(sin(ChamferScew)*std::cos(ChamferRotation));
-    ChamferAdjRotY = std::atan(sin(ChamferScew)*std::sin(ChamferRotation));
+    ChamferAdjRotZ = atan(sin(ChamferScew)*cos(ChamferRotation));
+    ChamferAdjRotY = atan(sin(ChamferScew)*sin(ChamferRotation));
     Position_Chamfer2.setX(0.0*mm);
     Position_Chamfer2.setY(0.5*QuartzBar_FullHeight + delta);
     Position_Chamfer2.setZ(0.5*QuartzBar_FullThickness + delta);
@@ -1016,8 +1015,8 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 
     //Boolean Union:
     //Lower-Upstream edge chamfer
-    ChamferAdjRotZ = std::atan(sin(ChamferScew)*std::cos(ChamferRotation));
-    ChamferAdjRotY = std::atan(sin(ChamferScew)*std::sin(ChamferRotation));
+    ChamferAdjRotZ = atan(sin(ChamferScew)*cos(ChamferRotation));
+    ChamferAdjRotY = atan(sin(ChamferScew)*sin(ChamferRotation));
     Position_Chamfer3.setX(0.0*mm);
     Position_Chamfer3.setY(-(0.5*QuartzBar_FullHeight + delta));
     Position_Chamfer3.setZ(-(0.5*QuartzBar_FullThickness + delta));
@@ -1034,8 +1033,8 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 
     //Boolean Union:
     //Lower-Downstream edge chamfer
-    ChamferAdjRotZ = std::atan(sin(ChamferScew)*std::cos(PI/2.0 - ChamferRotation));
-    ChamferAdjRotY = std::atan(sin(ChamferScew)*std::sin(PI/2.0 - ChamferRotation));
+    ChamferAdjRotZ = atan(sin(ChamferScew)*cos(90*degree - ChamferRotation));
+    ChamferAdjRotY = atan(sin(ChamferScew)*sin(90*degree - ChamferRotation));
     Position_Chamfer4.setX(0.0*mm);
     Position_Chamfer4.setY(-(0.5*QuartzBar_FullHeight + delta));
     Position_Chamfer4.setZ(0.5*QuartzBar_FullThickness + delta);
@@ -1116,10 +1115,10 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
     //Boolean Union:
     //Upper-upstream edge chamfer
 
-    ChamferScew = 0.021486*PI/180.0;
+    ChamferScew = -0.021486*degree;
     delta = 0.5*(Chamfer_FullHeight - 1.0*mm)/sqrt(2.0);
-    ChamferAdjRotZ = std::atan(sin(ChamferScew)*std::cos(PI/2.0 - ChamferRotation));
-    ChamferAdjRotY = std::atan(sin(ChamferScew)*std::sin(PI/2.0 - ChamferRotation));
+    ChamferAdjRotZ = atan(sin(ChamferScew)*cos(90*degree - ChamferRotation));
+    ChamferAdjRotY = atan(sin(ChamferScew)*sin(90*degree - ChamferRotation));
     Position_Chamfer1.setX(0.0*cm);//33.333333*cm);
     Position_Chamfer1.setY(0.5*QuartzBar_FullHeight + delta);
     Position_Chamfer1.setZ(-(0.5*QuartzBar_FullThickness + delta));
@@ -1140,8 +1139,8 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 
     delta = 0.5*(Chamfer_FullHeight - 0.5*mm)/sqrt(2.0);
     ChamferScew = 0.0;//0.014*PI/180.0;
-    ChamferAdjRotZ = std::atan(sin(ChamferScew)*std::cos(ChamferRotation));
-    ChamferAdjRotY = std::atan(sin(ChamferScew)*std::sin(ChamferRotation));
+    ChamferAdjRotZ = atan(sin(ChamferScew)*cos(ChamferRotation));
+    ChamferAdjRotY = atan(sin(ChamferScew)*sin(ChamferRotation));
     Position_Chamfer2.setX(0.0*mm);
     Position_Chamfer2.setY(0.5*QuartzBar_FullHeight + delta);
     Position_Chamfer2.setZ(0.5*QuartzBar_FullThickness + delta);
@@ -1159,8 +1158,8 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 
     //Boolean Union:
     //Lower-Upstream edge chamfer
-    ChamferAdjRotZ = std::atan(sin(ChamferScew)*std::cos(ChamferRotation));
-    ChamferAdjRotY = std::atan(sin(ChamferScew)*std::sin(ChamferRotation));
+    ChamferAdjRotZ = atan(sin(ChamferScew)*cos(ChamferRotation));
+    ChamferAdjRotY = atan(sin(ChamferScew)*sin(ChamferRotation));
     Position_Chamfer3.setX(0.0*mm);
     Position_Chamfer3.setY(-(0.5*QuartzBar_FullHeight + delta));
     Position_Chamfer3.setZ(-(0.5*QuartzBar_FullThickness + delta));
@@ -1177,8 +1176,8 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 
     //Boolean Union:
     //Lower-Downstream edge chamfer
-    ChamferAdjRotZ = std::atan(sin(ChamferScew)*std::cos(PI/2.0 - ChamferRotation));
-    ChamferAdjRotY = std::atan(sin(ChamferScew)*std::sin(PI/2.0 - ChamferRotation));
+    ChamferAdjRotZ = atan(sin(ChamferScew)*cos(90*degree - ChamferRotation));
+    ChamferAdjRotY = atan(sin(ChamferScew)*sin(90*degree - ChamferRotation));
     Position_Chamfer4.setX(0.0*mm);
     Position_Chamfer4.setY(-(0.5*QuartzBar_FullHeight + delta));
     Position_Chamfer4.setZ(0.5*QuartzBar_FullThickness + delta);
@@ -1230,7 +1229,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 //******************************Define Light Guides With Chamfers And Any Sculpting*******************
 
     G4double redfr = 1.0; //0.5
-    G4double pTheta = std::atan(LightGuide_FullThickness*(1 - redfr)/(2.0*LightGuide_FullLength));
+    G4double pTheta = atan(LightGuide_FullThickness*(1 - redfr)/(2.0*LightGuide_FullLength));
 
     G4Trap* LightGuide_Solid = new G4Trap("LightGuide_Solid",
                                           0.5*LightGuide_FullLength,pTheta,0.0,
@@ -1250,11 +1249,11 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
                                             0.5*LGAngCutXDim,
                                             0.5*LGAngCutYDim,
                                             0.5*LGAngCutZDim);
-    Double_t ad = 0.0; //45.0;  //0.0;
-    Double_t ar = ad*4.0*std::atan(1.0)/180.0;
-    Double_t dx = 0.5*LGAngCutZDim*std::cos(ar)-0.5*(LightGuide_FullThickness -
-                  LGAngCutZDim*std::sin(ar))*std::tan(ar)
-                  + LightGuide_FullThickness*(1 - redfr)*std::tan(ar);
+    G4double ad = 0.0; //45.0;  //0.0;
+    G4double ar = ad*4.0*atan(1.0)/180.0;
+    G4double dx = 0.5*LGAngCutZDim*cos(ar)-0.5*(LightGuide_FullThickness -
+                  LGAngCutZDim*sin(ar))*tan(ar)
+                  + LightGuide_FullThickness*(1 - redfr)*tan(ar);
 
 
 
@@ -1428,13 +1427,13 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 // 					0.5*LightGuide_FullWidth1,
 // 					0.5*LightGuide_FullWidth2,
 // 					0.5*LightGuide_FullLength -
-// 					0.5*LightGuide_FullThickness*std::tan(ar)+
-// 					0.5*LightGuide_FullThickness*(1 - redfr)*std::tan(ar));
+// 					0.5*LightGuide_FullThickness*tan(ar)+
+// 					0.5*LightGuide_FullThickness*(1 - redfr)*tan(ar));
 
 
 //   Position_LGFaceMirrorLeft.setX(0.5*(QuartzBar_FullLength+LightGuide_FullLength)-
-// 				 0.5*LightGuide_FullThickness*std::tan(ar)+
-// 				 0.5*LightGuide_FullThickness*(1 - redfr)*std::tan(ar));
+// 				 0.5*LightGuide_FullThickness*tan(ar)+
+// 				 0.5*LightGuide_FullThickness*(1 - redfr)*tan(ar));
 //   Position_LGFaceMirrorLeft.setY(0.0*cm);
 //   Position_LGFaceMirrorLeft.setZ(-0.5*LightGuide_FullThickness - 0.1*mm);
 //   Rotation_LGFaceMirrorLeft.rotateY(-90.0*degree);
@@ -1461,11 +1460,11 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 
     G4Box* LGEdgeMirror_Solid = new G4Box("LGEdgeMirror_Solid",
                                           0.1*mm,0.5*LightGuide_FullWidth1,
-                                          redfr*0.5*LightGuide_FullThickness/std::cos(ar));
+                                          redfr*0.5*LightGuide_FullThickness/cos(ar));
 
-    Position_LGEdgeMirrorLeft.setX(1.5*GlueFilm_FullLength_X + QuartzBar_FullLength+LightGuide_FullLength+0.1*mm/std::cos(ar)-
-                                   0.5*LightGuide_FullThickness*std::tan(ar)+
-                                   0.5*LightGuide_FullThickness*(1 - redfr)*std::tan(ar));
+    Position_LGEdgeMirrorLeft.setX(1.5*GlueFilm_FullLength_X + QuartzBar_FullLength+LightGuide_FullLength+0.1*mm/cos(ar)-
+                                   0.5*LightGuide_FullThickness*tan(ar)+
+                                   0.5*LightGuide_FullThickness*(1 - redfr)*tan(ar));
     Position_LGEdgeMirrorLeft.setY(0.0*cm);
     Position_LGEdgeMirrorLeft.setZ(-0.5*LightGuide_FullThickness*(1-redfr));
     Rotation_LGEdgeMirrorLeft.rotateY(ad*degree);
@@ -1485,9 +1484,9 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 //                                            0,  // copy number for left PMTContainer
 //                                            pSurfChk);
 
-    Position_LGEdgeMirrorRight.setX(-1.5*GlueFilm_FullLength_X-QuartzBar_FullLength-LightGuide_FullLength-0.1*mm/std::cos(ar)+
-                                    0.5*LightGuide_FullThickness*std::tan(ar)-
-                                    0.5*LightGuide_FullThickness*(1 - redfr)*std::tan(ar));
+    Position_LGEdgeMirrorRight.setX(-1.5*GlueFilm_FullLength_X-QuartzBar_FullLength-LightGuide_FullLength-0.1*mm/cos(ar)+
+                                    0.5*LightGuide_FullThickness*tan(ar)-
+                                    0.5*LightGuide_FullThickness*(1 - redfr)*tan(ar));
     Position_LGEdgeMirrorRight.setY(0.0*cm);
     Position_LGEdgeMirrorRight.setZ(-0.5*LightGuide_FullThickness*(1-redfr));
     Rotation_LGEdgeMirrorRight.rotateY(-ad*degree);
@@ -1584,14 +1583,14 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
     // define the PMTContainer
     //-----------------------------------
 
-    G4double thetaY = std::atan(LightGuide_FullThickness*(1 - redfr)/(LightGuide_FullLength));
+    G4double thetaY = atan(LightGuide_FullThickness*(1 - redfr)/(LightGuide_FullLength));
     G4double Xoffs = 0.0*cm;//7.0*cm;
 
     //Flat on guide face configuration
     G4double PMTContXShift = QuartzBar_FullLength + LightGuide_FullLength - 0.5*PMTEntranceWindow_Diameter - Xoffs;
     G4double PMTContYShift = 0.0;
     G4double PMTContZShift = 0.5*QuartzBar_FullThickness + 0.5*PMTContainer_FullLength_Z
-                             - (LightGuide_FullLength - 0.5*PMTEntranceWindow_Diameter-Xoffs)*std::tan(thetaY);
+                             - (LightGuide_FullLength - 0.5*PMTEntranceWindow_Diameter-Xoffs)*tan(thetaY);
 
     // relocation of the left Photon Detector Container
     Translation_PMTContainerLeft.setX(1.0*PMTContXShift);
@@ -1801,9 +1800,9 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
         // Nevens empiric formular for the reflectivity
         // lamda = h*c/E
 
-      mylambda = (CLHEP::h_Planck*CLHEP::c_light/PhotonEnergy[kk])/nanometer;
-      Reflectivity[kk] =  1.0 - 0.027*exp(-0.004608*mylambda);
-      //Reflectivity[kk] =  1.0;
+        mylambda = (h_Planck*c_light/PhotonEnergy[kk])/nanometer;
+        Reflectivity[kk] =  1.0 - 0.027*exp(-0.004608*mylambda);
+        //Reflectivity[kk] =  1.0;
     };
 
     G4OpticalSurface* QuartzBarLeft_OpticalSurface = new G4OpticalSurface("QuartzBarLeftOpticalSurface");
@@ -1982,34 +1981,34 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 
     RightEndPad_Quartz_OpticalSurface->SetType(dielectric_metal);
     RightEndPad_Quartz_OpticalSurface->SetFinish(polished);
-    LeftEndPad_Quartz_OpticalSurface->SetPolish(0.9);
+    RightEndPad_Quartz_OpticalSurface->SetPolish(0.9);
     RightEndPad_Quartz_OpticalSurface->SetModel(glisur);
     RightEndPad_Quartz_OpticalSurface->SetMaterialPropertiesTable(BracketPad_MPT);
 
     SidePad_LeftLightGuide_OpticalSurface->SetType(dielectric_metal);
     SidePad_LeftLightGuide_OpticalSurface->SetFinish(polished);
-    LeftEndPad_Quartz_OpticalSurface->SetPolish(0.9);
+    SidePad_LeftLightGuide_OpticalSurface->SetPolish(0.9);
     SidePad_LeftLightGuide_OpticalSurface->SetModel(glisur);
     SidePad_LeftLightGuide_OpticalSurface->SetMaterialPropertiesTable(BracketPad_MPT);
 
     SidePad_RightLightGuide_OpticalSurface->SetType(dielectric_metal);
     SidePad_RightLightGuide_OpticalSurface->SetFinish(polished);
-    LeftEndPad_Quartz_OpticalSurface->SetPolish(0.9);
+    SidePad_RightLightGuide_OpticalSurface->SetPolish(0.9);
     SidePad_RightLightGuide_OpticalSurface->SetModel(glisur);
     SidePad_RightLightGuide_OpticalSurface->SetMaterialPropertiesTable(BracketPad_MPT);
 
     SidePad_QuartzBarLeft_OpticalSurface->SetType(dielectric_metal);
     SidePad_QuartzBarLeft_OpticalSurface->SetFinish(polished);
-    LeftEndPad_Quartz_OpticalSurface->SetPolish(0.9);
+    SidePad_QuartzBarLeft_OpticalSurface->SetPolish(0.9);
     SidePad_QuartzBarLeft_OpticalSurface->SetModel(glisur);
     SidePad_QuartzBarLeft_OpticalSurface->SetMaterialPropertiesTable(BracketPad_MPT);
 
     SidePad_QuartzBarRight_OpticalSurface->SetType(dielectric_metal);
     SidePad_QuartzBarRight_OpticalSurface->SetFinish(polished);
-    LeftEndPad_Quartz_OpticalSurface->SetPolish(0.9);
+    SidePad_QuartzBarRight_OpticalSurface->SetPolish(0.9);
     SidePad_QuartzBarRight_OpticalSurface->SetModel(glisur);
     SidePad_QuartzBarRight_OpticalSurface->SetMaterialPropertiesTable(BracketPad_MPT);
-
+    
 //#####################################################3
 
     G4MaterialPropertiesTable *quartzST = new G4MaterialPropertiesTable();
@@ -2018,6 +2017,8 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
     QuartzBarRight_OpticalSurface->SetMaterialPropertiesTable(quartzST);
     LightGuideLeft_OpticalSurface->SetMaterialPropertiesTable(quartzST);
     LightGuideRight_OpticalSurface->SetMaterialPropertiesTable(quartzST);
+    GlueFilmLeft_OpticalSurface->SetMaterialPropertiesTable(quartzST);
+    GlueFilmCenter_OpticalSurface->SetMaterialPropertiesTable(quartzST);
     GlueFilmRight_OpticalSurface->SetMaterialPropertiesTable(quartzST);
 
     G4OpticalSurface* ActiveArea_OpticalSurface = new G4OpticalSurface("ActiveAreaOpticalSurface");
@@ -2183,7 +2184,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
     Radiator_Logical->SetVisAttributes(RadiatorVisAtt);
     
     G4VisAttributes* PMT_PbShieldVisAtt = new G4VisAttributes(blue);
-    PMT_PbShieldVisAtt->SetVisibility(false);
+    PMT_PbShieldVisAtt->SetVisibility(true);
     PMT_PbShield_Logical->SetVisAttributes(PMT_PbShieldVisAtt);    
 //------------------------------------------
 // Visual Attributes for:  CerenkovContainer
@@ -2198,7 +2199,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 
 //Visual Attributes for:  Exo-Skelton
     G4VisAttributes* ExoSkeltonFrameVisAtt = new G4VisAttributes(darkbrown);
-    ExoSkeltonFrameVisAtt->SetVisibility(false);
+    ExoSkeltonFrameVisAtt->SetVisibility(true);
 //FrameVisAtt->SetForceWireframe(true);
 //FrameVisAtt->SetForceSolid(true);
     ExoSkeltonFrame_Logical->SetVisAttributes(ExoSkeltonFrameVisAtt);
@@ -2207,7 +2208,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 // Visual Attributes for:  Detector Housing
 //------------------------------------------
     G4VisAttributes* FrameVisAtt = new G4VisAttributes(grey);
-    FrameVisAtt->SetVisibility(false);
+    FrameVisAtt->SetVisibility(true);
 //FrameVisAtt->SetForceWireframe(true);
 //FrameVisAtt->SetForceSolid(true);
     Frame_Logical->SetVisAttributes(FrameVisAtt);
@@ -2216,7 +2217,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 // Visual Attributes for:  Side Brackets
 //------------------------------------------
     G4VisAttributes* SideBracketVisAtt = new G4VisAttributes(blue);
-    SideBracketVisAtt->SetVisibility(false);
+    SideBracketVisAtt->SetVisibility(true);
 //SideBracketVisAtt->SetForceWireframe(true);
 //SideBracketVisAtt->SetForceSolid(true);
     SideBracket_Logical->SetVisAttributes(SideBracketVisAtt);
@@ -2225,7 +2226,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 // Visual Attributes for:  End Brackets
 //------------------------------------------
     G4VisAttributes* EndBracketVisAtt = new G4VisAttributes(blue);
-    EndBracketVisAtt->SetVisibility(false);
+    EndBracketVisAtt->SetVisibility(true);
 //EndBracketVisAtt->SetForceWireframe(true);
 //EndBracketVisAtt->SetForceSolid(true);
     EndBracket_Logical->SetVisAttributes(EndBracketVisAtt);
@@ -2234,7 +2235,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 // Visual Attributes for:  Side Bracket Pads
 //------------------------------------------
     G4VisAttributes* SideBracketPadVisAtt = new G4VisAttributes(brown);
-    SideBracketPadVisAtt->SetVisibility(false);
+    SideBracketPadVisAtt->SetVisibility(true);
 //SideBracketPadVisAtt->SetForceWireframe(true);
     SideBracketPadVisAtt->SetForceSolid(true);
     SideBracketPad_Logical->SetVisAttributes(SideBracketPadVisAtt);
@@ -2243,7 +2244,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 // Visual Attributes for:  End Bracket Pads
 //------------------------------------------
     G4VisAttributes* EndBracketPadVisAtt = new G4VisAttributes(brown);
-    EndBracketPadVisAtt->SetVisibility(false);
+    EndBracketPadVisAtt->SetVisibility(true);
 //EndBracketPadVisAtt->SetForceWireframe(true);
 EndBracketPadVisAtt->SetForceSolid(true);
     EndBracketPad_Logical->SetVisAttributes(EndBracketPadVisAtt);
@@ -2253,7 +2254,7 @@ EndBracketPadVisAtt->SetForceSolid(true);
 // Visual Attributes for:  Detector Window Clip
 //------------------------------------------
     G4VisAttributes* ClipVisAtt = new G4VisAttributes(lightorange);
-    ClipVisAtt->SetVisibility(false);
+    ClipVisAtt->SetVisibility(true);
 //ClipVisAtt->SetForceWireframe(true);
 //ClipVisAtt->SetForceSolid(true);
     FrontClip_Logical->SetVisAttributes(ClipVisAtt);
@@ -2278,7 +2279,7 @@ EndBracketPadVisAtt->SetForceSolid(true);
 // Visual Attributes for:  PMTContainer
 //------------------------------------------------
     G4VisAttributes* PMTContainerVisAtt = new G4VisAttributes(blue);
-    PMTContainerVisAtt->SetVisibility(false);
+    PMTContainerVisAtt->SetVisibility(true);
     PMTContainerVisAtt->SetForceWireframe(true);
 //PMTContainerVisAtt->SetForceSolid(true);
     PMTContainer_Logical->SetVisAttributes(PMTContainerVisAtt);
@@ -2287,7 +2288,7 @@ EndBracketPadVisAtt->SetForceSolid(true);
 // Visual Attributes for:  PMTEntranceWindow
 //-----------------------------------------------------
     G4VisAttributes* PMTEntranceWindowVisAtt = new G4VisAttributes(grey);
-    PMTEntranceWindowVisAtt->SetVisibility(false);
+    PMTEntranceWindowVisAtt->SetVisibility(true);
 //PMTEntranceWindowVisAtt->SetForceWireframe(true);
     PMTEntranceWindowVisAtt->SetForceSolid(true);
     PMTEntranceWindow_Logical->SetVisAttributes(PMTEntranceWindowVisAtt);
