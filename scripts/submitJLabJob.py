@@ -15,10 +15,11 @@ def createMacFile(directory,idname,xPos,yPos,zPos,beamE,pol,nEv,nr):
     f.write("/PrimaryEvent/SetBeamPositionZ "+str(zPos)+" cm\n")
     f.write("/PrimaryEvent/SetPolarization "+pol+"\n")
     f.write("/EventGen/SetBeamEnergy    "+str(beamE)+" MeV\n")
-    f.write("/TrackingAction/TrackingFlag 3\n")
+    f.write("/TrackingAction/TrackingFlag 2\n") # no optical photons ~10x faster
+#    f.write("/TrackingAction/TrackingFlag 3\n") #include optical photons
     f.write("/EventGen/SelectOctant 3\n")
-    seedA=int(time.time())+100000000000+nr
-    seedB=int(time.time()*100)++10000000000000+nr
+    seedA=int(time.time())+      1000000*nr+nr
+    seedB=int(time.time()*100)+100000000*nr+nr
     f.write("/random/setSeeds "+str(seedA)+" "+str(seedB)+"\n")
     f.write("/run/beamOn "+str(nEv)+"\n")
     f.close()
@@ -34,7 +35,7 @@ def createXMLfile(idname,directory,email,source):
     f.write("  <Project name=\"qweak\"/>\n")
     f.write("  <Track name=\"simulation\"/>\n")
     f.write("  <Name name=\""+idname+"\"/>\n")
-    f.write("  <OS name=\"centos62\"/>\n")
+    f.write("  <OS name=\"centos65\"/>\n")
     f.write("  <Command><![CDATA[\n")
     f.write("cd "+directory+"/jobs/"+idname+"\n")
     f.write("QweakSimG4 myRun.mac\n")
@@ -56,16 +57,17 @@ def main():
     _xPos=[0]
 #    _xPos=[-10,-5,0,5,10]
     _email="ciprian@jlab.org"
-    _source="/w/hallc-scifs2/qweak/ciprian/QweakG4DD"
-    _directory="/lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput"
-    _nEv=10000
+    _source="/w/hallc-scifs2/qweak/ciprian/simCodeG410/QweakG4DD"
+    _directory="/lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput/g41001p01/twoPh/1k"
+    _nEv=50000
     _beamE=1160
-    _nr=1
-    _pol="mV"
-    submit=0
+    _nrStop=10
+    _nrStart=0
+    _pol="V"
+    submit=1
     
     for xP in _xPos: # x position of the beam
-      for nr in range(5,_nr+5): # repeat for nr jobs
+      for nr in range(_nrStart,_nrStop): # repeat for nr jobs
 	yP=335.0
 	zP=560.0
 	_idN= _pol+'_%04d_%06.2f_%06.2f_%06.2f_%03d'% (_beamE,xP,yP,zP,nr) 
@@ -75,11 +77,11 @@ def main():
         call(["cp",_source+"/myQweakCerenkovOnly.mac",_directory+"/jobs/"+_idN+"/myQweakCerenkovOnly.mac"])
 
 	if submit==1:
-	  print "submitting X position", xP," for the ",nr," time"
+	  print "submitting X position", xP," for the ",nr,"th time"
 	  call(["jsub","-xml",_directory+"/jobs/"+_idN+"/job.xml"])
 	else:
 	  print "do not submit ",submit
-    
+    print "I am all done"
                     
 if __name__ == '__main__':
     main()
