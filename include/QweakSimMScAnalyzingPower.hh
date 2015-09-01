@@ -16,18 +16,18 @@ static const double motY8[606]={0.000000,0.000000,0.000000,0.000000,0.000000,0.0
 inline G4double Mott(G4double energy, G4double theta);
 inline G4double AnalyzingPower(G4double energy, G4double sth){
 
-  G4double theta = asin(sth)/3.14159265 * 180.;
+  G4double theta = asin(sth);
   
   G4double ahat = -22e-6 * 207./82.;
   G4double twoPhoton = ahat * sqrt(4.*pow(energy/1000.,2) * sin(theta/2.) );
-  twoPhoton *= 10.;
+  twoPhoton *= 1000.;
   if( fabs(twoPhoton) > 1 ) twoPhoton = 1. * twoPhoton/fabs(twoPhoton);
   
-  G4double mott = Mott(energy,theta) *100.;
+  G4double mott = Mott(energy,theta/CLHEP::pi *180.) *100.;
   if( fabs(mott) > 1 ) mott = 1. * mott/fabs(mott);
 
-  return twoPhoton; 
-  //return mott;
+  //return twoPhoton; 
+  return mott;
   // return twoPhoton + mott ;  
 }
 
