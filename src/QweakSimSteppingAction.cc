@@ -50,7 +50,7 @@ QweakSimSteppingAction::QweakSimSteppingAction(QweakSimUserInformation* myUInfo,
   
   fout=new TFile("o_tuple.root","RECREATE");	
   tout=new TNtuple("t","Ntuple primary info in Pb",
-		   "be:bx:by:bz:bpx:bpy:bpz:bdpx:bdpy:bdpz:ae:ax:ay:az:apx:apy:apz:adpx:adpy:adpz:angle:process:stepL:evN:trackID:parentID:pType:polX:polY:polZ:eLoss:bremDepol");
+		   "be:bx:by:bz:bpx:bpy:bpz:bdpx:bdpy:bdpz:ae:ax:ay:az:apx:apy:apz:adpx:adpy:adpz:StepScatAngle:process:stepL:evN:trackID:parentID:pType:polX:polY:polZ:eLoss:bremDepol:aAngX:aAngY");
   G4cout << "###### Leaving QweakSimSteppingAction::QweakSimSteppingAction() " << G4endl;
 
 }
@@ -174,9 +174,9 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
 	
 	// "be:bx:by:bz:bpx:bpy:bpz:bdpx:bdpy:bdpz:
 	//  ae:ax:ay:az:apx:apy:apz:adpx:adpy:adpz:
-	//  angle:process:stepL:evN:trackID:parentID:pType:
-	//  polX:polY:polZ:eLoss:bremDepol"
-	float _var[32];
+	//  StepScatAngle:process:stepL:evN:trackID:parentID:pType:
+	//  polX:polY:polZ:eLoss:bremDepol:aAngX:aAngY"
+	float _var[34];
 	_var[0] = thePrePoint->GetTotalEnergy();
 	_var[1] = thePrePoint->GetPosition().getX();
 	_var[2] = thePrePoint->GetPosition().getY();
@@ -227,7 +227,17 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
 
 	_var[30]=eLossPercent;
 	_var[31]=depol;
+
+	G4double aAngX(-999),aAngY(-999);
+	if(thePostPoint->GetMomentum().getR()>0){
+	  aAngX = atan2( sin(_postP.getTheta()) * cos(_postP.getPhi()) , cos(_postP.getTheta()) ) * 180.0 / pi;
+	  aAngY = atan2( sin(_postP.getTheta()) * sin(_postP.getPhi()) , cos(_postP.getTheta()) ) * 180.0 / pi;
+	}
 	
+	_var[32]=aAngX;
+	_var[33]=aAngY;
+
+
 	if(fillNtuple)
 	  tout->Fill(_var);
 	
@@ -238,9 +248,10 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
 	  G4cout<<" postP R th phi "<<_postP.getR()<<" "<<_postP.getTheta()<<" "<<_postP.getPhi()<<G4endl;
 	  G4cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<G4endl;
 	}
-      }
-    }
-  }
+
+      }//if(writeOut)      
+    }//if(PBA)
+  }//if(material)
 
   if(debugPrint)
     G4cout<<"End Pb nTuple stepping block"<<G4endl;
