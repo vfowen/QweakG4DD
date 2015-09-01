@@ -43,7 +43,6 @@ def createXMLfile(idname,directory,email,source):
     f.write("  <Memory space=\"1200\" unit=\"MB\"/>\n")
     f.write("  <TimeLimit unit=\"minutes\" time=\"4320\"/>\n")
     f.write("  <Job>\n")
-    f.write("    <Output src=\"QwSim.root\" dest=\""+directory+"/jobs/"+idname+"/QwSim.root\"/>\n")
     f.write("    <Stdout dest=\""+directory+"/jobs/"+idname+"/log/log.out\"/>\n")
     f.write("    <Stderr dest=\""+directory+"/jobs/"+idname+"/log/log.err\"/>\n")
     f.write("  </Job>\n")
