@@ -31,6 +31,7 @@
 
 #include <time.h>
 
+//#define G4UI_USE_QT 1
 #ifdef G4UI_USE_QT
     #include "G4UIQt.hh"
 #endif
@@ -143,7 +144,7 @@ int main(int argc,char** argv) {
  if (session)   // Define UI session for interactive mode.
     {
       // G4UIterminal is a (dumb) terminal.
-      //UI->ApplyCommand("/control/execute myVis.mac");
+      UI->ApplyCommand("/control/execute vis/myVis.mac");
 
 #if defined(G4UI_USE_XM) || defined(G4UI_USE_WIN32) || defined(G4UI_USE_QT)
       // Customize the G4UIXm,Win32 menubar with a macro file :
