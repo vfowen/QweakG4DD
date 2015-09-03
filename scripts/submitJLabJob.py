@@ -43,7 +43,7 @@ def createXMLfile(idname,directory,email,source):
     f.write("  <Memory space=\"1200\" unit=\"MB\"/>\n")
     f.write("  <TimeLimit unit=\"minutes\" time=\"4320\"/>\n")
     f.write("  <Job>\n")
-    f.write("    <Output src=\"QwSim.root\" dest=\""+directory+"/jobs/"+idname+"/QwSim.root\"/>\n")
+    f.write("    <Output src=\"./QwSim_0.root\" dest=\""+directory+"/jobs/"+idname+"/QwSim_0.root\"/>\n")
     f.write("    <Stdout dest=\""+directory+"/jobs/"+idname+"/log/log.out\"/>\n")
     f.write("    <Stderr dest=\""+directory+"/jobs/"+idname+"/log/log.err\"/>\n")
     f.write("  </Job>\n")
@@ -58,10 +58,10 @@ def main():
 #    _xPos=[-10,-5,0,5,10]
     _email="ciprian@jlab.org"
     _source="/w/hallc-scifs2/qweak/ciprian/simCodeG410/QweakG4DD"
-    _directory="/lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput/g41001p01/twoPh/1k"
-    _nEv=50000
+    _directory="/lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput/g41001p01/twoPh/1e2"
+    _nEv=10000
     _beamE=1160
-    _nrStop=10
+    _nrStop=100
     _nrStart=0
     _pol="V"
     submit=1
