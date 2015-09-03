@@ -967,7 +967,7 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
     //if E<1 AN could be larger than 1
     //if(_amplitude > 1 ) _amplitude=1;
 
-    G4double _amplitude = AnalyzingPower(eEnergy, sth);
+    G4double _amplitude = AnalyzingPower(eEnergy, cth);
     
     if( _prob < _amplitude * sin(phi-pi) )
       phi-=pi;
