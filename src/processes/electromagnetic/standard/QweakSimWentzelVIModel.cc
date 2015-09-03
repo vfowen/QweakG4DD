@@ -654,7 +654,7 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	// //if E<1 AN could be larger than 1
 	// if(_amplitude > 1 ) _amplitude=1;
 
-	G4double _amplitude = AnalyzingPower(eEnergy, sint);
+	G4double _amplitude = AnalyzingPower(eEnergy, cost);
 	
 	if( _prob < _amplitude * sin(phi-pi) )
 	  phi-=pi;
@@ -715,7 +715,7 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	// //if E<1 AN could be larger than 1
 	// if(_amplitude > 1 ) _amplitude=1;
 
-	G4double _amplitude = AnalyzingPower(eEnergy, sint);
+	G4double _amplitude = AnalyzingPower(eEnergy, cost);
 
 	if( _prob < _amplitude * sin(phi-pi) )
 	  phi-=pi;
