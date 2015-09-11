@@ -506,6 +506,17 @@ void QweakSimUserInformation::ResetCerenkovSecondaryParticleInfo()
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
-// Read position and momentum values from a file. Return -1 for not enough values
-//FIXME
+// Read position and momentum values from a file
+void QweakSimUserInformation::ReadInitialPositionMomentum(){
+  std::ifstream fin("positionMomentum.in");
+  G4double tmpx,tmpy,tmpz,tmpPx,tmpPy;
+  while(fin>>tmpx>>tmpy>>tmpz>>tmpPx>>tmpPy){
+    fPositionX.push_back(tmpx);
+    fPositionY.push_back(tmpy);
+    fPositionZ.push_back(tmpz);
+    fNormMomentumX.push_back(tmpPx);
+    fNormMomentumY.push_back(tmpPy);
+  }
+  fin.close();
+}
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....

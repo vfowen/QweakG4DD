@@ -44,7 +44,6 @@ QweakSimPrimaryGeneratorActionMessenger::QweakSimPrimaryGeneratorActionMessenger
   SetFixedPosMom_Cmd->SetGuidance(" true: sample from distributions from real data");
   SetFixedPosMom_Cmd->SetParameterName("fixedPosMom",true);
   SetFixedPosMom_Cmd->SetDefaultValue(true);
-  //fixme
 
   SetPositionX_Cmd = new G4UIcmdWithADoubleAndUnit("/PrimaryEvent/SetBeamPositionX",this);
   SetPositionX_Cmd->SetGuidance("Set beam position in x");
@@ -146,7 +145,8 @@ void QweakSimPrimaryGeneratorActionMessenger::SetNewValue(G4UIcommand* command, 
       G4cout << "#### Messenger: Fixed beam position: " << newValue << G4endl;
       G4bool fixed = SetFixedPosMom_Cmd->GetNewBoolValue(newValue);
       pPrimaryGeneratorAction->GetUserInfo()->SetFixedPosMom(fixed);
-      //pPrimaryGeneratorAction->GetUserInfo()->ReadFixedPosMom();
+      if(!fixed)
+	pPrimaryGeneratorAction->GetUserInfo()->ReadInitialPositionMomentum();
     }
   if( command == SetPositionX_Cmd )
     {

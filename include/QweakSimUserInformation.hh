@@ -102,7 +102,7 @@ public:
 
   void SetFixedPosMom(G4bool val){fFixedPosMom=val;}
   G4bool GetFixedPosMom() const {return fFixedPosMom;}
-  void ReadFixedPosMom();
+  void ReadInitialPositionMomentum();
 
 private:
 
