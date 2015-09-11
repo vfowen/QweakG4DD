@@ -13,8 +13,9 @@
 /PrimaryEvent/SetBeamPositionX 0.0 cm
 /PrimaryEvent/SetBeamPositionY 335.0 cm
 /PrimaryEvent/SetBeamPositionZ 560.0 cm
-
 /EventGen/SetBeamEnergy    1160 MeV
+/PrimaryEvent/SetPolarization L
+/PrimaryEvent/SetFixedPosMom true
 
 # Select the tracking flag
 #  0: Allow primaries only (default)
@@ -24,14 +25,12 @@
 # 
 #/TrackingAction/TrackingFlag 0
 #/TrackingAction/TrackingFlag 1
-#/TrackingAction/TrackingFlag 2
-/TrackingAction/TrackingFlag 3
+/TrackingAction/TrackingFlag 2
+#/TrackingAction/TrackingFlag 3
 
-#/Analysis/RootFileName QweakSimNew.root
-#/Analysis/RootFileStem QwSim
 
-/EventGen/SelectOctant 1
+/EventGen/SelectOctant 3
 
 #/run/verbose 2
 #/tracking/verbose 1
-/run/beamOn 100
+/run/beamOn 1000
