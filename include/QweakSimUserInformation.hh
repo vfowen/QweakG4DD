@@ -73,6 +73,7 @@ public:
   void SetBeamDirectionY(G4double y) { fNormMomentumY = y; };
   
   //getter functions 
+  
   G4double    GetBeamPositionX() const {return fPositionX;};
   G4double    GetBeamPositionY() const {return fPositionY;};
   G4double    GetBeamPositionZ() const {return fPositionZ;};
@@ -90,10 +91,14 @@ public:
     return fNumberOfEventToBeProcessed;
   }
 
+  void SetFixedPosMom(G4bool val){fFixedPosMom=val;}
+  G4bool GetFixedPosMom() const {return fFixedPosMom;}
+
 private:
 
   G4int fNumberOfEventToBeProcessed;
 
+  G4bool   fFixedPosMom;
   G4double fPositionX;
   G4double fPositionY;
   G4double fPositionZ;

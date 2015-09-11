@@ -499,3 +499,8 @@ void QweakSimUserInformation::ResetCerenkovSecondaryParticleInfo()
   cerenkovSecondaryPartEng      = NULL;  
   cerenkovSecondaryPartCharge   = NULL;  
 }
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
+// Read position and momentum values from a file. Return -1 for not enough values
+//FIXME
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
