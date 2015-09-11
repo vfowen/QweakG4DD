@@ -18,10 +18,10 @@ void QweakSimUserInformation::Print() const
   G4cout << "**** Calling QweakSimUserInformation::Print() ****" << G4endl;
   G4cout << "Primary Event #:: " << PrimaryEventNumber << G4endl;
   G4cout << "Reaction type:: " << ReactionType << G4endl;
-  G4cout << "Beam pos:: " << fPositionX << "\t" << fPositionY << "\t"<<fPositionZ << G4endl;
+  G4cout << "Beam pos:: " << fPositionX[0] << "\t" << fPositionY[0] << "\t"<<fPositionZ[0] << G4endl;
   G4cout << "Tgt center z:: " << TargetCenterPositionZ << G4endl;
   G4cout << "Tgt length:: " << TargetLength << G4endl;
-  G4cout << "Beam mom:: " << fNormMomentumX << "\t" << fNormMomentumY << G4endl;
+  G4cout << "Beam mom:: " << fNormMomentumX[0] << "\t" << fNormMomentumY[0] << G4endl;
   G4cout << "Org ver pos:: " << OriginVertexPositionX <<"\t" << OriginVertexPositionY << "\t" << OriginVertexPositionZ << G4endl;
   G4cout << "Org ver ang:: "<< OriginVertexThetaAngle <<"\t"<< OriginVertexPhiAngle << G4endl;
   G4cout << "Org ver mom dir:: " << OriginVertexMomentumDirectionX <<"\t" << OriginVertexMomentumDirectionY << "\t" << OriginVertexMomentumDirectionZ << G4endl;
@@ -45,12 +45,17 @@ void QweakSimUserInformation::PrintELoss()
 void QweakSimUserInformation::Initialize()
 {
 
-  fPositionX = 0.0*mm;
-  fPositionY = 0.0*mm;
-  fPositionZ = 0.0*mm;
+  fPositionX.clear();
+  fPositionY.clear();
+  fPositionZ.clear();
+  fNormMomentumX.clear();
+  fNormMomentumY.clear();
 
-  fNormMomentumX = 0.0*mrad;
-  fNormMomentumY = 0.0*mrad;
+  fPositionX.push_back(0.0*mm);
+  fPositionY.push_back(0.0*mm);
+  fPositionZ.push_back(0.0*mm);
+  fNormMomentumX.push_back(0.0*mrad);
+  fNormMomentumY.push_back(0.0*mrad);
   
   TargetCenterPositionZ = -652.67*cm;
 
