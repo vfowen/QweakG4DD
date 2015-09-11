@@ -73,24 +73,69 @@ public:
   void SetBeamDirectionY(G4double y) { fNormMomentumY.push_back(y); };
   
   //getter functions 
-  void FixedPosCheckIndex(G4int i){
-    if( G4int(fPositionX.size()) < i ){
-      G4cerr<<" QweakSimUserInformation::FixedPosCheckIndex request for index "<<i<<
-	"does is larger than size of the provided position data "<<fPositionX.size()<<G4endl;
+  G4double    GetBeamPositionX(G4int i){
+    if(i>=0 && i<G4int(fPositionX.size()))
+      return fPositionX[i];
+    else if(i==-1)
+      return fPositionX.back();
+    else{
+      G4cerr<<" QweakSimUserInformation::request for index "<<i<<
+	"does is larger than size of the provided data "<<fPositionX.size()<<G4endl;
       exit(-1);
-    }	          
+    }
   }
-
-  G4double    GetBeamPositionX(G4int i){FixedPosCheckIndex(i);return fPositionX[i];};  
-  G4double    GetBeamPositionY(G4int i){FixedPosCheckIndex(i);return fPositionY[i];};
-  G4double    GetBeamPositionZ(G4int i){FixedPosCheckIndex(i);return fPositionZ[i];};
-  G4double    GetNormMomentumX(G4int i){FixedPosCheckIndex(i);return fNormMomentumX[i];};
-  G4double    GetNormMomentumY(G4int i){FixedPosCheckIndex(i);return fNormMomentumY[i];};
+  
+  G4double    GetBeamPositionY(G4int i){
+    if(i>=0 && i<G4int(fPositionY.size()))
+      return fPositionY[i];
+    else if(i==-1)
+      return fPositionY.back();
+    else{
+      G4cerr<<" QweakSimUserInformation::request for index "<<i<<
+	"does is larger than size of the provided data "<<fPositionY.size()<<G4endl;
+      exit(-1);
+    }
+  }
+  
+  G4double    GetBeamPositionZ(G4int i){
+    if(i>=0 && i<G4int(fPositionZ.size()))
+      return fPositionZ[i];
+    else if(i==-1)
+      return fPositionZ.back();
+    else{
+      G4cerr<<" QweakSimUserInformation::request for index "<<i<<
+	"does is larger than size of the provided data "<<fPositionZ.size()<<G4endl;
+      exit(-1);
+    }
+  }
+  
+  G4double    GetNormMomentumX(G4int i){
+    if(i>=0 && i<G4int(fNormMomentumX.size()))
+      return fNormMomentumX[i];
+    else if(i==-1)
+      return fNormMomentumX.back();
+    else{
+      G4cerr<<" QweakSimUserInformation::request for index "<<i<<
+	"does is larger than size of the provided data "<<fNormMomentumX.size()<<G4endl;
+      exit(-1);
+    }
+  }
+  G4double    GetNormMomentumY(G4int i){
+    if(i>=0 && i<G4int(fNormMomentumY.size()))
+      return fNormMomentumY[i];
+    else if(i==-1)
+      return fNormMomentumY.back();
+    else{
+      G4cerr<<" QweakSimUserInformation::request for index "<<i<<
+	"does is larger than size of the provided data "<<fNormMomentumY.size()<<G4endl;
+      exit(-1);
+    }
+  }
+  
   G4ThreeVector GetNormMomentum(G4int i){
-    FixedPosCheckIndex(i);
-    return G4ThreeVector(fNormMomentumX[i],
-			 fNormMomentumY[i],
-			 sqrt(1-fNormMomentumX[i]*fNormMomentumX[i]-fNormMomentumY[i]*fNormMomentumY[i]));
+    double fNPx=GetNormMomentumX(i);
+    double fNPy=GetNormMomentumY(i);
+    return G4ThreeVector(fNPx,fNPy,sqrt(1-fNPx*fNPx-fNPy*fNPy));
   }
 
   void SetNumberOfEventToBeProcessed(G4int n) {

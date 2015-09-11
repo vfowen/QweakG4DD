@@ -84,12 +84,13 @@ void QweakSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   G4double E_beam;  // Energy of the incoming and outgoing particle
   
   if( myUserInfo->GetFixedPosMom() ){
-    myPositionX =  myUserInfo->GetBeamPositionX(0);
-    myPositionY =  myUserInfo->GetBeamPositionY(0);
-    myPositionZ =  myUserInfo->GetBeamPositionZ(0);
-    myNormMomentumX  = tan(myUserInfo->GetNormMomentumX(0));
-    myNormMomentumY  = tan(myUserInfo->GetNormMomentumY(0));
+    myPositionX =  myUserInfo->GetBeamPositionX(-1);
+    myPositionY =  myUserInfo->GetBeamPositionY(-1);
+    myPositionZ =  myUserInfo->GetBeamPositionZ(-1);
+    myNormMomentumX  = tan(myUserInfo->GetNormMomentumX(-1));
+    myNormMomentumY  = tan(myUserInfo->GetNormMomentumY(-1));
   }else{
+    G4cout<<myEventCounter<<" << "<<G4endl;
     myPositionX =  myUserInfo->GetBeamPositionX(myEventCounter);    
     myPositionY =  myUserInfo->GetBeamPositionY(myEventCounter);
     myPositionZ =  myUserInfo->GetBeamPositionZ(myEventCounter);
@@ -98,7 +99,7 @@ void QweakSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   }
 
   myNormMomentumZ  = sqrt(1.0 - myNormMomentumX * myNormMomentumX - myNormMomentumY * myNormMomentumY);
-  
+
   E_beam = myUserInfo->GetBeamEnergy() - 0.511*MeV;
   
   myUserInfo->StoreOriginVertexPositionZ(myEvent->GetVertexZ());

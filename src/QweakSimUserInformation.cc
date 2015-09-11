@@ -51,9 +51,10 @@ void QweakSimUserInformation::Initialize()
   fNormMomentumX.clear();
   fNormMomentumY.clear();
 
+  //default is center, front of Pb for MD3 normal incidence
   fPositionX.push_back(0.0*mm);
-  fPositionY.push_back(0.0*mm);
-  fPositionZ.push_back(0.0*mm);
+  fPositionY.push_back(3350.0*mm);
+  fPositionZ.push_back(5600.0*mm);
   fNormMomentumX.push_back(0.0*mrad);
   fNormMomentumY.push_back(0.0*mrad);
   
@@ -508,12 +509,19 @@ void QweakSimUserInformation::ResetCerenkovSecondaryParticleInfo()
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 // Read position and momentum values from a file
 void QweakSimUserInformation::ReadInitialPositionMomentum(){
+  G4cout<<G4endl<<" ==== Reading initial positions and momentums for primary particle ===="<<G4endl;
+  fPositionX.clear();
+  fPositionY.clear();
+  fPositionZ.clear();
+  fNormMomentumX.clear();
+  fNormMomentumY.clear();
+
   std::ifstream fin("positionMomentum.in");
   G4double tmpx,tmpy,tmpz,tmpPx,tmpPy;
   while(fin>>tmpx>>tmpy>>tmpz>>tmpPx>>tmpPy){
-    fPositionX.push_back(tmpx);
-    fPositionY.push_back(tmpy);
-    fPositionZ.push_back(tmpz);
+    fPositionX.push_back(tmpx*cm);
+    fPositionY.push_back(tmpy*cm);
+    fPositionZ.push_back(tmpz*cm);
     fNormMomentumX.push_back(tmpPx);
     fNormMomentumY.push_back(tmpPy);
   }
