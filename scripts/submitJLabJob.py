@@ -15,8 +15,8 @@ def createMacFile(directory,idname,xPos,yPos,zPos,beamE,pol,nEv,nr):
     f.write("/PrimaryEvent/SetBeamPositionZ "+str(zPos)+" cm\n")
     f.write("/PrimaryEvent/SetPolarization "+pol+"\n")
     f.write("/EventGen/SetBeamEnergy    "+str(beamE)+" MeV\n")
-    f.write("/TrackingAction/TrackingFlag 2\n") # no optical photons ~10x faster
-#    f.write("/TrackingAction/TrackingFlag 3\n") #include optical photons
+#    f.write("/TrackingAction/TrackingFlag 2\n") # no optical photons ~10x faster
+    f.write("/TrackingAction/TrackingFlag 3\n") #include optical photons
     f.write("/EventGen/SelectOctant 3\n")
     seedA=int(time.time())+      1000000*nr+nr
     seedB=int(time.time()*100)+100000000*nr+nr
@@ -54,14 +54,13 @@ def createXMLfile(idname,directory,email,source):
 def main():
     
     _xPos=[0]
-#    _xPos=[-10,-5,0,5,10]
     _email="ciprian@jlab.org"
     _source="/w/hallc-scifs2/qweak/ciprian/simCodeG410/QweakG4DD"
-    _directory="/lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput/g41001p01/twoPh/1e2"
+    _directory="/lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput/g41001p01/fullOptPh/mottX1e2"
     _nEv=10000
     _beamE=1160
-    _nrStop=100
-    _nrStart=0
+    _nrStop=600
+    _nrStart=300
     _pol="V"
     submit=1
     
@@ -76,7 +75,7 @@ def main():
         call(["cp",_source+"/myQweakCerenkovOnly.mac",_directory+"/jobs/"+_idN+"/myQweakCerenkovOnly.mac"])
 
 	if submit==1:
-	  print "submitting X position", xP," for the ",nr,"th time"
+	  print "submitting X position", xP," for the ",nr,"th time with pol",_pol
 	  call(["jsub","-xml",_directory+"/jobs/"+_idN+"/job.xml"])
 	else:
 	  print "do not submit ",submit
