@@ -5,13 +5,24 @@ cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 project(QweakSimG4)
 
 # Find Geant4
-if(NOT DEFINED Geant4_DIR)
+SITE_NAME(mySite)
+if(${mySite} MATCHES "ifarm*")
+   set(Geant4_DIR /w/hallc-scifs2/qweak/ciprian/geant41001p01/source/geant4.10.01.p01/build)
+   message( "On ifarm using custom geant4_dir: " ${Geant4_DIR})
+   find_package(Geant4 REQUIRED COMPONENTS gdml qt ui_all vis_all)
+   execute_process(COMMAND ${Geant4_DIR}/geant4-config --version
+                   OUTPUT_VARIABLE GEANT4_VERSION
+                   OUTPUT_STRIP_TRAILING_WHITESPACE)
+else()
+   if(NOT DEFINED Geant4_DIR)
 	set(Geant4_DIR $ENV{G4INSTALL}/build)
-endif(NOT DEFINED Geant4_DIR)
-find_package(Geant4 REQUIRED COMPONENTS gdml qt ui_all vis_all)
-execute_process(COMMAND geant4-config --version
-                OUTPUT_VARIABLE GEANT4_VERSION
-                OUTPUT_STRIP_TRAILING_WHITESPACE)
+   endif(NOT DEFINED Geant4_DIR)
+   find_package(Geant4 REQUIRED COMPONENTS gdml qt ui_all vis_all)
+   execute_process(COMMAND geant4-config --version
+                   OUTPUT_VARIABLE GEANT4_VERSION
+                   OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif()
+
 message(STATUS "Found Geant4 ${GEANT4_VERSION}")
 
 # Add the project include directory and put all source files in my_project_sources
