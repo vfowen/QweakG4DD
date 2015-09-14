@@ -2,8 +2,8 @@ string onm;
 string fnm;
 
 void nTreeGetDistributions(){
-  float Ecut=1;
-  fnm="o_distributions_1Ecut_treeTst.root";
+  float Ecut=0;
+  fnm="o_distributions_noEcut_treeTst.root";
   TFile *fout=new TFile(fnm.c_str(),"RECREATE");
   fout->Close();
 
