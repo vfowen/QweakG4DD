@@ -66,21 +66,76 @@ public:
   }
   
   //setter functions
-  void SetBeamPositionX(G4double x) { fPositionX = x; };
-  void SetBeamPositionY(G4double y) { fPositionY = y; };
-  void SetBeamPositionZ(G4double z) { fPositionZ = z; };
-  void SetBeamDirectionX(G4double x) { fNormMomentumX = x; };
-  void SetBeamDirectionY(G4double y) { fNormMomentumY = y; };
+  void SetBeamPositionX(G4double x) { fPositionX.push_back(x); };
+  void SetBeamPositionY(G4double y) { fPositionY.push_back(y); };
+  void SetBeamPositionZ(G4double z) { fPositionZ.push_back(z); };
+  void SetBeamDirectionX(G4double x) { fNormMomentumX.push_back(x); };
+  void SetBeamDirectionY(G4double y) { fNormMomentumY.push_back(y); };
   
   //getter functions 
-  G4double    GetBeamPositionX() const {return fPositionX;};
-  G4double    GetBeamPositionY() const {return fPositionY;};
-  G4double    GetBeamPositionZ() const {return fPositionZ;};
-
-  G4double    GetNormMomentumX() const {return fNormMomentumX;};
-  G4double    GetNormMomentumY() const {return fNormMomentumY;};
-  G4ThreeVector GetNormMomentum() const {
-    return G4ThreeVector(fNormMomentumX,fNormMomentumY,sqrt(1-fNormMomentumX*fNormMomentumX-fNormMomentumY*fNormMomentumY));
+  G4double    GetBeamPositionX(G4int i){
+    if(i>=0 && i<G4int(fPositionX.size()))
+      return fPositionX[i];
+    else if(i==-1)
+      return fPositionX.back();
+    else{
+      G4cerr<<" QweakSimUserInformation::request for index "<<i<<
+	"does is larger than size of the provided data "<<fPositionX.size()<<G4endl;
+      exit(-1);
+    }
+  }
+  
+  G4double    GetBeamPositionY(G4int i){
+    if(i>=0 && i<G4int(fPositionY.size()))
+      return fPositionY[i];
+    else if(i==-1)
+      return fPositionY.back();
+    else{
+      G4cerr<<" QweakSimUserInformation::request for index "<<i<<
+	"does is larger than size of the provided data "<<fPositionY.size()<<G4endl;
+      exit(-1);
+    }
+  }
+  
+  G4double    GetBeamPositionZ(G4int i){
+    if(i>=0 && i<G4int(fPositionZ.size()))
+      return fPositionZ[i];
+    else if(i==-1)
+      return fPositionZ.back();
+    else{
+      G4cerr<<" QweakSimUserInformation::request for index "<<i<<
+	"does is larger than size of the provided data "<<fPositionZ.size()<<G4endl;
+      exit(-1);
+    }
+  }
+  
+  G4double    GetNormMomentumX(G4int i){
+    if(i>=0 && i<G4int(fNormMomentumX.size()))
+      return fNormMomentumX[i];
+    else if(i==-1)
+      return fNormMomentumX.back();
+    else{
+      G4cerr<<" QweakSimUserInformation::request for index "<<i<<
+	"does is larger than size of the provided data "<<fNormMomentumX.size()<<G4endl;
+      exit(-1);
+    }
+  }
+  G4double    GetNormMomentumY(G4int i){
+    if(i>=0 && i<G4int(fNormMomentumY.size()))
+      return fNormMomentumY[i];
+    else if(i==-1)
+      return fNormMomentumY.back();
+    else{
+      G4cerr<<" QweakSimUserInformation::request for index "<<i<<
+	"does is larger than size of the provided data "<<fNormMomentumY.size()<<G4endl;
+      exit(-1);
+    }
+  }
+  
+  G4ThreeVector GetNormMomentum(G4int i){
+    double fNPx=GetNormMomentumX(i);
+    double fNPy=GetNormMomentumY(i);
+    return G4ThreeVector(fNPx,fNPy,sqrt(1-fNPx*fNPx-fNPy*fNPy));
   }
 
   void SetNumberOfEventToBeProcessed(G4int n) {
@@ -90,15 +145,20 @@ public:
     return fNumberOfEventToBeProcessed;
   }
 
+  void SetFixedPosMom(G4bool val){fFixedPosMom=val;}
+  G4bool GetFixedPosMom() const {return fFixedPosMom;}
+  void ReadInitialPositionMomentum();
+
 private:
 
   G4int fNumberOfEventToBeProcessed;
 
-  G4double fPositionX;
-  G4double fPositionY;
-  G4double fPositionZ;
-  G4double fNormMomentumX;
-  G4double fNormMomentumY;
+  G4bool   fFixedPosMom;
+  std::vector<G4double> fPositionX;
+  std::vector<G4double> fPositionY;
+  std::vector<G4double> fPositionZ;
+  std::vector<G4double> fNormMomentumX;
+  std::vector<G4double> fNormMomentumY;
 
   G4int    PrimaryEventNumber;
   G4int    PDGcode;              // particle data code/number for the primary particle, e.g. 11=electron

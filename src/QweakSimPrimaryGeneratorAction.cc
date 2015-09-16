@@ -83,15 +83,23 @@ void QweakSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   G4double myNormMomentumX, myNormMomentumY, myNormMomentumZ;
   G4double E_beam;  // Energy of the incoming and outgoing particle
   
-  
-  myPositionX =  myUserInfo->GetBeamPositionX();
-  myPositionY =  myUserInfo->GetBeamPositionY();
-  myPositionZ =  myUserInfo->GetBeamPositionZ();
-  
-  myNormMomentumX  = tan(myUserInfo->GetNormMomentumX()); // = 0
-  myNormMomentumY  = tan(myUserInfo->GetNormMomentumY()); // = 0
-  myNormMomentumZ  = sqrt(1.0 - myNormMomentumX * myNormMomentumX - myNormMomentumY * myNormMomentumY);  // = 1
-  
+  if( myUserInfo->GetFixedPosMom() ){
+    myPositionX =  myUserInfo->GetBeamPositionX(-1);
+    myPositionY =  myUserInfo->GetBeamPositionY(-1);
+    myPositionZ =  myUserInfo->GetBeamPositionZ(-1);
+    myNormMomentumX  = tan(myUserInfo->GetNormMomentumX(-1));
+    myNormMomentumY  = tan(myUserInfo->GetNormMomentumY(-1));
+  }else{
+    G4cout<<myEventCounter<<" << "<<G4endl;
+    myPositionX =  myUserInfo->GetBeamPositionX(myEventCounter);    
+    myPositionY =  myUserInfo->GetBeamPositionY(myEventCounter);
+    myPositionZ =  myUserInfo->GetBeamPositionZ(myEventCounter);
+    myNormMomentumX  = tan(myUserInfo->GetNormMomentumX(myEventCounter));
+    myNormMomentumY  = tan(myUserInfo->GetNormMomentumY(myEventCounter));
+  }
+
+  myNormMomentumZ  = sqrt(1.0 - myNormMomentumX * myNormMomentumX - myNormMomentumY * myNormMomentumY);
+
   E_beam = myUserInfo->GetBeamEnergy() - 0.511*MeV;
   
   myUserInfo->StoreOriginVertexPositionZ(myEvent->GetVertexZ());
@@ -136,7 +144,7 @@ void QweakSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     particleGun->SetParticlePolarization(G4ThreeVector(-myNormMomentumX,
 						       -myNormMomentumY,
 						       -myNormMomentumZ));
-  }else if(fPolarization == "0"){
+  }else if(fPolarization == "0"){//unpolarized
     particleGun->SetParticlePolarization(G4ThreeVector(0,0,0));
   }else particleGun->SetParticlePolarization(G4ThreeVector(myNormMomentumX,
 							   myNormMomentumY,

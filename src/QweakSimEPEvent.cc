@@ -216,8 +216,13 @@ void QweakSimEPEvent::GetanEvent(G4double E_in,
                                  G4double &phi,
 				 G4double &Asymmetry)
 {
-    // incoming momentum
-    G4ThreeVector IncomingMomentumDirection = myUserInfo->GetNormMomentum();
+  // incoming momentum
+  G4ThreeVector IncomingMomentumDirection;
+  if( myUserInfo->GetFixedPosMom() ){
+    IncomingMomentumDirection = myUserInfo->GetNormMomentum(-1);
+  }else{
+    IncomingMomentumDirection = myUserInfo->GetNormMomentum(myUserInfo->GetPrimaryEventNumber());
+  }
     
     G4double IncomingMomentumDirectionMag = IncomingMomentumDirection.mag();
 

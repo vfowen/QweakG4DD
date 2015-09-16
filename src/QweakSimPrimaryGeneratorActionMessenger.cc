@@ -33,10 +33,17 @@ QweakSimPrimaryGeneratorActionMessenger::QweakSimPrimaryGeneratorActionMessenger
   SetParticleType_Cmd->AvailableForStates(G4State_PreInit,G4State_Idle);
 
   SetPolarization_Cmd = new G4UIcmdWithAString("/PrimaryEvent/SetPolarization",this);
-  SetPolarization_Cmd->SetGuidance("set particle polarization for primary generator (L, H, V)");
+  SetPolarization_Cmd->SetGuidance("set particle polarization for primary generator (L, H, V, mL, mH, mV, 0)");
   SetPolarization_Cmd->SetParameterName("polarization",true);
   SetPolarization_Cmd->SetDefaultValue("L");
   SetPolarization_Cmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+
+  SetFixedPosMom_Cmd = new G4UIcmdWithABool("/PrimaryEvent/SetFixedPosMom",this);
+  SetFixedPosMom_Cmd->SetGuidance("Choise : true, false");
+  SetFixedPosMom_Cmd->SetGuidance(" should events be generated from the same position and with the same momentum?");
+  SetFixedPosMom_Cmd->SetGuidance(" true: sample from distributions from real data");
+  SetFixedPosMom_Cmd->SetParameterName("fixedPosMom",true);
+  SetFixedPosMom_Cmd->SetDefaultValue(true);
 
   SetPositionX_Cmd = new G4UIcmdWithADoubleAndUnit("/PrimaryEvent/SetBeamPositionX",this);
   SetPositionX_Cmd->SetGuidance("Set beam position in x");
@@ -133,6 +140,14 @@ void QweakSimPrimaryGeneratorActionMessenger::SetNewValue(G4UIcommand* command, 
   if( command == SetPolarization_Cmd )
     { pPrimaryGeneratorAction->SetPolarization(newValue); }
 
+  if( command == SetFixedPosMom_Cmd )
+    {
+      G4cout << "#### Messenger: Fixed beam position: " << newValue << G4endl;
+      G4bool fixed = SetFixedPosMom_Cmd->GetNewBoolValue(newValue);
+      pPrimaryGeneratorAction->GetUserInfo()->SetFixedPosMom(fixed);
+      if(!fixed)
+	pPrimaryGeneratorAction->GetUserInfo()->ReadInitialPositionMomentum();
+    }
   if( command == SetPositionX_Cmd )
     {
       G4cout << "#### Messenger: Setting Beam Position in X to " << newValue << G4endl;

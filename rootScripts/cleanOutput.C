@@ -1,6 +1,6 @@
 void cleanOutput(){
   
-  string patern="V_1160_010.00*";
+  string patern="L_0050_*";
   cout<<"removeSegmentation"<<endl;
   removeSegmentation(patern);
   cout<<"Log files don't exit"<<endl;

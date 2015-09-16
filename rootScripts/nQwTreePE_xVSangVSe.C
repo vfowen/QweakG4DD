@@ -3,7 +3,7 @@ string onm;
 
 void nQwTreePE_xVSangVSe(){
   int ne=10;
-  for(int i=0;i<ne;i++){    
+  for(int i=8;i<ne;i++){    
     onm=Form("y_MD3_nPE_xVSang_e%d.pdf",(i+1)*5);
     //gSystem->Exec(Form("ls /lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput/xVSangVSe/jobs/L_%04d_*/QwSim_0.root > z_list_%d.in",(i+1)*5,i));
     asymPMT(Form("z_list_%d.in",i),(i+1)*5);

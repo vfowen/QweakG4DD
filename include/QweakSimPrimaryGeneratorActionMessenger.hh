@@ -60,6 +60,8 @@ private:
   G4UIcmdWithAString*      SetParticleType_Cmd;
   G4UIcmdWithAString*      SetPolarization_Cmd;
 
+  G4UIcmdWithABool* SetFixedPosMom_Cmd;
+  
   G4UIcmdWithADoubleAndUnit*    SetPositionX_Cmd;
   G4UIcmdWithADoubleAndUnit*    SetPositionY_Cmd;
   G4UIcmdWithADoubleAndUnit*    SetPositionZ_Cmd;
