@@ -3,18 +3,14 @@ string fnm;
 
 void nTreeGetDistributions(){
   float Ecut=1;
-  fnm="o_distributions_1Ecut_treeTst.root";
+  fnm="o_distributions_1Ecut_depol.root";
   TFile *fout=new TFile(fnm.c_str(),"RECREATE");
   fout->Close();
 
   onm="V";
-  nTreeFirstIntOneSet("../fName_V.lst",Ecut);
+  nTreeFirstIntOneSet("f_Name_depol_V.lst",Ecut);
   onm="L";
-  nTreeFirstIntOneSet("../fName_L.lst",Ecut);
-  //onm="mV";
-  //nTreeFirstIntOneSet("../fName_mV.lst");
-  //onm="mL";
-  //nTreeFirstIntOneSet("../fName_mL.lst");
+  nTreeFirstIntOneSet("f_Name_depol_L.lst",Ecut);
 }
 
 void nTreeFirstIntOneSet(string flist, float eneCut){
