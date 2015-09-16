@@ -38,6 +38,8 @@ int main(int argc, char** argv)
   angAsym=(TGraph*)      finAsym->Get("angle");
 
   double eCut[3]={0.,1.,2.};
+  string part[3]={"Pe","Ae","Ph"};
+  string partTit[3]={"Primary e-","All e","Photons"};
   TFile *fout=new TFile("o_dist_asym.root","RECREATE");
   TH1D *averages=new TH1D("averages","averages",24,0,24);
   TH1D *distXposPe[3],*distXposAe[3],*distXposPh[3];
@@ -49,7 +51,9 @@ int main(int argc, char** argv)
   TH2D *distAsymXposPe[3],*distAsymXposAe[3];
   TH2D *distAsymXangPe[3],*distAsymXangAe[3];
   TH2D *distPe[3],*distAe[3],*distPh[3];
-  
+  TH1D *distElog[3];
+  TH1D *distE[3];
+
   for(int i=0;i<3;i++){
     distXposPe[i]=new TH1D(Form("distXposPe_%d",i),"X position distribution primary e-;x pos [cm]",200,-100,100);
     distXposAe[i]=new TH1D(Form("distXposAe_%d",i),"X position distribution All e;x pos [cm]"     ,200,-100,100);
@@ -81,6 +85,9 @@ int main(int argc, char** argv)
     distPe[i]=new TH2D(Form("distPe_%d",i),";xPos [cm];angX [deg] ",200,-100,100,180,-90,90);
     distAe[i]=new TH2D(Form("distAe_%d",i),";xPos [cm];angX [deg] ",200,-100,100,180,-90,90);
     distPh[i]=new TH2D(Form("distPh_%d",i),";xPos [cm];angX [deg] ",200,-100,100,180,-90,90);
+
+    distElog[i]=new TH1D(Form("distElog_%s",part[i].c_str()),Form("%s;log10(E) [MeV]",partTit[i].c_str()),200,-1,3.5);
+    distE[i]=new TH1D(Form("distE_%s",part[i].c_str()),Form("%s;E [MeV]",partTit[i].c_str()),200,0,1200);
   }
 
   std::vector<double> runningAverages(24,0);//12 averages and 12 variances
@@ -114,13 +121,25 @@ int main(int argc, char** argv)
 	int pTypeHit=event->Cerenkov.Detector.GetParticleType()[hit];
 	if(abs(pTypeHit)!=11  && abs(pTypeHit)!=22 ) continue;
 	double E=event->Cerenkov.Detector.GetTotalEnergy()[hit];
-
+	
 	int parentID=event->Cerenkov.Detector.GetParentID()[hit];
 	int tID     =event->Cerenkov.Detector.GetParticleID()[hit];
 
 	int hasParent(-1),nInt(-1);
 	findInt(interaction,trackID,tID,parentID,hasParent,nInt);
 	if(nInt!=1 || hasParent==1) continue;
+
+	if(abs(pTypeHit)==22){
+	  distElog[2]->Fill(log10(E));
+	  distE[2]->Fill(E);
+	}else{
+	  distElog[1]->Fill(log10(E));
+	  distE[1]->Fill(E);
+	  if(tID==1 && parentID==0){
+	    distElog[0]->Fill(log10(E));
+	    distE[0]->Fill(E);
+	  }
+	}
 	
 	double x=event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit];
 	
@@ -252,6 +271,10 @@ int main(int argc, char** argv)
     distPe[j]->Write();
     distAe[j]->Write();
     distPh[j]->Write();
+  }
+  for(int j=0;j<3;j++){
+    distE[j]->Write();
+    distElog[j]->Write();
   }
   fout->Close();
   finAsym->Close();  
