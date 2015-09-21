@@ -33,7 +33,8 @@ QweakSimPrimaryGeneratorActionMessenger::QweakSimPrimaryGeneratorActionMessenger
   SetParticleType_Cmd->AvailableForStates(G4State_PreInit,G4State_Idle);
 
   SetPolarization_Cmd = new G4UIcmdWithAString("/PrimaryEvent/SetPolarization",this);
-  SetPolarization_Cmd->SetGuidance("set particle polarization for primary generator (L, H, V, mL, mH, mV, 0)");
+  SetPolarization_Cmd->SetGuidance("set particle polarization for primary generator (L, H, V, mL, mH, mV, 0, f)");
+  SetPolarization_Cmd->SetGuidance("if f then read the polarization values from a file");
   SetPolarization_Cmd->SetParameterName("polarization",true);
   SetPolarization_Cmd->SetDefaultValue("L");
   SetPolarization_Cmd->AvailableForStates(G4State_PreInit,G4State_Idle);
@@ -138,7 +139,13 @@ void QweakSimPrimaryGeneratorActionMessenger::SetNewValue(G4UIcommand* command, 
     { pPrimaryGeneratorAction->SetParticleType(newValue); }
 
   if( command == SetPolarization_Cmd )
-    { pPrimaryGeneratorAction->SetPolarization(newValue); }
+    {
+      G4cout << "#### Messenger: Polarization set to: " << newValue << G4endl;
+      pPrimaryGeneratorAction->SetPolarization(newValue);
+      if(newValue=="f"){
+	pPrimaryGeneratorAction->GetUserInfo()->ReadInitialPolarization();
+      }
+    }
 
   if( command == SetFixedPosMom_Cmd )
     {

@@ -149,6 +149,29 @@ public:
   G4bool GetFixedPosMom() const {return fFixedPosMom;}
   void ReadInitialPositionMomentum();
 
+  
+  void ReadInitialPolarization();
+  void SetBeamPolarizationX(G4double x) { fNormPolarizationX.push_back(x); };
+  G4double    GetBeamPolarizationX(G4int i){
+    if(i>=0 && i<G4int(fNormPolarizationX.size()))
+      return fNormPolarizationX[i];
+    else{
+      G4cerr<<" QweakSimUserInformation::request for index "<<i<<
+	"does is larger than size of the provided data "<<fNormPolarizationX.size()<<G4endl;
+      exit(-1);
+    }
+  }
+  void SetBeamPolarizationY(G4double x) { fNormPolarizationY.push_back(x); };
+  G4double    GetBeamPolarizationY(G4int i){
+    if(i>=0 && i<G4int(fNormPolarizationY.size()))
+      return fNormPolarizationY[i];
+    else{
+      G4cerr<<" QweakSimUserInformation::request for index "<<i<<
+	"does is larger than size of the provided data "<<fNormPolarizationY.size()<<G4endl;
+      exit(-1);
+    }
+  }
+
 private:
 
   G4int fNumberOfEventToBeProcessed;
@@ -159,6 +182,8 @@ private:
   std::vector<G4double> fPositionZ;
   std::vector<G4double> fNormMomentumX;
   std::vector<G4double> fNormMomentumY;
+  std::vector<G4double> fNormPolarizationX;
+  std::vector<G4double> fNormPolarizationY;
 
   G4int    PrimaryEventNumber;
   G4int    PDGcode;              // particle data code/number for the primary particle, e.g. 11=electron
