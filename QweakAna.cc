@@ -144,7 +144,7 @@ int main(int argc, char** argv)
 	    double polX=event->Cerenkov.Detector.GetPolarizationX()[hit];
 	    double polY=event->Cerenkov.Detector.GetPolarizationY()[hit];
 	    double polZ=event->Cerenkov.Detector.GetPolarizationZ()[hit];
-	    distTranPolLogE->Fill(sqrt(polX*polX-polY*polY)*100.,log10(E));
+	    distTranPolLogE->Fill(sqrt(polX*polX+polY*polY)*100.,log10(E));
 	    distLongPolLogE->Fill(polZ*100.,log10(E));
 	  }
 	}
