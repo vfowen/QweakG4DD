@@ -54,8 +54,8 @@ int main(int argc, char** argv)
   TH1D *distElog[3];
   TH1D *distE[3];
   
-  TH2D *distLongPolLogE=new TH2D("distLongPolLogE",";longitudinal Polarization; log10(E) [MeV]",100,0,100,200,-1.3,3.5);
-  TH2D *distTranPolLogE=new TH2D("distTranPolLogE",";transverse   Polarization; log10(E) [MeV]",100,0,100,200,-1.3,3.5);
+  TH2D *distLongPolLogE=new TH2D("distLongPolLogE",";longitudinal Polarization[%]; log10(E) [MeV]",100,0,100,200,-1.3,3.5);
+  TH2D *distTranPolLogE=new TH2D("distTranPolLogE",";transverse   Polarization[%]; log10(E) [MeV]",100,0,100,200,-1.3,3.5);
   
   for(int i=0;i<3;i++){
     distXposPe[i]=new TH1D(Form("distXposPe_%d",i),"X position distribution primary e-;x pos [cm]",200,-100,100);
@@ -145,7 +145,7 @@ int main(int argc, char** argv)
 	    double polY=event->Cerenkov.Detector.GetPolarizationY()[hit];
 	    double polZ=event->Cerenkov.Detector.GetPolarizationZ()[hit];
 	    distTranPolLogE->Fill(sqrt(polX*polX-polY*polY)*100.,log10(E));
-	    distLongPolLogE->Fill(polZ,log10(E));
+	    distLongPolLogE->Fill(polZ*100.,log10(E));
 	  }
 	}
 	
