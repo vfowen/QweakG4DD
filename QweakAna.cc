@@ -7,25 +7,139 @@
 #include "QweakSimSystemOfUnits.hh"
 #include "TH1D.h"
 #include "TH2D.h"
+#include "TH3D.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TString.h"
-#include "TGraph.h"
-#include "TGraphErrors.h"
 
 using namespace std;
+
 void findInt(std::vector<int> &inter,std::vector<int> &val, int trackID,int parent, int &hasPar, int &nInt);
 double updateMean(double vOld, double vNew, int nOld);
 void updateMean(int i,double val, std::vector<double> &average, std::vector<int> &n);
-double getAsym(int posAng,double val);
 void calcAsym(TH1D *dist,TH1D *mean, TH1D *asym,int posAng);
 
-TGraph *singleAsym;
-TGraphErrors *posAsym;
-TGraph       *angAsym;
+void readPEs();
+void getPEs(std::vector<double>in, double &outL, double &outR);
+
+const int dimension=5;//3 DoF + 2 PE values
+vector<double> scanPoints[dimension];
+
+
+void readPEs(){
+  ifstream fin("output/buddhiniAngle/angle_scans_fixed/md3_angle_scan.txt");
+  double x1,x2,x3,x4,x5,x6,x7,x8,x9;  
+  string data;
+  getline(fin,data);
+
+  for(int i=0;i<dimension;i++)
+    scanPoints[i].clear();
+  
+  while(fin>>x1>>x2>>x3>>x4>>x5>>x6>>x7>>x8>>x9){
+    scanPoints[0].push_back(x1);//position
+    scanPoints[1].push_back(x2);//energy
+    double ang=asin(tan(x3*3.14159265359/180.))/3.14159265359*180.;
+    scanPoints[2].push_back(ang);//angle
+    scanPoints[3].push_back(x6);//LPEs
+    scanPoints[4].push_back(x8);//RPEs
+    //cout<<x1<<" "<<x2<<" "<<ang<<" "<<x6<<" "<<x8<<endl;
+  }
+  
+  fin.close();
+}
+
+void getCorners(int lowerIndex, int upperIndex, int depth, std::vector<double> point,
+		std::vector<double> points[dimension]){
+
+  if(lowerIndex==-1 || upperIndex==-1 || lowerIndex>upperIndex){
+    cout<<"Problem with index: "<<lowerIndex<<" "<<upperIndex<<endl;
+    exit(0);
+  }
+  if(lowerIndex==upperIndex) return;
+  
+  int lI(-1),hI(-1);
+  double valSmaller(999),valLarger(999);
+  int nextDepth=depth+1;
+  
+  std::vector<double>::iterator begin=scanPoints[depth].begin();
+  std::vector<double>::iterator start=begin+lowerIndex;
+  std::vector<double>::iterator stop =begin+upperIndex;
+
+  cout<<"start upper : "<<point[depth]<<" "<<*start<<" "<<*(stop-1)<<" "
+      <<int(start-begin)<<" "<<int(stop-begin)<<endl;
+
+  if( point[depth]== *start)
+    lI=lowerIndex;
+  else if( point[depth] == *(stop-1) ){
+    lI = int( lower_bound(start,stop,point[depth]) - begin );
+  }else{    
+    valSmaller = *( lower_bound(start,stop,point[depth]) - 1 );
+    lI = int( lower_bound(start,stop,valSmaller) - begin );
+  }
+  
+  hI = int( upper_bound(start,stop,point[depth]) - begin );
+  cout<<depth<<" "<<lowerIndex<<" "<<upperIndex<<" "<<lI<<" "<<hI<<endl;
+  cout<<" "<<valSmaller<<" "<<point[depth]<<" "<<valLarger<<" "
+      <<scanPoints[depth][lI]<<" "<<scanPoints[depth][hI-1]<<endl;
+  if(depth==dimension-3){
+    cout<<endl<<endl<<"End lower: "<<endl;
+    for(int i=0;i<dimension;i++) cout<<scanPoints[i][lI]<<" ";
+    cout<<endl;
+    for(int i=0;i<dimension;i++) cout<<scanPoints[i][hI]<<" ";
+    cout<<endl<<endl;
+    return;
+  }else{
+    getCorners(lI,hI,nextDepth,point,points);
+  }
+
+  if( point[depth] == *(stop-1) ) return;
+
+  cout<<"start upper : "<<depth<<" "<<point[depth]<<" "<<*start<<" "<<*(stop-1)<<" "
+      <<int(start-begin)<<" "<<int(stop-begin)<<endl;
+  lI = int( upper_bound(start,stop,point[depth]) - begin );
+  cout<<" ~~ "<<point[depth]<<" "<< *upper_bound(start,stop,point[depth]) <<endl;
+  if( point[depth] == *(stop-1) )
+    hI = upperIndex;
+  else{
+    valLarger=*(lower_bound(start,stop,point[depth]));
+    hI = int( upper_bound(start,stop,valLarger) - begin );
+  }    
+  cout<<depth<<" "<<lowerIndex<<" "<<upperIndex<<" "<<lI<<" "<<hI<<endl;
+  cout<<" "<<valSmaller<<" "<<point[depth]<<" "<<valLarger<<" "
+      <<scanPoints[depth][lI]<<" "<<scanPoints[depth][hI-1]<<endl;
+  if( point[depth]!= *start )
+    getCorners(lI,hI,nextDepth,point,points);
+}
+
+void getPEs(std::vector<double> in, double &outL, double &outR){
+
+  std::vector<double> points[dimension];
+  std::vector<double>::iterator range[dimension-2][2];
+  
+
+  
+  // double angSmaller=inAng[int(prev(lower_bound(,inAng.end(),pos),1)-inAng.begin())];
+  // int rAngL=int(lower_bound(inAng.begin(),inAng.end(),posSmaller)-inAng.begin());
+  // int rAngH=int(upper_bound(inAng.begin(),inAng.end(),pos)-inAng.begin());
+  // cout<<rAngL<<" "<<rAngH<<" "<<inAng[rAngL]<<" "<<<<endl;
+
+  
+}
 
 int main(int argc, char** argv)
 {
+
+  readPEs();
+  std::vector<double> pt;
+  pt.push_back(40);
+  pt.push_back(10);
+  pt.push_back(42);
+  std::vector<double> pts[dimension];
+  getCorners(0,scanPoints[0].size(),0,pt,pts);
+
+  //getPEs(lpe,rpe);
+  
+  /*
   if( argc !=3 ) {
     cout<<" usage: build/QweakAna [detector number] [path to infile with list of output QweakSimG4 trees]"<<endl;
     return 1;
@@ -292,8 +406,10 @@ int main(int argc, char** argv)
   finAsym->Close();  
   ifile.close();
   return 0;
+  */
 }
 
+/*
 void calcAsym(TH1D *dist,TH1D *mean, TH1D *asym,int posAng){
 
   int middleBin=dist->GetXaxis()->GetNbins()/2;
@@ -310,19 +426,6 @@ void calcAsym(TH1D *dist,TH1D *mean, TH1D *asym,int posAng){
     asym->SetBinError( i+1, sqrt(pow(nR*(aL-aR),2)*nL+pow(nL*(aR-aL),2)*nR)/pow(nL+nR,2) );
   }
   
-}
-
-double getAsym(int posAng,double val){
-  if(posAng==0)      singleAsym=posAsym;
-  else if(posAng==1) singleAsym=angAsym;
-
-  double asym=-2;
-  if( (posAng==0 && fabs(val)<20) || (posAng==1 && fabs(val)<35) )
-    asym=( singleAsym->Eval(val,0,"S") - singleAsym->Eval(-val,0,"S") )/2;
-  // else if(posAng==1 && fabs(val)>=40)
-  //   asym=0.85*val/fabs(val);
-
-  return asym;
 }
 
 void updateMean(int i,double val, std::vector<double> &average, std::vector<int> &n){
@@ -363,3 +466,4 @@ void findInt(std::vector<int> &inter,std::vector<int> &val, int trackID,int pare
     cout<<"multiple entries for track "<<trackID<<endl;
   }
 }
+*/
