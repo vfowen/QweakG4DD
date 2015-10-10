@@ -26,7 +26,7 @@ int main(int argc, char** argv)
   double nDet=atoi(argv[1]);
   string files(argv[2]);
 
-  TFile *fout=new TFile("o_dist_asym.root","RECREATE");
+  TFile *fout=new TFile("o_dist.root","RECREATE");
 
   TH3D *distPe=new TH3D("distPe","Primary distribution;position [cm]; angle [deg]; E [MeV]",
 			200,-100,100,
