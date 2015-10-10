@@ -15,131 +15,10 @@
 using namespace std;
 
 void findInt(std::vector<int> &inter,std::vector<int> &val, int trackID,int parent, int &hasPar, int &nInt);
-double updateMean(double vOld, double vNew, int nOld);
-void updateMean(int i,double val, std::vector<double> &average, std::vector<int> &n);
-void calcAsym(TH1D *dist,TH1D *mean, TH1D *asym,int posAng);
-
-void readPEs();
-void getPEs(std::vector<double>in, double &outL, double &outR);
-
-const int dimension=5;//3 DoF + 2 PE values
-vector<double> scanPoints[dimension];
-
-
-void readPEs(){
-  ifstream fin("output/buddhiniAngle/angle_scans_fixed/md3_angle_scan.txt");
-  double x1,x2,x3,x4,x5,x6,x7,x8,x9;  
-  string data;
-  getline(fin,data);
-
-  for(int i=0;i<dimension;i++)
-    scanPoints[i].clear();
-  
-  while(fin>>x1>>x2>>x3>>x4>>x5>>x6>>x7>>x8>>x9){
-    scanPoints[0].push_back(x1);//position
-    scanPoints[1].push_back(x2);//energy
-    double ang=asin(tan(x3*3.14159265359/180.))/3.14159265359*180.;
-    scanPoints[2].push_back(ang);//angle
-    scanPoints[3].push_back(x6);//LPEs
-    scanPoints[4].push_back(x8);//RPEs
-    //cout<<x1<<" "<<x2<<" "<<ang<<" "<<x6<<" "<<x8<<endl;
-  }
-  
-  fin.close();
-}
-
-void getCorners(int lowerIndex, int upperIndex, int depth, std::vector<double> point,
-		std::vector<double> points[dimension]){
-
-  if(lowerIndex==-1 || upperIndex==-1 || lowerIndex>upperIndex){
-    cout<<"Problem with index: "<<lowerIndex<<" "<<upperIndex<<endl;
-    exit(0);
-  }
-  if(lowerIndex==upperIndex) return;
-  
-  int lI(-1),hI(-1);
-  double valSmaller(999),valLarger(999);
-  int nextDepth=depth+1;
-  
-  std::vector<double>::iterator begin=scanPoints[depth].begin();
-  std::vector<double>::iterator start=begin+lowerIndex;
-  std::vector<double>::iterator stop =begin+upperIndex;
-
-  cout<<"start upper : "<<point[depth]<<" "<<*start<<" "<<*(stop-1)<<" "
-      <<int(start-begin)<<" "<<int(stop-begin)<<endl;
-
-  if( point[depth]== *start)
-    lI=lowerIndex;
-  else if( point[depth] == *(stop-1) ){
-    lI = int( lower_bound(start,stop,point[depth]) - begin );
-  }else{    
-    valSmaller = *( lower_bound(start,stop,point[depth]) - 1 );
-    lI = int( lower_bound(start,stop,valSmaller) - begin );
-  }
-  
-  hI = int( upper_bound(start,stop,point[depth]) - begin );
-  cout<<depth<<" "<<lowerIndex<<" "<<upperIndex<<" "<<lI<<" "<<hI<<endl;
-  cout<<" "<<valSmaller<<" "<<point[depth]<<" "<<valLarger<<" "
-      <<scanPoints[depth][lI]<<" "<<scanPoints[depth][hI-1]<<endl;
-  if(depth==dimension-3){
-    cout<<endl<<endl<<"End lower: "<<endl;
-    for(int i=0;i<dimension;i++) cout<<scanPoints[i][lI]<<" ";
-    cout<<endl;
-    for(int i=0;i<dimension;i++) cout<<scanPoints[i][hI]<<" ";
-    cout<<endl<<endl;
-    return;
-  }else{
-    getCorners(lI,hI,nextDepth,point,points);
-  }
-
-  if( point[depth] == *(stop-1) ) return;
-
-  cout<<"start upper : "<<depth<<" "<<point[depth]<<" "<<*start<<" "<<*(stop-1)<<" "
-      <<int(start-begin)<<" "<<int(stop-begin)<<endl;
-  lI = int( upper_bound(start,stop,point[depth]) - begin );
-  cout<<" ~~ "<<point[depth]<<" "<< *upper_bound(start,stop,point[depth]) <<endl;
-  if( point[depth] == *(stop-1) )
-    hI = upperIndex;
-  else{
-    valLarger=*(lower_bound(start,stop,point[depth]));
-    hI = int( upper_bound(start,stop,valLarger) - begin );
-  }    
-  cout<<depth<<" "<<lowerIndex<<" "<<upperIndex<<" "<<lI<<" "<<hI<<endl;
-  cout<<" "<<valSmaller<<" "<<point[depth]<<" "<<valLarger<<" "
-      <<scanPoints[depth][lI]<<" "<<scanPoints[depth][hI-1]<<endl;
-  if( point[depth]!= *start )
-    getCorners(lI,hI,nextDepth,point,points);
-}
-
-void getPEs(std::vector<double> in, double &outL, double &outR){
-
-  std::vector<double> points[dimension];
-  std::vector<double>::iterator range[dimension-2][2];
-  
-
-  
-  // double angSmaller=inAng[int(prev(lower_bound(,inAng.end(),pos),1)-inAng.begin())];
-  // int rAngL=int(lower_bound(inAng.begin(),inAng.end(),posSmaller)-inAng.begin());
-  // int rAngH=int(upper_bound(inAng.begin(),inAng.end(),pos)-inAng.begin());
-  // cout<<rAngL<<" "<<rAngH<<" "<<inAng[rAngL]<<" "<<<<endl;
-
-  
-}
 
 int main(int argc, char** argv)
 {
 
-  readPEs();
-  std::vector<double> pt;
-  pt.push_back(40);
-  pt.push_back(10);
-  pt.push_back(42);
-  std::vector<double> pts[dimension];
-  getCorners(0,scanPoints[0].size(),0,pt,pts);
-
-  //getPEs(lpe,rpe);
-  
-  /*
   if( argc !=3 ) {
     cout<<" usage: build/QweakAna [detector number] [path to infile with list of output QweakSimG4 trees]"<<endl;
     return 1;
@@ -147,75 +26,42 @@ int main(int argc, char** argv)
   double nDet=atoi(argv[1]);
   string files(argv[2]);
 
-  TFile *finAsym=TFile::Open("output/o_PEasyms.root","READ");
-  posAsym=(TGraphErrors*)finAsym->Get("asym_9");
-  angAsym=(TGraph*)      finAsym->Get("angle");
-
-  double eCut[3]={0.,1.,2.};
-  string part[3]={"Pe","Ae","Ph"};
-  string partTit[3]={"Primary e-","All e","Photons"};
   TFile *fout=new TFile("o_dist_asym.root","RECREATE");
-  TH1D *averages=new TH1D("averages","averages",24,0,24);
-  TH1D *distXposPe[3],*distXposAe[3],*distXposPh[3];
-  TH1D *distXangPe[3],*distXangAe[3],*distXangPh[3];
-  TH1D *meanXposPe[3],*meanXposAe[3];
-  TH1D *meanXangPe[3],*meanXangAe[3];
-  TH1D *asymXposPe[3],*asymXangPe[3],*asymXposAe[3],*asymXangAe[3];
-  TH1D *ddAsXposPe[3],*ddAsXangPe[3],*ddAsXposAe[3],*ddAsXangAe[3];
-  TH2D *distAsymXposPe[3],*distAsymXposAe[3];
-  TH2D *distAsymXangPe[3],*distAsymXangAe[3];
-  TH2D *distPe[3],*distAe[3],*distPh[3];
+
+  TH3D *distPe=new TH3D("distPe","Primary distribution;position [cm]; angle [deg]; E [MeV]",
+			200,-100,100,
+			180,-90,90,
+			100,0,100);
+
+  TH3D *distAe=new TH3D("distAe","All e distribution;position [cm]; angle [deg]; E [MeV]",
+			200,-100,100,
+			180,-90,90,
+			100,0,100);
+  
+  TH3D *distPh=new TH3D("distPh","Photon distribution;position [cm]; angle [deg]; E [MeV]",
+			200,-100,100,
+			180,-90,90,
+			100,0,100);
+  
+  TH2D *distLongPolLogE=new TH2D("distLongPolLogE",";longitudinal Polarization[%]; log10(E) [MeV]",
+				 100,0,100,200,-1.3,3.5);
+  TH2D *distTranPolLogE=new TH2D("distTranPolLogE",";transverse   Polarization[%]; log10(E) [MeV]",
+				 100,0,100,200,-1.3,3.5);
+
   TH1D *distElog[3];
   TH1D *distE[3];
-  
-  TH2D *distLongPolLogE=new TH2D("distLongPolLogE",";longitudinal Polarization[%]; log10(E) [MeV]",100,0,100,200,-1.3,3.5);
-  TH2D *distTranPolLogE=new TH2D("distTranPolLogE",";transverse   Polarization[%]; log10(E) [MeV]",100,0,100,200,-1.3,3.5);
-  
+  string part[3]={"Pe","Ae","Ph"};
+  string partTit[3]={"Primary e-","All e","Photons"};
   for(int i=0;i<3;i++){
-    distXposPe[i]=new TH1D(Form("distXposPe_%d",i),"X position distribution primary e-;x pos [cm]",200,-100,100);
-    distXposAe[i]=new TH1D(Form("distXposAe_%d",i),"X position distribution All e;x pos [cm]"     ,200,-100,100);
-    distXposPh[i]=new TH1D(Form("distXposPh_%d",i),"X position distribution photons;x pos [cm]"   ,200,-100,100);
-    distXangPe[i]=new TH1D(Form("distXangPe_%d",i),"Angle along X distribution primary e-;ang X [deg]",180,-90,90);
-    distXangAe[i]=new TH1D(Form("distXangAe_%d",i),"Angle along X distribution All e;ang X [deg]"     ,180,-90,90);
-    distXangPh[i]=new TH1D(Form("distXangPh_%d",i),"Angle along X distribution photons;ang X [deg]"   ,180,-90,90);
-
-    meanXposPe[i]=new TH1D(Form("meanXposPe_%d",i),"X position mean primary e-;x pos [cm]",200,-100,100);
-    meanXposAe[i]=new TH1D(Form("meanXposAe_%d",i),"X position mean All e;x pos [cm]"     ,200,-100,100);
-    meanXangPe[i]=new TH1D(Form("meanXangPe_%d",i),"Angle along X mean primary e-;ang X [deg]",180,-90,90);
-    meanXangAe[i]=new TH1D(Form("meanXangAe_%d",i),"Angle along X mean All e;ang X [deg]"     ,180,-90,90);
-
-    asymXposPe[i]=new TH1D(Form("asymXposPe_%d",i),"Asymmetry for X position deviation primary e-",200,-1,1);
-    asymXposAe[i]=new TH1D(Form("asymXposAe_%d",i),"Asymmetry for X position deviation all e"     ,200,-1,1);
-    asymXangPe[i]=new TH1D(Form("asymXangPe_%d",i),"Asymmetry for angle deviation primary e-",200,-1,1);
-    asymXangAe[i]=new TH1D(Form("asymXangAe_%d",i),"Asymmetry for angle deviation all e"     ,200,-1,1);
-
-    ddAsXposPe[i]=new TH1D(Form("ddAsXposPe_%d",i),"DD Asym Primary e-; xPos [cm]",100,0,100);
-    ddAsXposAe[i]=new TH1D(Form("ddAsXposAe_%d",i),"DD Asym All e; xPos [cm]"     ,100,0,100);
-    ddAsXangPe[i]=new TH1D(Form("ddAsXangPe_%d",i),"DD Asym Primary e-; X angle [deg]",100,0,90);
-    ddAsXangAe[i]=new TH1D(Form("ddAsXangAe_%d",i),"DD Asym All e; X angle [deg]"     ,100,0,90);
-
-    distAsymXposPe[i]=new TH2D(Form("distAsymXposPe_%d",i),";xPos [cm];Asym ",200,-100,100,200,-1,1);
-    distAsymXposAe[i]=new TH2D(Form("distAsymXposAe_%d",i),";xPos [cm];Asym ",200,-100,100,200,-1,1);
-    distAsymXangPe[i]=new TH2D(Form("distAsymXangPe_%d",i),";xAng [deg];Asym ",180,-90, 90,200,-1,1);
-    distAsymXangAe[i]=new TH2D(Form("distAsymXangAe_%d",i),";xAng [deg];Asym ",180,-90, 90,200,-1,1);
-
-    distPe[i]=new TH2D(Form("distPe_%d",i),";xPos [cm];angX [deg] ",200,-100,100,180,-90,90);
-    distAe[i]=new TH2D(Form("distAe_%d",i),";xPos [cm];angX [deg] ",200,-100,100,180,-90,90);
-    distPh[i]=new TH2D(Form("distPh_%d",i),";xPos [cm];angX [deg] ",200,-100,100,180,-90,90);
-
     distElog[i]=new TH1D(Form("distElog_%s",part[i].c_str()),Form("%s;log10(E) [MeV]",partTit[i].c_str()),200,-1,3.5);
     distE[i]=new TH1D(Form("distE_%s",part[i].c_str()),Form("%s;E [MeV]",partTit[i].c_str()),200,0,1200);
   }
-
-  std::vector<double> runningAverages(24,0);//12 averages and 12 variances
-  std::vector<int> nAverages(12,0);
-  string aveName[4]={"asymXposPe","asymXangPe","asymXposAe","asymXangAe"};
   
   ifstream ifile(files.c_str());
   string data;
   std::vector<int> interaction;
   std::vector<int> trackID;
-
+  
   while(ifile>>data){
     TFile *fin=TFile::Open(data.c_str());
     TTree *QweakSimG4_Tree=(TTree*)fin->Get("QweakSimG4_Tree");
@@ -229,7 +75,7 @@ int main(int argc, char** argv)
     for (int i = 0; i < QweakSimG4_Tree->GetEntries(); i++) {
       QweakSimG4_Tree->GetEntry(i);
       if(i%10000==1) cout<<"   at event: "<<i<<endl;
-
+      
       interaction.clear();
       trackID.clear();
       
@@ -267,177 +113,44 @@ int main(int argc, char** argv)
 	
 	double Gphi   = event->Cerenkov.Detector.GetGlobalPhiAngle()[hit];
 	double Gtheta = event->Cerenkov.Detector.GetGlobalThetaAngle()[hit];	
-
 	double _Gtheta=Gtheta/180.*pi;
 	double _Gphi=(Gphi+90)/180.*pi; //+90 to account for the offset in the output
-
 	double angX = atan2(sin(_Gtheta)*cos(_Gphi),cos(_Gtheta)) * 180.0 / pi;
 
 	if(fabs(angX)>90) continue;
 
-	double posAsymV=getAsym(0,x);
-	double angAsymV=getAsym(1,angX);
-
-	for(int j=0;j<3;j++){
-	  if(E<eCut[j]) continue;
-	  if(abs(pTypeHit)==22){ //photons
-	    distXposPh[j]->Fill(x);
-	    distXangPh[j]->Fill(angX);
-	    distPh[j]->Fill(x,angX);
-	  }else if(abs(pTypeHit)==11){ //electrons
-	    if(tID==1 && parentID==0){ //primary
-	      distXposPe[j]->Fill(x);
-	      distXangPe[j]->Fill(angX);
-	      distPe[j]->Fill(x,angX);
-	      if( posAsymV > -1 ) {
-		asymXposPe[j]->Fill(posAsymV);
-		updateMean(j,posAsymV,runningAverages,nAverages);
-		distAsymXposPe[j]->Fill(x,posAsymV);
-	      }
-	      if( angAsymV > -1 ) {
-		asymXangPe[j]->Fill(angAsymV);
-		updateMean(j+3,angAsymV,runningAverages,nAverages);
-		distAsymXangPe[j]->Fill(angX,angAsymV);
-	      }
-
-	      double mean=0;
-	      int nb=-1;
-	      nb=distXposPe[j]->GetXaxis()->FindBin(x);
-	      mean=updateMean(meanXposPe[j]->GetBinContent(nb), x, distXposPe[j]->GetBinContent(nb)-1);
-	      meanXposPe[j]->SetBinContent(nb,mean);
-	      nb=distXangPe[j]->GetXaxis()->FindBin(angX);
-	      mean=updateMean(meanXangPe[j]->GetBinContent(nb), angX, distXangPe[j]->GetBinContent(nb)-1);
-	      meanXangPe[j]->SetBinContent(nb,mean);
-	    }
-	    distXposAe[j]->Fill(x);
-	    distXangAe[j]->Fill(angX);
-	    distAe[j]->Fill(x,angX);
-	    if( posAsymV > -1 ) {
-	      asymXposAe[j]->Fill(posAsymV);
-	      updateMean(j+6,posAsymV,runningAverages,nAverages);
-	      distAsymXposAe[j]->Fill(x,posAsymV);
-	    }
-	    if( angAsymV > -1 ){
-	      asymXangAe[j]->Fill(angAsymV);	    
-	      updateMean(j+9,angAsymV,runningAverages,nAverages);
-	      distAsymXangAe[j]->Fill(angX,angAsymV);
-	    }
-
-	    double mean=0;
-	    int nb=-1;
-	    nb=distXposAe[j]->GetXaxis()->FindBin(x);
-	    mean=updateMean(meanXposAe[j]->GetBinContent(nb), x, distXposAe[j]->GetBinContent(nb)-1);
-	    meanXposAe[j]->SetBinContent(nb,mean);
-	    nb=distXangAe[j]->GetXaxis()->FindBin(angX);
-	    mean=updateMean(meanXangAe[j]->GetBinContent(nb), angX, distXangAe[j]->GetBinContent(nb)-1);
-	    meanXangAe[j]->SetBinContent(nb,mean);
-	  }
+	if(abs(pTypeHit)==22){ //photons
+	  distPh->Fill(x,angX,E);
+	}else if(abs(pTypeHit)==11){ //electrons
+	  distAe->Fill(x,angX,E);
 	  
-	}//eCut
+	  if(tID==1 && parentID==0) //primary
+	    distPe->Fill(x,angX,E);
+	}
+
       }//nhit
     }//tree entries
     
     cout<<"Done looping!"<<endl;
     fin->Close();
   }
-
-  for(int i=0;i<4;i++)
-    for(int j=0;j<3;j++){
-      averages->GetXaxis()->SetBinLabel(i*3+j+1,Form("%s_%d",aveName[i].c_str(),j));
-      averages->SetBinContent(i*3+j+1,runningAverages[i*3+j]);
-      averages->SetBinError(i*3+j+1,nAverages[i*3+j]);
-      
-      averages->GetXaxis()->SetBinLabel(i*3+j+13,Form("%s_%d #sigma^2",aveName[i].c_str(),j));
-      averages->SetBinContent(i*3+j+13,sqrt(runningAverages[i*3+j+12]/(double)nAverages[i*3+j]));
-    }
-
-  
-  for(int j=0;j<3;j++){
-    calcAsym(distXposPe[j],meanXposPe[j],ddAsXposPe[j],0);
-    calcAsym(distXangPe[j],meanXangPe[j],ddAsXangPe[j],1);
-    calcAsym(distXposAe[j],meanXposAe[j],ddAsXposAe[j],0);
-    calcAsym(distXangAe[j],meanXangAe[j],ddAsXangAe[j],1);
-  }
   
   fout->cd();
-  averages->Write();
-  for(int j=0;j<3;j++){
-    
-    distXposPe[j]->Write();
-    distXposPh[j]->Write();
-    distXposAe[j]->Write();
-    distXangPe[j]->Write();
-    distXangPh[j]->Write();
-    distXangAe[j]->Write();  
-    
-    meanXposPe[j]->Write();
-    meanXposAe[j]->Write();
-    meanXangPe[j]->Write();
-    meanXangAe[j]->Write();  
 
-    asymXposPe[j]->Write();
-    asymXposAe[j]->Write();
-    asymXangPe[j]->Write();
-    asymXangAe[j]->Write();
-    
-    ddAsXposPe[j]->Write();
-    ddAsXposAe[j]->Write();
-    ddAsXangPe[j]->Write();
-    ddAsXangAe[j]->Write();
-
-    distAsymXposPe[j]->Write();
-    distAsymXposAe[j]->Write();
-    distAsymXangPe[j]->Write();
-    distAsymXangAe[j]->Write();
-
-    distPe[j]->Write();
-    distAe[j]->Write();
-    distPh[j]->Write();
-  }
-  for(int j=0;j<3;j++){
-    distE[j]->Write();
-    distElog[j]->Write();
-  }
+  distPe->Write();
+  distAe->Write();
+  distPh->Write();
 
   distLongPolLogE->Write();
   distTranPolLogE->Write();
 
+  for(int i=0;i<3;i++){
+    distE[i]->Write();
+    distElog[i]->Write();    
+  }
   fout->Close();
-  finAsym->Close();  
   ifile.close();
   return 0;
-  */
-}
-
-/*
-void calcAsym(TH1D *dist,TH1D *mean, TH1D *asym,int posAng){
-
-  int middleBin=dist->GetXaxis()->GetNbins()/2;
-  for(int i=0;i<asym->GetXaxis()->GetNbins();i++){
-    double nL=dist->GetBinContent(middleBin-i);
-    double nR=dist->GetBinContent(middleBin+i+1);
-
-    double aL=getAsym(posAng,mean->GetBinContent(middleBin-i));
-    double aR=getAsym(posAng,mean->GetBinContent(middleBin+i+1));
-
-    if( aL < -1 || aR < -1 || (nR+nL == 0) ) continue;
-    
-    asym->SetBinContent( i+1, (nR*aR+nL*aL)/(nR+nL) );
-    asym->SetBinError( i+1, sqrt(pow(nR*(aL-aR),2)*nL+pow(nL*(aR-aL),2)*nR)/pow(nL+nR,2) );
-  }
-  
-}
-
-void updateMean(int i,double val, std::vector<double> &average, std::vector<int> &n){
-  n[i]++; 
-  double delta=val-average[i];
-  average[i]+=delta/(double)n[i];
-  average[i+12]+=delta*(val-average[i]);    
-}
-
-double updateMean(double vOld, double vNew, int nOld){  
-  if(nOld==0) return vNew;
-  else return (vOld*(double)nOld+vNew)/((double)nOld+1.);  
 }
 
 void findInt(std::vector<int> &inter,std::vector<int> &val, int trackID,int parent, int &hasPar, int &nInt){
@@ -466,4 +179,3 @@ void findInt(std::vector<int> &inter,std::vector<int> &val, int trackID,int pare
     cout<<"multiple entries for track "<<trackID<<endl;
   }
 }
-*/
