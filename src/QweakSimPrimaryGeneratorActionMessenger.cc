@@ -42,7 +42,7 @@ QweakSimPrimaryGeneratorActionMessenger::QweakSimPrimaryGeneratorActionMessenger
   SetFixedPosMom_Cmd = new G4UIcmdWithABool("/PrimaryEvent/SetFixedPosMom",this);
   SetFixedPosMom_Cmd->SetGuidance("Choise : true, false");
   SetFixedPosMom_Cmd->SetGuidance(" should events be generated from the same position and with the same momentum?");
-  SetFixedPosMom_Cmd->SetGuidance(" true: sample from distributions from real data");
+  SetFixedPosMom_Cmd->SetGuidance(" false: sample from distributions from real data");
   SetFixedPosMom_Cmd->SetParameterName("fixedPosMom",true);
   SetFixedPosMom_Cmd->SetDefaultValue(true);
 
