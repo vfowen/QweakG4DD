@@ -79,7 +79,7 @@ void QweakSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   
   if (myEventCounter%1000==0) G4cout << "*=== Event number = " << myEventCounter << " ===*" << G4endl;
   
-  G4double myPositionX, myPositionY, myPositionZ, myVertexZ;
+  G4double myPositionX, myPositionY, myPositionZ;
   G4double myNormMomentumX, myNormMomentumY, myNormMomentumZ;
   G4double E_beam;  // Energy of the incoming and outgoing particle
   
@@ -112,7 +112,7 @@ void QweakSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 							  myNormMomentumY,
 							  myNormMomentumZ));
 
-  if(myEventCounter<10)
+  if(myEventCounter<10 && 0)
     G4cout<<" posmom "<<myPositionX<<" "<<myPositionY<<" "<<myPositionZ<<" "
 	  <<myNormMomentumX<<" "<<myNormMomentumY<<" "<<myNormMomentumZ<<" "<<G4endl;
   if (fPolarization == "f") {
@@ -121,7 +121,7 @@ void QweakSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     myPolY=myUserInfo->GetBeamPolarizationY(myEventCounter);
     myPolZ=sqrt(1-myPolX*myPolX-myPolY*myPolY);
 
-    if(myEventCounter<10)
+    if(myEventCounter<10 && 0)
       G4cout<<" pol "<<myPolX<<" "<<myPolY<<" "<<myPolZ<<G4endl;
     
     particleGun->SetParticlePolarization(G4ThreeVector(myPolX,myPolY,myPolZ));
