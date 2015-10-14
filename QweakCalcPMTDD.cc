@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iomanip>
 #include <math.h>
+#include <algorithm>
 
 #include "TH3D.h"
 #include "TFile.h"
@@ -101,7 +102,7 @@ int main(int argc, char** argv)
     double das=2.*lTotPE*rTotPE/(pow(lTotPE+rTotPE,2))*sqrt((1./lTotPE)+(1./rTotPE));
     cout<<partTit[i]<<" : L R (L-R)/(L+R) "
 	<<setprecision(12)<<lTotPE<<" "<<rTotPE<<" "
-	<<(lTotPE-rTotPE)/(lTotPE+rTotPE)<<" \pm "<<das<<endl;
+	<<(lTotPE-rTotPE)/(lTotPE+rTotPE)<<" pm "<<das<<endl;
   }
   
   fin->Close();
