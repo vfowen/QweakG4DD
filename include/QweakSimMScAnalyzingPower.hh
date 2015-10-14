@@ -27,8 +27,8 @@ inline G4double AnalyzingPower(G4double energy, G4double cth){
 
 inline G4double Mott(G4double energy, G4double theta){
 
-  if(energy>40 && theta>150)
-    return 0;
+  if( (energy>40 && theta>150) || (energy>200) )
+    return 0;  
   
   const int nEnergy=12;
   TGraph *c[nEnergy];
@@ -46,6 +46,7 @@ inline G4double Mott(G4double energy, G4double theta){
   }
 
   for(int i=0;i<nEntries2;i++){
+    if(mott10X[i]>0 && mott10X[i]<2) continue;
     c[4]->SetPoint(i,mott10X[i],mott10Y[i]);
     c[5]->SetPoint(i,mott15X[i],mott15Y[i]);
     c[6]->SetPoint(i,mott30X[i],mott30Y[i]);
@@ -75,7 +76,7 @@ inline G4double Mott(G4double energy, G4double theta){
   // }
   // if(fabs(sgn)>0)
   //   sgn/=fabs(sgn);
-  // if( mott*sgn <= 0 )
+  // if( mott*sgn <= 0)
   //   mott=0.;
 
   for(int i=0;i<nEnergy;i++) delete c[i];
