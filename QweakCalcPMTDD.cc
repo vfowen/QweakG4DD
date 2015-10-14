@@ -38,38 +38,70 @@ int main(int argc, char** argv)
   string partTit[2]={"Primary e-","All e"};
 
   for(int i=0;i<2;i++){
-    string histNm="dist_"+part[i];
+    string histNm="dist"+part[i];
     TH3D *dist=(TH3D*)fin->Get(histNm.c_str());
-
+    cout<<"looking at "<<dist->GetTitle()<<endl;
+    
     double lTotPE(0),rTotPE(0);
-    std::vector<double> pt(dimension-2,0);
-    std::vector<double> pts[dimension];
+    int counter=0;
+    int printStep=500000;
     
     for(int xx=1;xx<=dist->GetXaxis()->GetNbins();xx++)//position
       for(int yy=1;yy<=dist->GetYaxis()->GetNbins();yy++)//angle
 	for(int zz=1;zz<=dist->GetZaxis()->GetNbins();zz++){//energy
-	  pt[0]=dist->GetXaxis()->GetBinCenter(xx);
-	  pt[1]=dist->GetYaxis()->GetBinCenter(yy);
-	  pt[2]=dist->GetZaxis()->GetBinCenter(zz);
+	  std::vector<double> pt1(dimension-2,0);//correct point
+	  std::vector<double> pt2(dimension-2,0);//mirror point
+	  std::vector<double> pts1[dimension];
+	  std::vector<double> pts2[dimension];
 
-	  if(fabs(pt[0])>=40) continue;
-	  if(fabs(pt[1])>=57) continue;
-	  if(fabs(pt[2])>=100) continue;
-	  
-	  getCorners(0,scanPoints[0].size(),0,pt,pts);
+	  pt1[0]=dist->GetXaxis()->GetBinCenter(xx);
+	  pt1[2]=dist->GetYaxis()->GetBinCenter(yy);
+	  pt1[1]=dist->GetZaxis()->GetBinCenter(zz);
+
+	  pt2[0]=-dist->GetXaxis()->GetBinCenter(xx);
+	  pt2[2]=-dist->GetYaxis()->GetBinCenter(yy);
+	  pt2[1]=dist->GetZaxis()->GetBinCenter(zz);
+
+	  if(fabs(pt1[0])>40) continue;
+	  if(fabs(pt1[2])>=57) continue;
+	  if(pt1[1]>100 || pt1[1]<5) continue;
+
+	  if(debugPrint || counter%printStep==1)
+	    cout<<endl<<counter<<" !! Calc for pos, ang, E: "<<pt1[0]<<" "<<pt1[2]<<" "<<pt1[1]<<endl;
+
 	  double rpe(-1),lpe(-1);
-	  getPEs(pts,pt,lpe,rpe);
-	  if(lpe!=-1 && rpe!=-1){
-	    lTotPE+=lpe;
-	    rTotPE+=rpe;
-	    //cout<<"interpolated numbers "<<lpe<<" "<<rpe<<endl;
+	  double rp1(-1),rp2(-1);
+	  double lp1(-1),lp2(-1);
+	  getCorners(0,scanPoints[0].size(),0,pt1,pts1);
+	  getPEs(pts1,pt1,lp1,rp1);
+
+	  getCorners(0,scanPoints[0].size(),0,pt2,pts2);
+	  getPEs(pts2,pt2,lp2,rp2);
+
+	  if(lp1!=-1 && rp1!=-1 && lp2!=-1 && rp2!=-1){
+	    lpe=(lp1+rp2)/2;
+	    rpe=(rp1+lp2)/2;	    
+	    //cout<<lp1<<" "<<rp1<<" "<<lp2<<" "<<rp2<<" "<<lpe<<" "<<rpe<<endl;
 	  }else{
-	    cout<<"Problem with interpolator!"<<lpe<<" "<<rpe<<" "<<pt[0]<<" "<<pt[1]<<" "<<pt[2]<<endl;
+	    cout<<"Problem with interpolator!"<<lpe<<" "<<rpe<<" "<<pt1[0]<<" "<<pt1[1]<<" "<<pt1[2]<<endl;
 	    exit(1);
 	  }
-	      	  
+	  
+	  if(debugPrint || counter%printStep==1){
+	    cout<<"    ~~~~ lpe rpe TL TR "<<lpe<<" "<<rpe<<" "<<lTotPE<<" "<<rTotPE<<endl;
+	    if(debugPrint) cin.ignore();
+	  }
+
+	  double entries=dist->GetBinContent(xx,yy,zz);	  
+	  lTotPE+=lpe*entries;
+	  rTotPE+=rpe*entries;
+	  counter++;
+	  if(isnan(lpe) || isnan(rpe)) exit(2);
 	}
-    cout<<partTit[i]<<" : L R (L-R)/(L+R)"<<lTotPE<<" "<<rTotPE<<" "<<(lTotPE-rTotPE)/(lTotPE+rTotPE)<<endl;
+    double das=2.*lTotPE*rTotPE/(pow(lTotPE+rTotPE,2))*sqrt((1./lTotPE)+(1./rTotPE));
+    cout<<partTit[i]<<" : L R (L-R)/(L+R) "
+	<<setprecision(12)<<lTotPE<<" "<<rTotPE<<" "
+	<<(lTotPE-rTotPE)/(lTotPE+rTotPE)<<" \pm "<<das<<endl;
   }
   
   fin->Close();
@@ -95,7 +127,8 @@ void readPEs(){
     scanPoints[2].push_back(ang);//angle
     scanPoints[3].push_back(x6);//LPEs
     scanPoints[4].push_back(x8);//RPEs
-    //cout<<x1<<" "<<x2<<" "<<ang<<" "<<x6<<" "<<x8<<endl;
+    if(debugPrint)
+      cout<<x1<<" "<<x2<<" "<<ang<<" "<<x6<<" "<<x8<<endl;
   }
   
   fin.close();
