@@ -4,6 +4,7 @@
 #include "TGraph.h"
 #include "math.h"
 #include "MSAnalyzingPowerData.hh"
+#include "QweakSimSystemOfUnits.hh"
 
 inline G4double Mott(G4double energy, G4double theta);
 
@@ -16,7 +17,7 @@ inline G4double AnalyzingPower(G4double energy, G4double cth){
   twoPhoton *= 1000.;
   if( fabs(twoPhoton) > 1 ) twoPhoton = 1. * twoPhoton/fabs(twoPhoton);
 
-  G4double mott = Mott(energy,theta/CLHEP::pi *180.) * 100.;
+  G4double mott = Mott(energy,theta/pi *180.) * 100.;
   if( fabs(mott) > 1 ) mott = 1. * mott/fabs(mott);
 
   //return twoPhoton; 
@@ -26,41 +27,40 @@ inline G4double AnalyzingPower(G4double energy, G4double cth){
 
 inline G4double Mott(G4double energy, G4double theta){
 
-  //we should not extrapolate at the cross over point
-  if(fabs(theta-30)<1 && energy>8)
+  if(energy>40 && theta>150)
     return 0;
-  const int nEnergy=9;
+  
+  const int nEnergy=12;
   TGraph *c[nEnergy];
   for(int i=0;i<nEnergy;i++) c[i]=new TGraph();
 
-  const int nEntries1=1799;
-  const int nEntries2=606;
+  const int nEntries1=606;
+  const int nEntries2=1800;
+  const int nEntries3=1482;
 
-  for(int i=0;i<nEntries2;i++){
+  for(int i=0;i<nEntries1;i++){
     c[0]->SetPoint(i,motX3[i],motY3[i]);
     c[1]->SetPoint(i,motX5[i],motY5[i]);
     c[2]->SetPoint(i,motX6[i],motY6[i]);
     c[3]->SetPoint(i,motX8[i],motY8[i]);
   }
 
-  for(int i=0;i<nEntries1;i++){
+  for(int i=0;i<nEntries2;i++){
     c[4]->SetPoint(i,mott10X[i],mott10Y[i]);
     c[5]->SetPoint(i,mott15X[i],mott15Y[i]);
     c[6]->SetPoint(i,mott30X[i],mott30Y[i]);
     c[7]->SetPoint(i,mott35X[i],mott35Y[i]);
     c[8]->SetPoint(i,mott40X[i],mott40Y[i]);
   }
-  
-  TGraph *a=new TGraph();
-  const G4double oneE[nEnergy]={3,5,6,8,10,15,30,35,40};
 
-  G4double sgn(0);
-  for(int i=0;i<nEnergy;i++){
-    G4double eval=c[i]->Eval(theta,0,"");
-    sgn+=eval;
+  for(int i=0;i<nEntries3;i++){
+    c[9]->SetPoint(i,mott50X[i],mott50Y[i]);
+    c[10]->SetPoint(i,mott100X[i],mott100Y[i]);
+    c[11]->SetPoint(i,mott200X[i],mott200Y[i]);
   }
-  if(fabs(sgn)>0)
-    sgn/=fabs(sgn);
+
+  TGraph *a=new TGraph();
+  const G4double oneE[nEnergy]={3,5,6,8,10,15,30,35,40,50,100,200};
   
   for(int i=0;i<nEnergy;i++){
     a->SetPoint(i,oneE[i],c[i]->Eval(theta,0,""));
@@ -68,8 +68,15 @@ inline G4double Mott(G4double energy, G4double theta){
 
   G4double mott = a->Eval(energy,0,"");
   
-  if( mott*sgn <= 0 )
-    mott=0.;
+  // G4double sgn(0);
+  // for(int i=0;i<nEnergy;i++){
+  //   G4double eval=c[i]->Eval(theta,0,"");
+  //   sgn+=eval;
+  // }
+  // if(fabs(sgn)>0)
+  //   sgn/=fabs(sgn);
+  // if( mott*sgn <= 0 )
+  //   mott=0.;
 
   for(int i=0;i<nEnergy;i++) delete c[i];
   delete a;
