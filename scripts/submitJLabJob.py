@@ -9,7 +9,7 @@ def main():
     #center, x,y,z=0,335,560
     _xP=80.0#cm 
     _yP=335.0
-    _zP=572.0
+    _zP=571.9
     _Px=11.#deg
     _Py=0.
     _beamE=1160#MeV
@@ -19,20 +19,21 @@ def main():
     _source="/w/hallc-scifs2/qweak/ciprian/simCodeG410/QweakG4DD"
     _directory="/lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput/g41001p01/mott/updateCH/mottX1e2/side"
     _nEv=80000
-    _nrStop=1
+    _nrStop=100
     _nrStart=0
     _pol="V"
-    submit=0
+    submit=1
     
     for nr in range(_nrStart,_nrStop): # repeat for nr jobs
         _idN= _pol+'_%04d_%06.2f_%06.2f_%06.2f_%06.2f_%06.2f_%03d'% (_beamE,_xP,_yP,_zP,_Px,_Py,nr) 
-	createMacFile(_directory,_idN,_xP,_yP,_zP,_Px,_Py,_tracking,_beamE,_pol,_nEv,nr)
-	createXMLfile(_idN,_directory,_email,_source)
+        createMacFile(_directory,_idN,_xP,_yP,_zP,_Px,_Py,_tracking,_beamE,_pol,_nEv,nr)
+        createXMLfile(_idN,_directory,_email,_source)
         call(["cp",_source+"/build/QweakSimG4",_directory+"/jobs/"+_idN+"/QweakSimG4"])
         call(["cp",_source+"/myQweakCerenkovOnly.mac",_directory+"/jobs/"+_idN+"/myQweakCerenkovOnly.mac"])
 
 	if submit==1:
-	  print "submitting X position", xP," for the ",nr,"th time with pol",_pol
+	  print "submitting position (", _xP,_yP,_zP,")"
+          print " and momDirection (",_Px,_Py,") with pol",_pol," for the ",nr,"th time"
 	  call(["jsub","-xml",_directory+"/jobs/"+_idN+"/job.xml"])
 	else:
 	  print "do not submit ",submit
