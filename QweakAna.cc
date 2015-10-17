@@ -29,9 +29,9 @@ int main(int argc, char** argv)
   TFile *fout=new TFile("o_dist.root","RECREATE");
 
   TH3D *distPe=new TH3D("distPe","Primary distribution;position [cm]; angle [deg]; E [MeV]",
-			200,-100,100,
+			201,-100.5,100.5,
 			180,-90,90,
-			100,0,100);
+			301,0,301);
 
   TH3D *distAe=new TH3D("distAe","All e distribution;position [cm]; angle [deg]; E [MeV]",
 			200,-100,100,
@@ -39,9 +39,9 @@ int main(int argc, char** argv)
 			100,0,100);
   
   TH3D *distPh=new TH3D("distPh","Photon distribution;position [cm]; angle [deg]; E [MeV]",
-			200,-100,100,
+			201,-100.5,100.5,
 			180,-90,90,
-			100,0,100);
+			301,0,301);
   
   TH2D *distLongPolLogE=new TH2D("distLongPolLogE",";longitudinal Polarization[%]; log10(E) [MeV]",
 				 100,0,100,200,-1.3,3.5);
@@ -119,13 +119,14 @@ int main(int argc, char** argv)
 
 	if(fabs(angX)>90) continue;
 
+	double histE= ( E>300 ) ? 300.5 : E;
 	if(abs(pTypeHit)==22){ //photons
-	  distPh->Fill(x,angX,E);
+	  distPh->Fill(x,angX,histE);
 	}else if(abs(pTypeHit)==11){ //electrons
-	  distAe->Fill(x,angX,E);
+	  distAe->Fill(x,angX,histE);
 	  
 	  if(tID==1 && parentID==0) //primary
-	    distPe->Fill(x,angX,E);
+	    distPe->Fill(x,angX,histE);
 	}
 
       }//nhit
