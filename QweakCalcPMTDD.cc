@@ -50,6 +50,9 @@ int main(int argc, char** argv)
     for(int xx=1;xx<=dist->GetXaxis()->GetNbins();xx++)//position
       for(int yy=1;yy<=dist->GetYaxis()->GetNbins();yy++)//angle
 	for(int zz=1;zz<=dist->GetZaxis()->GetNbins();zz++){//energy
+	  double entries=dist->GetBinContent(xx,yy,zz);
+	  if(entries<=0) continue;
+	  
 	  std::vector<double> pt1(dimension-2,0);//correct point
 	  std::vector<double> pt2(dimension-2,0);//mirror point
 	  std::vector<double> pts1[dimension];
@@ -58,10 +61,12 @@ int main(int argc, char** argv)
 	  pt1[0]=dist->GetXaxis()->GetBinCenter(xx);
 	  pt1[2]=dist->GetYaxis()->GetBinCenter(yy);
 	  pt1[1]=dist->GetZaxis()->GetBinCenter(zz);
+	  if(pt1[1]>100) pt1[1]=99.99;
+	  else if(pt1[1]<5) pt1[1]=5.01;
 
-	  pt2[0]=-dist->GetXaxis()->GetBinCenter(xx);
-	  pt2[2]=-dist->GetYaxis()->GetBinCenter(yy);
-	  pt2[1]=dist->GetZaxis()->GetBinCenter(zz);
+	  pt2[0]=-pt1[0];
+	  pt2[2]=-pt1[2];
+	  pt2[1]=pt1[1];
 
 	  if(fabs(pt1[0])>40) continue;
 	  if(fabs(pt1[2])>=57) continue;
@@ -93,7 +98,6 @@ int main(int argc, char** argv)
 	    if(debugPrint) cin.ignore();
 	  }
 
-	  double entries=dist->GetBinContent(xx,yy,zz);	  
 	  lTotPE+=lpe*entries;
 	  rTotPE+=rpe*entries;
 	  counter++;
