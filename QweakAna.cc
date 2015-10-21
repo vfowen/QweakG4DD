@@ -34,9 +34,9 @@ int main(int argc, char** argv)
 			301,0,301);
 
   TH3D *distAe=new TH3D("distAe","All e distribution;position [cm]; angle [deg]; E [MeV]",
-			200,-100,100,
+			201,-100.5,100.5,
 			180,-90,90,
-			100,0,100);
+			301,0,301);
   
   TH3D *distPh=new TH3D("distPh","Photon distribution;position [cm]; angle [deg]; E [MeV]",
 			201,-100.5,100.5,
