@@ -62,7 +62,6 @@ int main(int argc, char** argv)
 	  pt1[2]=dist->GetYaxis()->GetBinCenter(yy);
 	  pt1[1]=dist->GetZaxis()->GetBinCenter(zz);
 	  if(pt1[1]>100) pt1[1]=100.;
-	  else if(pt1[1]<5) pt1[1]=5.;
 
 	  pt2[0]=-pt1[0];
 	  pt2[2]=-pt1[2];
@@ -128,12 +127,11 @@ void readPEs(){
   while(fin>>x1>>x2>>x3>>x4>>x5>>x6>>x7>>x8>>x9){
     scanPoints[0].push_back(x1);//position
     scanPoints[1].push_back(x2);//energy
-    double ang=asin(tan(x3*3.14159265359/180.))/3.14159265359*180.;
-    scanPoints[2].push_back(ang);//angle
+    scanPoints[2].push_back(x3);//angle
     scanPoints[3].push_back(x6);//LPEs
     scanPoints[4].push_back(x8);//RPEs
     if(debugPrint)
-      cout<<x1<<" "<<x2<<" "<<ang<<" "<<x6<<" "<<x8<<endl;
+      cout<<x1<<" "<<x2<<" "<<x3<<" "<<x6<<" "<<x8<<endl;
   }
   
   fin.close();
