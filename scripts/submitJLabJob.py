@@ -7,10 +7,10 @@ import time
 def main():
     
     #center, x,y,z=0,335,560
-    _xP=80.0#cm 
+    _xP=59.5#cm 
     _yP=335.0
     _zP=571.9
-    _Px=11.#deg
+    _Px=5.3#deg
     _Py=0.
     _beamE=1160#MeV
     #_fixedPosMom=True
@@ -21,7 +21,7 @@ def main():
     _nEv=80000
     _nrStop=100
     _nrStart=0
-    _pol="V"
+    _pol="mV"
     submit=1
     
     for nr in range(_nrStart,_nrStop): # repeat for nr jobs
@@ -81,7 +81,7 @@ def createXMLfile(idname,directory,email,source):
     f.write("QweakSimG4 myRun.mac\n")
     f.write("  ]]></Command>\n")
     f.write("  <Memory space=\"1200\" unit=\"MB\"/>\n")
-    f.write("  <TimeLimit unit=\"minutes\" time=\"4320\"/>\n")
+    f.write("  <TimeLimit unit=\"minutes\" time=\"600\"/>\n")
     f.write("  <Job>\n")
     f.write("    <Stdout dest=\""+directory+"/jobs/"+idname+"/log/log.out\"/>\n")
     f.write("    <Stderr dest=\""+directory+"/jobs/"+idname+"/log/log.err\"/>\n")
