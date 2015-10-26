@@ -5,12 +5,10 @@ TH3D *hIn;
 
 void samplePrimaryDist(int seed, int nevents,int vPol){
   if(gRandom) delete gRandom;
-  gRandom = new TRandom3(seed);
-  
+  gRandom = new TRandom3(seed);  
   hIn=new TH3D("hIn","input h",15,320,350,20,-100,100,14,0.34,0.48);
   readDist();
-  sampleDist(nevents,vPol);
-  
+  sampleDist(nevents,vPol);  
 }
 
 void readDist(){
@@ -24,7 +22,6 @@ void readDist(){
 }
 
 void sampleDist(int nevents,int vPol){
-
   ofstream fout("positionMomentum.in",std::ofstream::out);
   ofstream fpol("polarization.in",std::ofstream::out);
   for(int i=0;i<nevents;i++){
@@ -44,7 +41,7 @@ void sampleDist(int nevents,int vPol){
     double pX,pY;
     getPol(y,pX,pY);
     if(pY>1) pY=1;
-    fpol<<pX<<" "<<vPol*pY<<endl;
+    fpol<<vPol*pX<<" "<<vPol*pY<<endl;
   }
   fout.close();
   fpol.close();
@@ -56,7 +53,7 @@ void getPol(double pos,double &polX, double &polY){
   polX=0.0038*pos;
   polY=sqrt(0.999999-pow(polX,2));
   double polZ=sqrt(1.-polX*polX-polY*polY);
-  cout<<pos<<" "<<polX<<" "<<polY<<" "<<polZ<<endl;
+  //cout<<pos<<" "<<polX<<" "<<polY<<" "<<polZ<<endl;
 }
 
 double getPbPos(double pos,double ang){
