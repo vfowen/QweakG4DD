@@ -1,23 +1,3 @@
-//=============================================================================
-//
-//   ---------------------------
-//  | Doxygen File Information |
-//  ---------------------------
-//
-/**
-
-   \file QweakSimPrimaryGeneratorAction.cc
-
-   $Revision: 1.4 $
-   $Date: 2006/05/05 21:35:07 $
-
-   \author Klaus Hans Grimm
-
-*/
-//=============================================================================
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
 #include "QweakSimPrimaryGeneratorAction.hh"
 
 // geant4 includes
@@ -112,7 +92,7 @@ void QweakSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 							  myNormMomentumY,
 							  myNormMomentumZ));
 
-  if(myEventCounter<10 && 0)
+  if(myEventCounter<10)
     G4cout<<" posmom "<<myPositionX<<" "<<myPositionY<<" "<<myPositionZ<<" "
 	  <<myNormMomentumX<<" "<<myNormMomentumY<<" "<<myNormMomentumZ<<" "<<G4endl;
   if (fPolarization == "f") {
@@ -121,7 +101,7 @@ void QweakSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     myPolY=myUserInfo->GetBeamPolarizationY(myEventCounter);
     myPolZ=sqrt(1-myPolX*myPolX-myPolY*myPolY);
 
-    if(myEventCounter<10 && 0)
+    if(myEventCounter<10)
       G4cout<<" pol "<<myPolX<<" "<<myPolY<<" "<<myPolZ<<G4endl;
     
     particleGun->SetParticlePolarization(G4ThreeVector(myPolX,myPolY,myPolZ));
@@ -171,5 +151,3 @@ void QweakSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   particleGun->GeneratePrimaryVertex(anEvent);  
   myUserInfo->StorePrimaryEventNumber(myEventCounter+1);    
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
