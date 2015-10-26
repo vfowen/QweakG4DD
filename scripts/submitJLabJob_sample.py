@@ -15,20 +15,28 @@ def main():
     _tracking=2# 2=no optical ph and 10x faster than 3=full
     _email="ciprian@jlab.org"
     _source="/w/hallc-scifs2/qweak/ciprian/simCodeG410/QweakG4DD"
-    _directory="/lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput/g41001p01/mott/updateCH/mottX1e2/side"
+    _directory="/lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput/g41001p01/mott/updateCH/sampled"
     _nEv=80000
-    _nrStop=100
+    _nrStop=1
     _nrStart=0
     _pol="f"
-    _polT="1" #1 for + helicity -1 for - helicity
-    submit=1
+    _polT="V" #V for + helicity mV for - helicity
+    submit=0
     
     for nr in range(_nrStart,_nrStop): # repeat for nr jobs
         _idN= _polT+'_sampled_%03dk_%03d'% (_nEv/1000,nr) 
-        call(["cp",_source+"/rootScripts/samplePrimaryDist.C",_directory+"/"+_idN+"/samplePrimaryDist.C"])
         createMacFile(_directory,_idN,_xP,_yP,_zP,_Px,_Py,_tracking,_beamE,_pol,_nEv,nr)
         createXMLfile(_idN,_directory,_email,_source)
-        createInFiles(_directory,_idN,_nEv,_polT)
+
+        ##create input files
+        seedA=int(time.time())+1000000*nr+nr
+        if _polT=="V":
+            call("root -l -q -b ../rootScripts/samplePrimaryDist.C\\("+str(seedA)+","+str(_nEv)+",1\\)",shell=True)
+        else:
+            call("root -l -q -b ../rootScripts/samplePrimaryDist.C\\("+str(seedA)+","+str(_nEv)+",-1\\)",shell=True)
+        call(["mv","positionMomentum.in",_directory+"/"+_idN+"/positionMomentum.in"])
+        call(["mv","polarization.in",_directory+"/"+_idN+"/polarization.in"])
+
         call(["cp",_source+"/build/QweakSimG4",_directory+"/"+_idN+"/QweakSimG4"])
         call(["cp",_source+"/myQweakCerenkovOnly.mac",_directory+"/"+_idN+"/myQweakCerenkovOnly.mac"])
 
@@ -90,14 +98,6 @@ def createXMLfile(idname,directory,email,source):
     f.write("</Request>\n")
     f.close()
     return 0
-
-def createInFiles(directory,idname,nrEv,polT):
-    seedA=int(time.time())+1000000*nr+nr
-    call(["root","-l -q -b",
-          _directory+"/"+_idN+"/samplePrimaryDist.C\\("+str(seedA)+","+str(nrEv)+","+str(polT)+"\\)"])
-    time.sleep(5)
-    call(["mv","positionMomentum.in",_directory+"/"+_idN+"/positionMomentum.in"])
-    call(["mv","polarization.in",_directory+"/"+_idN+"/polarization.in"])
                     
 if __name__ == '__main__':
     main()
