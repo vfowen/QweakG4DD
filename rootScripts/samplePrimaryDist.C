@@ -37,6 +37,8 @@ void sampleDist(int nevents,int vPol){
     double pbYang=z;
     double pbYpos=getPbPos(x,z);
     if( (pow(sin(pbYang),2)+pow(sin(pbXang),2)) > 1 ) continue;
+    if( pbYpos<326 || pbYpos>344 ) continue;
+    if( fabs(pbXpos)>=100 ) continue;
     fout<<pbXpos<<" "<<pbYpos<<" "<<pbZpos<<" "<<pbXang*deg<<" "<<pbYang*deg<<endl;
     double pX,pY;
     getPol(y,pX,pY);
