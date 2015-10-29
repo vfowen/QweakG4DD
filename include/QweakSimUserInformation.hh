@@ -80,7 +80,7 @@ public:
       return fPositionX.back();
     else{
       G4cerr<<" QweakSimUserInformation::request for index "<<i<<
-	"does is larger than size of the provided data "<<fPositionX.size()<<G4endl;
+	" is larger than size of the provided data "<<fPositionX.size()<<G4endl;
       exit(-1);
     }
   }
