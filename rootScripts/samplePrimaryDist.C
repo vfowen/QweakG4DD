@@ -24,7 +24,8 @@ void readDist(){
 void sampleDist(int nevents,int vPol){
   ofstream fout("positionMomentum.in",std::ofstream::out);
   ofstream fpol("polarization.in",std::ofstream::out);
-  for(int i=0;i<nevents;i++){
+  int nv=0;
+  do{
     double x(-1);//x position (across bar) 
     double y(-1);//y position (along bar)  
     double z(-1);//x angle (across bar)    
@@ -36,15 +37,21 @@ void sampleDist(int nevents,int vPol){
     double pbXpos=getPbPos(y,pbXang);
     double pbYang=z;
     double pbYpos=getPbPos(x,z);
+
     if( (pow(sin(pbYang),2)+pow(sin(pbXang),2)) > 1 ) continue;
     if( pbYpos<326 || pbYpos>344 ) continue;
     if( fabs(pbXpos)>=100 ) continue;
+
     fout<<pbXpos<<" "<<pbYpos<<" "<<pbZpos<<" "<<pbXang*deg<<" "<<pbYang*deg<<endl;
+
     double pX,pY;
     getPol(y,pX,pY);
     if(pY>1) pY=1;
     fpol<<vPol*pX<<" "<<vPol*pY<<endl;
-  }
+
+    nv++;
+  }while(nv<=nevents);
+
   fout.close();
   fpol.close();
 }
