@@ -69,7 +69,7 @@ int main(int argc, char** argv)
 
 	  if(fabs(pt1[0])>90) continue;
 	  if(fabs(pt1[2])>80) continue;
-	  if(pt1[1]>100 || pt1[1]<5) continue;
+	  if(pt1[1]>100 || pt1[1]<3) continue;
 
 	  if(debugPrint || counter%printStep==1)
 	    cout<<endl<<counter<<" !! Calc for pos, ang, E: "<<pt1[0]<<" "<<pt1[2]<<" "<<pt1[1]<<endl;
