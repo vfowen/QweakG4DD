@@ -61,6 +61,8 @@ int main(int argc, char** argv)
   string data;
   std::vector<int> interaction;
   std::vector<int> trackID;
+
+  int totEv=0;
   
   while(ifile>>data){
     TFile *fin=TFile::Open(data.c_str());
@@ -71,7 +73,8 @@ int main(int argc, char** argv)
     QweakSimUserMainEvent* event = 0;
     QweakSimG4_Tree->SetBranchAddress("QweakSimUserMainEvent",&event);
     cout<<" total nr ev: "<<QweakSimG4_Tree->GetEntries()<<endl;
-    
+    totEv+=QweakSimG4_Tree->GetEntries();
+
     for (int i = 0; i < QweakSimG4_Tree->GetEntries(); i++) {
       QweakSimG4_Tree->GetEntry(i);
       if(i%10000==1) cout<<"   at event: "<<i<<endl;
@@ -135,6 +138,8 @@ int main(int argc, char** argv)
     cout<<"Done looping!"<<endl;
     fin->Close();
   }
+
+  cout<<"Processed "<<totEv<<" events"<<endl;
   
   fout->cd();
 
