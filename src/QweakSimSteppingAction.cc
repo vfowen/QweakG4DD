@@ -141,7 +141,7 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
       eLossPercent = 1. - thePostPoint->GetKineticEnergy()/thePrePoint->GetKineticEnergy();
       
       if(_pn.compare("eBrem")==0 &&                           // only for eBrem
-	 (_polarization.getX()>0 || _polarization.getY()>0)){ // only for transverse polarization
+	 (fabs(_polarization.getX())>0 || fabs(_polarization.getY())>0)){ // only for transverse polarization
 
 	depol=0;
 	if( eLossPercent > perpXDepol[perpNval-1]) depol = 1.;
