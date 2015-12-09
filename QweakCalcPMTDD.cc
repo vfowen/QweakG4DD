@@ -44,6 +44,7 @@ int main(int argc, char** argv)
     cout<<"looking at "<<dist->GetTitle()<<endl;
     
     double lTotPE(0),rTotPE(0);
+    double dlTotPE(0),drTotPE(0);
     int counter=0;
     int printStep=500000;
     
@@ -67,9 +68,10 @@ int main(int argc, char** argv)
 	  pt2[2]=-pt1[2];
 	  pt2[1]=pt1[1];
 
-	  if(fabs(pt1[0])>90) continue;
-	  if(fabs(pt1[2])>80) continue;
-	  if(pt1[1]>100 || pt1[1]<3) continue;
+	  if(fabs(pt1[0])>90) continue;//position
+	  if(fabs(pt1[2])>80) continue;//angle
+	  if(pt1[1]>100 || pt1[1]<3) continue;//energy
+	  //if(fabs(pt1[2])<20) continue;//angle
 
 	  if(debugPrint || counter%printStep==1)
 	    cout<<endl<<counter<<" !! Calc for pos, ang, E: "<<pt1[0]<<" "<<pt1[2]<<" "<<pt1[1]<<endl;
@@ -97,15 +99,21 @@ int main(int argc, char** argv)
 	    if(debugPrint) cin.ignore();
 	  }
 
+	  
+	  dlTotPE=sqrt(dlTotPE*dlTotPE+lpe*lpe*entries+entries*entries*lpe);
+	  drTotPE=sqrt(drTotPE*drTotPE+rpe*rpe*entries+entries*entries*rpe);
 	  lTotPE+=lpe*entries;
 	  rTotPE+=rpe*entries;
 	  counter++;
 	  if(isnan(lpe) || isnan(rpe)) exit(2);
 	}
-    double das=2.*lTotPE*rTotPE/(pow(lTotPE+rTotPE,2))*sqrt((1./lTotPE)+(1./rTotPE));
-    cout<<partTit[i]<<" : L R (L-R)/(L+R) "
-	<<setprecision(12)<<lTotPE<<" "<<rTotPE<<" "
-	<<(lTotPE-rTotPE)/(lTotPE+rTotPE)<<" pm "<<das<<endl;
+    double das  =2.*lTotPE*rTotPE/(pow(lTotPE+rTotPE,2))*sqrt((1./lTotPE)+(1./rTotPE));
+    double das2 =2./(pow(lTotPE+rTotPE,2))*sqrt(dlTotPE*rTotPE*rTotPE+drTotPE*lTotPE*lTotPE);
+    cout<<partTit[i]<<" : L R (L-R)/(L+R) "<<endl
+	<<setprecision(12)
+	<<lTotPE<<" pm "<<dlTotPE<<" "<<endl
+	<<rTotPE<<" pm "<<drTotPE<<" "<<endl
+	<<(lTotPE-rTotPE)/(lTotPE+rTotPE)<<" pm "<<das<<" <> "<<das2<<endl;
   }
   
   fin->Close();
