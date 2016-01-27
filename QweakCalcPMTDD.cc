@@ -8,6 +8,9 @@
 #include "TH3D.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "TGraphErrors.h"
+#include "TGraph.h"
+#include "TH1D.h"
 
 using namespace std;
 
@@ -15,33 +18,107 @@ using namespace std;
 const int dimension=5;//3 DoF + 2 PE values
 vector<double> scanPoints[dimension];
 const int debugPrint=0;
+vector<double> totPE(4,0);
 
 void readPEs();
 void getCorners(int lowerIndex, int upperIndex, int depth, std::vector<double> point,
 		std::vector<double> points[dimension]);
 void getPEs(std::vector<double> in[dimension], std::vector<double> pt,
 	    double &outL, double &outR);
+double processOneFile(string fname,int verbose);
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv){
 
   if( argc !=2 ) {
-    cout<<" usage: build/QweakCalcPMTDD [path to infile with distributions from QweakSimG4 trees]"<<endl;
+    cout<<" usage:  "<<endl;
+    cout<<"     a) build/QweakCalcPMTDD [path to root file with distributions from QweakSimG4 trees]"<<endl;
+    cout<<"     b) build/QweakCalcPMTDD [path to list of files with distributions from QweakSimG4 trees]"<<endl;
     return 1;
   }
 
   readPEs();
+  
+
 
   string file(argv[1]);
-  TFile *fin=TFile::Open(file.c_str(),"READ");
+  if ( file.find(".root") < file.size() ){
+    for(int i=0;i<4;i++) totPE[i]=0.;
+    processOneFile(file,1);
+  }else{
+    TFile *fout=new TFile("o_totPE.root","RECREATE");
+    TGraph *simNr=new TGraph();
+    simNr->SetName("simNr");
+    simNr->SetTitle("simulation number");
+    TGraph *nrEv=new TGraph();
+    nrEv->SetName("nrEv");
+    nrEv->SetTitle("number events for sim file");
+    TGraphErrors *g[4];
+    string gNm[4]={"lPe","rPe","lAe","rAe"};
+    string gTit[4]={"Primary L PE","Primary R PE","All L PE","All R PE"};
+    for(int i=0;i<4;i++){
+      g[i]=new TGraphErrors();
+      g[i]->SetName(gNm[i].c_str());
+      g[i]->SetTitle(Form("%s;sim file #",gTit[i].c_str()));    
+    }
 
+    ifstream ifile(file.c_str());
+    string data;
+    int ng=0;
+    while(ifile>>data){
+      cout<<data<<endl;
+      string nrSim=data.substr(0,data.find_last_of("/"));
+      nrSim=nrSim.substr(nrSim.find_last_of("_")+1);
+      simNr->SetPoint(ng,ng+1,atoi(nrSim.c_str()));
+      for(int i=0;i<4;i++) totPE[i]=0.;
+      nrEv->SetPoint(ng,ng+1,processOneFile(data,0));
+      for(int i=0;i<4;i++) g[i]->SetPoint(ng,ng+1,totPE[i]);      
+      ng++;      
+    }
+    ifile.close();
+
+    fout->cd();
+    for(int i=0;i<4;i++){
+      g[i]->SetMarkerStyle(20);
+      g[i]->Write();
+    }    
+    simNr->SetMarkerStyle(20);
+    nrEv->SetMarkerStyle(20);
+    simNr->Write();
+    nrEv->Write();
+    fout->Close();
+  }
+
+}
+
+double processOneFile(string fname,int verbose){
+  TFile *fin=new TFile(fname.c_str(),"READ");
+  //  TFile *fin=TFile::Open(fname.c_str(),"READ");
+  if(!fin->IsOpen()) {
+    cout<<endl<<endl<<"Skipping file :"<<fname<<endl<<endl;
+    delete fin;
+    return -1;
+  }else if(!fin->GetListOfKeys()->Contains("distPe") || 
+	   !fin->GetListOfKeys()->Contains("distAe") || 
+	   !fin->GetListOfKeys()->Contains("hNev")){
+    cout<<endl<<endl<<"Skipping file :"<<fname<<endl<<endl;
+    delete fin;
+    return -1;
+  }
+
+  TH1D *hNev=(TH1D*)fin->Get("hNev");
+  double totEv=hNev->GetBinContent(1);
+  if(totEv<=0){
+    cout<<endl<<"Skipping "<<fname<<" has hNev entry "<<totEv<<endl;
+    delete fin;
+    return -1;
+  }
   string part[2]={"Pe","Ae"};
   string partTit[2]={"Primary e-","All e"};
 
   for(int i=0;i<2;i++){
     string histNm="dist"+part[i];
     TH3D *dist=(TH3D*)fin->Get(histNm.c_str());
-    cout<<"looking at "<<dist->GetTitle()<<endl;
+    if(verbose)cout<<"looking at "<<dist->GetTitle()<<endl;
     
     double lTotPE(0),rTotPE(0);
     int counter=0;
@@ -71,7 +148,7 @@ int main(int argc, char** argv)
 	  if(fabs(pt1[2])>80) continue;
 	  if(pt1[1]>100 || pt1[1]<3) continue;
 
-	  if(debugPrint || counter%printStep==1)
+	  if((debugPrint || counter%printStep==1) && verbose)
 	    cout<<endl<<counter<<" !! Calc for pos, ang, E: "<<pt1[0]<<" "<<pt1[2]<<" "<<pt1[1]<<endl;
 
 	  double rpe(-1),lpe(-1);
@@ -92,7 +169,7 @@ int main(int argc, char** argv)
 	    exit(1);
 	  }
 	  
-	  if(debugPrint || counter%printStep==1){
+	  if((debugPrint || counter%printStep==1) && verbose){
 	    cout<<"    ~~~~ lpe rpe TL TR "<<lpe<<" "<<rpe<<" "<<lTotPE<<" "<<rTotPE<<endl;
 	    if(debugPrint) cin.ignore();
 	  }
@@ -103,16 +180,16 @@ int main(int argc, char** argv)
 	  if(isnan(lpe) || isnan(rpe)) exit(2);
 	}
     double das=2.*lTotPE*rTotPE/(pow(lTotPE+rTotPE,2))*sqrt((1./lTotPE)+(1./rTotPE));
-    cout<<partTit[i]<<" : L R (L-R)/(L+R) "
-	<<setprecision(12)<<lTotPE<<" "<<rTotPE<<" "
-	<<(lTotPE-rTotPE)/(lTotPE+rTotPE)<<" pm "<<das<<endl;
-  }
-  
+    if(verbose)cout<<partTit[i]<<" : L R (L-R)/(L+R) "
+		   <<setprecision(12)<<lTotPE<<" "<<rTotPE<<" "
+		   <<(lTotPE-rTotPE)/(lTotPE+rTotPE)<<" pm "<<das<<endl;
+    
+    totPE[i*2]   = lTotPE;
+    totPE[i*2+1] = rTotPE;
+  }  
   fin->Close();
-  
-
-  return 0;
-  
+  delete fin;
+  return totEv;
 }
 
 void readPEs(){
