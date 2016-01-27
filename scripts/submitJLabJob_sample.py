@@ -17,11 +17,11 @@ def main():
     _source="/w/hallc-scifs2/qweak/ciprian/simCodeG410/QweakG4DD"
     _directory="/lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput/g41001p01/mott/updateCH/sampled"
     _nEv=80000
-    _nrStop=1
+    _nrStop=200
     _nrStart=0
     _pol="f"
-    _polT="V" #V for + helicity mV for - helicity
-    submit=0
+    _polT="mV" #V for + helicity mV for - helicity
+    submit=1
     
     for nr in range(_nrStart,_nrStop): # repeat for nr jobs
         _idN= _polT+'_sampled_%03dk_%03d'% (_nEv/1000,nr) 
@@ -90,7 +90,7 @@ def createXMLfile(idname,directory,email,source):
     f.write("QweakSimG4 myRun.mac\n")
     f.write("  ]]></Command>\n")
     f.write("  <Memory space=\"1200\" unit=\"MB\"/>\n")
-    f.write("  <TimeLimit unit=\"minutes\" time=\"600\"/>\n")
+    f.write("  <TimeLimit unit=\"minutes\" time=\"2000\"/>\n")
     f.write("  <Job>\n")
     f.write("    <Stdout dest=\""+directory+"/"+idname+"/log/log.out\"/>\n")
     f.write("    <Stderr dest=\""+directory+"/"+idname+"/log/log.err\"/>\n")
