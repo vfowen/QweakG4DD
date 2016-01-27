@@ -7,7 +7,9 @@ project(QweakSimG4)
 # Find Geant4
 SITE_NAME(mySite)
 if(${mySite} MATCHES "ifarm*")
-   set(Geant4_DIR /w/hallc-scifs2/qweak/ciprian/geant41001p01/source/geant4.10.01.p01/build)
+   set(Geant4_DIR /lustre/expphy/work/hallc/qweak/ciprian/geant41001p02/geant4.10.01.p02/build)
+#   set(Geant4_DIR /w/hallc-scifs2/qweak/ciprian/geant41001p01/source/geant4.10.01.p01/build)
+#   set(Geant4_DIR $ENV{G4INSTALL}/build)	
    message( "On ifarm using custom geant4_dir: " ${Geant4_DIR})
    find_package(Geant4 REQUIRED COMPONENTS gdml qt ui_all vis_all)
    execute_process(COMMAND ${Geant4_DIR}/geant4-config --version
