@@ -1526,9 +1526,8 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 					  "Radiator_Log",
 					  0,0,0);
   //FIXME -- define step limitation for this container
-  //0.001 produces 10x more output in o-tuple
-  // G4double MaxStepInPbRadiator = 0.000001*2.0*cm;
-  // Radiator_Logical->SetUserLimits(new G4UserLimits(MaxStepInPbRadiator));
+  G4double MaxStepInPbRadiator = 0.12*mm;
+  Radiator_Logical->SetUserLimits(new G4UserLimits(MaxStepInPbRadiator));
   //FIXME -- define step limitation for this container
 
   G4ThreeVector Position_Radiator  = G4ThreeVector(0, 0,-5.0*cm);//-2.0*cm);
