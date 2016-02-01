@@ -44,6 +44,8 @@ int main(int argc, char** argv)
     cout<<" total nr ev: "<<QweakSimG4_Tree->GetEntries()<<endl;
     
     processOne(QweakSimG4_Tree,LnPMThit,RnPMThit,ndet);
+    lpe->Fill(LnPMThit);
+    rpe->Fill(RnPMThit);
     lTotPE+=LnPMThit;
     rTotPE+=RnPMThit;      
     fin->Close();
