@@ -14,9 +14,6 @@ def createMacFile(directory,idname,xPos,yPos,zPos,xAng,yAng,beamE,pol,nEv,nr):
     f.write("/PrimaryEvent/SetBeamPositionY "+str(yPos)+" cm\n")
     f.write("/PrimaryEvent/SetBeamPositionZ "+str(zPos)+" cm\n")
 
-    #### these values are really not degrees ...
-    ## normMomX= tan (this value) same for Y ... Z = sqrt (1 - normMomX^2 - Y)
-    ## seems to work well enough for small angles
     f.write("/PrimaryEvent/SetBeamDirectionX "+str(xAng)+" deg\n") 
     f.write("/PrimaryEvent/SetBeamDirectionY "+str(yAng)+" deg\n")
 
@@ -41,7 +38,7 @@ def createXMLfile(idname,directory,email,source):
     f.write("  <Project name=\"qweak\"/>\n")
     f.write("  <Track name=\"simulation\"/>\n")
     f.write("  <Name name=\""+idname+"\"/>\n")
-    f.write("  <OS name=\"centos62\"/>\n")
+    f.write("  <OS name=\"centos65\"/>\n")
     f.write("  <Command><![CDATA[\n")
     f.write("cd "+directory+"/jobs/"+idname+"\n")
     f.write("QweakSimG4 myRun.mac\n")
@@ -60,14 +57,16 @@ def createXMLfile(idname,directory,email,source):
 
 def main():
     
-    _xPos=[-0.1,-0.05,-0.04,-0.03,-0.02,-0.01,0,0.01,0.02,0.03,0.04,0.05,0.1]
+    _xPos=[0]
+    #_xPos=[-0.1,-0.05,-0.04,-0.03,-0.02,-0.01,0,0.01,0.02,0.03,0.04,0.05,0.1]
     _email="ciprian@jlab.org"
     _source="/w/hallc-scifs2/qweak/ciprian/QweakG4DD"
-    _directory="/lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput/xVSangVSe"
+    _directory="/lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput/angVSe"
     _nEv=30000
-    _beamE=[5,10,15,20,25,30,35,40,45,50]
-    _xAng=[-0.5,-0.4,-0.3,-0.2,-0.1,-0.05,-0.03,-0.02,-0.01,0,0.01,0.02,0.03,0.04,0.05,0.1,0.2,0.3,0.4,0.5]
-    _nr=5
+    _beamE=[5,10,30,50,100]
+    #_xAng=[0]
+    _xAng=[-80,-75,-70,-65,-60,-55,-50,-45,-40,-35,-30,-25,-20,-15,-10,-5,-1,1,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80]
+    _nr=3
     _nSt=0
     _pol="L"
     submit=1
@@ -78,7 +77,7 @@ def main():
                 for nr in range(_nSt,_nr+_nSt): # repeat for nr jobs
                     yP=335.0
                     yA=0
-                    zP=576.0 #in front of MD no Pb
+                    zP=575.0 #in front of MD no Pb (this should go to at most 88 deg until the end of the bar)
                     _idN= _pol+'_%04d_%06.2f_%06.2f_%06.2f_%06.2f_%03d'% (beamE,xP,yP,zP,xA,nr) 
                     createMacFile(_directory,_idN,xP,yP,zP,xA,yA,beamE,_pol,_nEv,nr)
                     createXMLfile(_idN,_directory,_email,_source)
@@ -87,7 +86,7 @@ def main():
                     #sys.exit()#for testing purposes
 
                     if submit==1:
-                        print "submitting X position", xP," for the ",nr," time"," with E ",beamE
+                        print "submitting X position", xP,"with angle",xA,"for the ",nr," time"," with E ",beamE
                         call(["jsub","-xml",_directory+"/jobs/"+_idN+"/job.xml"])
                     else:
                         print "do not submit ",submit
