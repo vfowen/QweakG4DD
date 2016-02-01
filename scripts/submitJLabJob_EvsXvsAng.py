@@ -4,6 +4,42 @@ import sys
 import os
 import time
 
+def main():
+    
+    xPos=[0]
+    #xPos=[-0.1,-0.05,-0.04,-0.03,-0.02,-0.01,0,0.01,0.02,0.03,0.04,0.05,0.1]
+    email="ciprian@jlab.org"
+    source="/w/hallc-scifs2/qweak/ciprian/QweakG4DD"
+    directory="/lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput/angVSe"
+    nEv=30000
+    beamE=[5,10,30,50,100]
+    #xAng=[0]
+    xAng=[-80,-75,-70,-65,-60,-55,-50,-45,-40,-35,-30,-25,-20,-15,-10,-5,-1,1,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80]
+    nrStart = 3
+    nrStop  = 0
+    pol="L"
+    submit=1
+
+    for xA in xAng: # angle along x axis (along MD3, perp MD1)
+        for xP in xPos: # x position of the beam
+            for beamE in beamE: # E of the beam
+                for nr in range(nStart,nrStop): # repeat for nr jobs
+                    yP=335.0
+                    yA=0
+                    zP=575.0 #in front of MD no Pb (this should go to at most 88 deg until the end of the bar)
+                    idN= pol+'_%04d_%06.2f_%06.2f_%06.2f_%06.2f_%03d'% (beamE,xP,yP,zP,xA,nr) 
+                    createMacFile(directory,idN,xP,yP,zP,xA,yA,beamE,pol,nEv,nr)
+                    createXMLfile(idN,directory,email,source)
+                    call(["cp",source+"/build/QweakSimG4",directory+"/jobs/"+idN+"/QweakSimG4"])
+                    call(["cp",source+"/myQweakCerenkovOnly.mac",directory+"/jobs/"+idN+"/myQweakCerenkovOnly.mac"])
+                    #sys.exit()#for testing purposes
+
+                    if submit==1:
+                        print "submitting X position", xP,"with angle",xA,"for the ",nr," time"," with E ",beamE
+                        call(["jsub","-xml",directory+"/jobs/"+idN+"/job.xml"])
+                    else:
+                        print "do not submit ",submit
+    
 def createMacFile(directory,idname,xPos,yPos,zPos,xAng,yAng,beamE,pol,nEv,nr):
     if not os.path.exists(directory+"/jobs/"+idname):
         os.makedirs(directory+"/jobs/"+idname)
@@ -54,43 +90,6 @@ def createXMLfile(idname,directory,email,source):
     f.close()
 
     return 0
-
-def main():
-    
-    _xPos=[0]
-    #_xPos=[-0.1,-0.05,-0.04,-0.03,-0.02,-0.01,0,0.01,0.02,0.03,0.04,0.05,0.1]
-    _email="ciprian@jlab.org"
-    _source="/w/hallc-scifs2/qweak/ciprian/QweakG4DD"
-    _directory="/lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput/angVSe"
-    _nEv=30000
-    _beamE=[5,10,30,50,100]
-    #_xAng=[0]
-    _xAng=[-80,-75,-70,-65,-60,-55,-50,-45,-40,-35,-30,-25,-20,-15,-10,-5,-1,1,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80]
-    _nr=3
-    _nSt=0
-    _pol="L"
-    submit=1
-
-    for xA in _xAng: # angle along x axis (along MD3, perp MD1)
-        for xP in _xPos: # x position of the beam
-            for beamE in _beamE: # E of the beam
-                for nr in range(_nSt,_nr+_nSt): # repeat for nr jobs
-                    yP=335.0
-                    yA=0
-                    zP=575.0 #in front of MD no Pb (this should go to at most 88 deg until the end of the bar)
-                    _idN= _pol+'_%04d_%06.2f_%06.2f_%06.2f_%06.2f_%03d'% (beamE,xP,yP,zP,xA,nr) 
-                    createMacFile(_directory,_idN,xP,yP,zP,xA,yA,beamE,_pol,_nEv,nr)
-                    createXMLfile(_idN,_directory,_email,_source)
-                    call(["cp",_source+"/build/QweakSimG4",_directory+"/jobs/"+_idN+"/QweakSimG4"])
-                    call(["cp",_source+"/myQweakCerenkovOnly.mac",_directory+"/jobs/"+_idN+"/myQweakCerenkovOnly.mac"])
-                    #sys.exit()#for testing purposes
-
-                    if submit==1:
-                        print "submitting X position", xP,"with angle",xA,"for the ",nr," time"," with E ",beamE
-                        call(["jsub","-xml",_directory+"/jobs/"+_idN+"/job.xml"])
-                    else:
-                        print "do not submit ",submit
-    
                     
 if __name__ == '__main__':
     main()
