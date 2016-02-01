@@ -13,8 +13,16 @@
 /PrimaryEvent/SetBeamPositionX 0.0 cm
 /PrimaryEvent/SetBeamPositionY 335.0 cm
 /PrimaryEvent/SetBeamPositionZ 560.0 cm
-/PrimaryEvent/SetPolarization L
+#/PrimaryEvent/SetBeamDirectionX 60 deg
+
+#Should events be generated from the same position and with the same momentum?
+#true: take either default or values above
+#false: get value for each event from file
 /PrimaryEvent/SetFixedPosMom true
+
+#set particle polarization for primary generator (L, H, V, mL, mH, mV, 0, f)
+#if f then read the polarization values from a file
+/PrimaryEvent/SetPolarization V
 
 /EventGen/SetBeamEnergy    1160 MeV
 
@@ -34,4 +42,4 @@
 
 #/run/verbose 2
 #/tracking/verbose 1
-/run/beamOn 1000
+/run/beamOn 2
