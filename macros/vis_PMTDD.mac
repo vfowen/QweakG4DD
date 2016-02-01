@@ -1,0 +1,23 @@
+# modified copy of myRun.mac that uses the modifications made by Buddhini
+
+/control/execute myQweakCerenkovOnly.mac
+/PrimaryEvent/SetBeamPositionX 0.0 cm
+/PrimaryEvent/SetBeamPositionY 335.0 cm
+/PrimaryEvent/SetBeamPositionZ 560.0 cm
+/PrimaryEvent/SetPolarization mL
+/EventGen/SetBeamEnergy    1160 MeV
+/EventGen/SelectOctant 3
+/TrackingAction/TrackingFlag 2
+
+
+# /vis/viewer/set/viewpointThetaPhi 173. 100.
+# /vis/viewer/zoom 4.
+
+# ####/vis/viewer/set/targetPoint -0.1 3.9 1.01
+# /vis/viewer/set/style wireframe
+# /vis/scene/add/axes 0 0 0 1 m
+# /vis/scene/add/trajectories smooth
+# /vis/modeling/trajectories/create/drawByCharge
+# /vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true
+# /vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 2
+
