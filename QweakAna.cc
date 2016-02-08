@@ -14,10 +14,10 @@
 
 using namespace std;
 
-TH3D *distPe,*distAe,*distPh;
+TH3D *distPe,*distAe,*distPh,*distNp;
 TH2D *distLongPolLogE,*distTranPolLogE;
-TH1D *distElog[3];
-TH1D *distE[3];
+TH1D *distElog[4];
+TH1D *distE[4];
 
 void findInt(std::vector<int> &inter,std::vector<int> &val, int trackID,int parent, int &hasPar, int &nInt);
 void processOne(TTree *QweakSimG4_Tree);
@@ -51,7 +51,12 @@ int main(int argc, char** argv)
   		201,-100.5,100.5,
   		180,-90,90,
   		301,0,301);
-  
+
+  distNp=new TH3D("distNp","nonPrimary distribution;position [cm]; angle [deg]; E [MeV]",
+		  201,-100.5,100.5,
+		  180,-90,90,
+		  301,0,301);
+
   distPh=new TH3D("distPh","Photon distribution;position [cm]; angle [deg]; E [MeV]",
 			201,-100.5,100.5,
 			180,-90,90,
@@ -62,9 +67,9 @@ int main(int argc, char** argv)
   distTranPolLogE=new TH2D("distTranPolLogE",";transverse   Polarization[%]; log10(E) [MeV]",
 			   100,0,100,200,-1.3,3.5);
 
-  string part[3]={"Pe","Ae","Ph"};
-  string partTit[3]={"Primary e-","All e","Photons"};
-  for(int i=0;i<3;i++){
+  string part[4]={"Pe","Ae","Ph","Np"};
+  string partTit[4]={"Primary e-","All e","Photons","Non primary"};
+  for(int i=0;i<4;i++){
     distElog[i]=new TH1D(Form("distElog_%s",part[i].c_str()),Form("%s;log10(E) [MeV]",partTit[i].c_str()),200,-1,3.5);
     distE[i]=new TH1D(Form("distE_%s",part[i].c_str()),Form("%s;E [MeV]",partTit[i].c_str()),200,0,1200);
   }
@@ -126,11 +131,12 @@ int main(int argc, char** argv)
   distPe->Write();
   distAe->Write();
   distPh->Write();
+  distNp->Write();
 
   distLongPolLogE->Write();
   distTranPolLogE->Write();
 
-  for(int i=0;i<3;i++){
+  for(int i=0;i<4;i++){
     distE[i]->Write();
     distElog[i]->Write();    
   }
@@ -181,6 +187,9 @@ void processOne(TTree *QweakSimG4_Tree){
 	  double polZ=event->Cerenkov.Detector.GetPolarizationZ()[hit];
 	  distTranPolLogE->Fill(sqrt(polX*polX+polY*polY)*100.,log10(E));
 	  distLongPolLogE->Fill(polZ*100.,log10(E));
+	}else{
+	  distElog[3]->Fill(log10(E));
+	  distE[3]->Fill(E);	  
 	}
       }
       
@@ -202,6 +211,8 @@ void processOne(TTree *QweakSimG4_Tree){
 	
 	if(tID==1 && parentID==0) //primary
 	  distPe->Fill(x,angX,histE);
+	else //nonprimary
+	  distNp->Fill(x,angX,histE);
       }
       
     }//nhit
