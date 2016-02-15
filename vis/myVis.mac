@@ -163,7 +163,8 @@
 
 
 # load/execute this macro:
-/control/execute myQweakConfiguration.mac
+#/control/execute myQweakConfiguration.mac
+/control/execute myQweakCerenkovOnly.mac
 
 #==========================
 # Visualization: Hall related
