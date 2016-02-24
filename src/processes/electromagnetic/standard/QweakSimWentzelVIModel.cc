@@ -652,7 +652,7 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	G4double transPol=sqrt(pow(polarization.getX(),2)+pow(polarization.getY(),2));
 	G4double _amplitude = AnalyzingPower(eEnergy, cost) * transPol;
 
-	if(modifyTrajector){
+	if(modifyTrajectory){
 	  if( _prob < _amplitude * sin(phi-pi) ){
 	    phi-=pi;
 	  }		
