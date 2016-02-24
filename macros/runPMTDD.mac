@@ -1,5 +1,7 @@
 # modified copy of myRun.mac that uses the modifications made by Buddhini
 
+##Set the max step size in preRadiator
+##/Cerenkov/SetPbStepSize 0.01 mm##FIXME doesnt work
 # load/execute this macro:
 /control/execute myQweakCerenkovOnly.mac
 
@@ -30,11 +32,10 @@
 #  0: Allow primaries only (default)
 #  1: Allow primaries and optical photons only
 #  2: track all primaries and their secondaries except optical photons
-#  3: track all primaries and their secondaries
-# 
-#/TrackingAction/TrackingFlag 0
+#  3: track all primaries and their secondaries 
+/TrackingAction/TrackingFlag 0
 #/TrackingAction/TrackingFlag 1
-/TrackingAction/TrackingFlag 2
+#/TrackingAction/TrackingFlag 2
 #/TrackingAction/TrackingFlag 3
 
 
@@ -42,4 +43,5 @@
 
 #/run/verbose 2
 #/tracking/verbose 1
-/run/beamOn 2
+/random/setSeeds 727593 4878445
+/run/beamOn 1000

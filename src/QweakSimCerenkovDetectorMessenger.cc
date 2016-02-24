@@ -5,6 +5,7 @@
 // user includes
 #include "QweakSimCerenkovDetector.hh"
 #include "QweakSimMessengerDefinition.hh"
+#include <iostream>
 
 // static variables
 G4UIdirectory*             QweakSimCerenkovDetectorMessenger::Dir = 0;
@@ -15,6 +16,7 @@ G4UIcmdWithAString*        QweakSimCerenkovDetectorMessenger::PreRadiatorMatCmd 
 G4UIcmdWithADoubleAndUnit* QweakSimCerenkovDetectorMessenger::ContainerThicknessCmd = 0;
 G4UIcmdWithADoubleAndUnit* QweakSimCerenkovDetectorMessenger::TiltingAngleCmd = 0;
 G4UIcmdWithADoubleAndUnit* QweakSimCerenkovDetectorMessenger::KinkAngleCmd = 0;
+G4UIcmdWithADoubleAndUnit* QweakSimCerenkovDetectorMessenger::SetPbStepSizeCmd = 0;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 QweakSimCerenkovDetectorMessenger::QweakSimCerenkovDetectorMessenger(QweakSimCerenkovDetector* theCerenkovDetector, G4int octant)
@@ -78,9 +80,15 @@ QweakSimCerenkovDetectorMessenger::QweakSimCerenkovDetectorMessenger(QweakSimCer
     PreRadiatorMatCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
   }
 
-  //Added Cerenkov octant number to the command list. The messenger is now dependent on the octant number.
-  //K. Bartlett Aug 6, 2012
+  if (SetPbStepSizeCmd == 0) {
+    SetPbStepSizeCmd =  new G4UIcmdWithADoubleAndUnit(G4String(Dir_name + "/SetPbStepSize"),this);
+    SetPbStepSizeCmd->SetGuidance("Set max step size in the Pb preradiator ");
+    SetPbStepSizeCmd->SetParameterName("StepLength",true);
+    SetPbStepSizeCmd->SetDefaultUnit("mm");
+    SetPbStepSizeCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+  }
 
+  
   G4String DirPerOctant_name = "/Cerenkov/Cerenkov" + G4UIcommand::ConvertToString(octant+1);
   DirPerOctant = new  G4UIdirectory(G4String(DirPerOctant_name + "/"));
   DirPerOctant -> SetGuidance("Individual Cerenkov detector control.");
@@ -112,17 +120,6 @@ QweakSimCerenkovDetectorMessenger::~QweakSimCerenkovDetectorMessenger()
   if (ContainerYPositionCmd)      delete ContainerYPositionCmd;
   if (ContainerZPositionCmd)      delete ContainerZPositionCmd;
   if (DirPerOctant)               delete DirPerOctant;
-
-  // Someone could implement all these static pointers as smart pointers so they
-  // get deleted on destruction....
-//  if (NumberOfDetectorsCmd)     { delete NumberOfDetectorsCmd; NumberOfDetectorsCmd = 0; }
-//  if (ContainerThicknessCmd)    { delete ContainerThicknessCmd; ContainerThicknessCmd = 0; }
-//  if (DetectorMatCmd)           { delete DetectorMatCmd; DetectorMatCmd = 0; }
-//  if (PreRadiatorMatCmd)        { delete PreRadiatorMatCmd; PreRadiatorMatCmd = 0; }
-//  if (ContainerMatCmd)          { delete ContainerMatCmd; ContainerMatCmd = 0; }
-//  if (TiltingAngleCmd)          { delete TiltingAngleCmd; TiltingAngleCmd = 0; }
-//  if (KinkAngleCmd)             { delete KinkAngleCmd; KinkAngleCmd = 0; }
-//  if (Dir)                      { delete Dir; Dir = 0; }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -132,79 +129,45 @@ void QweakSimCerenkovDetectorMessenger::SetNewValue(G4UIcommand* command,G4Strin
   G4cout << "#### Calling QweakSimCerenkovDetectorMessenger::SetNewValue() " << command->GetCommandName()
 	 <<" "<<newValue << G4endl;
    
-  if( command == NumberOfDetectorsCmd )
-   {
-     G4cout << "#### Messenger: Setting Number of Detectors to " << newValue << G4endl;
-
-     myCerenkovDetector->SetNumberOfDetectors(NumberOfDetectorsCmd->GetNewIntValue(newValue));
-   }
-
-  if( command == ContainerThicknessCmd )
-   {
-     G4cout << "#### Messenger: Setting CerenkovDetector Container Thickness to " << newValue << G4endl;
-
-     myCerenkovDetector->SetCerenkovDetectorThickness(ContainerThicknessCmd->GetNewDoubleValue(newValue));
-   }
-
-  if( command == ContainerXPositionCmd )
-   {
-     G4cout << "#### Messenger: Setting CerenkovDetector Container X position to " << newValue <<" for octant "<<fOctant << G4endl;
-     
-     myCerenkovDetector->SetCerenkovDetectorCenterPositionInX(ContainerXPositionCmd->GetNewDoubleValue(newValue), fOctant);
-   }
-
-  if( command == ContainerYPositionCmd )
-  {
-      G4cout << "#### Messenger: Setting CerenkovDetector Container Y position to " << newValue <<" for octant "<<fOctant << G4endl;
-      
-      myCerenkovDetector->SetCerenkovDetectorCenterPositionInY(ContainerYPositionCmd->GetNewDoubleValue(newValue), fOctant);
-   }
-  
-  if( command == ContainerZPositionCmd )
-  {
-    G4cout << "#### Messenger: Setting CerenkovDetector Container Z position to " << newValue <<" for octant "<<fOctant << G4endl;
-
-      myCerenkovDetector->SetCerenkovDetectorCenterPositionInZ(ContainerZPositionCmd->GetNewDoubleValue(newValue), fOctant);
+  if( command == NumberOfDetectorsCmd ){
+    G4cout << "#### Messenger: Setting Number of Detectors to " << newValue << G4endl;
+    myCerenkovDetector->SetNumberOfDetectors(NumberOfDetectorsCmd->GetNewIntValue(newValue));
+  }else  if( command == ContainerThicknessCmd ){
+    G4cout << "#### Messenger: Setting CerenkovDetector Container Thickness to " << newValue << G4endl;
+    myCerenkovDetector->SetCerenkovDetectorThickness(ContainerThicknessCmd->GetNewDoubleValue(newValue));
+  }else if( command == ContainerXPositionCmd ){
+    G4cout << "#### Messenger: Setting CerenkovDetector Container X position to " << newValue <<" for octant "<<fOctant << G4endl;     
+    myCerenkovDetector->SetCerenkovDetectorCenterPositionInX(ContainerXPositionCmd->GetNewDoubleValue(newValue), fOctant);
+  }else if( command == ContainerYPositionCmd ){
+    G4cout << "#### Messenger: Setting CerenkovDetector Container Y position to " << newValue <<" for octant "<<fOctant << G4endl;    
+    myCerenkovDetector->SetCerenkovDetectorCenterPositionInY(ContainerYPositionCmd->GetNewDoubleValue(newValue), fOctant);
+  }else if( command == ContainerZPositionCmd ){
+    G4cout << "#### Messenger: Setting CerenkovDetector Container Z position to " << newValue <<" for octant "<<fOctant << G4endl;    
+    myCerenkovDetector->SetCerenkovDetectorCenterPositionInZ(ContainerZPositionCmd->GetNewDoubleValue(newValue), fOctant);
+  }else if( command == ContainerMatCmd ){ 
+    G4cout << "#### Messenger: Setting CerenkovDetector Container Material to " << newValue << G4endl;    
+    myCerenkovDetector->SetContainerMaterial(newValue);
+  }else if( command == DetectorMatCmd ){ 
+    G4cout << "#### Messenger: Setting Cerenkov Detector Material to " << newValue << G4endl;    
+    myCerenkovDetector->SetCerenkovDetectorMaterial(newValue);
+  }else if( command == PreRadiatorMatCmd ){ 
+    G4cout << "#### Messenger: Setting PreRadiator Material to " << newValue << G4endl;    
+    myCerenkovDetector->SetPreradiatorMaterial(newValue);
+  }else if( command == TiltingAngleCmd ){ 
+    G4cout << "#### Messenger: Setting Cerenkov Detector Tilting Angle to " << newValue << G4endl;
+    myCerenkovDetector->SetCerenkovDetectorTiltAngle(TiltingAngleCmd->GetNewDoubleValue(newValue));
+  }else if( command == KinkAngleCmd ){ 
+    G4cout << "#### Messenger: Setting Cerenkov Detector Kink Angle to " << newValue << G4endl;
+    // myCerenkovDetector->SetKinkAngle(newValue);
+  }else if( command == SetPbStepSizeCmd ){
+    G4cout << "!!~~ Messenger: Setting Pb preRadiator Step size to " << newValue << G4endl;
+    myCerenkovDetector->SetCerenkovDetectorPbStepSize(SetPbStepSizeCmd->GetNewDoubleValue(newValue));
+    std::cin.ignore();
+  }else{
+    G4cout<< G4endl << G4endl << __PRETTY_FUNCTION__ << G4endl
+	  << " Error!!! Command not known. Value: "<<newValue<<G4endl;
+    exit(1);      
   }
-  
-  
-  if( command == ContainerMatCmd )
-   { 
-     G4cout << "#### Messenger: Setting CerenkovDetector Container Material to " << newValue << G4endl;
-
-     myCerenkovDetector->SetContainerMaterial(newValue);
-   }
-
-  if( command == DetectorMatCmd )
-   { 
-     G4cout << "#### Messenger: Setting Cerenkov Detector Material to " << newValue << G4endl;
-
-     myCerenkovDetector->SetCerenkovDetectorMaterial(newValue);
-   }
-
-  if( command == PreRadiatorMatCmd )
-   { 
-     G4cout << "#### Messenger: Setting PreRadiator Material to " << newValue << G4endl;
-
-     myCerenkovDetector->SetPreradiatorMaterial(newValue);
-   }
-   
-  if( command == TiltingAngleCmd )
-   { 
-     G4cout << "#### Messenger: Setting Cerenkov Detector Tilting Angle to " << newValue << G4endl;
-
-     myCerenkovDetector->SetCerenkovDetectorTiltAngle(TiltingAngleCmd->GetNewDoubleValue(newValue));
-   }
-
-  if( command == KinkAngleCmd )
-   { 
-     G4cout << "#### Messenger: Setting Cerenkov Detector Kink Angle to " << newValue << G4endl;
-
-     // myCerenkovDetector->SetKinkAngle(newValue);
-   }
-
-
-  //G4cout << "#### Leaving QweakSimCerenkovDetectorMessenger::SetNewValue() " << newValue << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

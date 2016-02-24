@@ -41,6 +41,7 @@ public:
   void SetCerenkovDetectorCenterPositionInZ(G4double zPos, G4int octant);
   void SetCerenkovDetectorTiltAngle(G4double tiltangle);
   void SetCerenkovDetectorThickness(G4double thickness);
+  void SetCerenkovDetectorPbStepSize(G4double size);
 
   void CerenkovGeometryPVUpdate();
 
@@ -303,7 +304,8 @@ private:
   G4double Tilting_Angle;      // total tilting angle towards mean track
   G4double Kink_Angle;         // Vshape angle
   G4double Thickness; 
-
+  G4double maxStepInPbRadiator;
+  
   // placing the container
   G4ThreeVector    Position_CerenkovContainer;
   G4RotationMatrix* Rotation_CerenkovContainer;  
@@ -381,13 +383,14 @@ private:
   G4double Default_Position_CerenkovContainer_X;
   G4double Default_Position_CerenkovContainer_Y;
   G4double Default_Position_CerenkovContainer_Z;
-
+  
   // Repositions the center point that all components are built around
   G4double Container_Center_X;
   G4double Container_Center_Y;
   G4double Container_Center_Z;
 
   G4ThreeVector Container_Center;
+
 };
 #endif
 

@@ -170,6 +170,7 @@ QweakSimCerenkovDetector::QweakSimCerenkovDetector(QweakSimUserInformation *user
 
     NumberOfCerenkovDetectors = 8;
     SetNumberOfDetectors(8); // needs to be at the end, updates geometry
+    maxStepInPbRadiator=0.01*mm;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -1525,16 +1526,14 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 					  Radiator_Material,
 					  "Radiator_Log",
 					  0,0,0);
-  //FIXME -- define step limitation for this container
-  G4double MaxStepInPbRadiator = -0.25*mm;
-  if(MaxStepInPbRadiator>0){
-    Radiator_Logical->SetUserLimits(new G4UserLimits(MaxStepInPbRadiator));
+
+  if(maxStepInPbRadiator>0){
+    Radiator_Logical->SetUserLimits(new G4UserLimits(maxStepInPbRadiator));
     G4cout<<G4endl<<G4endl<<" !!!!!!! "<<G4endl<<"Max step in Pb radiator "
-	  <<MaxStepInPbRadiator<<G4endl<<G4endl;
+	  <<maxStepInPbRadiator<<G4endl<<G4endl;
   }
   else
     G4cout<<G4endl<<G4endl<<" !!!!!!! "<<G4endl<<"Std step in Pb radiator "<<G4endl<<G4endl;
-  //FIXME -- define step limitation for this container
 
   G4ThreeVector Position_Radiator  = G4ThreeVector(0, 0,-5.0*cm);//-2.0*cm);
 
@@ -2471,6 +2470,12 @@ void QweakSimCerenkovDetector::SetCerenkovDetectorTiltAngle(G4double tiltangle) 
     CerenkovGeometryPVUpdate();
 
     //G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::SetCerenkovDetectorTiltAngle() " << G4endl << G4endl;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+void QweakSimCerenkovDetector::SetCerenkovDetectorPbStepSize(G4double size) {
+  maxStepInPbRadiator=size;
+  CerenkovGeometryPVUpdate();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
