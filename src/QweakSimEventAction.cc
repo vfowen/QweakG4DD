@@ -263,229 +263,230 @@ void QweakSimEventAction::EndOfEventAction(const G4Event* evt) {
   G4int myEventCounter = myUserInfo->GetPrimaryEventNumber();
 
 
-    // Get hit collection
-    G4HCofThisEvent * HCE = evt->GetHCofThisEvent();
-
-    // initialize HitsCollection pointers
-    //QweakSimTarget_DetectorHitsCollection*              TargetDetector_HC              = 0;
-    //QweakSimGEM_WirePlane_HitsCollection*               GEM_WirePlane_HC               = 0;
-    // QweakSimHDC_WirePlane_HitsCollection*               HDC_WirePlane_HC               = 0;
-    // QweakSimVDC_WirePlane_HitsCollection*               VDC_WirePlane_HC               = 0;
-    // QweakSimVDC_DriftCellHitsCollection*                VDC_DriftCellFront_HC          = 0;
-    // QweakSimVDC_DriftCellHitsCollection*                VDC_DriftCellBack_HC           = 0;
-    // QweakSimTriggerScintillator_DetectorHitsCollection* TriggerScintillatorDetector_HC = 0;
-    //QweakSimTriggerScintillator_PMTHitsCollection*      TriggerScintillatorPMT_HC      = 0;
-    //QweakSimLeadGlass_DetectorHitsCollection*           LeadGlassDetector_HC           = 0;
-    //QweakSimLeadGlass_PMTHitsCollection*                LeadGlassPMT_HC                = 0;
-    //QweakSimPMTOnly_DetectorHitsCollection*             PMTOnlyDetector_HC             = 0;
-    //QweakSimPMTOnly_PMTHitsCollection*                  PMTOnlyPMT_HC		       = 0;
-    QweakSimCerenkovDetectorHitsCollection*             CerenkovDetector_HC            = 0;
-    QweakSimCerenkovDetector_PMTHitsCollection*         CerenkovDetectorPMT_HC         = 0;
-    //QweakSimLumi_DetectorHitsCollection*                LumiDetector_HC                = 0;
-
-    //G4int n_hitTarget = 0;
-    //G4int n_GEMhitWirePlane = 0;
-    //G4int n_HDChitWirePlane = 0;
-    // G4int n_VDChitWirePlane = 0;
-    // G4int n_VDChitDCFront = 0;
-    // G4int n_VDChitDCBack = 0;
-    //G4int n_hitTriggerScintillator = 0;
-    //G4int n_hitTriggerScintillatorPMT = 0;
-    //G4int n_hitLeadGlass = 0;
-    //G4int n_hitLeadGlassPMT = 0;
-    //G4int n_hitPMTOnly = 0;
-    //G4int n_hitPMTOnlyPMT = 0;
-    G4int n_hitCerenkov = 0;
-    G4int n_hitCerenkovPMT = 0;
-    //G4int n_hitLumi = 0;
-    //G4int n_hitLumiPMT = 0;
-
-    if (HCE) {
-
-        // // get  PMTOnly Hit Collector pointer
-        // if (TargetDetector_CollID > -1) {
-        //     TargetDetector_HC  = (QweakSimTarget_DetectorHitsCollection*)(HCE->GetHC(TargetDetector_CollID));
-        //     n_hitTarget        = TargetDetector_HC -> entries();
-        // }
-
-        // get  GEM_WirePlane Hit Collector pointer
-        //GEM_WirePlane_HC       = (QweakSimGEM_WirePlane_HitsCollection*)(HCE->GetHC(GEM_WirePlane_CollID));
-        //n_GEMhitWirePlane      = GEM_WirePlane_HC -> entries();
-
-        // // get  HDC_WirePlane Hit Collector pointer
-        // if (HDC_WirePlane_CollID > -1) {
-        //     HDC_WirePlane_HC       = (QweakSimHDC_WirePlane_HitsCollection*)(HCE->GetHC(HDC_WirePlane_CollID));
-        //     n_HDChitWirePlane      = HDC_WirePlane_HC  -> entries();
-        // }
-
-        // // get  VDC_WirePlane Hit Collector pointer
-        // if (VDC_WirePlane_CollID > -1) {
-        //     VDC_WirePlane_HC       = (QweakSimVDC_WirePlane_HitsCollection*)(HCE->GetHC(VDC_WirePlane_CollID));
-        //     n_VDChitWirePlane      = VDC_WirePlane_HC -> entries();
-        // }
-
-        // // get  VDC_DriftCellFront Hit Collector pointer
-        // if (VDC_DriftCellFront_CollID > -1) {
-        //     VDC_DriftCellFront_HC  = (QweakSimVDC_DriftCellHitsCollection*)(HCE->GetHC(VDC_DriftCellFront_CollID));
-        //     n_VDChitDCFront        = VDC_DriftCellFront_HC -> entries();
-        // }
-
-        // // get  VDC_DriftCellFront Hit Collector pointer
-        // if (VDC_DriftCellBack_CollID > -1) {
-        //     VDC_DriftCellBack_HC   = (QweakSimVDC_DriftCellHitsCollection*)(HCE->GetHC(VDC_DriftCellBack_CollID));
-        //     n_VDChitDCBack         = VDC_DriftCellBack_HC -> entries();
-        // }
-
-        // // get  TriggerScintillator Hit Collector pointer
-        // if (TriggerScintillatorDetector_CollID > -1) {
-        //     TriggerScintillatorDetector_HC = (QweakSimTriggerScintillator_DetectorHitsCollection*)(HCE->GetHC(TriggerScintillatorDetector_CollID));
-        //     n_hitTriggerScintillator       = TriggerScintillatorDetector_HC -> entries();
-        // }
-
-        // get  TriggerScintillatorPMT Hit Collector pointer
-        //if (TriggerScintillatorPMT_CollID > -1) {
-        //    TriggerScintillatorPMT_HC   = (QweakSimTriggerScintillator_PMTHitsCollection*)(HCE->GetHC(TriggerScintillatorPMT_CollID));
-        //    n_hitTriggerScintillatorPMT = TriggerScintillatorPMT_HC -> entries();
-        //}
-		
-	// // get  LeadGlass Hit Collector pointer
-        // if (LeadGlassDetector_CollID > -1) {
-        //     LeadGlassDetector_HC  = (QweakSimLeadGlass_DetectorHitsCollection*)(HCE->GetHC(LeadGlassDetector_CollID));
-        //     n_hitLeadGlass        = LeadGlassDetector_HC -> entries();
-	// }
-		
-        // get  LeadGlassPMT Hit Collector pointer
-        //if (LeadGlassPMT_CollID > -1) {
-        //    LeadGlassPMT_HC    = (QweakSimLeadGlass_PMTHitsCollection*)(HCE->GetHC(LeadGlassPMT_CollID));
-        //    n_hitLeadGlassPMT  = LeadGlassPMT_HC -> entries();
-        //}
-
-        // // get  PMTOnly Hit Collector pointer
-        // if (PMTOnlyDetector_CollID > -1) {
-        //     PMTOnlyDetector_HC  = (QweakSimPMTOnly_DetectorHitsCollection*)(HCE->GetHC(PMTOnlyDetector_CollID));
-        //     n_hitPMTOnly        = PMTOnlyDetector_HC -> entries();
-	// }
-	
-	// // get PMTOnly_PMT Hit Collection
-	// if (PMTOnlyDetectorPMT_CollID > -1) {
-        //     PMTOnlyPMT_HC  = (QweakSimPMTOnly_PMTHitsCollection*)(HCE->GetHC(PMTOnlyDetectorPMT_CollID));
-        //     n_hitPMTOnlyPMT        = PMTOnlyPMT_HC -> entries();
-	// }
-
-        // get  CerenkovDetector Hit Collector pointer
-        if (CerenkovDetector_CollID > -1) {
-            CerenkovDetector_HC    = (QweakSimCerenkovDetectorHitsCollection*)(HCE->GetHC(CerenkovDetector_CollID));
-            n_hitCerenkov          = CerenkovDetector_HC -> entries();
-        }
-
-        // get  CerenkovDetectorPMT Hit Collector pointer
-        if (CerenkovDetectorPMT_CollID > -1) {
-            CerenkovDetectorPMT_HC = (QweakSimCerenkovDetector_PMTHitsCollection*)(HCE->GetHC(CerenkovDetectorPMT_CollID));
-            n_hitCerenkovPMT       = CerenkovDetectorPMT_HC -> entries();
-        }
-
-        // get  LumiDetector Hit Collector pointer
-        // if (LumiDetector_CollID > -1) {
-        //     LumiDetector_HC    = (QweakSimLumi_DetectorHitsCollection*)(HCE->GetHC(LumiDetector_CollID));
-        //     n_hitLumi          = LumiDetector_HC -> entries();
-        // }
+  // Get hit collection
+  G4HCofThisEvent * HCE = evt->GetHCofThisEvent();
+  
+  // initialize HitsCollection pointers
+  //QweakSimTarget_DetectorHitsCollection*              TargetDetector_HC              = 0;
+  //QweakSimGEM_WirePlane_HitsCollection*               GEM_WirePlane_HC               = 0;
+  // QweakSimHDC_WirePlane_HitsCollection*               HDC_WirePlane_HC               = 0;
+  // QweakSimVDC_WirePlane_HitsCollection*               VDC_WirePlane_HC               = 0;
+  // QweakSimVDC_DriftCellHitsCollection*                VDC_DriftCellFront_HC          = 0;
+  // QweakSimVDC_DriftCellHitsCollection*                VDC_DriftCellBack_HC           = 0;
+  // QweakSimTriggerScintillator_DetectorHitsCollection* TriggerScintillatorDetector_HC = 0;
+  //QweakSimTriggerScintillator_PMTHitsCollection*      TriggerScintillatorPMT_HC      = 0;
+  //QweakSimLeadGlass_DetectorHitsCollection*           LeadGlassDetector_HC           = 0;
+  //QweakSimLeadGlass_PMTHitsCollection*                LeadGlassPMT_HC                = 0;
+  //QweakSimPMTOnly_DetectorHitsCollection*             PMTOnlyDetector_HC             = 0;
+  //QweakSimPMTOnly_PMTHitsCollection*                  PMTOnlyPMT_HC		       = 0;
+  QweakSimCerenkovDetectorHitsCollection*             CerenkovDetector_HC            = 0;
+  QweakSimCerenkovDetector_PMTHitsCollection*         CerenkovDetectorPMT_HC         = 0;
+  //QweakSimLumi_DetectorHitsCollection*                LumiDetector_HC                = 0;
+  
+  //G4int n_hitTarget = 0;
+  //G4int n_GEMhitWirePlane = 0;
+  //G4int n_HDChitWirePlane = 0;
+  // G4int n_VDChitWirePlane = 0;
+  // G4int n_VDChitDCFront = 0;
+  // G4int n_VDChitDCBack = 0;
+  //G4int n_hitTriggerScintillator = 0;
+  //G4int n_hitTriggerScintillatorPMT = 0;
+  //G4int n_hitLeadGlass = 0;
+  //G4int n_hitLeadGlassPMT = 0;
+  //G4int n_hitPMTOnly = 0;
+  //G4int n_hitPMTOnlyPMT = 0;
+  G4int n_hitCerenkov = 0;
+  G4int n_hitCerenkovPMT = 0;
+  //G4int n_hitLumi = 0;
+  //G4int n_hitLumiPMT = 0;
+  
+  if (HCE) {
+    
+    // // get  PMTOnly Hit Collector pointer
+    // if (TargetDetector_CollID > -1) {
+    //     TargetDetector_HC  = (QweakSimTarget_DetectorHitsCollection*)(HCE->GetHC(TargetDetector_CollID));
+    //     n_hitTarget        = TargetDetector_HC -> entries();
+    // }
+    
+    // get  GEM_WirePlane Hit Collector pointer
+    //GEM_WirePlane_HC       = (QweakSimGEM_WirePlane_HitsCollection*)(HCE->GetHC(GEM_WirePlane_CollID));
+    //n_GEMhitWirePlane      = GEM_WirePlane_HC -> entries();
+    
+    // // get  HDC_WirePlane Hit Collector pointer
+    // if (HDC_WirePlane_CollID > -1) {
+    //     HDC_WirePlane_HC       = (QweakSimHDC_WirePlane_HitsCollection*)(HCE->GetHC(HDC_WirePlane_CollID));
+    //     n_HDChitWirePlane      = HDC_WirePlane_HC  -> entries();
+    // }
+    
+    // // get  VDC_WirePlane Hit Collector pointer
+    // if (VDC_WirePlane_CollID > -1) {
+    //     VDC_WirePlane_HC       = (QweakSimVDC_WirePlane_HitsCollection*)(HCE->GetHC(VDC_WirePlane_CollID));
+    //     n_VDChitWirePlane      = VDC_WirePlane_HC -> entries();
+    // }
+    
+    // // get  VDC_DriftCellFront Hit Collector pointer
+    // if (VDC_DriftCellFront_CollID > -1) {
+    //     VDC_DriftCellFront_HC  = (QweakSimVDC_DriftCellHitsCollection*)(HCE->GetHC(VDC_DriftCellFront_CollID));
+    //     n_VDChitDCFront        = VDC_DriftCellFront_HC -> entries();
+    // }
+    
+    // // get  VDC_DriftCellFront Hit Collector pointer
+    // if (VDC_DriftCellBack_CollID > -1) {
+    //     VDC_DriftCellBack_HC   = (QweakSimVDC_DriftCellHitsCollection*)(HCE->GetHC(VDC_DriftCellBack_CollID));
+    //     n_VDChitDCBack         = VDC_DriftCellBack_HC -> entries();
+    // }
+    
+    // // get  TriggerScintillator Hit Collector pointer
+    // if (TriggerScintillatorDetector_CollID > -1) {
+    //     TriggerScintillatorDetector_HC = (QweakSimTriggerScintillator_DetectorHitsCollection*)(HCE->GetHC(TriggerScintillatorDetector_CollID));
+    //     n_hitTriggerScintillator       = TriggerScintillatorDetector_HC -> entries();
+    // }
+    
+    // get  TriggerScintillatorPMT Hit Collector pointer
+    //if (TriggerScintillatorPMT_CollID > -1) {
+    //    TriggerScintillatorPMT_HC   = (QweakSimTriggerScintillator_PMTHitsCollection*)(HCE->GetHC(TriggerScintillatorPMT_CollID));
+    //    n_hitTriggerScintillatorPMT = TriggerScintillatorPMT_HC -> entries();
+    //}
+    
+    // // get  LeadGlass Hit Collector pointer
+    // if (LeadGlassDetector_CollID > -1) {
+    //     LeadGlassDetector_HC  = (QweakSimLeadGlass_DetectorHitsCollection*)(HCE->GetHC(LeadGlassDetector_CollID));
+    //     n_hitLeadGlass        = LeadGlassDetector_HC -> entries();
+    // }
+    
+    // get  LeadGlassPMT Hit Collector pointer
+    //if (LeadGlassPMT_CollID > -1) {
+    //    LeadGlassPMT_HC    = (QweakSimLeadGlass_PMTHitsCollection*)(HCE->GetHC(LeadGlassPMT_CollID));
+    //    n_hitLeadGlassPMT  = LeadGlassPMT_HC -> entries();
+    //}
+    
+    // // get  PMTOnly Hit Collector pointer
+    // if (PMTOnlyDetector_CollID > -1) {
+    //     PMTOnlyDetector_HC  = (QweakSimPMTOnly_DetectorHitsCollection*)(HCE->GetHC(PMTOnlyDetector_CollID));
+    //     n_hitPMTOnly        = PMTOnlyDetector_HC -> entries();
+    // }
+    
+    // // get PMTOnly_PMT Hit Collection
+    // if (PMTOnlyDetectorPMT_CollID > -1) {
+    //     PMTOnlyPMT_HC  = (QweakSimPMTOnly_PMTHitsCollection*)(HCE->GetHC(PMTOnlyDetectorPMT_CollID));
+    //     n_hitPMTOnlyPMT        = PMTOnlyPMT_HC -> entries();
+    // }
+    
+    // get  CerenkovDetector Hit Collector pointer
+    if (CerenkovDetector_CollID > -1) {
+      CerenkovDetector_HC    = (QweakSimCerenkovDetectorHitsCollection*)(HCE->GetHC(CerenkovDetector_CollID));
+      n_hitCerenkov          = CerenkovDetector_HC -> entries();
     }
-
-    if (printhits) {
-      //G4cout << "Target " << n_hitTarget
-      // << ",\tHDC " << n_HDChitWirePlane
-      //        << ",\tVDC_Front " << n_VDChitDCFront
-      //        << ",\tVDC_Back " << n_VDChitDCBack
-      //        << ",\tTS " << n_hitTriggerScintillator
-      G4cout //<< ",\tLeadGlass " << n_hitLeadGlass
-             //<< ",\tPMTOnly " << n_hitPMTOnly
-             //<< ",\tPMTOnlyPMT " << n_hitPMTOnlyPMT
-             << ",\tCerenkov " << n_hitCerenkov
-	  //<< ",\tLumi " << n_hitLumi
-             << "\tCerenkovPMT " << n_hitCerenkovPMT << G4endl;
+    
+    // get  CerenkovDetectorPMT Hit Collector pointer
+    if (CerenkovDetectorPMT_CollID > -1) {
+      CerenkovDetectorPMT_HC = (QweakSimCerenkovDetector_PMTHitsCollection*)(HCE->GetHC(CerenkovDetectorPMT_CollID));
+      n_hitCerenkovPMT       = CerenkovDetectorPMT_HC -> entries();
     }
-
-
-    // Initialize/Clear Event variables in target scattering window
-    // analysis->fRootEvent->Target.Detector.Initialize();
-
-    // Initialize/Clear Event variables, initialize Cerenkov Detector with NoHit Flag
-    analysis->fRootEvent->Cerenkov.Detector.Initialize();
-    analysis->fRootEvent->Cerenkov.PMT.Initialize();
-
-    // // Initialize/Clear Event variables in Region 1
-    // analysis->fRootEvent->Region1.ChamberFront.WirePlane.Initialize();
-    // analysis->fRootEvent->Region1.ChamberBack.WirePlane.Initialize();
-
-    // // Initialize/Clear Event variables in Region 2
-    // analysis->fRootEvent->Region2.ChamberFront.WirePlane1.Initialize();
-    // analysis->fRootEvent->Region2.ChamberFront.WirePlane2.Initialize();
-    // analysis->fRootEvent->Region2.ChamberFront.WirePlane3.Initialize();
-    // analysis->fRootEvent->Region2.ChamberFront.WirePlane4.Initialize();
-    // analysis->fRootEvent->Region2.ChamberFront.WirePlane5.Initialize();
-    // analysis->fRootEvent->Region2.ChamberFront.WirePlane6.Initialize();
-    // //
-    // analysis->fRootEvent->Region2.ChamberBack.WirePlane1.Initialize();
-    // analysis->fRootEvent->Region2.ChamberBack.WirePlane2.Initialize();
-    // analysis->fRootEvent->Region2.ChamberBack.WirePlane3.Initialize();
-    // analysis->fRootEvent->Region2.ChamberBack.WirePlane4.Initialize();
-    // analysis->fRootEvent->Region2.ChamberBack.WirePlane5.Initialize();
-    // analysis->fRootEvent->Region2.ChamberBack.WirePlane6.Initialize();
-
-    // // Initialize Region 3 wire planes (2: u,v ) with NoHit Flag
-    // analysis->fRootEvent->Region3.ChamberFront.WirePlaneU.Initialize();
-    // analysis->fRootEvent->Region3.ChamberFront.WirePlaneV.Initialize();
-    // //
-    // analysis->fRootEvent->Region3.ChamberBack.WirePlaneU.Initialize();
-    // analysis->fRootEvent->Region3.ChamberBack.WirePlaneV.Initialize();
-
-    // // Initialize DriftCells with NoHit Flag
-    // analysis->fRootEvent->Region3.ChamberFront.DriftCell.Initialize();
-    // //
-    // analysis->fRootEvent->Region3.ChamberBack.DriftCell.Initialize();
-
-    // Initialize TriggerScintillator with NoHit Flag
-    // analysis->fRootEvent->TriggerScintillator.Detector.Initialize();
-
-    // Initialize LeadGlass and PMTOnly //--- with NoHit Flag
-    // analysis->fRootEvent->LeadGlass.Detector.Initialize();
-    // analysis->fRootEvent->PMTOnly.Detector.Initialize();
-    // analysis->fRootEvent->PMTOnly.PMT.Initialize();
-    //analysis->fRootEvent->Lumi.Detector.Initialize();
-
-    //#########################################################################################################################
-    //#########################################################################################################################
-    //
-    //                                 ================================================================
-    //                                  The Main "Software DAQ Trigger": setting the coincidence level
-    //
-    //                                  or: what is required for filling the Root ntuple for this event
-    //                                 =================================================================
-    //
-    //##########################################################################################################################
-    //##########################################################################################################################
-    //
-    if(debugPrint){
-      G4cout<<" !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Ana: "<<" "<<myUserInfo->GetPrimaryEventNumber()<<G4endl;
-    }
-//       <<" "<<fTrigger[kTriggerCer]<<" "<<n_hitCerenkov<<G4endl;//FIXME
-    if ( fTrigger[kTriggerAll] /* Trigger on every event */
-	 //|| (fTrigger[kTrigger4Fold] && (n_VDChitWirePlane == 4) && (n_VDChitDCFront > 0) && (n_VDChitDCBack > 0) && (n_hitCerenkov > 0) ) /* 4-fold coincidence */
-	 // || (fTrigger[kTrigger3Fold] && (n_VDChitWirePlane >= 2) && (n_VDChitDCFront > 0) && (n_VDChitDCBack > 0) ) /* 3-fold coincidence */
-	 //|| (fTrigger[kTriggerScint] && (n_hitTriggerScintillator > 0) ) /* Qweak trigger on a hit in the trigger scintillator */
-	 // || (fTrigger[kTriggerHDC]   && (n_HDChitWirePlane >= 6))         /* HDC Trigger */
-	 //|| (fTrigger[kTriggerLeadGlass] && (n_hitLeadGlass >0))         /* a hit in the LeadGlass */
-	 // || (fTrigger[kTriggerPMTOnly] && (n_hitPMTOnly >0))         /* a hit in the PMTOnly */
-            || (fTrigger[kTriggerCer]   && (n_hitCerenkov > 0) )          /* Triggering on Main Detector */
-            //|| (fTrigger[kTriggerCer])           /* Triggering on Main Detector */	
-	    //|| (fTrigger[kTriggerLumi] && (n_hitLumi > 0))
+    
+    // get  LumiDetector Hit Collector pointer
+    // if (LumiDetector_CollID > -1) {
+    //     LumiDetector_HC    = (QweakSimLumi_DetectorHitsCollection*)(HCE->GetHC(LumiDetector_CollID));
+    //     n_hitLumi          = LumiDetector_HC -> entries();
+    // }
+  }
+  
+  if (printhits) {
+    //G4cout << "Target " << n_hitTarget
+    // << ",\tHDC " << n_HDChitWirePlane
+    //        << ",\tVDC_Front " << n_VDChitDCFront
+    //        << ",\tVDC_Back " << n_VDChitDCBack
+    //        << ",\tTS " << n_hitTriggerScintillator
+    G4cout //<< ",\tLeadGlass " << n_hitLeadGlass
+      //<< ",\tPMTOnly " << n_hitPMTOnly
+      //<< ",\tPMTOnlyPMT " << n_hitPMTOnlyPMT
+      << ",\tCerenkov " << n_hitCerenkov
+      //<< ",\tLumi " << n_hitLumi
+      << "\tCerenkovPMT " << n_hitCerenkovPMT << G4endl;
+  }
+  
+  
+  // Initialize/Clear Event variables in target scattering window
+  // analysis->fRootEvent->Target.Detector.Initialize();
+  
+  // Initialize/Clear Event variables, initialize Cerenkov Detector with NoHit Flag
+  analysis->fRootEvent->Cerenkov.Detector.Initialize();
+  analysis->fRootEvent->Cerenkov.PMT.Initialize();
+  
+  // // Initialize/Clear Event variables in Region 1
+  // analysis->fRootEvent->Region1.ChamberFront.WirePlane.Initialize();
+  // analysis->fRootEvent->Region1.ChamberBack.WirePlane.Initialize();
+  
+  // // Initialize/Clear Event variables in Region 2
+  // analysis->fRootEvent->Region2.ChamberFront.WirePlane1.Initialize();
+  // analysis->fRootEvent->Region2.ChamberFront.WirePlane2.Initialize();
+  // analysis->fRootEvent->Region2.ChamberFront.WirePlane3.Initialize();
+  // analysis->fRootEvent->Region2.ChamberFront.WirePlane4.Initialize();
+  // analysis->fRootEvent->Region2.ChamberFront.WirePlane5.Initialize();
+  // analysis->fRootEvent->Region2.ChamberFront.WirePlane6.Initialize();
+  // //
+  // analysis->fRootEvent->Region2.ChamberBack.WirePlane1.Initialize();
+  // analysis->fRootEvent->Region2.ChamberBack.WirePlane2.Initialize();
+  // analysis->fRootEvent->Region2.ChamberBack.WirePlane3.Initialize();
+  // analysis->fRootEvent->Region2.ChamberBack.WirePlane4.Initialize();
+  // analysis->fRootEvent->Region2.ChamberBack.WirePlane5.Initialize();
+  // analysis->fRootEvent->Region2.ChamberBack.WirePlane6.Initialize();
+  
+  // // Initialize Region 3 wire planes (2: u,v ) with NoHit Flag
+  // analysis->fRootEvent->Region3.ChamberFront.WirePlaneU.Initialize();
+  // analysis->fRootEvent->Region3.ChamberFront.WirePlaneV.Initialize();
+  // //
+  // analysis->fRootEvent->Region3.ChamberBack.WirePlaneU.Initialize();
+  // analysis->fRootEvent->Region3.ChamberBack.WirePlaneV.Initialize();
+  
+  // // Initialize DriftCells with NoHit Flag
+  // analysis->fRootEvent->Region3.ChamberFront.DriftCell.Initialize();
+  // //
+  // analysis->fRootEvent->Region3.ChamberBack.DriftCell.Initialize();
+  
+  // Initialize TriggerScintillator with NoHit Flag
+  // analysis->fRootEvent->TriggerScintillator.Detector.Initialize();
+  
+  // Initialize LeadGlass and PMTOnly //--- with NoHit Flag
+  // analysis->fRootEvent->LeadGlass.Detector.Initialize();
+  // analysis->fRootEvent->PMTOnly.Detector.Initialize();
+  // analysis->fRootEvent->PMTOnly.PMT.Initialize();
+  //analysis->fRootEvent->Lumi.Detector.Initialize();
+  
+  //#########################################################################################################################
+  //#########################################################################################################################
+  //
+  //                                 ================================================================
+  //                                  The Main "Software DAQ Trigger": setting the coincidence level
+  //
+  //                                  or: what is required for filling the Root ntuple for this event
+  //                                 =================================================================
+  //
+  //##########################################################################################################################
+  //##########################################################################################################################
+  //
+  if(debugPrint){
+    G4cout<<" !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Ana: "<<" "<<myUserInfo->GetPrimaryEventNumber()<<" "
+	  <<fTrigger[kTriggerAll]<<" "<<fTrigger[kTriggerCer]<<" "<<n_hitCerenkov<<G4endl;
+  }
+  //       <<" "<<fTrigger[kTriggerCer]<<" "<<n_hitCerenkov<<G4endl;//FIXME
+  if ( fTrigger[kTriggerAll] /* Trigger on every event */
+       //|| (fTrigger[kTrigger4Fold] && (n_VDChitWirePlane == 4) && (n_VDChitDCFront > 0) && (n_VDChitDCBack > 0) && (n_hitCerenkov > 0) ) /* 4-fold coincidence */
+       // || (fTrigger[kTrigger3Fold] && (n_VDChitWirePlane >= 2) && (n_VDChitDCFront > 0) && (n_VDChitDCBack > 0) ) /* 3-fold coincidence */
+       //|| (fTrigger[kTriggerScint] && (n_hitTriggerScintillator > 0) ) /* Qweak trigger on a hit in the trigger scintillator */
+       // || (fTrigger[kTriggerHDC]   && (n_HDChitWirePlane >= 6))         /* HDC Trigger */
+       //|| (fTrigger[kTriggerLeadGlass] && (n_hitLeadGlass >0))         /* a hit in the LeadGlass */
+       // || (fTrigger[kTriggerPMTOnly] && (n_hitPMTOnly >0))         /* a hit in the PMTOnly */
+       || (fTrigger[kTriggerCer]   && (n_hitCerenkov > 0) )          /* Triggering on Main Detector */
+       //|| (fTrigger[kTriggerCer])           /* Triggering on Main Detector */	
+       //|| (fTrigger[kTriggerLumi] && (n_hitLumi > 0))
        ) {
-
-        //========================================
-        // Store Primary Information into /Primary
-        //========================================
-
-        //-------------------------------------------------------------------------------------------
+    
+    //========================================
+    // Store Primary Information into /Primary
+    //========================================
+    
+    //-------------------------------------------------------------------------------------------
         G4int    PrimaryEventNumber = myUserInfo->GetPrimaryEventNumber();
         G4int    ReactionRegion = myUserInfo->GetReactionRegion();
         G4int    ReactionType = myUserInfo->GetReactionType();
