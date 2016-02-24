@@ -77,6 +77,7 @@ private:
   QweakSimUserInformation* myUserInfo;
   TFile *fout;
   TNtuple *tout;
+  G4bool writeANdata;
   
   QweakSimEPEvent *myEvent;
   G4double targetCenterPositionZ;

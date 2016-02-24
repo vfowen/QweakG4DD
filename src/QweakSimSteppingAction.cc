@@ -51,8 +51,18 @@ QweakSimSteppingAction::QweakSimSteppingAction(QweakSimUserInformation* myUInfo,
   fout=new TFile("o_tuple.root","RECREATE");	
   tout=new TNtuple("t","Ntuple primary info in Pb",
 		   "be:bx:by:bz:bpx:bpy:bpz:bdpx:bdpy:bdpz:ae:ax:ay:az:apx:apy:apz:adpx:adpy:adpz:StepScatAngle:process:stepL:evN:trackID:parentID:pType:polX:polY:polZ:eLoss:bremDepol:aAngX:aAngY");
-  G4cout << "###### Leaving QweakSimSteppingAction::QweakSimSteppingAction() " << G4endl;
 
+  writeANdata=true;
+  if(writeANdata){
+    std::ofstream ofs;
+    ofs.open("o_msc_ANdata.txt",std::ofstream::out);
+    ofs<<"energy[MeV] cos(theta) anaPower polarization 'step' polarization eventNumber"<<G4endl;
+    ofs.close();
+  }
+  
+  
+  G4cout << "###### Leaving QweakSimSteppingAction::QweakSimSteppingAction() " << G4endl;
+  
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -137,7 +147,7 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
       G4cout<<"   "<<_material->GetName()<<G4endl;
 
     if(_material->GetName().compare("PBA")==0){ // perform this only in the Radiator
-	
+
       eLossPercent = 1. - thePostPoint->GetKineticEnergy()/thePrePoint->GetKineticEnergy();
       
       if(_pn.compare("eBrem")==0 &&                           // only for eBrem
@@ -147,7 +157,7 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
 	if( eLossPercent > perpXDepol[perpNval-1]) depol = 1.;
 	else if( eLossPercent >= perpXDepol[0] ) depol = perpDepol.Eval(eLossPercent,0,"S")/100.;
 	else depol = 0.;
-
+ 
 	if(debugPrint){
 	  G4cout<<" ~~~ eBrem depol : "<<eLossPercent<<"% E loss means "<< depol <<" depolarization"<<G4endl;
 	  G4cout<<" ~~~ kin E pre post "<<thePrePoint->GetKineticEnergy()<<" "<<thePostPoint->GetKineticEnergy()<<G4endl;
@@ -165,7 +175,14 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
 	}
 
       }
-      
+
+      if(writeANdata && _trackID==1 && _parentID==0){
+	std::ofstream ofs;
+	ofs.open("o_msc_ANdata.txt",std::ofstream::app);
+	ofs<<"step "<<" "<<_polarization.getR()<<" "<<myUserInfo->GetPrimaryEventNumber()<<G4endl;
+	ofs.close();
+      }
+
       // either write out only the primaries or all e\pm and gammas
       if(((particleType==G4Positron::PositronDefinition() ||
 	   particleType==G4Electron::ElectronDefinition() ||
@@ -267,22 +284,16 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
 	 (!strcmp(thePrePV->GetName(),"ActiveArea_Physical") ||
 	  !strcmp(thePrePV->GetName(),"CerenkovMasterContainer_Physical")))
         {
-	  //     if(!strcmp(myUserInfo->GetStoredStepVolumeName(),"CerenkovDetector_Physical") &&
-	  //        !strcmp(thePrePV->GetName(),"CerenkovContainer_Physical")){
 	  myUserInfo->StoreLocalCerenkovExitPosition(localPos);
         }
     }
-  
-  //   QweakSimTrackInformation *TrackInfo = (QweakSimTrackInformation*)theTrack->GetUserInformation();
-  
+    
   //pqwang: optical photon process
   
   G4OpBoundaryProcessStatus boundaryStatus=Undefined;
   static G4OpBoundaryProcess* boundary=NULL;
   
   if(!boundary) {
-    //    G4ProcessManager* pm
-    //      = theStep->GetTrack()->GetDefinition()->GetProcessManager();
     G4int nprocesses = pm->GetProcessListLength();
     G4ProcessVector* pv = pm->GetProcessList();
     for(G4int i=0; i<nprocesses; i++) {
