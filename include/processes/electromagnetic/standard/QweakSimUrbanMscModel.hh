@@ -179,6 +179,7 @@ private:
   G4ThreeVector polarization;
   G4double eEnergy;
   G4bool   debugPrint;
+  G4bool   writeANdata;
   //FIXME
   
   G4bool   latDisplasmentbackup ;
