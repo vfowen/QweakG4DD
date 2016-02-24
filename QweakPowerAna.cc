@@ -30,12 +30,12 @@ int main(int argc, char** argv)
 
   TFile *fout=new TFile("o_ANdata.root","RECREATE");
   TTree *t=new TTree("t","AN data from MSc");
-  int nev,mscGen,flip;
-  float pol,cost,an,ene;
+  int nev,mscGen;
+  float pol,cost,an,ene,asym;
   float finalPosX,finalAngX,finalEne;
   float transPol;
   t->Branch("nev",&nev,"nev/I");
-  t->Branch("flip",&flip,"flip/I");
+  t->Branch("asym",&asym,"asym/F");
   t->Branch("mscGen",&mscGen,"mscGen/I");
   t->Branch("pol",&pol,"pol/F");
   t->Branch("transPol",&transPol,"transPol/F");
@@ -110,7 +110,7 @@ int main(int argc, char** argv)
 	  if(word=="U") mscGen=3;
 	  else if(word=="Ws") mscGen=1;
 	  else if(word=="Wm") mscGen=2;
-	  iss>>ene>>cost>>an>>pol>>transPol>>flip;
+	  iss>>ene>>cost>>an>>pol>>transPol>>asym;
 
 	  if(pol!=polRef){
 	    cout<<pol<<" <> "<<polRef<<endl;
