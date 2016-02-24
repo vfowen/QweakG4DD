@@ -445,6 +445,7 @@ G4double QweakSimUrbanMscModel::ComputeTruePathLengthLimit(
   const G4DynamicParticle* dp = track.GetDynamicParticle();
 
   // FIXME
+  modifyTrajectory=false;
   ePolarized=false;
   debugPrint=false;
   writeANdata=true;
@@ -966,20 +967,21 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
     G4double transPol=sqrt(pow(polarization.getX(),2)+pow(polarization.getY(),2));
     G4double _amplitude = AnalyzingPower(eEnergy, cth) * transPol;
 
-    if( _prob < _amplitude * sin(phi-pi) ){
-      phi-=pi;
+    if(modifyTrajectory){
+      if( _prob < _amplitude * sin(phi-pi) ){
+	phi-=pi;
+      }
+      phi+= polarization.getPhi() - oldDirection.getPhi();
+      if(phi<0) phi+=twopi;
+      else if(phi>twopi) phi=fmod(phi,twopi);
     }
-      
+    
     if(writeANdata){
       std::ofstream ofs;
       ofs.open("o_msc_ANdata.txt",std::ofstream::app);
       ofs<<"U "<<eEnergy<<" "<<cth<<" "<<_amplitude<<" "<<polarization.getR()<<" "<<transPol<<" "<<_amplitude*sin(phi)<<G4endl;
       ofs.close();
     }
-
-    phi+= polarization.getPhi() - oldDirection.getPhi();
-    if(phi<0) phi+=twopi;
-    else if(phi>twopi) phi=fmod(phi,twopi);
   }
   //FIXME
         

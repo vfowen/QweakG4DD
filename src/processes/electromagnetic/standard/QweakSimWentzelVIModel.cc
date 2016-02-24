@@ -265,6 +265,7 @@ G4double QweakSimWentzelVIModel::ComputeTruePathLengthLimit(
   singleScatteringMode = false;
 
   // FIXME
+  modifyTrajectory=false;
   ePolarized=false;
   debugPrint=false;
   writeANdata=true;
@@ -651,8 +652,13 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	G4double transPol=sqrt(pow(polarization.getX(),2)+pow(polarization.getY(),2));
 	G4double _amplitude = AnalyzingPower(eEnergy, cost) * transPol;
 
-	if( _prob < _amplitude * sin(phi-pi) ){
-	  phi-=pi;
+	if(modifyTrajector){
+	  if( _prob < _amplitude * sin(phi-pi) ){
+	    phi-=pi;
+	  }		
+	  phi+= polarization.getPhi() - oldDirection.getPhi();
+	  if(phi<0) phi+=twopi;
+	  else if(phi>twopi) phi=fmod(phi,twopi);
 	}
 	
 	if(writeANdata){
@@ -661,10 +667,7 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	  ofs<<"Ws "<<eEnergy<<" "<<cost<<" "<<_amplitude<<" "<<polarization.getR()<<" "<<transPol<<" "<<_amplitude*sin(phi)<<G4endl;
 	  ofs.close();
 	}
-	
-	phi+= polarization.getPhi() - oldDirection.getPhi();
-	if(phi<0) phi+=twopi;
-	else if(phi>twopi) phi=fmod(phi,twopi);
+
 	G4double vx1 = sint*cos(phi);
 	G4double vy1 = sint*sin(phi);
 	temp.set(vx1,vy1,cost);
@@ -714,8 +717,13 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	G4double transPol=sqrt(pow(polarization.getX(),2)+pow(polarization.getY(),2));
 	G4double _amplitude = AnalyzingPower(eEnergy, cost) * transPol;
 
-	if( _prob < _amplitude * sin(phi-pi) ){
-	  phi-=pi;
+	if(modifyTrajectory){
+	  if( _prob < _amplitude * sin(phi-pi) ){
+	    phi-=pi;
+	  }
+	  phi+= polarization.getPhi() - oldDirection.getPhi();
+	  if(phi<0) phi+=twopi;
+	  else if(phi>twopi) phi=fmod(phi,twopi);
 	}
 
 	if(writeANdata){
@@ -725,9 +733,6 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	  ofs.close();
 	}
 
-	phi+= polarization.getPhi() - oldDirection.getPhi();
-	if(phi<0) phi+=twopi;
-	else if(phi>twopi) phi=fmod(phi,twopi);
       }
       //FIXME
       

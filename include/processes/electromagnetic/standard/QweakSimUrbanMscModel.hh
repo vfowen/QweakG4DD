@@ -180,6 +180,7 @@ private:
   G4double eEnergy;
   G4bool   debugPrint;
   G4bool   writeANdata;
+  G4bool   modifyTrajectory;
   //FIXME
   
   G4bool   latDisplasmentbackup ;
