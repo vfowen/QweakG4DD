@@ -72,6 +72,7 @@
 #include "G4Exp.hh"
 
 #include "QweakSimMScAnalyzingPower.hh"
+#include <fstream>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -446,6 +447,7 @@ G4double QweakSimUrbanMscModel::ComputeTruePathLengthLimit(
   // FIXME
   ePolarized=false;
   debugPrint=false;
+  writeANdata=true;
   if(strcmp(track.GetParticleDefinition()->GetParticleName().data() , "e-") == 0)
     if(strcmp(track.GetMaterial()->GetName(),"PBA") == 0){
       if(track.GetPolarization().getR() >= 0.1) debugPrint=true;
@@ -960,17 +962,21 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
     if(debugPrint){
       G4cout<<" ~~ Urban ~~ polarization.R: "<<polarization.getR()<<G4endl;
     }
-    
-    //scale by 1/energy, sin Theta and transvers polarization
-    // G4double _amplitude=1.0/eEnergy * sth *
-    // 	                sqrt(pow(polarization.getX(),2)+pow(polarization.getY(),2));
-    //if E<1 AN could be larger than 1
-    //if(_amplitude > 1 ) _amplitude=1;
 
-    G4double _amplitude = AnalyzingPower(eEnergy, cth);
-    
-    if( _prob < _amplitude * sin(phi-pi) )
+    G4double transPol=sqrt(pow(polarization.getX(),2)+pow(polarization.getY(),2));
+    G4double _amplitude = AnalyzingPower(eEnergy, cth) * transPol;
+
+    if( _prob < _amplitude * sin(phi-pi) ){
       phi-=pi;
+    }
+      
+    if(writeANdata){
+      std::ofstream ofs;
+      ofs.open("o_msc_ANdata.txt",std::ofstream::app);
+      ofs<<"U "<<eEnergy<<" "<<cth<<" "<<_amplitude<<" "<<polarization.getR()<<" "<<transPol<<" "<<_amplitude*sin(phi)<<G4endl;
+      ofs.close();
+    }
+
     phi+= polarization.getPhi() - oldDirection.getPhi();
     if(phi<0) phi+=twopi;
     else if(phi>twopi) phi=fmod(phi,twopi);
