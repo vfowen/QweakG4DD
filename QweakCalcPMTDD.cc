@@ -177,7 +177,7 @@ double processOneFile(string fname,int verbose){
 	  lTotPE+=lpe*entries;
 	  rTotPE+=rpe*entries;
 	  counter++;
-	  if(isnan(lpe) || isnan(rpe)) exit(2);
+	  if(std::isnan(lpe) || std::isnan(rpe)) exit(2);
 	}
     double das=2.*lTotPE*rTotPE/(pow(lTotPE+rTotPE,2))*sqrt((1./lTotPE)+(1./rTotPE));
     if(verbose)cout<<partTit[i]<<" : L R (L-R)/(L+R) "
