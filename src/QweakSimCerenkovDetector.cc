@@ -170,7 +170,7 @@ QweakSimCerenkovDetector::QweakSimCerenkovDetector(QweakSimUserInformation *user
 
     NumberOfCerenkovDetectors = 8;
     SetNumberOfDetectors(8); // needs to be at the end, updates geometry
-    maxStepInPbRadiator=0.01*mm;
+    maxStepInPbRadiator=-0.01*mm;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
