@@ -448,7 +448,7 @@ G4double QweakSimUrbanMscModel::ComputeTruePathLengthLimit(
   modifyTrajectory=false;
   ePolarized=false;
   debugPrint=false;
-  writeANdata=true;
+  writeANdata=false;
   if(strcmp(track.GetParticleDefinition()->GetParticleName().data() , "e-") == 0)
     if(strcmp(track.GetMaterial()->GetName(),"PBA") == 0){
       if(track.GetPolarization().getR() >= 0.1) debugPrint=true;

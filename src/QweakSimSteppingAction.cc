@@ -52,7 +52,7 @@ QweakSimSteppingAction::QweakSimSteppingAction(QweakSimUserInformation* myUInfo,
   tout=new TNtuple("t","Ntuple primary info in Pb",
 		   "be:bx:by:bz:bpx:bpy:bpz:bdpx:bdpy:bdpz:ae:ax:ay:az:apx:apy:apz:adpx:adpy:adpz:StepScatAngle:process:stepL:evN:trackID:parentID:pType:polX:polY:polZ:eLoss:bremDepol:aAngX:aAngY");
 
-  writeANdata=true;
+  writeANdata=false;
   if(writeANdata){
     std::ofstream ofs;
     ofs.open("o_msc_ANdata.txt",std::ofstream::out);
