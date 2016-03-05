@@ -103,6 +103,8 @@ public:
   inline G4double ComputeTheta0(G4double truePathLength, 
 				G4double KineticEnergy);
 
+  G4bool GetAsymmetry(){return writeANdata;}
+
 private:
 
   G4double SampleCosineTheta(G4double trueStepLength, G4double KineticEnergy);
@@ -118,8 +120,6 @@ private:
   //  hide assignment operator
   QweakSimUrbanMscModel & operator=(const  QweakSimUrbanMscModel &right);
   QweakSimUrbanMscModel(const  QweakSimUrbanMscModel&);
-
-  CLHEP::HepRandomEngine*     rndmEngineMod;
 
   const G4ParticleDefinition* particle;
   G4ParticleChangeForMSC*     fParticleChange;
