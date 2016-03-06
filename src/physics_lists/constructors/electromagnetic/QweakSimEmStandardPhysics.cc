@@ -29,8 +29,8 @@ void QweakSimEmStandardPhysics::ConstructProcess()
     if (particleName == "e-" || particleName == "e+") {
 
       G4eMultipleScattering* msc = new G4eMultipleScattering;
-      QweakSimUrbanMscModel* msc1 = new QweakSimUrbanMscModel();
-      QweakSimWentzelVIModel* msc2 = new QweakSimWentzelVIModel();
+      QweakSimUrbanMscModel* msc1 = new QweakSimUrbanMscModel(asymInfo);
+      QweakSimWentzelVIModel* msc2 = new QweakSimWentzelVIModel(asymInfo);
       msc1->SetHighEnergyLimit(highEnergyLimit);
       msc2->SetLowEnergyLimit(highEnergyLimit);
       msc->AddEmModel(0, msc1);
