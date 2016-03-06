@@ -68,7 +68,7 @@ class QweakSimWentzelVIModel : public G4VMscModel
 
 public:
 
-  QweakSimWentzelVIModel(G4bool comb = true, const G4String& nam = "WentzelVIUni-Qweak");
+  QweakSimWentzelVIModel(std::vector<double> *asInfo, G4bool comb = true, const G4String& nam = "WentzelVIUni-Qweak");
 
   virtual ~QweakSimWentzelVIModel();
 
@@ -161,11 +161,11 @@ protected:
   G4bool   inside;
   G4bool   singleScatteringMode;
   //FIXME 
+  std::vector<double> *asymInfo;
   G4bool   ePolarized; 
   G4ThreeVector polarization;
   G4double eEnergy;
   G4bool   debugPrint;
-  G4bool   writeANdata;
   G4bool   modifyTrajectory;
   //FIXME
 

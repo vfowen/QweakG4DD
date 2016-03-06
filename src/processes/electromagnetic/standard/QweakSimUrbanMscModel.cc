@@ -105,8 +105,8 @@ static const G4double Tdat[22] = {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-QweakSimUrbanMscModel::QweakSimUrbanMscModel(const G4String& nam)
-  : G4VMscModel(nam)
+QweakSimUrbanMscModel::QweakSimUrbanMscModel(std::vector<double> *asInfo,const G4String& nam)
+  : G4VMscModel(nam),asymInfo(asInfo)
 {
   masslimite    = 0.6*MeV;
   lambdalimit   = 1.*mm;
@@ -448,7 +448,6 @@ G4double QweakSimUrbanMscModel::ComputeTruePathLengthLimit(
   modifyTrajectory=false;
   ePolarized=false;
   debugPrint=false;
-  writeANdata=false;
   if(strcmp(track.GetParticleDefinition()->GetParticleName().data() , "e-") == 0)
     if(strcmp(track.GetMaterial()->GetName(),"PBA") == 0){
       if(track.GetPolarization().getR() >= 0.1) debugPrint=true;
@@ -975,12 +974,14 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
       if(phi<0) phi+=twopi;
       else if(phi>twopi) phi=fmod(phi,twopi);
     }
-    
-    if(writeANdata){
-      std::ofstream ofs;
-      ofs.open("o_msc_ANdata.txt",std::ofstream::app);
-      ofs<<"U "<<eEnergy<<" "<<cth<<" "<<_amplitude<<" "<<polarization.getR()<<" "<<transPol<<" "<<_amplitude*sin(phi)<<G4endl;
-      ofs.close();
+    G4double pp=1.+_amplitude*sin(phi);
+    G4double pm=1.-_amplitude*sin(phi);
+    if(asymInfo->at(0)<-1){
+      asymInfo->at(0) = pp;
+      asymInfo->at(1) = pm;
+    }else{
+      asymInfo->at(0) *= pp;
+      asymInfo->at(1) *= pm;
     }
   }
   //FIXME

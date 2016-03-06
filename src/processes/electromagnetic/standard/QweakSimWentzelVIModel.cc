@@ -77,13 +77,14 @@ using namespace std;
 
 const G4int minNCollisions = 10;
 
-QweakSimWentzelVIModel::QweakSimWentzelVIModel(G4bool combined, const G4String& nam) :
+QweakSimWentzelVIModel::QweakSimWentzelVIModel(std::vector<double> *asInfo,G4bool combined, const G4String& nam) :
   G4VMscModel(nam),
   ssFactor(1.05),
   invssFactor(1.0),
   currentCouple(0),
   inside(false),
   singleScatteringMode(false),
+  asymInfo(asInfo),
   cosThetaMin(1.0),
   cosThetaMax(-1.0),
   fSecondMoments(0),
@@ -268,7 +269,6 @@ G4double QweakSimWentzelVIModel::ComputeTruePathLengthLimit(
   modifyTrajectory=false;
   ePolarized=false;
   debugPrint=false;
-  writeANdata=false;
   if(strcmp(track.GetParticleDefinition()->GetParticleName().data() , "e-") == 0)
     if(strcmp(track.GetMaterial()->GetName(),"PBA") == 0){
       if(track.GetPolarization().getR() >= 0.1) debugPrint=true;
@@ -661,13 +661,16 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	  else if(phi>twopi) phi=fmod(phi,twopi);
 	}
 	
-	if(writeANdata){
-	  std::ofstream ofs;
-	  ofs.open("o_msc_ANdata.txt",std::ofstream::app);
-	  ofs<<"Ws "<<eEnergy<<" "<<cost<<" "<<_amplitude<<" "<<polarization.getR()<<" "<<transPol<<" "<<_amplitude*sin(phi)<<G4endl;
-	  ofs.close();
+	G4double pp=1.+_amplitude*sin(phi);
+	G4double pm=1.-_amplitude*sin(phi);
+	if(asymInfo->at(3)<-1){
+	  asymInfo->at(0) = pp;
+	  asymInfo->at(1) = pm;
+	}else{
+	  asymInfo->at(0) *= pp;
+	  asymInfo->at(1) *= pm;
 	}
-
+	
 	G4double vx1 = sint*cos(phi);
 	G4double vy1 = sint*sin(phi);
 	temp.set(vx1,vy1,cost);
@@ -725,14 +728,15 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	  if(phi<0) phi+=twopi;
 	  else if(phi>twopi) phi=fmod(phi,twopi);
 	}
-
-	if(writeANdata){
-	  std::ofstream ofs;
-	  ofs.open("o_msc_ANdata.txt",std::ofstream::app);
-	  ofs<<"Wm "<<eEnergy<<" "<<cost<<" "<<_amplitude<<" "<<polarization.getR()<<" "<<transPol<<" "<<_amplitude*sin(phi)<<G4endl;
-	  ofs.close();
+	G4double pp=1.+_amplitude*sin(phi);
+	G4double pm=1.-_amplitude*sin(phi);
+	if(asymInfo->at(3)<-1){
+	  asymInfo->at(0) = pp;
+	  asymInfo->at(1) = pm;
+	}else{
+	  asymInfo->at(0) *= pp;
+	  asymInfo->at(1) *= pm;
 	}
-
       }
       //FIXME
       
