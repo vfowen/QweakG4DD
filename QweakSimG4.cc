@@ -46,9 +46,11 @@
 
 #define USE_CUSTOM_NUCLEAR_SCATTERING 1
 #if USE_CUSTOM_NUCLEAR_SCATTERING
-#include "physics_lists/constructors/electromagnetic/QweakSimEmStandardPhysics.hh"
+//#include "physics_lists/constructors/electromagnetic/QweakSimEmStandardPhysics.hh"
 #include "physics_lists/constructors/electromagnetic/QweakSimEmLivermorePhysics.hh"
 #endif
+
+#include <vector>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -70,6 +72,7 @@ int main(int argc,char** argv) {
 
   runManager->SetUserInitialization(myQweakSimExperiment);
 
+  std::vector<double> asymInfo(4,-2);
 
   // Calls a reference physics list for the simulation
   G4PhysListFactory factory;
@@ -82,17 +85,17 @@ int main(int argc,char** argv) {
 #endif
   // Replace the standard EM with the customized version to add Pb A_T
 #if USE_CUSTOM_NUCLEAR_SCATTERING
-  physlist->ReplacePhysics(new QweakSimEmLivermorePhysics());
+  physlist->ReplacePhysics(new QweakSimEmLivermorePhysics(0,&asymInfo));
 #endif
   runManager->SetUserInitialization(physlist);
- 
+
   // UserAction classes
   runManager->SetUserAction( new QweakSimPrimaryGeneratorAction(myQweakSimUserInformation, myEPEvent) );
   //runManager->SetUserAction( new QweakSimPrimaryGeneratorAction( ) );
-  runManager->SetUserAction( new QweakSimSteppingAction(myQweakSimUserInformation, myEPEvent));
+  runManager->SetUserAction( new QweakSimSteppingAction(myQweakSimUserInformation, myEPEvent,&asymInfo));
   runManager->SetUserAction( new QweakSimStackingAction() );
   runManager->SetUserAction( new QweakSimTrackingAction(myQweakSimUserInformation) );
-  runManager->SetUserAction( new QweakSimEventAction(myQweakSimAnalysis, myQweakSimUserInformation) );
+  runManager->SetUserAction( new QweakSimEventAction(&asymInfo,myQweakSimAnalysis, myQweakSimUserInformation) );
   runManager->SetUserAction( new QweakSimRunAction(myQweakSimAnalysis) );  
 
   runManager->StoreRandomNumberStatusToG4Event(1);
@@ -103,7 +106,6 @@ int main(int argc,char** argv) {
 
  if (argc==1)   // Define UI session for interactive mode.
  {
-
      // G4UIterminal is a (dumb) terminal.
     #if defined(G4UI_USE_QT)
      session = new G4UIQt(argc,argv);
@@ -116,7 +118,6 @@ int main(int argc,char** argv) {
     #else
       session = new G4UIterminal();
     #endif
-
  }
 
 
