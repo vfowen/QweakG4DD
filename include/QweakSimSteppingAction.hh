@@ -29,7 +29,7 @@ class QweakSimSteppingAction : public G4UserSteppingAction
 {
 
 public:
-    QweakSimSteppingAction(QweakSimUserInformation* myUInfo, QweakSimEPEvent* myEPEvent);
+    QweakSimSteppingAction(QweakSimUserInformation* myUInfo, QweakSimEPEvent* myEPEvent,std::vector<double> *asInfo);
     ~QweakSimSteppingAction() {
         G4cout<<"Stepping Action Desctructor"<<G4endl;
 	
@@ -77,10 +77,10 @@ private:
   QweakSimUserInformation* myUserInfo;
   TFile *fout;
   TNtuple *tout;
-  G4bool writeANdata;
   
   QweakSimEPEvent *myEvent;
   G4double targetCenterPositionZ;
+  std::vector< double >* asymInfo;
 
 };
 

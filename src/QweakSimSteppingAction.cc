@@ -32,7 +32,7 @@ static const double perpXDepol[perpNval]={0.053,0.066,0.075,0.084,0.097,0.112,0.
 static const double perpYDepol[perpNval]={0.203,0.277,0.399,0.522,0.764,0.890,1.250,1.608,1.966,2.208,2.565,2.924,3.281,3.639,4.114,4.472,4.945,5.421,5.895,6.251,6.485,6.960,7.556,8.030,8.504,9.097,9.671,10.145,10.620,11.094,11.804,12.396,12.988,13.579,14.161,14.871,15.580,16.407,17.234,17.709,18.417,19.127,20.072,21.021,21.968,22.794,23.744,24.689,25.871,27.288,28.116,29.179,30.006,30.838,31.901,32.968,34.030,34.975,35.920,36.746,37.455,38.164,38.874,39.935,40.998,41.944,43.007,43.933,44.878,45.822,46.884,47.770,48.951,50.132,51.195,52.376,53.437,54.265,55.096,56.041,56.867,57.694,58.757,59.584,60.529,61.573,62.519,63.227,63.935,64.644,65.472,66.653,67.599,68.662,69.725,70.788,71.615,72.449,73.275,74.107,75.290,76.359,77.304,78.251,78.959,79.906,80.733,81.679,82.506,83.334,84.281,85.109,86.055,87.120,88.068,89.015,89.961,91.028,91.862,92.929,94.000,95.421,96.132,96.725,97.436,98.387,98.862,99.219};
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-QweakSimSteppingAction::QweakSimSteppingAction(QweakSimUserInformation* myUInfo, QweakSimEPEvent* myEPEvent)
+QweakSimSteppingAction::QweakSimSteppingAction(QweakSimUserInformation* myUInfo, QweakSimEPEvent* myEPEvent,std::vector<double> *asInfo): asymInfo(asInfo)
 {
 
   G4cout << "###### Calling QweakSimSteppingAction::QweakSimSteppingAction() " << G4endl;
@@ -51,15 +51,6 @@ QweakSimSteppingAction::QweakSimSteppingAction(QweakSimUserInformation* myUInfo,
   fout=new TFile("o_tuple.root","RECREATE");	
   tout=new TNtuple("t","Ntuple primary info in Pb",
 		   "be:bx:by:bz:bpx:bpy:bpz:bdpx:bdpy:bdpz:ae:ax:ay:az:apx:apy:apz:adpx:adpy:adpz:StepScatAngle:process:stepL:evN:trackID:parentID:pType:polX:polY:polZ:eLoss:bremDepol:aAngX:aAngY");
-
-  writeANdata=false;
-  if(writeANdata){
-    std::ofstream ofs;
-    ofs.open("o_msc_ANdata.txt",std::ofstream::out);
-    ofs<<"energy[MeV] cos(theta) anaPower polarization 'step' polarization eventNumber"<<G4endl;
-    ofs.close();
-  }
-  
   
   G4cout << "###### Leaving QweakSimSteppingAction::QweakSimSteppingAction() " << G4endl;
   
@@ -175,12 +166,13 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
 	}
 
       }
-
-      if(writeANdata && _trackID==1 && _parentID==0){
-	std::ofstream ofs;
-	ofs.open("o_msc_ANdata.txt",std::ofstream::app);
-	ofs<<"step "<<" "<<_polarization.getR()<<" "<<myUserInfo->GetPrimaryEventNumber()<<G4endl;
-	ofs.close();
+      
+      if(debugPrint){
+	G4cout<<myUserInfo->GetPrimaryEventNumber()<<" step "
+	      <<asymInfo->at(0)<<" "
+	      <<asymInfo->at(1)<<" "
+	      <<G4endl;
+	std::cin.ignore();
       }
 
       // either write out only the primaries or all e\pm and gammas
