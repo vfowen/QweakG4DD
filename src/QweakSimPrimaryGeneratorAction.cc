@@ -93,7 +93,7 @@ void QweakSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 							  myNormMomentumZ));
 
   if(myEventCounter<10)
-    G4cout<<" posmom "<<myPositionX<<" "<<myPositionY<<" "<<myPositionZ<<" "
+    G4cout<<myEventCounter<<" posmom "<<myPositionX<<" "<<myPositionY<<" "<<myPositionZ<<" "
 	  <<myNormMomentumX<<" "<<myNormMomentumY<<" "<<myNormMomentumZ<<" "<<G4endl;
   if (fPolarization == "f") {
     G4double myPolX(0),myPolY(0),myPolZ(0);
