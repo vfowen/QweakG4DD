@@ -126,6 +126,10 @@ private:
   Float_t dEMscIn, dEMscOut, dEMscTot;
   Float_t dETotIn, dETotOut, dETot;
 
+  Double_t asymPrim;
+  Double_t asymDeno;
+  Double_t asymNomi;
+  Double_t asymPlus;
 public:
   
   // Constructor
@@ -325,6 +329,15 @@ public:
   void StoredETot(Float_t dE){dETot=dE;}
   ///
 
+  void StoreAsymPrim(Double_t val){asymPrim=val;}
+  Double_t GetAsymPrim(){return asymPrim;}
+  void StoreAsymDeno(Double_t val){asymDeno=val;}
+  Double_t GetAsymDeno(){return asymDeno;}
+  void StoreAsymNomi(Double_t val){asymNomi=val;}
+  Double_t GetAsymNomi(){return asymNomi;}
+  void StoreAsymPlus(Double_t val){asymPlus=val;}
+  Double_t GetAsymPlus(){return asymPlus;}
+  
   // define a new Class known to ROOT  
   ClassDef(QweakSimUserPrimaryEvent,1)
 
