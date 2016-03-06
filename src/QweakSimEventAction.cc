@@ -51,8 +51,8 @@ Target, Region 1, Region 2, Region 3, Trigger Scintillator and Lumi
 #include "QweakSimUserMainEvent.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-QweakSimEventAction::QweakSimEventAction(QweakSimAnalysis* AN, QweakSimUserInformation* UI)
-: analysis(AN),myUserInfo(UI)
+QweakSimEventAction::QweakSimEventAction(std::vector<double>*asInfo,QweakSimAnalysis* AN, QweakSimUserInformation* UI)
+: analysis(AN),myUserInfo(UI),asymInfo(asInfo)
 {
 //---------------------------------------------------------------------------------------------
 //! Constructor of QweakSimEventAction
@@ -127,8 +127,7 @@ QweakSimEventAction::QweakSimEventAction(QweakSimAnalysis* AN, QweakSimUserInfor
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-QweakSimEventAction::~QweakSimEventAction()
-{
+QweakSimEventAction::~QweakSimEventAction(){
     // Delete the event action messenger
     if (fEventActionMessenger) delete fEventActionMessenger;
 }
@@ -153,7 +152,7 @@ void QweakSimEventAction::SetTrigger(const G4String value, const G4bool status)
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void QweakSimEventAction::BeginOfEventAction(const G4Event* /*evt*/)
 {
-    G4SDManager * SDman = G4SDManager::GetSDMpointer();
+  G4SDManager * SDman = G4SDManager::GetSDMpointer();
 
     // // check for existing PMTOnly Collection ID (if it's -1 it will be assigned)
     // if (TargetDetector_CollID==-1) {
@@ -610,6 +609,16 @@ void QweakSimEventAction::EndOfEventAction(const G4Event* evt) {
 	analysis->fRootEvent->Primary.StoredETot((Float_t) myUserInfo->GetdETot());
 	///////
 
+	///////
+	// store asymmetry information
+	Double_t pp=asymInfo->at(0);
+	Double_t pm=asymInfo->at(1);
+	analysis->fRootEvent->Primary.StoreAsymPrim((pp-pm)/(pp+pm));
+	analysis->fRootEvent->Primary.StoreAsymPlus(pp);
+	analysis->fRootEvent->Primary.StoreAsymNomi(pp-pm);
+	analysis->fRootEvent->Primary.StoreAsymDeno(pp+pm);
+	///////
+	
         //==========================================================================================
 
         //===========================================
@@ -2494,6 +2503,8 @@ void QweakSimEventAction::EndOfEventAction(const G4Event* evt) {
     if (eventNumber%1000 == 1)
         analysis->AutoSaveRootNtuple();
 
+    //reset asymInfo	
+    asymInfo->at(0)=-2;
 //=======================================================================
 
 } // end of  QweakSimEventAction::EndOfEventAction()

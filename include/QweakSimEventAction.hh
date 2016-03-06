@@ -54,7 +54,7 @@ class QweakSimEventAction : public G4UserEventAction
 {
 public:
     //!Constructor
-    QweakSimEventAction(QweakSimAnalysis* AN, QweakSimUserInformation* myUI);
+    QweakSimEventAction(std::vector<double>*asInfo,QweakSimAnalysis* AN, QweakSimUserInformation* myUI);
 
     //!Destructor
     virtual ~QweakSimEventAction();
@@ -119,6 +119,7 @@ private:
 
   static const int PmtMaxSize = 18;
 
+  std::vector<double> *asymInfo;
   G4int  octantID;
 
 };
