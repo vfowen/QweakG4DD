@@ -194,6 +194,10 @@ double processOneFile(string fname,int verbose){
 
 void readPEs(){
   ifstream fin("macros/yl_md3_angle_scan.txt");
+  if(!fin.is_open()) {
+    cout<<" cannot read file for PE parametrization :macros/yl_md3_angle_scan.txt" <<endl;
+    exit(2);
+  }
   double x1,x2,x3,x4,x5,x6,x7,x8,x9;  
   string data;
   getline(fin,data);
