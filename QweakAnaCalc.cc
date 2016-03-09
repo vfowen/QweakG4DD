@@ -2,6 +2,7 @@
 #include <iostream>
 #include <iomanip>
 #include <math.h>
+#include <algorithm>
 
 #include "QweakSimUserMainEvent.hh"
 #include "QweakSimSystemOfUnits.hh"
