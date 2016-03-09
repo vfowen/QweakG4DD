@@ -111,6 +111,9 @@ target_link_libraries(QweakCalcPMTDD ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} Qweak
 # - QweakAnaPEs
 add_executable(QweakAnaPEs QweakAnaPEs.cc)
 target_link_libraries(QweakAnaPEs ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
+# - QweakAnaCalc
+add_executable(QweakAnaCalc QweakAnaCalc.cc)
+target_link_libraries(QweakAnaCalc ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
 # - QweakTreeStrip
 add_executable(QweakTreeStrip QweakTreeStrip.cc)
 target_link_libraries(QweakTreeStrip ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
