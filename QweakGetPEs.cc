@@ -40,7 +40,7 @@ int main(int argc, char** argv)
     }
     
     TTree *QweakSimG4_Tree=(TTree*)fin->Get("QweakSimG4_Tree");
-    cout<<"processing only one file: "<<files.c_str()<<" for detector "<<ndet<<endl;        
+    cout<<"processing only one file:QweakGetPEs 3 QwSim_0.root "<<files.c_str()<<" for detector "<<ndet<<endl;        
     cout<<" total nr ev: "<<QweakSimG4_Tree->GetEntries()<<endl;
     
     processOne(QweakSimG4_Tree,LnPMThit,RnPMThit,ndet);
@@ -78,16 +78,31 @@ int main(int argc, char** argv)
 
 
 void processOne(TTree *QweakSimG4_Tree,double &LnPMThit,double &RnPMThit, int ndet){
+
+  double Right, Left;
+  int nhits = 0;
+
   QweakSimUserMainEvent* event = 0;
   QweakSimG4_Tree->SetBranchAddress("QweakSimUserMainEvent",&event);
       
   for (int i = 0; i < QweakSimG4_Tree->GetEntries(); i++) {
+
     QweakSimG4_Tree->GetEntry(i);
-    if(i%10000==1) cout<<" at event: "<<i<<endl;
+    if(i%1000==1) cout<<" at event: "<<i<<endl;
     
     if(event->Cerenkov.PMT.GetDetectorNbOfHits()>0){
-      LnPMThit=event->Cerenkov.PMT.GetPMTLeftNbOfHits()[ndet];//is the same as NbOfPEs
-      RnPMThit=event->Cerenkov.PMT.GetPMTRightNbOfHits()[ndet];
+      nhits++;
+      //      LnPMThit=event->Cerenkov.PMT.GetPMTLeftNbOfHits()[ndet];//is the same as NbOfPEs
+      //      RnPMThit=event->Cerenkov.PMT.GetPMTRightNbOfHits()[ndet];
+      Left=event->Cerenkov.PMT.GetPMTLeftNbOfHits()[ndet];//is the same as NbOfPEs
+      Right=event->Cerenkov.PMT.GetPMTRightNbOfHits()[ndet];
+      RnPMThit = RnPMThit+Right;
+      LnPMThit = LnPMThit+Left;
     }      
+  }
+  if (nhits>0){
+    RnPMThit = RnPMThit/nhits;
+    LnPMThit = LnPMThit/nhits;
+    cout << "nhits = " << nhits << "   Avg left =  " << LnPMThit << " Avg right = " << RnPMThit << endl;
   }
 }
