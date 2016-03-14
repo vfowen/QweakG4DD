@@ -5,6 +5,8 @@
 
 #include "QweakSimCerenkovDetector.hh"
 
+static const G4double inch = 2.54*cm;
+
 QweakSimCerenkovDetector::QweakSimCerenkovDetector(QweakSimUserInformation *userInfo) {
 
     // initialize some pointers 
