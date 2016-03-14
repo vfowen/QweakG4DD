@@ -41,7 +41,6 @@ public:
   void SetCerenkovDetectorCenterPositionInZ(G4double zPos, G4int octant);
   void SetCerenkovDetectorTiltAngle(G4double tiltangle);
   void SetCerenkovDetectorThickness(G4double thickness);
-  void SetCerenkovDetectorPbStepSize(G4double size);
 
   void CerenkovGeometryPVUpdate();
 
@@ -103,6 +102,7 @@ private:
   G4Material*        LightGuide_Material;     
 
   G4LogicalVolume*   QuartzGlue_Logical; 
+  G4LogicalVolume*   QuartzGlue_Logical2; 
   G4VPhysicalVolume* QuartzGlue_PhysicalLeft; 
   G4VPhysicalVolume* QuartzGlue_PhysicalCenter; 
   G4VPhysicalVolume* QuartzGlue_PhysicalRight; 
@@ -153,21 +153,21 @@ private:
   G4LogicalVolume*   BackClip_Logical; 
   G4VPhysicalVolume* BackClip_Physical; 
 
-  G4LogicalVolume*   SquareFalange_Logical;
-  G4VPhysicalVolume* SquareFalangeR_Physical; 
-  G4VPhysicalVolume* SquareFalangeL_Physical; 
+  G4LogicalVolume*   SquareFlange_Logical;
+  G4VPhysicalVolume* SquareFlangeR_Physical;
+  G4VPhysicalVolume* SquareFlangeL_Physical;
 
-  G4LogicalVolume*   SquareFalangeSeal_Logical;
-  G4VPhysicalVolume* SquareFalangeSealR_Physical; 
-  G4VPhysicalVolume* SquareFalangeSealL_Physical;
+  G4LogicalVolume*   SquareFlangeSeal_Logical;
+  G4VPhysicalVolume* SquareFlangeSealR_Physical;
+  G4VPhysicalVolume* SquareFlangeSealL_Physical;
 
   G4LogicalVolume*   PMTHousingWall_Logical;
   G4VPhysicalVolume* PMTHousingWallR_Physical; 
   G4VPhysicalVolume* PMTHousingWallL_Physical;
 
-  G4LogicalVolume*   PMTHousingFalange_Logical;
-  G4VPhysicalVolume* PMTHousingFalangeR_Physical; 
-  G4VPhysicalVolume* PMTHousingFalangeL_Physical;
+  G4LogicalVolume*   PMTHousingFlange_Logical;
+  G4VPhysicalVolume* PMTHousingFlangeR_Physical;
+  G4VPhysicalVolume* PMTHousingFlangeL_Physical;
 
   G4LogicalVolume*   PMTHousingLid_Logical;
   G4VPhysicalVolume* PMTHousingLidR_Physical; 
@@ -267,8 +267,7 @@ private:
   G4double QuartzBar_FullThickness;
 
   G4double LightGuide_FullLength;
-  G4double LightGuide_FullWidth1;
-  G4double LightGuide_FullWidth2;
+  G4double LightGuide_FullWidth;
   G4double LightGuide_FullThickness;
 
   G4double PMTContainer_Diameter;
@@ -304,8 +303,7 @@ private:
   G4double Tilting_Angle;      // total tilting angle towards mean track
   G4double Kink_Angle;         // Vshape angle
   G4double Thickness; 
-  G4double maxStepInPbRadiator;
-  
+
   // placing the container
   G4ThreeVector    Position_CerenkovContainer;
   G4RotationMatrix* Rotation_CerenkovContainer;  
@@ -326,9 +324,9 @@ private:
   G4ThreeVector    Position_AngCut2;
   G4RotationMatrix Rotation_AngCut2;  
 
-  G4ThreeVector    Position_LGRight;
+  //G4ThreeVector    Position_LGRight;
   G4RotationMatrix Rotation_LGRight;  
-  G4ThreeVector    Position_LGLeft;
+  //G4ThreeVector    Position_LGLeft;
   G4RotationMatrix Rotation_LGLeft;  
 
   G4ThreeVector    Position_LGFaceMirrorLeft;
@@ -383,14 +381,13 @@ private:
   G4double Default_Position_CerenkovContainer_X;
   G4double Default_Position_CerenkovContainer_Y;
   G4double Default_Position_CerenkovContainer_Z;
-  
+
   // Repositions the center point that all components are built around
   G4double Container_Center_X;
   G4double Container_Center_Y;
   G4double Container_Center_Z;
 
   G4ThreeVector Container_Center;
-
 };
 #endif
 

@@ -3,14 +3,11 @@
 // no assembly object.
 //
 
-#include "G4UserLimits.hh"
 #include "QweakSimCerenkovDetector.hh"
-
-static const G4double inch = 2.54*cm;
 
 QweakSimCerenkovDetector::QweakSimCerenkovDetector(QweakSimUserInformation *userInfo) {
 
-    // initialize some pointers
+    // initialize some pointers 
     myUserInfo = userInfo;
 
     pMaterial                 = NULL;
@@ -45,6 +42,7 @@ QweakSimCerenkovDetector::QweakSimCerenkovDetector(QweakSimUserInformation *user
     QuartzBar_Material         = NULL;
 
     QuartzGlue_Logical         = NULL;
+    QuartzGlue_Logical2        = NULL;
     QuartzGlue_PhysicalLeft    = NULL;
     QuartzGlue_PhysicalCenter  = NULL;
     QuartzGlue_PhysicalRight   = NULL;
@@ -75,13 +73,13 @@ QweakSimCerenkovDetector::QweakSimCerenkovDetector(QweakSimUserInformation *user
 
     // clear vector containing temp solids for boolean soild union
     LeftQuartz_Solid.clear();
-    LeftQuartz_Solid.resize(4);  //need 4 chamfers on quartz bar proper
+    LeftQuartz_Solid.resize(12);  //need 8 chamfers on quartz bar proper
     RightQuartz_Solid.clear();
-    RightQuartz_Solid.resize(4); //need 4 chamfers on quartz bar proper
+    RightQuartz_Solid.resize(12); //need 8 chamfers on quartz bar proper
     LeftGuide_Solid.clear();
-    LeftGuide_Solid.resize(5); //need 4 chamfers + 1 angle cut on light guide
+    LeftGuide_Solid.resize(12); //need 4 chamfers + 1 angle cut on light guide
     RightGuide_Solid.clear();
-    RightGuide_Solid.resize(5);  //need 4 chamfers + 1 angle cut on light guide
+    RightGuide_Solid.resize(12);  //need 4 chamfers + 1 angle cut on light guide
 
     mirror_logical.clear();
     mirror_physical.clear();
@@ -97,8 +95,7 @@ QweakSimCerenkovDetector::QweakSimCerenkovDetector(QweakSimUserInformation *user
     Rotation_SideBracketPad.clear();
     Position_SideBracketPad.clear();
 
-    pMaterial = new QweakSimMaterial();
-    pMaterial->DefineMaterials();
+    pMaterial = QweakSimMaterial::GetInstance();
 
     //CerenkovContainer_Material = pMaterial->GetMaterial("Air");
     CerenkovContainer_Material = pMaterial->GetMaterial("Air");
@@ -128,17 +125,22 @@ QweakSimCerenkovDetector::QweakSimCerenkovDetector(QweakSimUserInformation *user
     Default_Position_CerenkovContainer_Z = 577.88*cm-Container_Center_Z;
 
     LightGuide_FullLength      =   18.00*cm;
-    LightGuide_FullWidth1      =   18.00*cm;
-    LightGuide_FullWidth2      =   18.00*cm;
-    LightGuide_FullThickness   =    1.25*cm;
+    LightGuide_FullWidth       =   18.00*cm;
+    // LightGuide_FullWidth2      =   18.00*cm;
+    // LightGuide_FullThickness   =    1.25*cm;
+    LightGuide_FullThickness   =    1.34*cm;
 
     QuartzBar_FullLength       =  100.00*cm;    // Full X length
-    QuartzBar_FullHeight       =   18.00*cm;    // Full Y length
-    QuartzBar_FullThickness    =    1.25*cm;    // Full Z length
+    QuartzBar_FullHeight       =   18.1*cm; //18.00*cm;    // Full Y length
+    QuartzBar_FullThickness    =    1.34*cm;//1.25*cm;    // Full Z length
+    // QuartzBar_FullHeight       =   18.00*cm;    // Full Y length
+    // QuartzBar_FullThickness    =    1.25*cm;    // Full Z length
 
     GlueFilm_FullLength_X      =   0.1*mm;
-    GlueFilm_FullLength_Y      =   18.00*cm;
-    GlueFilm_FullLength_Z      =    1.25*cm;
+    GlueFilm_FullLength_Y      =   18.1*cm; //18.0*cm;
+    GlueFilm_FullLength_Z      =    1.34*cm;//1.25*cm;
+   // GlueFilm_FullLength_Y      =   18.0*cm;
+   // GlueFilm_FullLength_Z      =    1.25*cm;
 
     ActiveArea_FullLength_X    =    2.0*(LightGuide_FullLength + QuartzBar_FullLength +GlueFilm_FullLength_X) + GlueFilm_FullLength_X +2.0*mm;
     ActiveArea_FullLength_Y    =    QuartzBar_FullHeight + 1.0*mm;
@@ -170,12 +172,10 @@ QweakSimCerenkovDetector::QweakSimCerenkovDetector(QweakSimUserInformation *user
 
     NumberOfCerenkovDetectors = 8;
     SetNumberOfDetectors(8); // needs to be at the end, updates geometry
-    maxStepInPbRadiator=-0.01*mm;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 QweakSimCerenkovDetector::~QweakSimCerenkovDetector() {
-    delete pMaterial;
     for(size_t h=0; h<CerenkovDetectorMessenger.size(); h++){
       delete CerenkovDetectorMessenger[h];
     }
@@ -183,8 +183,8 @@ QweakSimCerenkovDetector::~QweakSimCerenkovDetector() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void QweakSimCerenkovDetector::DefineCerenkovGeometry() {
-    // G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::DefineCerenkovGeometry() " << G4endl << G4endl;
-    // G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::DefineCerenkovGeometry() " << G4endl << G4endl;
+    G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::DefineCerenkovGeometry() " << G4endl << G4endl;
+    G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::DefineCerenkovGeometry() " << G4endl << G4endl;
 }
 
 
@@ -507,79 +507,79 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 
 //******************************Define the Cross Bar *******************************************
 
-    G4double CrossBar_FullLength_X = 1.5*inch;
-    G4double CrossBar_FullLength_Y = Frame_FullLength_Y - 0.75*2.0*inch;
-    G4double CrossBar_FullLength_Z = 0.75*inch;
+    // G4double CrossBar_FullLength_X = 1.5*inch;
+    // G4double CrossBar_FullLength_Y = Frame_FullLength_Y - 0.75*2.0*inch;
+    // G4double CrossBar_FullLength_Z = 0.75*inch;
 
-    G4Box* CrossBar_Solid  = new G4Box("CrossBar_Solid",
-                                       0.5 * CrossBar_FullLength_X ,
-                                       0.5 * CrossBar_FullLength_Y ,
-                                       0.5 * CrossBar_FullLength_Z );
+    // G4Box* CrossBar_Solid  = new G4Box("CrossBar_Solid",
+    //                                    0.5 * CrossBar_FullLength_X ,
+    //                                    0.5 * CrossBar_FullLength_Y ,
+    //                                    0.5 * CrossBar_FullLength_Z );
 
-    CrossBar_Logical  = new G4LogicalVolume(CrossBar_Solid,
-                                            Frame_Material,
-                                            "CrossBar_Log",
-                                            0,0,0);
+    // CrossBar_Logical  = new G4LogicalVolume(CrossBar_Solid,
+    //                                         Frame_Material,
+    //                                         "CrossBar_Log",
+    //                                         0,0,0);
 
-    G4ThreeVector Position_CrossBar_R  = G4ThreeVector((47.75-8.25)*inch,0,0.25*inch+0.625*inch);
-    G4ThreeVector Position_CrossBar_L  = G4ThreeVector(-(47.75-8.25)*inch,0,0.25*inch+0.625*inch);
+    // G4ThreeVector Position_CrossBar_R  = G4ThreeVector((47.75-8.25)*inch,0,0.25*inch+0.625*inch);
+    // G4ThreeVector Position_CrossBar_L  = G4ThreeVector(-(47.75-8.25)*inch,0,0.25*inch+0.625*inch);
 
-    CrossBarR_Physical   = new G4PVPlacement(0,Position_CrossBar_R + Container_Center,
-            CrossBar_Logical,
-            "CrossBarR_Physical",
-            CerenkovContainer_Logical,
-            false,0,
-            pSurfChk);
+    // CrossBarR_Physical   = new G4PVPlacement(0,Position_CrossBar_R + Container_Center,
+    //         CrossBar_Logical,
+    //         "CrossBarR_Physical",
+    //         CerenkovContainer_Logical,
+    //         false,0,
+    //         pSurfChk);
 
-    CrossBarL_Physical   = new G4PVPlacement(0,Position_CrossBar_L + Container_Center,
-            CrossBar_Logical,
-            "CrossBarL_Physical",
-            CerenkovContainer_Logical,
-            false,0,
-            pSurfChk);
+    // CrossBarL_Physical   = new G4PVPlacement(0,Position_CrossBar_L + Container_Center,
+    //         CrossBar_Logical,
+    //         "CrossBarL_Physical",
+    //         CerenkovContainer_Logical,
+    //         false,0,
+    //         pSurfChk);
 
 //******************************Define Detector Windows *******************************************
 
-    WindowThickness = 5.0*mm;
+    // WindowThickness = 5.0*mm;
 
-    G4Box* FrontWindow_Solid  = new G4Box("FrontWindow_Solid",
-                                          0.5 * Frame_FullLength_X ,
-                                          0.5 * Frame_FullLength_Y ,
-                                          0.5 * WindowThickness );
+    // G4Box* FrontWindow_Solid  = new G4Box("FrontWindow_Solid",
+    //                                       0.5 * Frame_FullLength_X ,
+    //                                       0.5 * Frame_FullLength_Y ,
+    //                                       0.5 * WindowThickness );
 
-    FrontWindow_Logical  = new G4LogicalVolume(FrontWindow_Solid,
-            Window_Material,
-            "FrontWindow_Log",
-            0,0,0);
+    // FrontWindow_Logical  = new G4LogicalVolume(FrontWindow_Solid,
+    //         Window_Material,
+    //         "FrontWindow_Log",
+    //         0,0,0);
 
-    G4ThreeVector Position_FrontWindow  = G4ThreeVector(0,0,0.25*inch-(1.0*inch+2.5*mm));
+    // G4ThreeVector Position_FrontWindow  = G4ThreeVector(0,0,0.25*inch-(1.0*inch+2.5*mm));
 
-    FrontWindow_Physical   = new G4PVPlacement(0,Position_FrontWindow + Container_Center,
-            FrontWindow_Logical,
-            "FrontWindow_Physical",
-            CerenkovContainer_Logical,
-            false,0,
-            pSurfChk);
+    // FrontWindow_Physical   = new G4PVPlacement(0,Position_FrontWindow + Container_Center,
+    //         FrontWindow_Logical,
+    //         "FrontWindow_Physical",
+    //         CerenkovContainer_Logical,
+    //         false,0,
+    //         pSurfChk);
 
 
-    G4Box* BackWindow_Solid  = new G4Box("BackWindow_Solid",
-                                         0.5 * Frame_FullLength_X - 8.25*inch,
-                                         0.5 * Frame_FullLength_Y ,
-                                         0.5 * WindowThickness );
+    // G4Box* BackWindow_Solid  = new G4Box("BackWindow_Solid",
+    //                                      0.5 * Frame_FullLength_X - 8.25*inch,
+    //                                      0.5 * Frame_FullLength_Y ,
+    //                                      0.5 * WindowThickness );
 
-    BackWindow_Logical  = new G4LogicalVolume(BackWindow_Solid,
-            Window_Material,
-            "BackWindow_Log",
-            0,0,0);
+    // BackWindow_Logical  = new G4LogicalVolume(BackWindow_Solid,
+    //         Window_Material,
+    //         "BackWindow_Log",
+    //         0,0,0);
 
-    G4ThreeVector Position_BackWindow  = G4ThreeVector(0,0,0.25*inch+1.0*inch+2.5*mm);
+    // G4ThreeVector Position_BackWindow  = G4ThreeVector(0,0,0.25*inch+1.0*inch+2.5*mm);
 
-    BackWindow_Physical   = new G4PVPlacement(0,Position_BackWindow + Container_Center,
-            BackWindow_Logical,
-            "BackWindow_Physical",
-            CerenkovContainer_Logical,
-            false,0,
-            pSurfChk);
+    // BackWindow_Physical   = new G4PVPlacement(0,Position_BackWindow + Container_Center,
+    //         BackWindow_Logical,
+    //         "BackWindow_Physical",
+    //         CerenkovContainer_Logical,
+    //         false,0,
+    //         pSurfChk);
 
 
 //******************************Define Front Window Clip*******************************************
@@ -658,68 +658,68 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
                                             false,0,
                                             pSurfChk);
 
-//******************************Define Square Falange Seal*******************************************
+//******************************Define Square Flange Seal*******************************************
 
-    G4double SquareFalangeSeal_FullLength_X = 8.21*inch;
-    G4double SquareFalangeSeal_FullLength_Y = 9.50*inch;
-    G4double SquareFalangeSeal_FullLength_Z = 5.0*mm;
+    G4double SquareFlangeSeal_FullLength_X = 8.21*inch;
+    G4double SquareFlangeSeal_FullLength_Y = 9.50*inch;
+    G4double SquareFlangeSeal_FullLength_Z = 5.0*mm;
 
     G4Box* SquareSealOuter_Solid  = new G4Box("SquareSealOuter_Solid",
-            0.5 * SquareFalangeSeal_FullLength_X,
-            0.5 * SquareFalangeSeal_FullLength_Y,
-            0.5 * SquareFalangeSeal_FullLength_Z);
+            0.5 * SquareFlangeSeal_FullLength_X,
+            0.5 * SquareFlangeSeal_FullLength_Y,
+            0.5 * SquareFlangeSeal_FullLength_Z);
 
     G4Box* SquareSealInner_Solid  = new G4Box("SquareSealInner_Solid",
-            0.5 * SquareFalangeSeal_FullLength_X - 0.75*inch,
-            0.5 * SquareFalangeSeal_FullLength_Y - 0.75*inch,
-            0.5 * SquareFalangeSeal_FullLength_Z + 0.1*mm);
+            0.5 * SquareFlangeSeal_FullLength_X - 0.75*inch,
+            0.5 * SquareFlangeSeal_FullLength_Y - 0.75*inch,
+            0.5 * SquareFlangeSeal_FullLength_Z + 0.1*mm);
 
-    G4SubtractionSolid* SquareFalangeSeal_Solid
+    G4SubtractionSolid* SquareFlangeSeal_Solid
     = new G4SubtractionSolid("SquareSealOuter_Solid-SquareSealInner_Solid",
                              SquareSealOuter_Solid,
                              SquareSealInner_Solid);
 
-    SquareFalangeSeal_Logical  = new G4LogicalVolume(SquareFalangeSeal_Solid,
+    SquareFlangeSeal_Logical  = new G4LogicalVolume(SquareFlangeSeal_Solid,
             Window_Material,
-            "SquareFalangeSeal_Log",
+            "SquareFlangeSeal_Log",
             0,0,0);
 
-    G4ThreeVector Position_SquareFalangeSeal_R = G4ThreeVector((47.75-8.21/2.0)*inch,
+    G4ThreeVector Position_SquareFlangeSeal_R = G4ThreeVector((47.75-8.21/2.0)*inch,
             0,
             0.25*inch + 1.0*inch+2.5*mm);
 
-    G4ThreeVector Position_SquareFalangeSeal_L = G4ThreeVector(-(47.75-8.21/2.0)*inch,
+    G4ThreeVector Position_SquareFlangeSeal_L = G4ThreeVector(-(47.75-8.21/2.0)*inch,
             0,
             0.25*inch + 1.0*inch+2.5*mm);
 
-    SquareFalangeSealR_Physical   = new G4PVPlacement(0,Position_SquareFalangeSeal_R + Container_Center,
-            SquareFalangeSeal_Logical,
-            "SquareFalangeSealR_Physical",
+    SquareFlangeSealR_Physical   = new G4PVPlacement(0,Position_SquareFlangeSeal_R + Container_Center,
+            SquareFlangeSeal_Logical,
+            "SquareFlangeSealR_Physical",
             CerenkovContainer_Logical,
             false,0,
             pSurfChk);
 
-    SquareFalangeSealL_Physical   = new G4PVPlacement(0,Position_SquareFalangeSeal_L + Container_Center,
-            SquareFalangeSeal_Logical,
-            "SquareFalangeSealL_Physical",
+    SquareFlangeSealL_Physical   = new G4PVPlacement(0,Position_SquareFlangeSeal_L + Container_Center,
+            SquareFlangeSeal_Logical,
+            "SquareFlangeSealL_Physical",
             CerenkovContainer_Logical,
             false,0,
             pSurfChk);
 
-//******************************Define Square Falange *******************************************
+//******************************Define Square Flange *******************************************
 
-    G4double SquareFalange_FullLength_X = 8.21*inch;
-    G4double SquareFalange_FullLength_Y = 9.50*inch;
-    G4double SquareFalange_FullLength_Z = 0.38*inch;
+    G4double SquareFlange_FullLength_X = 8.21*inch;
+    G4double SquareFlange_FullLength_Y = 9.50*inch;
+    G4double SquareFlange_FullLength_Z = 0.38*inch;
 
     G4double CutOuterRadius = 5.75*0.5*inch;
     G4double CutInnerRadius = 0.0*inch;
     G4double CutThickness = 0.38*inch+0.1*mm;
 
     G4Box* SquareBase_Solid  = new G4Box("SquareBase_Solid",
-                                         0.5 * SquareFalange_FullLength_X,
-                                         0.5 * SquareFalange_FullLength_Y,
-                                         0.5 * SquareFalange_FullLength_Z);
+                                         0.5 * SquareFlange_FullLength_X,
+                                         0.5 * SquareFlange_FullLength_Y,
+                                         0.5 * SquareFlange_FullLength_Z);
 
     G4Tubs* CylinderCut_Solid = new G4Tubs("CylinderCut_Solid",
                                            CutInnerRadius,
@@ -727,33 +727,33 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
                                            0.5 * CutThickness,
                                            0.0, 360.0*degree);
 
-    G4SubtractionSolid* SquareFalange_Solid = new G4SubtractionSolid("SquareBase_Solid-CylinderCut_Solid",
+    G4SubtractionSolid* SquareFlange_Solid = new G4SubtractionSolid("SquareBase_Solid-CylinderCut_Solid",
             SquareBase_Solid,
             CylinderCut_Solid);
 
-    SquareFalange_Logical  = new G4LogicalVolume(SquareFalange_Solid,
+    SquareFlange_Logical  = new G4LogicalVolume(SquareFlange_Solid,
             Frame_Material,
-            "SquareFalange_Log",
+            "SquareFlange_Log",
             0,0,0);
 
-    G4ThreeVector Position_SquareFalange_R = G4ThreeVector((47.75-8.21/2.0)*inch,
+    G4ThreeVector Position_SquareFlange_R = G4ThreeVector((47.75-8.21/2.0)*inch,
             0,
             0.25*inch + 1.0*inch+5.0*mm+0.38/2.0*inch);
 
-    G4ThreeVector Position_SquareFalange_L = G4ThreeVector(-(47.75-8.21/2.0)*inch,
+    G4ThreeVector Position_SquareFlange_L = G4ThreeVector(-(47.75-8.21/2.0)*inch,
             0,
             0.25*inch + 1.0*inch+5.0*mm+0.38/2.0*inch);
 
-    SquareFalangeR_Physical   = new G4PVPlacement(0,Position_SquareFalange_R + Container_Center,
-            SquareFalange_Logical,
-            "SquareFalangeR_Physical",
+    SquareFlangeR_Physical   = new G4PVPlacement(0,Position_SquareFlange_R + Container_Center,
+            SquareFlange_Logical,
+            "SquareFlangeR_Physical",
             CerenkovContainer_Logical,
             false,0,
             pSurfChk);
 
-    SquareFalangeL_Physical   = new G4PVPlacement(0,Position_SquareFalange_L + Container_Center,
-            SquareFalange_Logical,
-            "SquareFalangeL_Physical",
+    SquareFlangeL_Physical   = new G4PVPlacement(0,Position_SquareFlange_L + Container_Center,
+            SquareFlange_Logical,
+            "SquareFlangeL_Physical",
             CerenkovContainer_Logical,
             false,0,
             pSurfChk);
@@ -797,41 +797,41 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
             false,0,
             pSurfChk);
 
-//******************************Define PMT Housing Falange ******************
+//******************************Define PMT Housing Flange ******************
 
-    G4double PMTHousingFalangeOuterRadius = 7.88*0.5*inch;
-    G4double PMTHousingFalangeInnerRadius = 5.75*0.5*inch;
-    G4double PMTHousingFalangeLength = 0.75*inch;
+    G4double PMTHousingFlangeOuterRadius = 7.88*0.5*inch;
+    G4double PMTHousingFlangeInnerRadius = 5.75*0.5*inch;
+    G4double PMTHousingFlangeLength = 0.75*inch;
 
-    G4Tubs* PMTHousingFalange_Solid = new G4Tubs("PMTHousingFalange_Solid",
-            PMTHousingFalangeInnerRadius,
-            PMTHousingFalangeOuterRadius,
-            0.5 * PMTHousingFalangeLength,
+    G4Tubs* PMTHousingFlange_Solid = new G4Tubs("PMTHousingFlange_Solid",
+            PMTHousingFlangeInnerRadius,
+            PMTHousingFlangeOuterRadius,
+            0.5 * PMTHousingFlangeLength,
             0.0, 360.0*degree);
 
-    PMTHousingFalange_Logical  = new G4LogicalVolume(PMTHousingFalange_Solid,
+    PMTHousingFlange_Logical  = new G4LogicalVolume(PMTHousingFlange_Solid,
             Frame_Material,
-            "PMTHousingFalange_Log",
+            "PMTHousingFlange_Log",
             0,0,0);
 
-    G4ThreeVector Position_PMTHousingFalange_R = G4ThreeVector((47.75-8.21/2.0)*inch,
+    G4ThreeVector Position_PMTHousingFlange_R = G4ThreeVector((47.75-8.21/2.0)*inch,
             0,
-            0.25*inch + 1.0*inch+5.0*mm+0.38*inch+PMTHousingWallLength+PMTHousingFalangeLength*0.5);
+            0.25*inch + 1.0*inch+5.0*mm+0.38*inch+PMTHousingWallLength+PMTHousingFlangeLength*0.5);
 
-    G4ThreeVector Position_PMTHousingFalange_L = G4ThreeVector(-(47.75-8.21/2.0)*inch,
+    G4ThreeVector Position_PMTHousingFlange_L = G4ThreeVector(-(47.75-8.21/2.0)*inch,
             0,
-            0.25*inch + 1.0*inch+5.0*mm+0.38*inch+PMTHousingWallLength+PMTHousingFalangeLength*0.5);
+            0.25*inch + 1.0*inch+5.0*mm+0.38*inch+PMTHousingWallLength+PMTHousingFlangeLength*0.5);
 
-    PMTHousingFalangeR_Physical   = new G4PVPlacement(0,Position_PMTHousingFalange_R + Container_Center,
-            PMTHousingFalange_Logical,
-            "PMTHousingFalangeR_Physical",
+    PMTHousingFlangeR_Physical   = new G4PVPlacement(0,Position_PMTHousingFlange_R + Container_Center,
+            PMTHousingFlange_Logical,
+            "PMTHousingFlangeR_Physical",
             CerenkovContainer_Logical,
             false,0,
             pSurfChk);
 
-    PMTHousingFalangeL_Physical   = new G4PVPlacement(0,Position_PMTHousingFalange_L + Container_Center,
-            PMTHousingFalange_Logical,
-            "PMTHousingFalangeL_Physical",
+    PMTHousingFlangeL_Physical   = new G4PVPlacement(0,Position_PMTHousingFlange_L + Container_Center,
+            PMTHousingFlange_Logical,
+            "PMTHousingFlangeL_Physical",
             CerenkovContainer_Logical,
             false,0,
             pSurfChk);
@@ -860,11 +860,11 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 
     G4ThreeVector Position_PMTHousingLid_R = G4ThreeVector( (47.75-8.21/2.0)*inch,
             0,
-            0.25*inch+1.0*inch+5.0*mm+0.38*inch+PMTHousingWallLength+PMTHousingFalangeLength);
+            0.25*inch+1.0*inch+5.0*mm+0.38*inch+PMTHousingWallLength+PMTHousingFlangeLength);
 
     G4ThreeVector Position_PMTHousingLid_L = G4ThreeVector( -(47.75-8.21/2.0)*inch,
             0,
-            0.25*inch+1.0*inch+5.0*mm+0.38*inch+PMTHousingWallLength+PMTHousingFalangeLength);
+            0.25*inch+1.0*inch+5.0*mm+0.38*inch+PMTHousingWallLength+PMTHousingFlangeLength);
 
     PMTHousingLidR_Physical   = new G4PVPlacement(0,Position_PMTHousingLid_R + Container_Center,
             PMTHousingLid_Logical,
@@ -944,129 +944,191 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 //****************************************************************************************************
 //****************************************************************************************************
 
+    G4double redThn = 0.16*cm;
+    G4double redHgt = 0.2*cm;
+    G4double chamferWidth = 0.8*mm;
+    G4double chamferSolidTrDim = chamferWidth + 0.2*cm;
+    G4double delta = 0.5*(chamferSolidTrDim - chamferWidth)/sqrt(2.0);
 
-    G4double ChamferRotation = 45.0*degree;
-    G4double ChamferScew = 0.0;
-    G4double delta = 0.0;
+    G4ThreeVector translate;  //need only one here
+    G4RotationMatrix rotate1; //use three of these for ease of use
+    G4RotationMatrix rotate2;
+    G4RotationMatrix rotate3;
+
+    //The, to be subtracted, chamfer solid just needs to have the right length along the edge where
+    //it is to be applied and otherwise has to just have dimensions that are slightly larger than the desired 
+    //chamfer width. Also make three chamfer solids to get around the additonal rotations otherwise required,
+    //which are computationally expensive. First solid is along the four long transverse edges of each bar, the second
+    //is along the four short transverse edges of each bar, and the third is aloing the (shortest) edge along the 
+    //beam direction of each bar.
+    G4Box* Chamfer_Solid1 = new G4Box("Chamfer1",0.5*(QuartzBar_FullLength+2.0*cm), 0.5*chamferSolidTrDim, 0.5*chamferSolidTrDim);
+    rotate1.rotateX(45.0*degree);
+    G4Box* Chamfer_Solid2 = new G4Box("Chamfer2",0.5*chamferSolidTrDim, 0.5*(QuartzBar_FullHeight+2.1*cm), 0.5*chamferSolidTrDim);
+    rotate2.rotateY(45.0*degree);
+    G4Box* Chamfer_Solid3 = new G4Box("Chamfer3",0.5*chamferSolidTrDim,0.5*chamferSolidTrDim,0.5*(QuartzBar_FullThickness-redThn+2.2*cm));
+    rotate3.rotateZ(45.0*degree);
+
+
 
 //****************************************************************************************************
 //******************************Define Right Detector Quartz Bar With Chamfers************************
 
 
-    G4Box* Chamfer_Solid    = new G4Box("Chamfer_Solid",
-                                        0.5 * Chamfer_FullLength,       // half X length required by Geant4
-                                        0.5 * Chamfer_FullHeight ,      // half Y length required by Geant4
-                                        0.5 * Chamfer_FullThickness );
-
-//     G4Box* QuartzBar_Solid  = new G4Box("QuartzBar_Solid",
-//                                         0.5 * QuartzBar_FullLength,       // half X length required by Geant4
-//                                         0.5 * QuartzBar_FullHeight,      // half Y length required by Geant4
-//                                         0.5 * QuartzBar_FullThickness );  // half Z length required by Geant4
-
-   G4Trd* QuartzBar_Solid  = new G4Trd("QuartzBar_Solid",
-               0.5*QuartzBar_FullLength,
-               0.5*QuartzBar_FullLength,
-               0.5*QuartzBar_FullHeight+0.1*cm,
-               0.5*QuartzBar_FullHeight-0.1*cm,
-               0.5*QuartzBar_FullThickness);
-
-    //Boolean Union:
-    //Upper-upstream edge chamfer
-
-    ChamferScew = 0.021486*degree;
-    delta = 0.5*(Chamfer_FullHeight - 1.0*mm)/sqrt(2.0);
-    G4double ChamferAdjRotZ = atan(sin(ChamferScew)*cos(90*degree - ChamferRotation));
-    G4double ChamferAdjRotY = atan(sin(ChamferScew)*sin(90*degree - ChamferRotation));
-    Position_Chamfer1.setX(0.0*cm);//33.333333*cm);
-    Position_Chamfer1.setY(0.5*QuartzBar_FullHeight + delta);
-    Position_Chamfer1.setZ(-(0.5*QuartzBar_FullThickness + delta));
-    Rotation_Chamfer1.rotateX(45.0*degree);
-    Rotation_Chamfer1.rotateY(ChamferAdjRotY*radian);
-    Rotation_Chamfer1.rotateZ(ChamferAdjRotZ*radian);
-    G4Transform3D Transform_Chamfer1(Rotation_Chamfer1,Position_Chamfer1);
-    Rotation_Chamfer1.rotateZ(-ChamferAdjRotZ*radian);
-    Rotation_Chamfer1.rotateY(-ChamferAdjRotY*radian);
-
+    G4Box* QuartzBar_Solid_Right  = new G4Box("QuartzBar_Solid_Right",
+					      0.5*QuartzBar_FullLength,
+					      0.5*(QuartzBar_FullHeight-redHgt),
+					      // 0.5*QuartzBar_FullThickness
+					      0.5*(QuartzBar_FullThickness-redThn));
+    
+    translate.setX(0.0*cm);
+    translate.setY(0.5*QuartzBar_FullHeight + delta);
+    translate.setZ(-(0.5*(QuartzBar_FullThickness-redThn) + delta));
+    G4Transform3D Transform1(rotate1,translate);
     RightQuartz_Solid[0]=  new G4SubtractionSolid ("UpperUpstreamChamfer-RightQuartzBar",
-            QuartzBar_Solid,
-            Chamfer_Solid,
-            Transform_Chamfer1);
-
-    //Boolean Union:
-    //Upper-downstream edge chamfer
-
-    delta = 0.5*(Chamfer_FullHeight - 0.5*mm)/sqrt(2.0);
-    ChamferScew = 0.0;//0.014*PI/180.0;
-    ChamferAdjRotZ = atan(sin(ChamferScew)*cos(ChamferRotation));
-    ChamferAdjRotY = atan(sin(ChamferScew)*sin(ChamferRotation));
-    Position_Chamfer2.setX(0.0*mm);
-    Position_Chamfer2.setY(0.5*QuartzBar_FullHeight + delta);
-    Position_Chamfer2.setZ(0.5*QuartzBar_FullThickness + delta);
-    Rotation_Chamfer2.rotateX(45.0*degree);
-    Rotation_Chamfer2.rotateY(-ChamferAdjRotY*radian);
-    Rotation_Chamfer2.rotateZ(ChamferAdjRotZ*radian);
-    G4Transform3D Transform_Chamfer2(Rotation_Chamfer2,Position_Chamfer2);
-    Rotation_Chamfer2.rotateZ(-ChamferAdjRotZ*radian);
-    Rotation_Chamfer2.rotateY(ChamferAdjRotY*radian);
-
-    RightQuartz_Solid[1] =  new G4SubtractionSolid ("UpperDownstreamChamfer-RightQuartzBar",
-            RightQuartz_Solid[0],
-            Chamfer_Solid,
-            Transform_Chamfer2);
-
-    //Boolean Union:
-    //Lower-Upstream edge chamfer
-    ChamferAdjRotZ = atan(sin(ChamferScew)*cos(ChamferRotation));
-    ChamferAdjRotY = atan(sin(ChamferScew)*sin(ChamferRotation));
-    Position_Chamfer3.setX(0.0*mm);
-    Position_Chamfer3.setY(-(0.5*QuartzBar_FullHeight + delta));
-    Position_Chamfer3.setZ(-(0.5*QuartzBar_FullThickness + delta));
-    Rotation_Chamfer3.rotateX(45.0*degree);
-    Rotation_Chamfer3.rotateY(ChamferAdjRotY*radian);
-    Rotation_Chamfer3.rotateZ(-ChamferAdjRotZ*radian);
-    G4Transform3D Transform_Chamfer3(Rotation_Chamfer3,Position_Chamfer3);
-    Rotation_Chamfer3.rotateZ(ChamferAdjRotZ*radian);
-    Rotation_Chamfer3.rotateY(-ChamferAdjRotY*radian);
-
-    RightQuartz_Solid[2] =  new G4SubtractionSolid ("LowerUpstreamChamfer-RightQuartzBar",
-            RightQuartz_Solid[1],Chamfer_Solid,
-            Transform_Chamfer3);
-
-    //Boolean Union:
-    //Lower-Downstream edge chamfer
-    ChamferAdjRotZ = atan(sin(ChamferScew)*cos(90*degree - ChamferRotation));
-    ChamferAdjRotY = atan(sin(ChamferScew)*sin(90*degree - ChamferRotation));
-    Position_Chamfer4.setX(0.0*mm);
-    Position_Chamfer4.setY(-(0.5*QuartzBar_FullHeight + delta));
-    Position_Chamfer4.setZ(0.5*QuartzBar_FullThickness + delta);
-    Rotation_Chamfer4.rotateX(45.0*degree);
-    Rotation_Chamfer4.rotateY(-ChamferAdjRotY*radian);
-    Rotation_Chamfer4.rotateZ(-ChamferAdjRotZ*radian);
-    G4Transform3D Transform_Chamfer4(Rotation_Chamfer4,Position_Chamfer4);
-    Rotation_Chamfer4.rotateY(ChamferAdjRotY*radian);
-    Rotation_Chamfer4.rotateZ(ChamferAdjRotZ*radian);
-
-    RightQuartz_Solid[3] =  new G4SubtractionSolid ("LowerUpstreamChamfer-RightQuartzBar",
-            RightQuartz_Solid[2], Chamfer_Solid,
-            Transform_Chamfer4);
+						   QuartzBar_Solid_Right,
+						  Chamfer_Solid1,
+						  Transform1);
 
 
-    QuartzBar_LogicalRight  = new G4LogicalVolume(RightQuartz_Solid[3],
-            QuartzBar_Material,
-            "QuartzBar_LogicalRight",
-            0,0,0);
 
-    G4ThreeVector Position_RightQuartzBar = G4ThreeVector(-0.5*(QuartzBar_FullLength+GlueFilm_FullLength_X),0,0);
+   translate.setX(0.0*cm);
+   translate.setY(0.5*QuartzBar_FullHeight + delta);
+   translate.setZ((0.5*(QuartzBar_FullThickness-redThn) + delta));
+   G4Transform3D Transform2(rotate1,translate);
+   RightQuartz_Solid[1] =  new G4SubtractionSolid ("UpperDownstreamChamfer-RightQuartzBar",
+						   RightQuartz_Solid[0],
+						   Chamfer_Solid1,
+						   Transform2);
 
-    QuartzBar_PhysicalRight   = new G4PVPlacement(0,Position_RightQuartzBar,
-            QuartzBar_LogicalRight,
-            "QuartzBar_PhysicalRight",
-            ActiveArea_Logical,
-            false,0,
-            pSurfChk);
 
+   translate.setX(0.0*cm);
+   translate.setY(-(0.5*QuartzBar_FullHeight + delta));
+   translate.setZ(-(0.5*(QuartzBar_FullThickness-redThn) + delta));
+   G4Transform3D Transform3(rotate1,translate);
+   RightQuartz_Solid[2] =  new G4SubtractionSolid ("LowerUpstreamChamfer-RightQuartzBar",
+						   RightQuartz_Solid[1],
+						   Chamfer_Solid1,
+						   Transform3);
+
+   translate.setX(0.0*cm);
+   translate.setY(-(0.5*QuartzBar_FullHeight + delta));
+   translate.setZ((0.5*(QuartzBar_FullThickness-redThn) + delta));
+   G4Transform3D Transform4(rotate1,translate);
+   RightQuartz_Solid[3] =  new G4SubtractionSolid ("LowerUpstreamChamfer-RightQuartzBar",
+						   RightQuartz_Solid[2],
+						   Chamfer_Solid1,
+						   Transform4);
+
+   // G4double deltatmp = 0.5*(chamferSolidTrDim - chamferWidth-1.0*mm)/sqrt(2.0);
+   G4double deltatmp = 0.5*(chamferSolidTrDim - chamferWidth)/sqrt(2.0);
+
+   translate.setX(0.5*QuartzBar_FullLength + deltatmp);
+   translate.setY(0.0);
+   translate.setZ((0.5*(QuartzBar_FullThickness-redThn) + deltatmp));
+   G4Transform3D Transform5(rotate2,translate);
+   RightQuartz_Solid[4] =  new G4SubtractionSolid ("MiddleJointEdgeDownstreamChamfer-RightQuartzBar",
+   						   RightQuartz_Solid[3],
+   						   Chamfer_Solid2,
+   						   Transform5);
+
+
+   translate.setX(0.5*QuartzBar_FullLength + delta);
+   translate.setY(0.0);
+   translate.setZ(-(0.5*(QuartzBar_FullThickness-redThn) + delta));
+   G4Transform3D Transform6(rotate2,translate);
+   RightQuartz_Solid[5] =  new G4SubtractionSolid ("MiddleJointEdgeUpstreamChamfer-RightQuartzBar",
+   						   RightQuartz_Solid[4],
+   						   Chamfer_Solid2,
+   						   Transform6);
+
+   translate.setX(-(0.5*QuartzBar_FullLength + delta));
+   translate.setY(0.0);
+   translate.setZ(-(0.5*(QuartzBar_FullThickness-redThn) + delta));
+   G4Transform3D Transform7(rotate2,translate);
+   RightQuartz_Solid[6] =  new G4SubtractionSolid ("EndJointEdgeUpstreamChamfer-RightQuartzBar",
+   						   RightQuartz_Solid[5],
+   						   Chamfer_Solid2,
+   						   Transform7);
+
+   translate.setX(-(0.5*QuartzBar_FullLength + delta));
+   translate.setY(0.0);
+   translate.setZ(0.5*(QuartzBar_FullThickness-redThn) + delta);
+   G4Transform3D Transform8(rotate2,translate);
+   RightQuartz_Solid[7] =  new G4SubtractionSolid ("EndJointEdgeDownstreamChamfer-RightQuartzBar",
+   						   RightQuartz_Solid[5],
+   						   Chamfer_Solid2,
+   						   Transform8);
+
+   translate.setX(0.5*QuartzBar_FullLength + delta);
+   translate.setY(0.5*QuartzBar_FullHeight + delta);
+   translate.setZ(0.0);
+   G4Transform3D Transform9(rotate3,translate);
+   RightQuartz_Solid[8] =  new G4SubtractionSolid ("MiddleJointShortEdgeUpperChamfer-RightQuartzBar",
+   						   RightQuartz_Solid[7],
+   						   Chamfer_Solid3,
+   						   Transform9);
+
+   translate.setX(0.5*QuartzBar_FullLength + delta);
+   translate.setY(-(0.5*QuartzBar_FullHeight + delta));
+   translate.setZ(0.0);
+   G4Transform3D Transform10(rotate3,translate);
+   RightQuartz_Solid[9] =  new G4SubtractionSolid ("MiddleJointShortEdgeLowerChamfer-RightQuartzBar",
+   						   RightQuartz_Solid[8],
+   						   Chamfer_Solid3,
+   						   Transform10);
+
+   translate.setX(-(0.5*QuartzBar_FullLength + delta));
+   translate.setY(0.5*QuartzBar_FullHeight + delta);
+   translate.setZ(0.0);
+   G4Transform3D Transform11(rotate3,translate);
+   RightQuartz_Solid[10] =  new G4SubtractionSolid ("EndJointShortEdgeUpperChamfer-RightQuartzBar",
+   						   RightQuartz_Solid[9],
+   						   Chamfer_Solid3,
+   						   Transform11);
+
+   translate.setX(-(0.5*QuartzBar_FullLength + delta));
+   translate.setY(-(0.5*QuartzBar_FullHeight + delta));
+   translate.setZ(0.0);
+   G4Transform3D Transform12(rotate3,translate);
+   RightQuartz_Solid[11] =  new G4SubtractionSolid ("EndJointShortEdgeLowerChamfer-RightQuartzBar",
+   						   RightQuartz_Solid[10],
+   						   Chamfer_Solid3,
+   						   Transform12);
+
+
+    QuartzBar_LogicalRight  = new G4LogicalVolume(RightQuartz_Solid[11],
+						  QuartzBar_Material,
+						  "QuartzBar_LogicalRight",
+						  0,0,0);
+
+    // G4ThreeVector Position_RightQuartzBar = G4ThreeVector(-0.5*(QuartzBar_FullLength+GlueFilm_FullLength_X), 0, 0);
+    G4ThreeVector Position_RightQuartzBar = G4ThreeVector(-0.5*(QuartzBar_FullLength+GlueFilm_FullLength_X), 0.5*redHgt, 0.0*cm - 0.55*mm);
+    G4RotationMatrix rotateBar;
+    rotateBar.rotateX(-0.16*degree);
+    G4Transform3D transBar(rotateBar,Position_RightQuartzBar);
+    
+    
+
+    // QuartzBar_PhysicalRight   = new G4PVPlacement(0,Position_RightQuartzBar,
+    // 						  QuartzBar_LogicalRight,
+    // 						  "QuartzBar_PhysicalRight",
+    // 						  ActiveArea_Logical,
+    // 						  false,0,
+    // 						  pSurfChk);
+
+    QuartzBar_PhysicalRight   = new G4PVPlacement(transBar,
+    						  QuartzBar_LogicalRight,
+    						  "QuartzBar_PhysicalRight",
+    						  ActiveArea_Logical,
+    						  false,0,
+    						  pSurfChk);
+
+   
 //****************************************************************************************************
 //****************************************************************************************************
+
+    GlueFilm_FullLength_Y = QuartzBar_FullHeight - sqrt(2.0)*chamferWidth;
+    GlueFilm_FullLength_Z = QuartzBar_FullThickness - sqrt(2.0)*chamferWidth;
 
 //****************************************************************************************************
 //******************************Define Center Quartz Glue Film ***************************************
@@ -1092,9 +1154,6 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
             pSurfChk);
 
 //****************************************************************************************************
-//****************************************************************************************************
-
-//****************************************************************************************************
 //******************************Define Right Quartz Glue Film ****************************************
 
     G4ThreeVector Position_RightGlueFilm = G4ThreeVector(-1.0*(QuartzBar_FullLength+GlueFilm_FullLength_X),0,0);
@@ -1109,115 +1168,185 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 //****************************************************************************************************
 //****************************************************************************************************
 
+    redThn = 0.0*cm;
+
+    chamferWidth = 0.8*mm;
+    chamferSolidTrDim = chamferWidth + 0.2*cm;
+    delta = 0.5*(chamferSolidTrDim - chamferWidth)/sqrt(2.0);
+
+    G4ThreeVector translate2;  //need only one here
+    G4RotationMatrix rotate4; //use three of these for ease of use
+    G4RotationMatrix rotate5;
+    G4RotationMatrix rotate6;
+    
+    G4Box* Chamfer_Solid4 = new G4Box("Chamfer4",0.5*(QuartzBar_FullLength+2.0*cm), 0.5*chamferSolidTrDim, 0.5*chamferSolidTrDim);
+    rotate4.rotateX(45.0*degree);
+    G4Box* Chamfer_Solid5 = new G4Box("Chamfer5",0.5*chamferSolidTrDim, 0.5*(QuartzBar_FullHeight+2.1*cm), 0.5*chamferSolidTrDim);
+    rotate5.rotateY(45.0*degree);
+    G4Box* Chamfer_Solid6 = new G4Box("Chamfer6",0.5*chamferSolidTrDim,0.5*chamferSolidTrDim,0.5*(QuartzBar_FullThickness-redThn+2.2*cm));
+    rotate6.rotateZ(45.0*degree);
+
 //****************************************************************************************************
 //******************************Define Left Detector Quartz Bar With Chamfers  ***********************
 
 
-    //Boolean Union:
-    //Upper-upstream edge chamfer
-
-    ChamferScew = -0.021486*degree;
-    delta = 0.5*(Chamfer_FullHeight - 1.0*mm)/sqrt(2.0);
-    ChamferAdjRotZ = atan(sin(ChamferScew)*cos(90*degree - ChamferRotation));
-    ChamferAdjRotY = atan(sin(ChamferScew)*sin(90*degree - ChamferRotation));
-    Position_Chamfer1.setX(0.0*cm);//33.333333*cm);
-    Position_Chamfer1.setY(0.5*QuartzBar_FullHeight + delta);
-    Position_Chamfer1.setZ(-(0.5*QuartzBar_FullThickness + delta));
-//   Rotation_Chamfer1.rotateX(45.0*degree);
-    Rotation_Chamfer1.rotateY(ChamferAdjRotY*radian);
-    Rotation_Chamfer1.rotateZ(ChamferAdjRotZ*radian);
-    G4Transform3D Transform_Chamfer5(Rotation_Chamfer1,Position_Chamfer1);
-    Rotation_Chamfer1.rotateZ(-ChamferAdjRotZ*radian);
-    Rotation_Chamfer1.rotateY(-ChamferAdjRotY*radian);
-
+    G4Box* QuartzBar_Solid_Left  = new G4Box("QuartzBar_Solid_Right",
+					     0.5*QuartzBar_FullLength,
+					     0.5*QuartzBar_FullHeight,
+					     // 0.5*QuartzBar_FullThickness
+					     0.5*(QuartzBar_FullThickness-redThn));
+    
+    translate2.setX(0.0*cm);
+    translate2.setY(0.5*QuartzBar_FullHeight + delta);
+    translate2.setZ(-(0.5*(QuartzBar_FullThickness-redThn) + delta));
+    G4Transform3D Transform13(rotate4,translate2);
     LeftQuartz_Solid[0]=  new G4SubtractionSolid ("UpperUpstreamChamfer-LeftQuartzBar",
-            QuartzBar_Solid,
-            Chamfer_Solid,
-            Transform_Chamfer5);
+						  QuartzBar_Solid_Left,
+   						  Chamfer_Solid4,
+   						  Transform13);
 
-    //Boolean Union:
-    //Upper-downstream edge chamfer
 
-    delta = 0.5*(Chamfer_FullHeight - 0.5*mm)/sqrt(2.0);
-    ChamferScew = 0.0;//0.014*PI/180.0;
-    ChamferAdjRotZ = atan(sin(ChamferScew)*cos(ChamferRotation));
-    ChamferAdjRotY = atan(sin(ChamferScew)*sin(ChamferRotation));
-    Position_Chamfer2.setX(0.0*mm);
-    Position_Chamfer2.setY(0.5*QuartzBar_FullHeight + delta);
-    Position_Chamfer2.setZ(0.5*QuartzBar_FullThickness + delta);
-//   Rotation_Chamfer2.rotateX(45.0*degree);
-    Rotation_Chamfer2.rotateY(-ChamferAdjRotY*radian);
-    Rotation_Chamfer2.rotateZ(ChamferAdjRotZ*radian);
-    G4Transform3D Transform_Chamfer6(Rotation_Chamfer2,Position_Chamfer2);
-    Rotation_Chamfer2.rotateZ(-ChamferAdjRotZ*radian);
-    Rotation_Chamfer2.rotateY(ChamferAdjRotY*radian);
 
+    translate2.setX(0.0*cm);
+    translate2.setY(0.5*QuartzBar_FullHeight + delta);
+    translate2.setZ((0.5*(QuartzBar_FullThickness-redThn) + delta));
+    G4Transform3D Transform14(rotate4,translate2);
     LeftQuartz_Solid[1] =  new G4SubtractionSolid ("UpperDownstreamChamfer-LeftQuartzBar",
-            LeftQuartz_Solid[0],
-            Chamfer_Solid,
-            Transform_Chamfer6);
-
-    //Boolean Union:
-    //Lower-Upstream edge chamfer
-    ChamferAdjRotZ = atan(sin(ChamferScew)*cos(ChamferRotation));
-    ChamferAdjRotY = atan(sin(ChamferScew)*sin(ChamferRotation));
-    Position_Chamfer3.setX(0.0*mm);
-    Position_Chamfer3.setY(-(0.5*QuartzBar_FullHeight + delta));
-    Position_Chamfer3.setZ(-(0.5*QuartzBar_FullThickness + delta));
-//   Rotation_Chamfer3.rotateX(45.0*degree);
-    Rotation_Chamfer3.rotateY(ChamferAdjRotY*radian);
-    Rotation_Chamfer3.rotateZ(-ChamferAdjRotZ*radian);
-    G4Transform3D Transform_Chamfer7(Rotation_Chamfer3,Position_Chamfer3);
-    Rotation_Chamfer3.rotateZ(ChamferAdjRotZ*radian);
-    Rotation_Chamfer3.rotateY(-ChamferAdjRotY*radian);
-
-    LeftQuartz_Solid[2] =  new G4SubtractionSolid ("LowerUpstreamChamfer-LeftQuartzBar",
-            LeftQuartz_Solid[1],Chamfer_Solid,
-            Transform_Chamfer7);
-
-    //Boolean Union:
-    //Lower-Downstream edge chamfer
-    ChamferAdjRotZ = atan(sin(ChamferScew)*cos(90*degree - ChamferRotation));
-    ChamferAdjRotY = atan(sin(ChamferScew)*sin(90*degree - ChamferRotation));
-    Position_Chamfer4.setX(0.0*mm);
-    Position_Chamfer4.setY(-(0.5*QuartzBar_FullHeight + delta));
-    Position_Chamfer4.setZ(0.5*QuartzBar_FullThickness + delta);
-//   Rotation_Chamfer4.rotateX(45.0*degree);
-    Rotation_Chamfer4.rotateY(-ChamferAdjRotY*radian);
-    Rotation_Chamfer4.rotateZ(-ChamferAdjRotZ*radian);
-    G4Transform3D Transform_Chamfer8(Rotation_Chamfer4,Position_Chamfer4);
-    Rotation_Chamfer4.rotateY(ChamferAdjRotY*radian);
-    Rotation_Chamfer4.rotateZ(ChamferAdjRotZ*radian);
-
-    LeftQuartz_Solid[3] =  new G4SubtractionSolid ("LowerUpstreamChamfer-LeftQuartzBar",
-            LeftQuartz_Solid[2], Chamfer_Solid,
-            Transform_Chamfer8);
+   						   LeftQuartz_Solid[0],
+   						   Chamfer_Solid4,
+   						   Transform14);
 
 
-    QuartzBar_LogicalLeft  = new G4LogicalVolume(LeftQuartz_Solid[3],
-            QuartzBar_Material,
-            "QuartzBar_LogicalLeft",
-            0,0,0);
+   translate2.setX(0.0*cm);
+   translate2.setY(-(0.5*QuartzBar_FullHeight + delta));
+   translate2.setZ(-(0.5*(QuartzBar_FullThickness-redThn) + delta));
+   G4Transform3D Transform15(rotate4,translate2);
+   LeftQuartz_Solid[2] =  new G4SubtractionSolid ("LowerUpstreamChamfer-LeftQuartzBar",
+   						   LeftQuartz_Solid[1],
+   						   Chamfer_Solid4,
+   						   Transform15);
+
+   translate2.setX(0.0*cm);
+   translate2.setY(-(0.5*QuartzBar_FullHeight + delta));
+   translate2.setZ((0.5*(QuartzBar_FullThickness-redThn) + delta));
+   G4Transform3D Transform16(rotate4,translate2);
+   LeftQuartz_Solid[3] =  new G4SubtractionSolid ("LowerDownstreamChamfer-LeftQuartzBar",
+   						   LeftQuartz_Solid[2],
+   						   Chamfer_Solid4,
+   						   Transform16);
+
+   translate2.setX(-(0.5*QuartzBar_FullLength + delta));
+   translate2.setY(0.0);
+   translate2.setZ((0.5*(QuartzBar_FullThickness-redThn) + delta));
+   G4Transform3D Transform17(rotate5,translate2);
+   LeftQuartz_Solid[4] =  new G4SubtractionSolid ("MiddleJointEdgeDownstreamChamfer-LeftQuartzBar",
+   						   LeftQuartz_Solid[3],
+   						   Chamfer_Solid5,
+   						   Transform17);
+
+   translate2.setX(-(0.5*QuartzBar_FullLength + delta));
+   translate2.setY(0.0);
+   translate2.setZ(-(0.5*(QuartzBar_FullThickness-redThn) + delta));
+   G4Transform3D Transform18(rotate5,translate2);
+   LeftQuartz_Solid[5] =  new G4SubtractionSolid ("MiddleJointEdgeUpstreamChamfer-LeftQuartzBar",
+   						   LeftQuartz_Solid[4],
+   						   Chamfer_Solid5,
+   						   Transform18);
+
+   translate2.setX(0.5*QuartzBar_FullLength + delta);
+   translate2.setY(0.0);
+   translate2.setZ(-(0.5*(QuartzBar_FullThickness-redThn) + delta));
+   G4Transform3D Transform19(rotate5,translate2);
+   LeftQuartz_Solid[6] =  new G4SubtractionSolid ("EndJointEdgeUpstreamChamfer-LeftQuartzBar",
+   						   LeftQuartz_Solid[5],
+   						   Chamfer_Solid5,
+   						   Transform19);
+
+   translate2.setX(0.5*QuartzBar_FullLength + delta);
+   translate2.setY(0.0);
+   translate2.setZ(0.5*(QuartzBar_FullThickness-redThn) + delta);
+   G4Transform3D Transform20(rotate5,translate2);
+   LeftQuartz_Solid[7] =  new G4SubtractionSolid ("EndJointEdgeDownstreamChamfer-LeftQuartzBar",
+   						   LeftQuartz_Solid[6],
+   						   Chamfer_Solid5,
+   						   Transform20);
+
+
+   translate2.setX(-(0.5*QuartzBar_FullLength + delta));
+   translate2.setY(0.5*QuartzBar_FullHeight + delta);
+   translate2.setZ(0.0);
+   G4Transform3D Transform21(rotate6,translate2);
+   LeftQuartz_Solid[8] =  new G4SubtractionSolid ("MiddleJointShortEdgeUpperChamfer-LeftQuartzBar",
+   						   LeftQuartz_Solid[7],
+   						   Chamfer_Solid6,
+   						   Transform21);
+
+   translate2.setX(-(0.5*QuartzBar_FullLength + delta));
+   translate2.setY(-(0.5*QuartzBar_FullHeight + delta));
+   translate2.setZ(0.0);
+   G4Transform3D Transform22(rotate6,translate2);
+   LeftQuartz_Solid[9] =  new G4SubtractionSolid ("MiddleJointShortEdgeLowerChamfer-LeftQuartzBar",
+   						   LeftQuartz_Solid[8],
+   						   Chamfer_Solid6,
+   						   Transform22);
+
+   translate2.setX(0.5*QuartzBar_FullLength + delta);
+   translate2.setY(0.5*QuartzBar_FullHeight + delta);
+   translate2.setZ(0.0);
+   G4Transform3D Transform23(rotate6,translate2);
+   LeftQuartz_Solid[10] =  new G4SubtractionSolid ("EndJointShortEdgeUpperChamfer-LeftQuartzBar",
+   						   LeftQuartz_Solid[9],
+   						   Chamfer_Solid6,
+   						   Transform23);
+
+   translate2.setX(0.5*QuartzBar_FullLength + delta);
+   translate2.setY(-(0.5*QuartzBar_FullHeight + delta));
+   translate2.setZ(0.0);
+   G4Transform3D Transform24(rotate6,translate2);
+   LeftQuartz_Solid[11] =  new G4SubtractionSolid ("EndJointShortEdgeLowerChamfer-LeftQuartzBar",
+   						   LeftQuartz_Solid[10],
+   						   Chamfer_Solid6,
+   						   Transform24);
+
+
+
+    QuartzBar_LogicalLeft  = new G4LogicalVolume(LeftQuartz_Solid[11],
+   						  QuartzBar_Material,
+   						  "QuartzBar_LogicalLeft",
+   						  0,0,0);
 
     G4ThreeVector Position_LeftQuartzBar = G4ThreeVector(0.5*(QuartzBar_FullLength+GlueFilm_FullLength_X),0,0);
 
     QuartzBar_PhysicalLeft   = new G4PVPlacement(0,Position_LeftQuartzBar,
-            QuartzBar_LogicalLeft,
-            "QuartzBar_PhysicalLeft",
-            ActiveArea_Logical,
-            false,0,
-            pSurfChk);
+    						  QuartzBar_LogicalLeft,
+    						  "QuartzBar_PhysicalLeft",
+    						  ActiveArea_Logical,
+    						  false,0,
+    						  pSurfChk);
 
-//****************************************************************************************************
-//****************************************************************************************************
+
 
 //****************************************************************************************************
 //******************************Define Left Quartz Glue Film *****************************************
 
+
+    GlueFilm_FullLength_Y = QuartzBar_FullHeight - sqrt(2.0)*chamferWidth;
+    GlueFilm_FullLength_Z = QuartzBar_FullThickness - sqrt(2.0)*chamferWidth;// - redThn;
+
+    G4Box* CenterGlueFilm_Solid2    = new G4Box("CenterGlueFilm_Solid2",
+            0.5 * GlueFilm_FullLength_X,
+            0.5 * GlueFilm_FullLength_Y,
+            0.5 * GlueFilm_FullLength_Z);
+
+    QuartzGlue_Logical2  = new G4LogicalVolume(CenterGlueFilm_Solid2,
+            QuartzGlue_Material,
+            "CenterGlueFilm_Log",
+            0,0,0);
+
     G4ThreeVector Position_LeftGlueFilm = G4ThreeVector((QuartzBar_FullLength+GlueFilm_FullLength_X),0,0);
 
     QuartzGlue_PhysicalLeft  = new G4PVPlacement(0,Position_LeftGlueFilm,
-            QuartzGlue_Logical,
+            QuartzGlue_Logical2,
             "QuartzGlue_PhysicalLeft",
             ActiveArea_Logical,
             false,1,
@@ -1230,285 +1359,454 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 //******************************Define Light Guides With Chamfers And Any Sculpting*******************
 
     G4double redfr = 1.0; //0.5
-    G4double pTheta = atan(LightGuide_FullThickness*(1 - redfr)/(2.0*LightGuide_FullLength));
+    // G4double pTheta = atan(LightGuide_FullThickness*(1 - redfr)/(2.0*LightGuide_FullLength));
 
-    G4Trap* LightGuide_Solid = new G4Trap("LightGuide_Solid",
-                                          0.5*LightGuide_FullLength,pTheta,0.0,
-                                          0.5*LightGuide_FullWidth1,
-                                          redfr*0.5*LightGuide_FullThickness,
-                                          redfr*0.5*LightGuide_FullThickness,0.0,
-                                          0.5*LightGuide_FullWidth2,
-                                          0.5*LightGuide_FullThickness,
-                                          0.5*LightGuide_FullThickness,
-                                          0.0);
+    // G4Trap* LightGuide_Solid = new G4Trap("LightGuide_Solid",
+    //                                       0.5*LightGuide_FullLength,pTheta,0.0,
+    //                                       0.5*LightGuide_FullWidth,
+    //                                       redfr*0.5*LightGuide_FullThickness,
+    //                                       redfr*0.5*LightGuide_FullThickness,0.0,
+    //                                       0.5*LightGuide_FullWidth,
+    //                                       0.5*LightGuide_FullThickness,
+    //                                       0.5*LightGuide_FullThickness,
+    //                                       0.0);
 
-    LGAngCutXDim = 8.0*cm;
-    LGAngCutYDim = LightGuide_FullWidth1+1.0*cm;
-    LGAngCutZDim = 2.0*cm;
+    // LGAngCutXDim = 8.0*cm;
+    // LGAngCutYDim = LightGuide_FullWidth+1.0*cm;
+    // LGAngCutZDim = 2.0*cm;
 
-    G4Box* LGEdgeAngleCut_Solid = new G4Box("LGEdgeAngleCut_Solid",
-                                            0.5*LGAngCutXDim,
-                                            0.5*LGAngCutYDim,
-                                            0.5*LGAngCutZDim);
-    G4double ad = 0.0; //45.0;  //0.0;
-    G4double ar = ad*4.0*atan(1.0)/180.0;
-    G4double dx = 0.5*LGAngCutZDim*cos(ar)-0.5*(LightGuide_FullThickness -
-                  LGAngCutZDim*sin(ar))*tan(ar)
-                  + LightGuide_FullThickness*(1 - redfr)*tan(ar);
+    // G4Box* LGEdgeAngleCut_Solid = new G4Box("LGEdgeAngleCut_Solid",
+    //                                         0.5*LGAngCutXDim,
+    //                                         0.5*LGAngCutYDim,
+    //                                         0.5*LGAngCutZDim);
+    // G4double ad = 0.0; //45.0;  //0.0;
+    // G4double ar = ad*4.0*atan(1.0)/180.0;
+    // G4double dx = 0.5*LGAngCutZDim*cos(ar)-0.5*(LightGuide_FullThickness -
+    //               LGAngCutZDim*sin(ar))*tan(ar)
+    //               + LightGuide_FullThickness*(1 - redfr)*tan(ar);
 
 
 
 //******************************Left Light Guide *****************************************************
 
-    //Boolean Union:
-    //Left Light Guide Angular cut-off at edge
-    Position_AngCut1.setX(0.0*cm);
-    Position_AngCut1.setY(0.0*cm);
-    Position_AngCut1.setZ(-(0.5*LightGuide_FullLength+dx));
-    Rotation_AngCut1.rotateY(ad*degree);
-    G4Transform3D Transform_AngCut1(Rotation_AngCut1,Position_AngCut1);
 
-    LeftGuide_Solid[0] =  new G4SubtractionSolid ("LGLeft-AngCut",
-            LightGuide_Solid,
-            LGEdgeAngleCut_Solid,
-            Transform_AngCut1);
+    redThn = 0.0*cm;
 
-    delta = 0.5*(Chamfer_FullHeight - 0.5*mm)/sqrt(2.0);
+    G4ThreeVector translate3;  //need only one here
+    G4RotationMatrix rotate7; //use three of these for ease of use
+    G4RotationMatrix rotate8;
+    G4RotationMatrix rotate9;
+    
+    G4Box* Chamfer_Solid7 = new G4Box("Chamfer7",0.5*(LightGuide_FullLength+2.0*cm), 0.5*chamferSolidTrDim, 0.5*chamferSolidTrDim);
+    rotate7.rotateX(45.0*degree);
+    G4Box* Chamfer_Solid8 = new G4Box("Chamfer8",0.5*chamferSolidTrDim, 0.5*(LightGuide_FullWidth+2.1*cm), 0.5*chamferSolidTrDim);
+    rotate8.rotateY(45.0*degree);
+    G4Box* Chamfer_Solid9 = new G4Box("Chamfer9",0.5*chamferSolidTrDim,0.5*chamferSolidTrDim,0.5*(LightGuide_FullThickness-redThn+2.2*cm));
+    rotate9.rotateZ(45.0*degree);
+    
+    G4Box* LG_Solid_Left  = new G4Box("LG_Left", 0.5*LightGuide_FullLength, 0.5*LightGuide_FullWidth,0.5*LightGuide_FullThickness);
+    
+    translate3.setX(0.0*cm);
+    translate3.setY(0.5*LightGuide_FullWidth + delta);
+    translate3.setZ(-(0.5*LightGuide_FullThickness + delta));
+    G4Transform3D Transform25(rotate7,translate3);
+    LeftGuide_Solid[0] =  new G4SubtractionSolid ("UpperUpstreamChamfer-LGLeft",
+						   LG_Solid_Left,
+						   Chamfer_Solid7,
+						   Transform25);
 
-    Position_Chamfer1.setX(-(0.5*QuartzBar_FullThickness + delta));
-    Position_Chamfer1.setY(0.5*QuartzBar_FullHeight + delta);
-    Position_Chamfer1.setZ(0.0);
-    Rotation_Chamfer1.rotateY(90.0*degree);
-    G4Transform3D Transform_Chamfer9(Rotation_Chamfer1,Position_Chamfer1);
+    translate3.setX(0.0*cm);
+    translate3.setY(0.5*LightGuide_FullWidth + delta);
+    translate3.setZ(0.5*LightGuide_FullThickness + delta);
+    G4Transform3D Transform26(rotate7,translate3);
+    LeftGuide_Solid[1] =  new G4SubtractionSolid ("UpperDownstreamChamfer-LGLeft",
+						   LeftGuide_Solid[0],
+						   Chamfer_Solid7,
+						   Transform26);
 
-    LeftGuide_Solid[1]=  new G4SubtractionSolid ("LeftLGChamfer1",
-            LeftGuide_Solid[0],
-            Chamfer_Solid,
-            Transform_Chamfer9);
+    translate3.setX(0.0*cm);
+    translate3.setY(-(0.5*LightGuide_FullWidth + delta));
+    translate3.setZ(0.5*LightGuide_FullThickness + delta);
+    G4Transform3D Transform27(rotate7,translate3);
+    LeftGuide_Solid[2] =  new G4SubtractionSolid ("LowerDownstreamChamfer-LGLeft",
+						   LeftGuide_Solid[1],
+						   Chamfer_Solid7,
+						   Transform27);
+
+    translate3.setX(0.0*cm);
+    translate3.setY(-(0.5*LightGuide_FullWidth + delta));
+    translate3.setZ(-(0.5*LightGuide_FullThickness + delta));
+    G4Transform3D Transform28(rotate7,translate3);
+    LeftGuide_Solid[3] =  new G4SubtractionSolid ("LowerUpstreamChamfer-LGLeft",
+						   LeftGuide_Solid[2],
+						   Chamfer_Solid7,
+						   Transform28);
+
+    translate3.setX(-(0.5*LightGuide_FullLength + delta));
+    translate3.setY(0.0*cm);
+    translate3.setZ(0.5*LightGuide_FullThickness + delta);
+    G4Transform3D Transform29(rotate8,translate3);
+    LeftGuide_Solid[4] =  new G4SubtractionSolid ("RightEdgeDownstreamChamfer-LGLeft",
+						   LeftGuide_Solid[3],
+						   Chamfer_Solid8,
+						   Transform29);
+
+    translate3.setX(-(0.5*LightGuide_FullLength + delta));
+    translate3.setY(0.0*cm);
+    translate3.setZ(-(0.5*LightGuide_FullThickness + delta));
+    G4Transform3D Transform30(rotate8,translate3);
+    LeftGuide_Solid[5] =  new G4SubtractionSolid ("RightEdgeUpstreamChamfer-LGLeft",
+						   LeftGuide_Solid[4],
+						   Chamfer_Solid8,
+						   Transform30);
+
+    translate3.setX(0.5*LightGuide_FullLength + delta);
+    translate3.setY(0.0*cm);
+    translate3.setZ(0.5*LightGuide_FullThickness + delta);
+    G4Transform3D Transform31(rotate8,translate3);
+    LeftGuide_Solid[6] =  new G4SubtractionSolid ("LeftEdgeDownstreamChamfer-LGLeft",
+						   LeftGuide_Solid[5],
+						   Chamfer_Solid8,
+						   Transform31);
+
+    translate3.setX(0.5*LightGuide_FullLength + delta);
+    translate3.setY(0.0*cm);
+    translate3.setZ(-(0.5*LightGuide_FullThickness + delta));
+    G4Transform3D Transform32(rotate8,translate3);
+    LeftGuide_Solid[7] =  new G4SubtractionSolid ("LeftEdgeUpstreamChamfer-LGLeft",
+						   LeftGuide_Solid[6],
+						   Chamfer_Solid8,
+                                                   Transform32);
 
 
-    Position_Chamfer2.setX(0.5*QuartzBar_FullThickness + delta);
-    Position_Chamfer2.setY(0.5*QuartzBar_FullHeight + delta);
-    Position_Chamfer2.setZ(0.0*cm);
-    Rotation_Chamfer2.rotateY(90.0*degree);
-    G4Transform3D Transform_Chamfer10(Rotation_Chamfer2,Position_Chamfer2);
+    translate3.setX(-(0.5*LightGuide_FullLength + delta));
+    translate3.setY(0.5*LightGuide_FullWidth + delta);
+    translate3.setZ(0.0*cm);
+    G4Transform3D Transform33(rotate9,translate3);
+    LeftGuide_Solid[8] =  new G4SubtractionSolid ("RightShortEdgeUpperChamfer-LGLeft",
+						   LeftGuide_Solid[7],
+						   Chamfer_Solid9,
+						   Transform33);
 
-    LeftGuide_Solid[2]=  new G4SubtractionSolid ("LeftLGChamfer2",
-            LeftGuide_Solid[1],
-            Chamfer_Solid,
-            Transform_Chamfer10);
+    translate3.setX(-(0.5*LightGuide_FullLength + delta));
+    translate3.setY(-(0.5*LightGuide_FullWidth + delta));
+    translate3.setZ(0.0*cm);
+    G4Transform3D Transform34(rotate9,translate3);
+    LeftGuide_Solid[9] =  new G4SubtractionSolid ("RightShortEdgeLowerChamfer-LGLeft",
+						   LeftGuide_Solid[8],
+						   Chamfer_Solid9,
+						   Transform34);
+
+    translate3.setX(0.5*LightGuide_FullLength + delta);
+    translate3.setY(-(0.5*LightGuide_FullWidth + delta));
+    translate3.setZ(0.0*cm);
+    G4Transform3D Transform35(rotate9,translate3);
+    LeftGuide_Solid[10] =  new G4SubtractionSolid ("LeftShortEdgeLowerChamfer-LGLeft",
+						   LeftGuide_Solid[9],
+						   Chamfer_Solid9,
+						   Transform35);
+
+    translate3.setX(0.5*LightGuide_FullLength + delta);
+    translate3.setY(0.5*LightGuide_FullWidth + delta);
+    translate3.setZ(0.0*cm);
+    G4Transform3D Transform36(rotate9,translate3);
+    LeftGuide_Solid[11] =  new G4SubtractionSolid ("LeftShortEdgeUpperChamfer-LGLeft",
+						   LeftGuide_Solid[10],
+						   Chamfer_Solid9,
+						   Transform36);
 
 
-    Position_Chamfer3.setX(0.5*QuartzBar_FullThickness + delta);
-    Position_Chamfer3.setY(-(0.5*QuartzBar_FullHeight + delta));
-    Position_Chamfer3.setZ(0.0*cm);
-    Rotation_Chamfer3.rotateY(90.0*degree);
-    G4Transform3D Transform_Chamfer11(Rotation_Chamfer3,Position_Chamfer3);
 
-    LeftGuide_Solid[3]=  new G4SubtractionSolid ("LeftLGChamfer3",
-            LeftGuide_Solid[2],
-            Chamfer_Solid,
-            Transform_Chamfer11);
 
-    Position_Chamfer4.setX(-(0.5*QuartzBar_FullThickness + delta));
-    Position_Chamfer4.setY(-(0.5*QuartzBar_FullHeight + delta));
-    Position_Chamfer4.setZ(0.0*cm);
-    Rotation_Chamfer4.rotateY(90.0*degree);
-    G4Transform3D Transform_Chamfer12(Rotation_Chamfer4,Position_Chamfer4);
+    G4ThreeVector Position_LGLeft(QuartzBar_FullLength+0.5*LightGuide_FullLength+1.5*GlueFilm_FullLength_X,0,0);
+    
+    LightGuide_LogicalLeft  = new G4LogicalVolume(LeftGuide_Solid[11],
+						  LightGuide_Material,
+						  "LightGuide_LogicalLeft",
+						  0,0,0);
 
-    LeftGuide_Solid[4]=  new G4SubtractionSolid ("LeftLGChamfer4",
-            LeftGuide_Solid[3],
-            Chamfer_Solid,
-            Transform_Chamfer12);
+    LightGuide_PhysicalLeft   = new G4PVPlacement(0,Position_LGLeft,
+    						  LightGuide_LogicalLeft,
+    						  "LightGuide_PhysicalLeft",
+    						  ActiveArea_Logical,
+    						  false,0,
+    						  pSurfChk);
+
+
+
+    // //Boolean Union:
+    // //Left Light Guide Angular cut-off at edge
+    // Position_AngCut1.setX(0.0*cm);
+    // Position_AngCut1.setY(0.0*cm);
+    // Position_AngCut1.setZ(-(0.5*LightGuide_FullLength+dx));
+    // Rotation_AngCut1.rotateY(ad*degree);
+    // G4Transform3D Transform_AngCut1(Rotation_AngCut1,Position_AngCut1);
+
+    // LeftGuide_Solid[0] =  new G4SubtractionSolid ("LGLeft-AngCut",
+    //         LightGuide_Solid,
+    //         LGEdgeAngleCut_Solid,
+    //         Transform_AngCut1);
+
+    // delta = 0.5*(Chamfer_FullHeight - 0.5*mm)/sqrt(2.0);
+
+    // Position_Chamfer1.setX(-(0.5*QuartzBar_FullThickness + delta));
+    // Position_Chamfer1.setY(0.5*QuartzBar_FullHeight + delta);
+    // Position_Chamfer1.setZ(0.0);
+    // Rotation_Chamfer1.rotateY(90.0*degree);
+    // G4Transform3D Transform_Chamfer9(Rotation_Chamfer1,Position_Chamfer1);
+
+    // LeftGuide_Solid[1]=  new G4SubtractionSolid ("LeftLGChamfer1",
+    //         LeftGuide_Solid[0],
+    //         Chamfer_Solid,
+    //         Transform_Chamfer9);
+
+
+    // Position_Chamfer2.setX(0.5*QuartzBar_FullThickness + delta);
+    // Position_Chamfer2.setY(0.5*QuartzBar_FullHeight + delta);
+    // Position_Chamfer2.setZ(0.0*cm);
+    // Rotation_Chamfer2.rotateY(90.0*degree);
+    // G4Transform3D Transform_Chamfer10(Rotation_Chamfer2,Position_Chamfer2);
+
+    // LeftGuide_Solid[2]=  new G4SubtractionSolid ("LeftLGChamfer2",
+    //         LeftGuide_Solid[1],
+    //         Chamfer_Solid,
+    //         Transform_Chamfer10);
+
+
+    // Position_Chamfer3.setX(0.5*QuartzBar_FullThickness + delta);
+    // Position_Chamfer3.setY(-(0.5*QuartzBar_FullHeight + delta));
+    // Position_Chamfer3.setZ(0.0*cm);
+    // Rotation_Chamfer3.rotateY(90.0*degree);
+    // G4Transform3D Transform_Chamfer11(Rotation_Chamfer3,Position_Chamfer3);
+
+    // LeftGuide_Solid[3]=  new G4SubtractionSolid ("LeftLGChamfer3",
+    //         LeftGuide_Solid[2],
+    //         Chamfer_Solid,
+    //         Transform_Chamfer11);
+
+    // Position_Chamfer4.setX(-(0.5*QuartzBar_FullThickness + delta));
+    // Position_Chamfer4.setY(-(0.5*QuartzBar_FullHeight + delta));
+    // Position_Chamfer4.setZ(0.0*cm);
+    // Rotation_Chamfer4.rotateY(90.0*degree);
+    // G4Transform3D Transform_Chamfer12(Rotation_Chamfer4,Position_Chamfer4);
+
+    // LeftGuide_Solid[4]=  new G4SubtractionSolid ("LeftLGChamfer4",
+    //         LeftGuide_Solid[3],
+    //         Chamfer_Solid,
+    //         Transform_Chamfer12);
 
 
 
 //******************************Right Light Guide ****************************************************
 
+    // redThn = 0.0*cm;
 
-    //Boolean Union:
-    //Right Light Guide Angular cut-off at edge
-    Position_AngCut2.setX(0.0*cm);
-    Position_AngCut2.setY(0.0*cm);
-    Position_AngCut2.setZ(-(0.5*LightGuide_FullLength+dx));
-    Rotation_AngCut2.rotateY(-ad*degree);
-    G4Transform3D Transform_AngCut2(Rotation_AngCut2,Position_AngCut2);
+    // G4ThreeVector translate4;  //need only one here
+    // G4RotationMatrix rotate10; //use three of these for ease of use
+    // G4RotationMatrix rotate11;
+    // G4RotationMatrix rotate12;
+    
+    // G4Box* Chamfer_Solid10 = new G4Box("Chamfer10",0.5*(LightGuide_FullLength+2.0*cm), 0.5*chamferSolidTrDim, 0.5*chamferSolidTrDim);
+    // rotate10.rotateX(45.0*degree);
+    // G4Box* Chamfer_Solid11 = new G4Box("Chamfer11",0.5*chamferSolidTrDim, 0.5*(LightGuide_FullWidth+2.1*cm), 0.5*chamferSolidTrDim);
+    // rotate11.rotateY(45.0*degree);
+    // G4Box* Chamfer_Solid12 = new G4Box("Chamfer12",0.5*chamferSolidTrDim,0.5*chamferSolidTrDim,0.5*(LightGuide_FullThickness-redThn+2.2*cm)
+    // rotate12.rotateZ(45.0*degree);
+    
+    G4Box* LG_Solid_Right = new G4Box("LG_Right", 0.5*LightGuide_FullLength, 0.5*LightGuide_FullWidth,0.5*LightGuide_FullThickness);
+    
+    translate3.setX(0.0*cm);
+    translate3.setY(0.5*LightGuide_FullWidth + delta);
+    translate3.setZ(-(0.5*LightGuide_FullThickness + delta));
+    G4Transform3D Transform37(rotate7,translate3);
+    RightGuide_Solid[0] =  new G4SubtractionSolid ("UpperUpstreamChamfer-LGRight",
+						   LG_Solid_Right,
+						   Chamfer_Solid7,
+						   Transform25);
 
-    RightGuide_Solid[0] =  new G4SubtractionSolid ("LGRight-AngCut",
-            LightGuide_Solid,
-            LGEdgeAngleCut_Solid,
-            Transform_AngCut2);
+    translate3.setX(0.0*cm);
+    translate3.setY(0.5*LightGuide_FullWidth + delta);
+    translate3.setZ(0.5*LightGuide_FullThickness + delta);
+    G4Transform3D Transform38(rotate7,translate3);
+    RightGuide_Solid[1] =  new G4SubtractionSolid ("UpperDownstreamChamfer-LGRight",
+						   RightGuide_Solid[0],
+						   Chamfer_Solid7,
+						   Transform26);
 
-    G4Transform3D Transform_Chamfer13(Rotation_Chamfer1,Position_Chamfer1);
+    translate3.setX(0.0*cm);
+    translate3.setY(-(0.5*LightGuide_FullWidth + delta));
+    translate3.setZ(0.5*LightGuide_FullThickness + delta);
+    G4Transform3D Transform39(rotate7,translate3);
+    RightGuide_Solid[2] =  new G4SubtractionSolid ("LowerDownstreamChamfer-LGRight",
+						   RightGuide_Solid[1],
+						   Chamfer_Solid7,
+						   Transform27);
 
-    RightGuide_Solid[1]=  new G4SubtractionSolid ("RightLGChamfer1",
-            RightGuide_Solid[0],
-            Chamfer_Solid,
-            Transform_Chamfer13);
+    translate3.setX(0.0*cm);
+    translate3.setY(-(0.5*LightGuide_FullWidth + delta));
+    translate3.setZ(-(0.5*LightGuide_FullThickness + delta));
+    G4Transform3D Transform40(rotate7,translate3);
+    RightGuide_Solid[3] =  new G4SubtractionSolid ("LowerUpstreamChamfer-LGRight",
+						   RightGuide_Solid[2],
+						   Chamfer_Solid7,
+                                                   Transform28);
 
+    translate3.setX(-(0.5*LightGuide_FullLength + delta));
+    translate3.setY(0.0*cm);
+    translate3.setZ(0.5*LightGuide_FullThickness + delta);
+    G4Transform3D Transform41(rotate8,translate3);
+    RightGuide_Solid[4] =  new G4SubtractionSolid ("RightEdgeDownstreamChamfer-LGRight",
+						   RightGuide_Solid[3],
+						   Chamfer_Solid8,
+						   Transform29);
 
-    G4Transform3D Transform_Chamfer14(Rotation_Chamfer2,Position_Chamfer2);
+    translate3.setX(-(0.5*LightGuide_FullLength + delta));
+    translate3.setY(0.0*cm);
+    translate3.setZ(-(0.5*LightGuide_FullThickness + delta));
+    G4Transform3D Transform42(rotate8,translate3);
+    RightGuide_Solid[5] =  new G4SubtractionSolid ("RightEdgeUpstreamChamfer-LGRight",
+						   RightGuide_Solid[4],
+						   Chamfer_Solid8,
+						   Transform30);
 
-    RightGuide_Solid[2]=  new G4SubtractionSolid ("RightLGChamfer2",
-            RightGuide_Solid[1],
-            Chamfer_Solid,
-            Transform_Chamfer14);
+    translate3.setX(0.5*LightGuide_FullLength + delta);
+    translate3.setY(0.0*cm);
+    translate3.setZ(0.5*LightGuide_FullThickness + delta);
+    G4Transform3D Transform43(rotate8,translate3);
+    RightGuide_Solid[6] =  new G4SubtractionSolid ("RightEdgeDownstreamChamfer-LGRight",
+						   RightGuide_Solid[5],
+						   Chamfer_Solid8,
+						   Transform31);
 
-
-    G4Transform3D Transform_Chamfer15(Rotation_Chamfer3,Position_Chamfer3);
-
-    RightGuide_Solid[3]=  new G4SubtractionSolid ("RightLGChamfer3",
-            RightGuide_Solid[2],
-            Chamfer_Solid,
-            Transform_Chamfer15);
-
-    G4Transform3D Transform_Chamfer16(Rotation_Chamfer4,Position_Chamfer4);
-
-    RightGuide_Solid[4]=  new G4SubtractionSolid ("RightLGChamfer4",
-            RightGuide_Solid[3],
-            Chamfer_Solid,
-            Transform_Chamfer16);
-
-//****************************************************************************************************
-//****************************************************************************************************
-
-
-
-    //Boolean Union:
-    //Left Light Guide
-    Position_LGLeft.setX((QuartzBar_FullLength+0.5*LightGuide_FullLength+1.5*GlueFilm_FullLength_X));
-    Position_LGLeft.setY(0.0*cm);
-    Position_LGLeft.setZ(0.0*cm - LightGuide_FullThickness*(1 - redfr)/(4.0));
-    Rotation_LGLeft.rotateY(-90.0*degree);
-    G4Transform3D Transform_LGLeft(Rotation_LGLeft,Position_LGLeft);
-
-    //Boolean Union:
-    //Right Light Guide
-    Position_LGRight.setX(-(QuartzBar_FullLength+0.5*LightGuide_FullLength+1.5*GlueFilm_FullLength_X));
-    Position_LGRight.setY(0.0*cm);
-    Position_LGRight.setZ(0.0*cm - LightGuide_FullThickness*(1 - redfr)/(4.0));
-//   Rotation_LGRight.rotateY(-90.0*degree);
-    Rotation_LGRight.rotateY(90.0*degree);
-//   Rotation_LGRight.rotateZ(180.0*degree);
-    G4Transform3D Transform_LGRight(Rotation_LGRight,Position_LGRight);
-
-
-    LightGuide_LogicalLeft  = new G4LogicalVolume(LeftGuide_Solid[4],
-            LightGuide_Material,
-            "LightGuide_LogicalLeft",
-            0,0,0);
-
-
-    LightGuide_PhysicalLeft = new G4PVPlacement(Transform_LGLeft,
-            LightGuide_LogicalLeft,
-            "LightGuide_PhysicalLeft",
-            ActiveArea_Logical,
-            false,0,
-            pSurfChk);
-
-
-    LightGuide_LogicalRight  = new G4LogicalVolume(RightGuide_Solid[4],
-            LightGuide_Material,
-            "LightGuide_LogicalRight",
-            0,0,0);
-
-
-    LightGuide_PhysicalRight = new G4PVPlacement(Transform_LGRight,
-            LightGuide_LogicalRight,
-            "LightGuide_PhysicalRight",
-            ActiveArea_Logical,
-            false,0,
-            pSurfChk);
+    translate3.setX(0.5*LightGuide_FullLength + delta);
+    translate3.setY(0.0*cm);
+    translate3.setZ(-(0.5*LightGuide_FullThickness + delta));
+    G4Transform3D Transform44(rotate8,translate3);
+    RightGuide_Solid[7] =  new G4SubtractionSolid ("RightEdgeUpstreamChamfer-LGRight",
+						   RightGuide_Solid[6],
+						   Chamfer_Solid8,
+						   Transform32);
 
 
-    //******************************Face Mirrors***********************
+    translate3.setX(-(0.5*LightGuide_FullLength + delta));
+    translate3.setY(0.5*LightGuide_FullWidth + delta);
+    translate3.setZ(0.0*cm);
+    G4Transform3D Transform45(rotate9,translate3);
+    RightGuide_Solid[8] =  new G4SubtractionSolid ("RightShortEdgeUpperChamfer-LGRight",
+						   RightGuide_Solid[7],
+						   Chamfer_Solid9,
+						   Transform33);
 
-//   G4Trd* LGFaceMirror_Solid = new G4Trd("LGFaceMirror_Solid",
-// 					0.1*mm,0.1*mm,
-// 					0.5*LightGuide_FullWidth1,
-// 					0.5*LightGuide_FullWidth2,
-// 					0.5*LightGuide_FullLength -
-// 					0.5*LightGuide_FullThickness*tan(ar)+
-// 					0.5*LightGuide_FullThickness*(1 - redfr)*tan(ar));
+    translate3.setX(-(0.5*LightGuide_FullLength + delta));
+    translate3.setY(-(0.5*LightGuide_FullWidth + delta));
+    translate3.setZ(0.0*cm);
+    G4Transform3D Transform46(rotate9,translate3);
+    RightGuide_Solid[9] =  new G4SubtractionSolid ("RightShortEdgeLowerChamfer-LGRight",
+						   RightGuide_Solid[8],
+						   Chamfer_Solid9,
+						   Transform34);
 
+    translate3.setX(0.5*LightGuide_FullLength + delta);
+    translate3.setY(-(0.5*LightGuide_FullWidth + delta));
+    translate3.setZ(0.0*cm);
+    G4Transform3D Transform47(rotate9,translate3);
+    RightGuide_Solid[10] =  new G4SubtractionSolid ("RightShortEdgeLowerChamfer-LGRight",
+						   RightGuide_Solid[9],
+						   Chamfer_Solid9,
+						   Transform35);
 
-//   Position_LGFaceMirrorLeft.setX(0.5*(QuartzBar_FullLength+LightGuide_FullLength)-
-// 				 0.5*LightGuide_FullThickness*tan(ar)+
-// 				 0.5*LightGuide_FullThickness*(1 - redfr)*tan(ar));
-//   Position_LGFaceMirrorLeft.setY(0.0*cm);
-//   Position_LGFaceMirrorLeft.setZ(-0.5*LightGuide_FullThickness - 0.1*mm);
-//   Rotation_LGFaceMirrorLeft.rotateY(-90.0*degree);
-//   G4Transform3D Transform_LGFMLeft(Rotation_LGFaceMirrorLeft,Position_LGFaceMirrorLeft);
+    translate3.setX(0.5*LightGuide_FullLength + delta);
+    translate3.setY(0.5*LightGuide_FullWidth + delta);
+    translate3.setZ(0.0*cm);
+    G4Transform3D Transform48(rotate9,translate3);
+    RightGuide_Solid[11] =  new G4SubtractionSolid ("RightShortEdgeUpperChamfer-LGRight",
+						   RightGuide_Solid[10],
+						   Chamfer_Solid9,
+						   Transform36);
 
+    G4ThreeVector Position_LGRight = G4ThreeVector(-QuartzBar_FullLength-0.5*LightGuide_FullLength-1.5*GlueFilm_FullLength_X,0,0);
+    
+    LightGuide_LogicalRight  = new G4LogicalVolume(RightGuide_Solid[11],
+						  LightGuide_Material,
+						  "LightGuide_LogicalRight",
+						  0,0,0);
 
-//   mirror_logical[0]  = new G4LogicalVolume(LGFaceMirror_Solid,
-// 					   mirror_material,
-// 					   "mirrorface_log1",
-// 					   0,0,0);
-
-//   mirror_physical[0] = new G4PVPlacement(Transform_LGFMLeft,
-// 				     mirror_logical[0],
-// 				     "mirrorface_physical1",
-// 				     CerenkovContainer_Logical,
-// 				     false,
-// 				     0, // copy number for left PMTContainer
-//                                   pSurfChk);
-
-//******************************Face Mirrors******************
-
-
-//******************************Edge Mirrors******************
-
-    G4Box* LGEdgeMirror_Solid = new G4Box("LGEdgeMirror_Solid",
-                                          0.1*mm,0.5*LightGuide_FullWidth1,
-                                          redfr*0.5*LightGuide_FullThickness/cos(ar));
-
-    Position_LGEdgeMirrorLeft.setX(1.5*GlueFilm_FullLength_X + QuartzBar_FullLength+LightGuide_FullLength+0.1*mm/cos(ar)-
-                                   0.5*LightGuide_FullThickness*tan(ar)+
-                                   0.5*LightGuide_FullThickness*(1 - redfr)*tan(ar));
-    Position_LGEdgeMirrorLeft.setY(0.0*cm);
-    Position_LGEdgeMirrorLeft.setZ(-0.5*LightGuide_FullThickness*(1-redfr));
-    Rotation_LGEdgeMirrorLeft.rotateY(ad*degree);
-    G4Transform3D Transform_LGEMLeft(Rotation_LGEdgeMirrorLeft,Position_LGEdgeMirrorLeft);
-
-
-    mirror_logical[1]  = new G4LogicalVolume(LGEdgeMirror_Solid,
-            mirror_material,
-            "mirrorface_log2",
-            0,0,0);
-
-//     mirror_physical[1] = new G4PVPlacement(Transform_LGEMLeft,
-//                                            mirror_logical[1],
-//                                            "mirrorface_physical2",
-//                                            ActiveArea_Logical,
-//                                            false,
-//                                            0,  // copy number for left PMTContainer
-//                                            pSurfChk);
-
-    Position_LGEdgeMirrorRight.setX(-1.5*GlueFilm_FullLength_X-QuartzBar_FullLength-LightGuide_FullLength-0.1*mm/cos(ar)+
-                                    0.5*LightGuide_FullThickness*tan(ar)-
-                                    0.5*LightGuide_FullThickness*(1 - redfr)*tan(ar));
-    Position_LGEdgeMirrorRight.setY(0.0*cm);
-    Position_LGEdgeMirrorRight.setZ(-0.5*LightGuide_FullThickness*(1-redfr));
-    Rotation_LGEdgeMirrorRight.rotateY(-ad*degree);
-    G4Transform3D Transform_LGEMRight(Rotation_LGEdgeMirrorRight,Position_LGEdgeMirrorRight);
+    LightGuide_PhysicalRight   = new G4PVPlacement(0,Position_LGRight,
+    						  LightGuide_LogicalRight,
+    						  "LightGuide_PhysicalRight",
+    						  ActiveArea_Logical,
+    						  false,0,
+    						  pSurfChk);
 
 
-    mirror_logical[3]  = new G4LogicalVolume(LGEdgeMirror_Solid,
-            mirror_material,
-            "mirrorface_log4",
-            0,0,0);
+//     //Boolean Union:
+//     //Right Light Guide Angular cut-off at edge
+//     Position_AngCut2.setX(0.0*cm);
+//     Position_AngCut2.setY(0.0*cm);
+//     Position_AngCut2.setZ(-(0.5*LightGuide_FullLength+dx));
+//     Rotation_AngCut2.rotateY(-ad*degree);
+//     G4Transform3D Transform_AngCut2(Rotation_AngCut2,Position_AngCut2);
 
-//     mirror_physical[3] = new G4PVPlacement(Transform_LGEMRight,
-//                                            mirror_logical[3],
-//                                            "mirrorface_physical4",
-//                                            ActiveArea_Logical,
-//                                            false,
-//                                            0,
-//                                            pSurfChk);
+//     RightGuide_Solid[0] =  new G4SubtractionSolid ("LGRight-AngCut",
+//             LightGuide_Solid,
+//             LGEdgeAngleCut_Solid,
+//             Transform_AngCut2);
 
-//******************************Edge Mirrors**************************
-//********************************************************************
+//     G4Transform3D Transform_Chamfer13(Rotation_Chamfer1,Position_Chamfer1);
+
+//     RightGuide_Solid[1]=  new G4SubtractionSolid ("RightLGChamfer1",
+//             RightGuide_Solid[0],
+//             Chamfer_Solid,
+//             Transform_Chamfer13);
+
+
+//     G4Transform3D Transform_Chamfer14(Rotation_Chamfer2,Position_Chamfer2);
+
+//     RightGuide_Solid[2]=  new G4SubtractionSolid ("RightLGChamfer2",
+//             RightGuide_Solid[1],
+//             Chamfer_Solid,
+//             Transform_Chamfer14);
+
+
+//     G4Transform3D Transform_Chamfer15(Rotation_Chamfer3,Position_Chamfer3);
+
+//     RightGuide_Solid[3]=  new G4SubtractionSolid ("RightLGChamfer3",
+//             RightGuide_Solid[2],
+//             Chamfer_Solid,
+//             Transform_Chamfer15);
+
+//     G4Transform3D Transform_Chamfer16(Rotation_Chamfer4,Position_Chamfer4);
+
+//     RightGuide_Solid[4]=  new G4SubtractionSolid ("RightLGChamfer4",
+//             RightGuide_Solid[3],
+//             Chamfer_Solid,
+//             Transform_Chamfer16);
+
+// //****************************************************************************************************
+// //****************************************************************************************************
+
+//     //Boolean Union:
+//     //Right Light Guide
+//     Position_LGRight.setX(-(QuartzBar_FullLength+0.5*LightGuide_FullLength+1.5*GlueFilm_FullLength_X));
+//     Position_LGRight.setY(0.0*cm);
+//     Position_LGRight.setZ(0.0*cm - LightGuide_FullThickness*(1 - redfr)/(4.0));
+// //   Rotation_LGRight.rotateY(-90.0*degree);
+//     Rotation_LGRight.rotateY(90.0*degree);
+// //   Rotation_LGRight.rotateZ(180.0*degree);
+//     G4Transform3D Transform_LGRight(Rotation_LGRight,Position_LGRight);
+
+//     LightGuide_LogicalRight  = new G4LogicalVolume(RightGuide_Solid[4],
+//             LightGuide_Material,
+//             "LightGuide_LogicalRight",
+//             0,0,0);
+
+
+//     LightGuide_PhysicalRight = new G4PVPlacement(Transform_LGRight,
+//             LightGuide_LogicalRight,
+//             "LightGuide_PhysicalRight",
+//             ActiveArea_Logical,
+//             false,0,
+//             pSurfChk);
 
 
 
@@ -1526,14 +1824,6 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 					  Radiator_Material,
 					  "Radiator_Log",
 					  0,0,0);
-
-  if(maxStepInPbRadiator>0){
-    Radiator_Logical->SetUserLimits(new G4UserLimits(maxStepInPbRadiator));
-    G4cout<<G4endl<<G4endl<<" !!!!!!! "<<G4endl<<"Max step in Pb radiator "
-	  <<maxStepInPbRadiator<<G4endl<<G4endl;
-  }
-  else
-    G4cout<<G4endl<<G4endl<<" !!!!!!! "<<G4endl<<"Std step in Pb radiator "<<G4endl<<G4endl;
 
   G4ThreeVector Position_Radiator  = G4ThreeVector(0, 0,-5.0*cm);//-2.0*cm);
 
@@ -1818,53 +2108,50 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
     G4OpticalSurface* GlueFilmLeft_OpticalSurface = new G4OpticalSurface("GlueFilmLeftOpticalSurface");
     G4OpticalSurface* GlueFilmRight_OpticalSurface = new G4OpticalSurface("GlueFilmRightOpticalSurface");
 
-
-/* wdc: commented out unused objects
-
-    G4LogicalBorderSurface* QuartzBarLeft_BorderSurface
-    = new G4LogicalBorderSurface("QuartzBarLeft_BorderSurface",
+    //G4LogicalBorderSurface* QuartzBarLeft_BorderSurface = 
+    new G4LogicalBorderSurface("QuartzBarLeft_BorderSurface",
                                  QuartzBar_PhysicalLeft,
                                  ActiveArea_Physical,
                                  QuartzBarLeft_OpticalSurface);
 
-    G4LogicalBorderSurface* QuartzBarRight_BorderSurface
-    = new G4LogicalBorderSurface("QuartzBarRight_BorderSurface",
+    //G4LogicalBorderSurface* QuartzBarRight_BorderSurface =
+    new G4LogicalBorderSurface("QuartzBarRight_BorderSurface",
                                  QuartzBar_PhysicalRight,
                                  ActiveArea_Physical,
                                  QuartzBarRight_OpticalSurface);
 
-    G4LogicalBorderSurface* LightGuideLeft_BorderSurface
-    = new G4LogicalBorderSurface("LightGuideLeft_BorderSurface",
+
+    //G4LogicalBorderSurface* LightGuideLeft_BorderSurface =
+    new G4LogicalBorderSurface("LightGuideLeft_BorderSurface",
                                  LightGuide_PhysicalLeft,
                                  ActiveArea_Physical,
                                  LightGuideLeft_OpticalSurface);
 
-    G4LogicalBorderSurface* LightGuideRight_BorderSurface
-    = new G4LogicalBorderSurface("LightGuideRight_BorderSurface",
+    //G4LogicalBorderSurface* LightGuideRight_BorderSurface =
+    new G4LogicalBorderSurface("LightGuideRight_BorderSurface",
                                  LightGuide_PhysicalRight,
                                  ActiveArea_Physical,
                                  LightGuideRight_OpticalSurface);
 
-    G4LogicalBorderSurface* GlueFilmRight_BorderSurface
-    = new G4LogicalBorderSurface("GlueFilmRight_BorderSurface",
+    //G4LogicalBorderSurface* GlueFilmRight_BorderSurface = 
+    new G4LogicalBorderSurface("GlueFilmRight_BorderSurface",
                                  QuartzGlue_PhysicalRight,
                                  ActiveArea_Physical,
                                  GlueFilmRight_OpticalSurface);
 
-    G4LogicalBorderSurface* GlueFilmCenter_BorderSurface
-    = new G4LogicalBorderSurface("GlueFilmCenter_BorderSurface",
+    //G4LogicalBorderSurface* GlueFilmCenter_BorderSurface = 
+    new G4LogicalBorderSurface("GlueFilmCenter_BorderSurface",
                                  QuartzGlue_PhysicalCenter,
                                  ActiveArea_Physical,
                                  GlueFilmCenter_OpticalSurface);
 
-    G4LogicalBorderSurface* GlueFilmLeft_BorderSurface
-    = new G4LogicalBorderSurface("GlueFilmLeft_BorderSurface",
+    //G4LogicalBorderSurface* GlueFilmLeft_BorderSurface = 
+    new G4LogicalBorderSurface("GlueFilmLeft_BorderSurface",
                                  QuartzGlue_PhysicalLeft,
                                  ActiveArea_Physical,
                                  GlueFilmLeft_OpticalSurface);
-*/
 
-// boundary optical properties between pad and quartz
+    // boundary optical properties between pad and quartz
 
     G4OpticalSurface* LeftEndPad_Quartz_OpticalSurface = new G4OpticalSurface("LeftEndPadQuartzOpticalSurface");
     G4OpticalSurface* RightEndPad_Quartz_OpticalSurface = new G4OpticalSurface("RightEndPadQuartzOpticalSurface");
@@ -1879,25 +2166,20 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 
     for(size_t i=0; i<EndBracketPad_Physical.size();i++) {
       
-/* wdc: commented out unused objects
-
-    //G4LogicalBorderSurface* LeftEndPad_Quartz_BorderSurface =
-    new G4LogicalBorderSurface("LeftEndPad_Quartz_BS",
+      //G4LogicalBorderSurface* LeftEndPad_Quartz_BorderSurface =
+      new G4LogicalBorderSurface("LeftEndPad_Quartz_BS",
                                  LightGuide_PhysicalLeft,
                                  EndBracketPad_Physical[i],
                                  LeftEndPad_Quartz_OpticalSurface);
-
-    //G4LogicalBorderSurface* RightEndPad_Quartz_BorderSurface =
-    new G4LogicalBorderSurface("RightEndPad_Quartz_BS",
+      
+      //G4LogicalBorderSurface* RightEndPad_Quartz_BorderSurface =
+      new G4LogicalBorderSurface("RightEndPad_Quartz_BS",
                                  LightGuide_PhysicalRight,
                                  EndBracketPad_Physical[i],
                                  RightEndPad_Quartz_OpticalSurface);
-*/
     }
-
+    
     for(size_t i=0; i<SideBracketPad_Physical.size();i++) {
-
-/* wdc: commented out unused objects
 
     //G4LogicalBorderSurface* SidePad_LeftLightGuide_BorderSurface =
     new G4LogicalBorderSurface("SidePad_LeftLightGuide_BS",
@@ -1923,46 +2205,48 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
                                  SideBracketPad_Physical[i],
                                  SidePad_QuartzBarRight_OpticalSurface);
 
-*/
+
     }
 
     QuartzBarLeft_OpticalSurface->SetType(dielectric_dielectric);
-    QuartzBarLeft_OpticalSurface->SetFinish(polished);
-    QuartzBarLeft_OpticalSurface->SetPolish(0.997);
+    QuartzBarLeft_OpticalSurface->SetFinish(ground);
+    QuartzBarLeft_OpticalSurface->SetPolish(0.992);
     QuartzBarLeft_OpticalSurface->SetModel(glisur);
 
     QuartzBarRight_OpticalSurface->SetType(dielectric_dielectric);
-    QuartzBarRight_OpticalSurface->SetFinish(polished);
-    QuartzBarRight_OpticalSurface->SetPolish(0.997);
+    QuartzBarRight_OpticalSurface->SetFinish(ground);
+    QuartzBarRight_OpticalSurface->SetPolish(0.992);
     QuartzBarRight_OpticalSurface->SetModel(glisur);
 
     LightGuideLeft_OpticalSurface->SetType(dielectric_dielectric);
-    LightGuideLeft_OpticalSurface->SetFinish(polished);
+    LightGuideLeft_OpticalSurface->SetFinish(ground);
     LightGuideLeft_OpticalSurface->SetPolish(0.997);
     LightGuideLeft_OpticalSurface->SetModel(glisur);
 
     LightGuideRight_OpticalSurface->SetType(dielectric_dielectric);
-    LightGuideRight_OpticalSurface->SetFinish(polished);
+    LightGuideRight_OpticalSurface->SetFinish(ground);
     LightGuideRight_OpticalSurface->SetPolish(0.997);
     LightGuideRight_OpticalSurface->SetModel(glisur);
 
     GlueFilmLeft_OpticalSurface->SetType(dielectric_dielectric);
-    GlueFilmLeft_OpticalSurface->SetFinish(polished);
+    GlueFilmLeft_OpticalSurface->SetFinish(ground);
     GlueFilmLeft_OpticalSurface->SetPolish(0.9);
     GlueFilmLeft_OpticalSurface->SetModel(glisur);
 
     GlueFilmCenter_OpticalSurface->SetType(dielectric_dielectric);
-    GlueFilmCenter_OpticalSurface->SetFinish(polished);
+    GlueFilmCenter_OpticalSurface->SetFinish(ground);
     GlueFilmCenter_OpticalSurface->SetPolish(0.9);
     GlueFilmCenter_OpticalSurface->SetModel(glisur);
 
     GlueFilmRight_OpticalSurface->SetType(dielectric_dielectric);
-    GlueFilmRight_OpticalSurface->SetFinish(polished);
+    GlueFilmRight_OpticalSurface->SetFinish(ground);
     GlueFilmRight_OpticalSurface->SetPolish(0.9);
     GlueFilmRight_OpticalSurface->SetModel(glisur);
 
 
 //##############################################
+
+
 
     G4OpticalSurface* BracketPad_OpticalSurface = 
                          new G4OpticalSurface("BracketPad_Optical_Surface");
@@ -1978,41 +2262,41 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
     BracketPad_OpticalSurface->SetMaterialPropertiesTable(BracketPad_MPT);
 
     LeftEndPad_Quartz_OpticalSurface->SetType(dielectric_metal);
-    LeftEndPad_Quartz_OpticalSurface->SetFinish(polished);
+    LeftEndPad_Quartz_OpticalSurface->SetFinish(ground);
     LeftEndPad_Quartz_OpticalSurface->SetPolish(0.9);
     LeftEndPad_Quartz_OpticalSurface->SetModel(glisur);
     LeftEndPad_Quartz_OpticalSurface->SetMaterialPropertiesTable(BracketPad_MPT);
 
     RightEndPad_Quartz_OpticalSurface->SetType(dielectric_metal);
-    RightEndPad_Quartz_OpticalSurface->SetFinish(polished);
+    RightEndPad_Quartz_OpticalSurface->SetFinish(ground);
     RightEndPad_Quartz_OpticalSurface->SetPolish(0.9);
     RightEndPad_Quartz_OpticalSurface->SetModel(glisur);
     RightEndPad_Quartz_OpticalSurface->SetMaterialPropertiesTable(BracketPad_MPT);
 
     SidePad_LeftLightGuide_OpticalSurface->SetType(dielectric_metal);
-    SidePad_LeftLightGuide_OpticalSurface->SetFinish(polished);
+    SidePad_LeftLightGuide_OpticalSurface->SetFinish(ground);
     SidePad_LeftLightGuide_OpticalSurface->SetPolish(0.9);
     SidePad_LeftLightGuide_OpticalSurface->SetModel(glisur);
     SidePad_LeftLightGuide_OpticalSurface->SetMaterialPropertiesTable(BracketPad_MPT);
 
     SidePad_RightLightGuide_OpticalSurface->SetType(dielectric_metal);
-    SidePad_RightLightGuide_OpticalSurface->SetFinish(polished);
+    SidePad_RightLightGuide_OpticalSurface->SetFinish(ground);
     SidePad_RightLightGuide_OpticalSurface->SetPolish(0.9);
     SidePad_RightLightGuide_OpticalSurface->SetModel(glisur);
     SidePad_RightLightGuide_OpticalSurface->SetMaterialPropertiesTable(BracketPad_MPT);
 
     SidePad_QuartzBarLeft_OpticalSurface->SetType(dielectric_metal);
-    SidePad_QuartzBarLeft_OpticalSurface->SetFinish(polished);
+    SidePad_QuartzBarLeft_OpticalSurface->SetFinish(ground);
     SidePad_QuartzBarLeft_OpticalSurface->SetPolish(0.9);
     SidePad_QuartzBarLeft_OpticalSurface->SetModel(glisur);
     SidePad_QuartzBarLeft_OpticalSurface->SetMaterialPropertiesTable(BracketPad_MPT);
 
     SidePad_QuartzBarRight_OpticalSurface->SetType(dielectric_metal);
-    SidePad_QuartzBarRight_OpticalSurface->SetFinish(polished);
+    SidePad_QuartzBarRight_OpticalSurface->SetFinish(ground);
     SidePad_QuartzBarRight_OpticalSurface->SetPolish(0.9);
     SidePad_QuartzBarRight_OpticalSurface->SetModel(glisur);
     SidePad_QuartzBarRight_OpticalSurface->SetMaterialPropertiesTable(BracketPad_MPT);
-    
+
 //#####################################################3
 
     G4MaterialPropertiesTable *quartzST = new G4MaterialPropertiesTable();
@@ -2183,12 +2467,13 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 //------------------------------------------
 // Visual Attributes for:  Radiator
 //------------------------------------------
-    G4VisAttributes* RadiatorVisAtt = new G4VisAttributes(lightblue);
+    G4VisAttributes* RadiatorVisAtt = new G4VisAttributes(grey);
     RadiatorVisAtt->SetVisibility(true);
+    //RadiatorVisAtt->SetForceWireframe(true);
     Radiator_Logical->SetVisAttributes(RadiatorVisAtt);
     
     G4VisAttributes* PMT_PbShieldVisAtt = new G4VisAttributes(blue);
-    PMT_PbShieldVisAtt->SetVisibility(true);
+    PMT_PbShieldVisAtt->SetVisibility(false);
     PMT_PbShield_Logical->SetVisAttributes(PMT_PbShieldVisAtt);    
 //------------------------------------------
 // Visual Attributes for:  CerenkovContainer
@@ -2203,7 +2488,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 
 //Visual Attributes for:  Exo-Skelton
     G4VisAttributes* ExoSkeltonFrameVisAtt = new G4VisAttributes(darkbrown);
-    ExoSkeltonFrameVisAtt->SetVisibility(true);
+    ExoSkeltonFrameVisAtt->SetVisibility(false);
 //FrameVisAtt->SetForceWireframe(true);
 //FrameVisAtt->SetForceSolid(true);
     ExoSkeltonFrame_Logical->SetVisAttributes(ExoSkeltonFrameVisAtt);
@@ -2212,7 +2497,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 // Visual Attributes for:  Detector Housing
 //------------------------------------------
     G4VisAttributes* FrameVisAtt = new G4VisAttributes(grey);
-    FrameVisAtt->SetVisibility(true);
+    FrameVisAtt->SetVisibility(false);
 //FrameVisAtt->SetForceWireframe(true);
 //FrameVisAtt->SetForceSolid(true);
     Frame_Logical->SetVisAttributes(FrameVisAtt);
@@ -2221,7 +2506,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 // Visual Attributes for:  Side Brackets
 //------------------------------------------
     G4VisAttributes* SideBracketVisAtt = new G4VisAttributes(blue);
-    SideBracketVisAtt->SetVisibility(true);
+    SideBracketVisAtt->SetVisibility(false);
 //SideBracketVisAtt->SetForceWireframe(true);
 //SideBracketVisAtt->SetForceSolid(true);
     SideBracket_Logical->SetVisAttributes(SideBracketVisAtt);
@@ -2230,7 +2515,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 // Visual Attributes for:  End Brackets
 //------------------------------------------
     G4VisAttributes* EndBracketVisAtt = new G4VisAttributes(blue);
-    EndBracketVisAtt->SetVisibility(true);
+    EndBracketVisAtt->SetVisibility(false);
 //EndBracketVisAtt->SetForceWireframe(true);
 //EndBracketVisAtt->SetForceSolid(true);
     EndBracket_Logical->SetVisAttributes(EndBracketVisAtt);
@@ -2239,18 +2524,18 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 // Visual Attributes for:  Side Bracket Pads
 //------------------------------------------
     G4VisAttributes* SideBracketPadVisAtt = new G4VisAttributes(brown);
-    SideBracketPadVisAtt->SetVisibility(true);
+    SideBracketPadVisAtt->SetVisibility(false);
 //SideBracketPadVisAtt->SetForceWireframe(true);
-    SideBracketPadVisAtt->SetForceSolid(true);
+    //SideBracketPadVisAtt->SetForceSolid(false);
     SideBracketPad_Logical->SetVisAttributes(SideBracketPadVisAtt);
 
 //------------------------------------------
 // Visual Attributes for:  End Bracket Pads
 //------------------------------------------
     G4VisAttributes* EndBracketPadVisAtt = new G4VisAttributes(brown);
-    EndBracketPadVisAtt->SetVisibility(true);
-//EndBracketPadVisAtt->SetForceWireframe(true);
-EndBracketPadVisAtt->SetForceSolid(true);
+    EndBracketPadVisAtt->SetVisibility(false);
+    //EndBracketPadVisAtt->SetForceWireframe(true);
+    //EndBracketPadVisAtt->SetForceSolid(true);
     EndBracketPad_Logical->SetVisAttributes(EndBracketPadVisAtt);
 
 
@@ -2258,7 +2543,7 @@ EndBracketPadVisAtt->SetForceSolid(true);
 // Visual Attributes for:  Detector Window Clip
 //------------------------------------------
     G4VisAttributes* ClipVisAtt = new G4VisAttributes(lightorange);
-    ClipVisAtt->SetVisibility(true);
+    ClipVisAtt->SetVisibility(false);
 //ClipVisAtt->SetForceWireframe(true);
 //ClipVisAtt->SetForceSolid(true);
     FrontClip_Logical->SetVisAttributes(ClipVisAtt);
@@ -2267,25 +2552,30 @@ EndBracketPadVisAtt->SetForceSolid(true);
 //-----------------------------------------
 // Visual Attributes for:  CerenkovDetector
 //-----------------------------------------
-    G4VisAttributes* CerenkovDetectorVisAtt = new G4VisAttributes(orange);
+    G4VisAttributes* CerenkovDetectorVisAtt = new G4VisAttributes(lightblue);
     CerenkovDetectorVisAtt->SetVisibility(true);
 // Needed for the correct visualization using Coin3D
-    //CerenkovDetectorVisAtt->SetForceSolid(true);
-    CerenkovDetectorVisAtt->SetForceWireframe(true);
+//CerenkovDetectorVisAtt->SetForceSolid(true);
+    // CerenkovDetectorVisAtt->SetForceWireframe(true);
 //  ActiveArea_Logical->SetVisAttributes(CerenkovDetectorVisAtt);
     QuartzBar_LogicalLeft->SetVisAttributes(CerenkovDetectorVisAtt);
     QuartzBar_LogicalRight->SetVisAttributes(CerenkovDetectorVisAtt);
     LightGuide_LogicalLeft->SetVisAttributes(CerenkovDetectorVisAtt);
     LightGuide_LogicalRight->SetVisAttributes(CerenkovDetectorVisAtt);
-    QuartzGlue_Logical->SetVisAttributes(CerenkovDetectorVisAtt);
+
+
+
+    G4VisAttributes* CerenkovGlueVisAtt = new G4VisAttributes(magenta);
+    CerenkovGlueVisAtt->SetVisibility(true);
+    QuartzGlue_Logical->SetVisAttributes(CerenkovGlueVisAtt);
 
 //------------------------------------------------
 // Visual Attributes for:  PMTContainer
 //------------------------------------------------
     G4VisAttributes* PMTContainerVisAtt = new G4VisAttributes(blue);
-    PMTContainerVisAtt->SetVisibility(true);
+    PMTContainerVisAtt->SetVisibility(false);
     PMTContainerVisAtt->SetForceWireframe(true);
-//PMTContainerVisAtt->SetForceSolid(true);
+    //PMTContainerVisAtt->SetForceSolid(true);
     PMTContainer_Logical->SetVisAttributes(PMTContainerVisAtt);
 
 //-----------------------------------------------------
@@ -2293,7 +2583,7 @@ EndBracketPadVisAtt->SetForceSolid(true);
 //-----------------------------------------------------
     G4VisAttributes* PMTEntranceWindowVisAtt = new G4VisAttributes(grey);
     PMTEntranceWindowVisAtt->SetVisibility(true);
-//PMTEntranceWindowVisAtt->SetForceWireframe(true);
+    //PMTEntranceWindowVisAtt->SetForceWireframe(true);
     PMTEntranceWindowVisAtt->SetForceSolid(true);
     PMTEntranceWindow_Logical->SetVisAttributes(PMTEntranceWindowVisAtt);
 
@@ -2309,6 +2599,7 @@ EndBracketPadVisAtt->SetForceSolid(true);
     G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::ConstructComponent() " << G4endl << G4endl;
 
 } // end of  QweakSimCerenkovDetector::ConstructComponent()
+
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -2396,7 +2687,7 @@ void QweakSimCerenkovDetector::DestroyComponent() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void QweakSimCerenkovDetector::SetCerenkovDetectorThickness(G4double /*thickness*/) {
-  //G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::SetCerenkovDetectorThickness() " << G4endl << G4endl;
+    G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::SetCerenkovDetectorThickness() " << G4endl << G4endl;
 
 //     G4Box *box = NULL;
 
@@ -2424,79 +2715,73 @@ void QweakSimCerenkovDetector::SetCerenkovDetectorThickness(G4double /*thickness
 
 //     G4RunManager::GetRunManager()->GeometryHasBeenModified();
 
-    //G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::SetCerenkovDetectorThickness() " << G4endl << G4endl;
+    G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::SetCerenkovDetectorThickness() " << G4endl << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void QweakSimCerenkovDetector::SetCerenkovDetectorCenterPositionInX(G4double xPos, G4int octant) {
-  //G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::SetCerenkovCenterPositionInX() " << G4endl << G4endl;
+    G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::SetCerenkovCenterPositionInX() " << G4endl << G4endl;
 
     Position_CerenkovContainer_X[octant] =xPos;
 
     CerenkovGeometryPVUpdate();
 
-    //G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::SetCerenkovCenterPositionInX() " << G4endl << G4endl;
+    G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::SetCerenkovCenterPositionInX() " << G4endl << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void QweakSimCerenkovDetector::SetCerenkovDetectorCenterPositionInY(G4double yPos, G4int octant) {
-  //G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::SetCerenkovCenterPositionInY() " << G4endl << G4endl;
+    G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::SetCerenkovCenterPositionInY() " << G4endl << G4endl;
 
     Position_CerenkovContainer_Y[octant] = yPos;
 
     CerenkovGeometryPVUpdate();
 
-    //G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::SetCerenkovCenterPositionInY() " << G4endl << G4endl;
+    G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::SetCerenkovCenterPositionInY() " << G4endl << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void QweakSimCerenkovDetector::SetCerenkovDetectorCenterPositionInZ(G4double zPos, G4int octant) {
-  //G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::SetCerenkovCenterPositionInZ() " << G4endl << G4endl;
+    G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::SetCerenkovCenterPositionInZ() " << G4endl << G4endl;
 
     Position_CerenkovContainer_Z[octant] = zPos-Container_Center_Z;
 
     CerenkovGeometryPVUpdate();
 
-    //G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::SetCerenkovCenterPositionInZ() " << G4endl << G4endl;
+    G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::SetCerenkovCenterPositionInZ() " << G4endl << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void QweakSimCerenkovDetector::SetCerenkovDetectorTiltAngle(G4double tiltangle) {
-  //G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::SetCerenkovDetectorTiltAngle() " << G4endl << G4endl;
+    G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::SetCerenkovDetectorTiltAngle() " << G4endl << G4endl;
 
     // assign new tilting
     Tilting_Angle = tiltangle;
 
     CerenkovGeometryPVUpdate();
 
-    //G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::SetCerenkovDetectorTiltAngle() " << G4endl << G4endl;
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-void QweakSimCerenkovDetector::SetCerenkovDetectorPbStepSize(G4double size) {
-  maxStepInPbRadiator=size;
-  CerenkovGeometryPVUpdate();
+    G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::SetCerenkovDetectorTiltAngle() " << G4endl << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void QweakSimCerenkovDetector::CerenkovGeometryPVUpdate() {
-  //G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::CerenkovGeometryPVUpdate()" << G4endl << G4endl;
+    G4cout << G4endl << "###### Calling QweakSimCerenkovDetector::CerenkovGeometryPVUpdate()" << G4endl << G4endl;
 
-  for (size_t i=0; i< CerenkovMasterContainer_Physical.size();i++) {
-    if (CerenkovContainer_Logical)
-      CerenkovContainer_Logical->RemoveDaughter(CerenkovMasterContainer_Physical[i]);
-    
-    delete CerenkovMasterContainer_Physical[i];
-    CerenkovMasterContainer_Physical[i] = 0;
-    
-    delete Rotation_CerenkovMasterContainer[i];
-    Rotation_CerenkovMasterContainer[i] = 0;
-  }
-  
-  // Place the physical volume of the rods with the new phi angle
-  PlacePVCerenkovMasterContainer();
-  
-  //G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::CerenkovGeometryPVUpdate()" << G4endl << G4endl;
+    for (size_t i=0; i< CerenkovMasterContainer_Physical.size();i++) {
+        if (CerenkovContainer_Logical)
+          CerenkovContainer_Logical->RemoveDaughter(CerenkovMasterContainer_Physical[i]);
+
+        delete CerenkovMasterContainer_Physical[i];
+        CerenkovMasterContainer_Physical[i] = 0;
+
+        delete Rotation_CerenkovMasterContainer[i];
+        Rotation_CerenkovMasterContainer[i] = 0;
+    }
+
+    // Place the physical volume of the rods with the new phi angle
+    PlacePVCerenkovMasterContainer();
+
+    G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::CerenkovGeometryPVUpdate()" << G4endl << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -2545,4 +2830,14 @@ void QweakSimCerenkovDetector::PlacePVCerenkovMasterContainer() {
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+
+
+// void QweakSimCerenkovDetector::ConstructDetectorHalf() {
+
+// }
+
+//  QweakSimCerenkovDetector::AttachChamfer(G4Box* box) {
+
+// }
 
