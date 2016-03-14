@@ -37,8 +37,6 @@ private:
 
   static G4UIcmdWithAnInteger*      NumberOfDetectorsCmd;
 
-  static G4UIcmdWithADoubleAndUnit* SetPbStepSizeCmd;
-
   G4int fOctant;
   G4UIdirectory*             DirPerOctant;
 

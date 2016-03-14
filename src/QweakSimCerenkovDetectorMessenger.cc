@@ -16,7 +16,6 @@ G4UIcmdWithAString*        QweakSimCerenkovDetectorMessenger::PreRadiatorMatCmd 
 G4UIcmdWithADoubleAndUnit* QweakSimCerenkovDetectorMessenger::ContainerThicknessCmd = 0;
 G4UIcmdWithADoubleAndUnit* QweakSimCerenkovDetectorMessenger::TiltingAngleCmd = 0;
 G4UIcmdWithADoubleAndUnit* QweakSimCerenkovDetectorMessenger::KinkAngleCmd = 0;
-G4UIcmdWithADoubleAndUnit* QweakSimCerenkovDetectorMessenger::SetPbStepSizeCmd = 0;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 QweakSimCerenkovDetectorMessenger::QweakSimCerenkovDetectorMessenger(QweakSimCerenkovDetector* theCerenkovDetector, G4int octant)
@@ -78,14 +77,6 @@ QweakSimCerenkovDetectorMessenger::QweakSimCerenkovDetectorMessenger(QweakSimCer
     PreRadiatorMatCmd->SetGuidance("Select Material of the Pre-radiator.");
     PreRadiatorMatCmd->SetParameterName("choice",false);
     PreRadiatorMatCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
-  }
-
-  if (SetPbStepSizeCmd == 0) {
-    SetPbStepSizeCmd =  new G4UIcmdWithADoubleAndUnit(G4String(Dir_name + "/SetPbStepSize"),this);
-    SetPbStepSizeCmd->SetGuidance("Set max step size in the Pb preradiator ");
-    SetPbStepSizeCmd->SetParameterName("StepLength",true);
-    SetPbStepSizeCmd->SetDefaultUnit("mm");
-    SetPbStepSizeCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
   }
 
   
@@ -159,10 +150,6 @@ void QweakSimCerenkovDetectorMessenger::SetNewValue(G4UIcommand* command,G4Strin
   }else if( command == KinkAngleCmd ){ 
     G4cout << "#### Messenger: Setting Cerenkov Detector Kink Angle to " << newValue << G4endl;
     // myCerenkovDetector->SetKinkAngle(newValue);
-  }else if( command == SetPbStepSizeCmd ){
-    G4cout << "!!~~ Messenger: Setting Pb preRadiator Step size to " << newValue << G4endl;
-    myCerenkovDetector->SetCerenkovDetectorPbStepSize(SetPbStepSizeCmd->GetNewDoubleValue(newValue));
-    std::cin.ignore();
   }else{
     G4cout<< G4endl << G4endl << __PRETTY_FUNCTION__ << G4endl
 	  << " Error!!! Command not known. Value: "<<newValue<<G4endl;
