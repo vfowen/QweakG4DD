@@ -24,7 +24,7 @@ int main(int argc, char** argv)
   string files(argv[2]);
 
   double lTotPE(0),rTotPE(0);
-  double LnPMThit(0),RnPMThit(0),asymPMT(0);
+  double LnPMThit(0),RnPMThit(0);
   
   TFile *fout=new TFile("o_QweakSimTree_PEs.root","RECREATE");
   
