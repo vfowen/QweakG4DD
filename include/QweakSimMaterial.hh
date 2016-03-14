@@ -65,6 +65,11 @@ class QweakSimMaterial
     virtual ~QweakSimMaterial() { };
 
   public:
+  // Get the instance of the Qweak materials manager
+  static QweakSimMaterial* GetInstance() {
+    static QweakSimMaterial material;
+    return &material;
+  };
     void  DefineMaterials();
 
     G4Material* GetMaterial(G4String material) {
