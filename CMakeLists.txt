@@ -123,7 +123,4 @@ target_link_libraries(DrawMSAn ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
 # - QweakGetPEs
 add_executable(QweakGetPEs QweakGetPEs.cc)
 target_link_libraries(QweakGetPEs ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
-# - QweakPowerAna
-add_executable(QweakPowerAna QweakPowerAna.cc)
-target_link_libraries(QweakPowerAna ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
 
