@@ -178,6 +178,7 @@ void processOne(TTree *QweakSimG4_Tree){
 
   double klpeP(0),krpeP(0);
   double klpeM(0),krpeM(0);
+  double deno(0),nomi(0);
   for (int i = 0; i < QweakSimG4_Tree->GetEntries(); i++) {
     QweakSimG4_Tree->GetEntry(i);
     if(i%10000==1) cout<<"   at event: "<<i<<endl;
@@ -185,6 +186,9 @@ void processOne(TTree *QweakSimG4_Tree){
     if(i>100 && i%1000==0){
       distAsL->Fill( (klpeP-klpeM)/(klpeP+klpeM) );
       distAsR->Fill( (krpeP-krpeM)/(krpeP+krpeM) );
+      cout<<i<<" "<<setprecision(12)<<nomi/deno - (krpeP-krpeM)/(krpeP+krpeM) <<endl;
+      deno=0;
+      nomi=0;
       klpeP = 0;
       klpeM = 0;
       krpeP = 0;
@@ -266,6 +270,7 @@ void processOne(TTree *QweakSimG4_Tree){
       
       lPEvsAsym->Fill(lpe,asVal[0]);
       rPEvsAsym->Fill(rpe,asVal[0]);
+      
       lpeP += lpe*(1. + asVal[0]);
       lpeM += lpe*(1. - asVal[0]);
       rpeP += rpe*(1. + asVal[0]);
@@ -275,6 +280,9 @@ void processOne(TTree *QweakSimG4_Tree){
       klpeM += lpe*(1. - asVal[0]);
       krpeP += rpe*(1. + asVal[0]);
       krpeM += rpe*(1. - asVal[0]);
+
+      deno += rpe;
+      nomi += rpe * asVal[0];
       
     }//nhit
   }//tree entries
