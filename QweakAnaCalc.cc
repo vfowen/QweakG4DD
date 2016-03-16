@@ -37,6 +37,7 @@ TH1D *asym[4];
 TH1D *asymNorm[4];
 TH1D *angleNorm[4];
 TH2D *lPEvsAsym,*rPEvsAsym;
+TH1D *distAsL,*distAsR;
 double lpeP(0),lpeM(0),rpeP(0),rpeM(0);
 
 int main(int argc, char** argv)
@@ -61,6 +62,8 @@ int main(int argc, char** argv)
   conv=new TGraph();
   lPEvsAsym=new TH2D("lPEvsAsym","; left # PEs;asymetry",500,0,500,500,-1,1);
   rPEvsAsym=new TH2D("rPEvsAsym",";right # PEs;asymetry",500,0,500,500,-1,1);
+  distAsL=new TH1D("distAsL","Left distAs" ,1000,-0.5e-3,0.5e-3);
+  distAsR=new TH1D("distAsR","Right distAs",1000,-0.5e-3,0.5e-3);
   
   string hTitle[4]={"(P+ - P-)/(P+ + P-)","(P+ - P-)","(P+ + P-) - 2","P+ - 1"};
 
@@ -159,6 +162,8 @@ int main(int argc, char** argv)
   }
   lPEvsAsym->Write();
   rPEvsAsym->Write();
+  distAsL->Write();
+  distAsR->Write();
   fout->Close();
   return 0;
 }
@@ -172,10 +177,21 @@ void processOne(TTree *QweakSimG4_Tree){
   QweakSimUserMainEvent* event = 0;
   QweakSimG4_Tree->SetBranchAddress("QweakSimUserMainEvent",&event);    
 
+  double klpeP(0),krpeP(0);
+  double klpeM(0),krpeM(0);
   for (int i = 0; i < QweakSimG4_Tree->GetEntries(); i++) {
     QweakSimG4_Tree->GetEntry(i);
     if(i%10000==1) cout<<"   at event: "<<i<<endl;
-    
+
+    if(i>100 && i%1000==0){
+      distAsL->Fill( (klpeP-klpeM)/(klpeP-klpeM) );
+      distAsR->Fill( (krpeP-krpeM)/(krpeP-krpeM) );
+      klpeP = 0;
+      klpeM = 0;
+      krpeP = 0;
+      krpeM = 0;
+
+    }
     interaction.clear();
     trackID.clear();
 
@@ -256,6 +272,11 @@ void processOne(TTree *QweakSimG4_Tree){
       lpeM += lpe*(1. - asVal[0]);
       rpeP += rpe*(1. + asVal[0]);
       rpeM += rpe*(1. - asVal[0]);
+
+      klpeP += lpe*(1. + asVal[0]);
+      klpeM += lpe*(1. - asVal[0]);
+      krpeP += rpe*(1. + asVal[0]);
+      krpeM += rpe*(1. - asVal[0]);
       
     }//nhit
   }//tree entries
