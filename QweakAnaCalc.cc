@@ -30,7 +30,6 @@ void getCorners(int lowerIndex, int upperIndex, int depth, std::vector<double> p
 void getPEs(std::vector<double> in[dimension], std::vector<double> pt,
 	    double &outL, double &outR);
 
-
 TGraph *conv;
 int ng;
 TH1D *asym[4];
@@ -62,8 +61,8 @@ int main(int argc, char** argv)
   conv=new TGraph();
   lPEvsAsym=new TH2D("lPEvsAsym","; left # PEs;asymetry",500,0,500,500,-1,1);
   rPEvsAsym=new TH2D("rPEvsAsym",";right # PEs;asymetry",500,0,500,500,-1,1);
-  distAsL=new TH1D("distAsL","Left distAs" ,1000,-0.5e-3,0.5e-3);
-  distAsR=new TH1D("distAsR","Right distAs",1000,-0.5e-3,0.5e-3);
+  distAsL=new TH1D("distAsL","Left distAs" ,1000,-1e-3,1e-3);
+  distAsR=new TH1D("distAsR","Right distAs",1000,-1e-3,1e-3);
   
   string hTitle[4]={"(P+ - P-)/(P+ + P-)","(P+ - P-)","(P+ + P-) - 2","P+ - 1"};
 
@@ -184,13 +183,12 @@ void processOne(TTree *QweakSimG4_Tree){
     if(i%10000==1) cout<<"   at event: "<<i<<endl;
 
     if(i>100 && i%1000==0){
-      distAsL->Fill( (klpeP-klpeM)/(klpeP-klpeM) );
-      distAsR->Fill( (krpeP-krpeM)/(krpeP-krpeM) );
+      distAsL->Fill( (klpeP-klpeM)/(klpeP+klpeM) );
+      distAsR->Fill( (krpeP-krpeM)/(krpeP+krpeM) );
       klpeP = 0;
       klpeM = 0;
       krpeP = 0;
       krpeM = 0;
-
     }
     interaction.clear();
     trackID.clear();
