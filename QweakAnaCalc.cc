@@ -36,7 +36,8 @@ TH1D *asym[4];
 TH1D *asymNorm[4];
 TH1D *angleNorm[4];
 TH2D *lPEvsAsym,*rPEvsAsym;
-TH1D *distAsL,*distAsR;
+TH1D *distAsL,*distAsR;//1000 ev Asymmetry distributions 
+TH1D *distAngL,*distAngR;//angle distributions normalized by PE*Asymmetry
 double lpeP(0),lpeM(0),rpeP(0),rpeM(0);
 
 int main(int argc, char** argv)
@@ -63,6 +64,8 @@ int main(int argc, char** argv)
   rPEvsAsym=new TH2D("rPEvsAsym",";right # PEs;asymetry",500,0,500,500,-1,1);
   distAsL=new TH1D("distAsL","Left distAs" ,1000,-1e-3,1e-3);
   distAsR=new TH1D("distAsR","Right distAs",1000,-1e-3,1e-3);
+  distAngL=new TH1D("distAngL","Left  distAng",360,-90,90);
+  distAngR=new TH1D("distAngR","Right distAng",360,-90,90);
   
   string hTitle[4]={"(P+ - P-)/(P+ + P-)","(P+ - P-)","(P+ + P-) - 2","P+ - 1"};
 
@@ -163,6 +166,8 @@ int main(int argc, char** argv)
   rPEvsAsym->Write();
   distAsL->Write();
   distAsR->Write();
+  distAngL->Write();
+  distAngR->Write();
   fout->Close();
   return 0;
 }
@@ -263,6 +268,9 @@ void processOne(TTree *QweakSimG4_Tree){
       conv->SetPoint(ng,ng,asymNorm[0]->Integral());
       asymNorm[0]->Scale(asymNorm[0]->GetEntries());
       ng++;
+
+      distAngL->Fill(angX,asVal[0]*lpe);
+      distAngR->Fill(angX,asVal[0]*rpe);
       
       lPEvsAsym->Fill(lpe,asVal[0]);
       rPEvsAsym->Fill(rpe,asVal[0]);
