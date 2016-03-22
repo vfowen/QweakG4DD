@@ -45,7 +45,7 @@ double asymCut(0);
 int main(int argc, char** argv)
 {
 
-  if( argc < 3 ) {
+  if( argc < 2 ) {
     cout<<" usage: build/QweakAna [path to infile with list of output QweakSimG4 trees] [optional - cut on asymmetry] [optional - number of events]"<<endl;
     return 1;
   }
@@ -220,7 +220,7 @@ void processOne(TTree *QweakSimG4_Tree){
 
     double asVal[4];
     asVal[0]=event->Primary.GetAsymPrim();
-    if(abs(asVal[0])>asymCut) continue;
+    if(abs(asVal[0])>asymCut && asymCut>0) continue;
     
     asVal[1]=event->Primary.GetAsymNomi();
     asVal[2]=event->Primary.GetAsymDeno() - 2;
