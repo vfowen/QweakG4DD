@@ -30,8 +30,6 @@ void getCorners(int lowerIndex, int upperIndex, int depth, std::vector<double> p
 void getPEs(std::vector<double> in[dimension], std::vector<double> pt,
 	    double &outL, double &outR);
 
-TGraph *conv;
-int ng(0);
 TH1D *asym[4];
 TH1D *asymNorm[4];
 TH1D *angleNorm[4];
@@ -42,9 +40,11 @@ double lpeP(0),lpeM(0),rpeP(0),rpeM(0);
 double asymCut(0);
 const int asCuts=3;
 double asCut[asCuts]={0.005,0.01,0.05};
-TGraph *convL[asCuts],*convR[asCuts];
-TH1D *angNormL[asCuts],*angNormR[asCuts];
-int ngL[asCuts]={0,0,0},ngR[asCuts]={0,0,0};
+TGraph *convL[asCuts],*convR[asCuts],*convN[asCuts],*convA[asCuts];
+TH1D *angNormL[asCuts],*angNormR[asCuts],*angNormN[asCuts],*angNormA[asCuts];
+int ngL[asCuts]={0,0,0},ngR[asCuts]={0,0,0},ngN[asCuts]={0,0,0};
+
+
 int main(int argc, char** argv)
 {
 
@@ -64,8 +64,12 @@ int main(int argc, char** argv)
   for(int i=0;i<asCuts;i++){
     convL[i]=new TGraph();
     convR[i]=new TGraph();
-    angNormL[i]=new TH1D(Form("angNormL_%d",i),Form("x<-0.01 asym Normalized for abs(asym)<%f; angle[deg]",asCut[i]),180,-90,90);
-    angNormR[i]=new TH1D(Form("angNormR_%d",i),Form("x> 0.01 asym Normalized for abs(asym)<%f; angle[deg]",asCut[i]),180,-90,90);
+    convN[i]=new TGraph();
+    convA[i]=new TGraph();
+    angNormL[i]=new TH1D(Form("angNormL_%d",i),Form("angX<-0.01 asym Normalized for abs(asym)<%f; angle[deg]",asCut[i]),360,-90,90);
+    angNormR[i]=new TH1D(Form("angNormR_%d",i),Form("angX> 0.01 asym Normalized for abs(asym)<%f; angle[deg]",asCut[i]),360,-90,90);
+    angNormN[i]=new TH1D(Form("angNormN_%d",i),Form("Null asym Normalized for abs(asym)<%f; angle[deg]",asCut[i]),360,-90,90);
+    angNormA[i]=new TH1D(Form("angNormA_%d",i),Form("Angle sign weigthed asym Normalized for abs(asym)<%f; angle[deg]",asCut[i]),360,-90,90);
   }
   
   lPEvsAsym=new TH2D("lPEvsAsym","; left # PEs;asymetry",500,0,500,500,-1,1);
@@ -160,14 +164,20 @@ int main(int argc, char** argv)
   for(int i=0;i<asCuts;i++){    
     convL[i]->SetName(Form("convL_%d",i));
     convL[i]->SetTitle(Form("convergence of x<-0.01 asymmetry for abs(asym)<%f;ev number",asCut[i]));
-    convL[i]->SetMarkerStyle(20);
+    convL[i]->Write();
     convR[i]->SetName(Form("convR_%d",i));
     convR[i]->SetTitle(Form("convergence of x> 0.01 asymmetry for abs(asym)<%f;ev number",asCut[i]));
-    convR[i]->SetMarkerStyle(20);
-    convL[i]->Write();
     convR[i]->Write();
+    convN[i]->SetName(Form("convN_%d",i));
+    convN[i]->SetTitle(Form("Null convergence asymmetry for abs(asym)<%f;ev number",asCut[i]));
+    convN[i]->Write();
+    convA[i]->SetName(Form("convA_%d",i));
+    convA[i]->SetTitle(Form("convergence for angle sign weighted asymmetry for abs(asym)<%f;ev number",asCut[i]));
+    convA[i]->Write();
     angNormL[i]->Write();
     angNormR[i]->Write();
+    angNormN[i]->Write();
+    angNormA[i]->Write();
   }
   
   hNev->SetBinContent(1,totEv);
@@ -286,13 +296,25 @@ void processOne(TTree *QweakSimG4_Tree){
 
       for(int ii=0;ii<asCuts;ii++)
 	if(abs(asVal[0])<asCut[ii]){
-	  if(x<-0.01){
+	  angNormN[ii]->Fill(angX,asVal[0]);
+	  angNormA[ii]->Fill(angX,asVal[0]*angX/abs(angX));
+
+	  angNormN[ii]->Scale(1./angNormN[ii]->GetEntries());
+	  angNormA[ii]->Scale(1./angNormA[ii]->GetEntries());
+	  convN[ii]->SetPoint(ngN,ngN,angNormN[ii]->Integral());
+	  convA[ii]->SetPoint(ngN,ngN,angNormA[ii]->Integral());
+	  angNormN[ii]->Scale(angNormN[ii]->GetEntries());
+	  angNormA[ii]->Scale(angNormA[ii]->GetEntries());
+	  ngN[ii]++;
+	  cout<<ngN[ii]<<" <> "<<angNormN[ii]->GetEntries()<<" "<<angNormA[ii]->GetEntries()<<endl;
+	  
+	  if(angX<0){
 	    angNormL[ii]->Fill(angX,asVal[0]);
 	    angNormL[ii]->Scale(1./angNormL[ii]->GetEntries());
 	    convL[ii]->SetPoint(ngL[ii],ngL[ii],angNormL[ii]->Integral());	
 	    angNormL[ii]->Scale(angNormL[ii]->GetEntries());
 	    ngL[ii]++;
-	  }else if(x>0.01){
+	  }else if(angX>0){
 	    angNormR[ii]->Fill(angX,asVal[0]);
 	    angNormR[ii]->Scale(1./angNormR[ii]->GetEntries());
 	    convR[ii]->SetPoint(ngR[ii],ngR[ii],angNormR[ii]->Integral());	
