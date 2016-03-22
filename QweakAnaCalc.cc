@@ -30,9 +30,8 @@ void getCorners(int lowerIndex, int upperIndex, int depth, std::vector<double> p
 void getPEs(std::vector<double> in[dimension], std::vector<double> pt,
 	    double &outL, double &outR);
 
-TGraph *conv,*convL,*convR;
-TH1D *angNormL,*angNormR;
-int ng(0),ngL(0),ngR(0);
+TGraph *conv;
+int ng(0);
 TH1D *asym[4];
 TH1D *asymNorm[4];
 TH1D *angleNorm[4];
@@ -41,33 +40,33 @@ TH1D *distAsL,*distAsR;//1000 ev Asymmetry distributions
 TH1D *distAngL,*distAngR;//angle distributions normalized by PE*Asymmetry
 double lpeP(0),lpeM(0),rpeP(0),rpeM(0);
 double asymCut(0);
-
+const int asCuts=3;
+double asCut[asCuts]={0.005,0.01,0.05};
+TGraph *convL[asCuts],*convR[asCuts];
+TH1D *angNormL[asCuts],*angNormR[asCuts];
+int ngL[asCuts]={0,0,0},ngR[asCuts]={0,0,0};
 int main(int argc, char** argv)
 {
 
   if( argc < 2 ) {
-    cout<<" usage: build/QweakAna [path to infile with list of output QweakSimG4 trees] [optional - cut on asymmetry] [optional - number of events]"<<endl;
+    cout<<" usage: build/QweakAna [path to infile with list of output QweakSimG4 trees]"<<endl;
     return 1;
   }
 
   readPEs();
   
   string files(argv[1]);
-  int defEvts=-1;
-
-  if(argc == 3 )
-    asymCut=atof(argv[2]);
-  if(argc == 4)
-    defEvts=atoi(argv[3]);
 
   TFile *fout=new TFile("o_calcAsym.root","RECREATE");  
 
   TH1I *hNev=new TH1I("hNev","total number of events processed",1,0,1);
   conv=new TGraph();
-  convL=new TGraph();
-  convR=new TGraph();
-  angNormL=new TH1D("angNormL","x<-0.01 asym Normalized angle dist",180,-90,90);
-  angNormR=new TH1D("angNormR","x> 0.01 asym Normalized angle dist",180,-90,90);
+  for(int i=0;i<asCuts;i++){
+    convL[i]=new TGraph();
+    convR[i]=new TGraph();
+    angNormL[i]=new TH1D(Form("angNormL_%d",i),Form("x<-0.01 asym Normalized for abs(asym)<%f; angle[deg]",asCut[i]),180,-90,90);
+    angNormR[i]=new TH1D(Form("angNormR_%d",i),Form("x> 0.01 asym Normalized for abs(asym)<%f; angle[deg]",asCut[i]),180,-90,90);
+  }
   
   lPEvsAsym=new TH2D("lPEvsAsym","; left # PEs;asymetry",500,0,500,500,-1,1);
   rPEvsAsym=new TH2D("rPEvsAsym",";right # PEs;asymetry",500,0,500,500,-1,1);
@@ -123,11 +122,6 @@ int main(int argc, char** argv)
       TTree *QweakSimG4_Tree=(TTree*)fin->Get("QweakSimG4_Tree");
       cout<<"processing : "<<data.c_str()<<" for detector 3"<<endl;          
       int evts=QweakSimG4_Tree->GetEntries();
-      if( evts != defEvts && defEvts != -1){
-	cout<<"  skipping this file #ev is "<<evts<<" should be "<<defEvts<<endl;
-	fin->Close();
-	continue;
-      }
       totEv+=evts;
       cout<<" total nr ev: "<<evts<<" "<<totEv<<endl;      
       processOne(QweakSimG4_Tree);      
@@ -156,24 +150,29 @@ int main(int argc, char** argv)
   cout<<"R "<<rpeP<<" "<<rpeM<<" "<<(rpeP-rpeM)/(rpeP+rpeM)<<endl;
   cout<<" DD "<<(lpeP-lpeM)/(lpeP+lpeM) - (rpeP-rpeM)/(rpeP+rpeM)<<endl;
   
+
+  fout->cd();
+
   conv->SetName("conv");
   conv->SetTitle("convergence of asymmetry;ev number");
   conv->SetMarkerStyle(20);
-  convL->SetName("convL");
-  convL->SetTitle("convergence of x<-0.01 asymmetry;ev number");
-  convL->SetMarkerStyle(20);
-  convR->SetName("convR");
-  convR->SetTitle("convergence of x>0.01 asymmetry;ev number");
-  convR->SetMarkerStyle(20);
+
+  for(int i=0;i<asCuts;i++){    
+    convL[i]->SetName(Form("convL_%d",i));
+    convL[i]->SetTitle(Form("convergence of x<-0.01 asymmetry for abs(asym)<%f;ev number",asCut[i]));
+    convL[i]->SetMarkerStyle(20);
+    convR[i]->SetName(Form("convR_%d",i));
+    convR[i]->SetTitle(Form("convergence of x> 0.01 asymmetry for abs(asym)<%f;ev number",asCut[i]));
+    convR[i]->SetMarkerStyle(20);
+    convL[i]->Write();
+    convR[i]->Write();
+    angNormL[i]->Write();
+    angNormR[i]->Write();
+  }
   
-  fout->cd();
   hNev->SetBinContent(1,totEv);
   hNev->Write();
   conv->Write();
-  convL->Write();
-  convR->Write();
-  angNormL->Write();
-  angNormR->Write();
   
   for(int i=0;i<4;i++){
     asym[i]->Write();
@@ -220,8 +219,6 @@ void processOne(TTree *QweakSimG4_Tree){
 
     double asVal[4];
     asVal[0]=event->Primary.GetAsymPrim();
-    if(abs(asVal[0])>asymCut && asymCut>0) continue;
-    
     asVal[1]=event->Primary.GetAsymNomi();
     asVal[2]=event->Primary.GetAsymDeno() - 2;
     asVal[3]=event->Primary.GetAsymPlus() - 1;
@@ -286,19 +283,24 @@ void processOne(TTree *QweakSimG4_Tree){
 	asymNorm[j]->Fill(asVal[j],asVal[j]);
 	angleNorm[j]->Fill(angX,asVal[j]);
       }
-      if(x<-0.01){
-	angNormL->Fill(angX,asVal[0]);
-	angNormL->Scale(1./angNormL->GetEntries());
-	convL->SetPoint(ngL,ngL,angNormL->Integral());	
-	angNormL->Scale(angNormL->GetEntries());
-	ngL++;
-      }else if(x>0.01){
-	angNormR->Fill(angX,asVal[0]);
-	angNormR->Scale(1./angNormR->GetEntries());
-	convR->SetPoint(ngR,ngR,angNormR->Integral());	
-	angNormR->Scale(angNormR->GetEntries());
-	ngR++;
-      }
+
+      for(int ii=0;ii<asCuts;ii++)
+	if(abs(asVal[0])<asCut[ii]){
+	  if(x<-0.01){
+	    angNormL[ii]->Fill(angX,asVal[0]);
+	    angNormL[ii]->Scale(1./angNormL[ii]->GetEntries());
+	    convL[ii]->SetPoint(ngL[ii],ngL[ii],angNormL[ii]->Integral());	
+	    angNormL[ii]->Scale(angNormL[ii]->GetEntries());
+	    ngL[ii]++;
+	  }else if(x>0.01){
+	    angNormR[ii]->Fill(angX,asVal[0]);
+	    angNormR[ii]->Scale(1./angNormR[ii]->GetEntries());
+	    convR[ii]->SetPoint(ngR[ii],ngR[ii],angNormR[ii]->Integral());	
+	    angNormR[ii]->Scale(angNormR[ii]->GetEntries());
+	    ngR[ii]++;
+	  }
+	}
+
       asymNorm[0]->Scale(1./asymNorm[0]->GetEntries());
       conv->SetPoint(ng,ng,asymNorm[0]->Integral());
       asymNorm[0]->Scale(asymNorm[0]->GetEntries());
