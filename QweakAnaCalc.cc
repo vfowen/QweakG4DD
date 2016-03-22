@@ -38,11 +38,11 @@ TH1D *distAsL,*distAsR;//1000 ev Asymmetry distributions
 TH1D *distAngL,*distAngR;//angle distributions normalized by PE*Asymmetry
 double lpeP(0),lpeM(0),rpeP(0),rpeM(0);
 double asymCut(0);
-const int asCuts=3;
-double asCut[asCuts]={0.005,0.01,0.05};
+const int asCuts=4;
+double asCut[asCuts]={0.005,0.01,0.05,0.5};
 TGraph *convL[asCuts],*convR[asCuts],*convN[asCuts],*convA[asCuts];
 TH1D *angNormL[asCuts],*angNormR[asCuts],*angNormN[asCuts],*angNormA[asCuts];
-int ngL[asCuts]={0,0,0},ngR[asCuts]={0,0,0},ngN[asCuts]={0,0,0};
+int ngL[asCuts]={0,0,0,0},ngR[asCuts]={0,0,0,0},ngN[asCuts]={0,0,0,0};
 
 
 int main(int argc, char** argv)
@@ -60,7 +60,6 @@ int main(int argc, char** argv)
   TFile *fout=new TFile("o_calcAsym.root","RECREATE");  
 
   TH1I *hNev=new TH1I("hNev","total number of events processed",1,0,1);
-  conv=new TGraph();
   for(int i=0;i<asCuts;i++){
     convL[i]=new TGraph();
     convR[i]=new TGraph();
@@ -157,10 +156,6 @@ int main(int argc, char** argv)
 
   fout->cd();
 
-  conv->SetName("conv");
-  conv->SetTitle("convergence of asymmetry;ev number");
-  conv->SetMarkerStyle(20);
-
   for(int i=0;i<asCuts;i++){    
     convL[i]->SetName(Form("convL_%d",i));
     convL[i]->SetTitle(Form("convergence of x<-0.01 asymmetry for abs(asym)<%f;ev number",asCut[i]));
@@ -182,7 +177,6 @@ int main(int argc, char** argv)
   
   hNev->SetBinContent(1,totEv);
   hNev->Write();
-  conv->Write();
   
   for(int i=0;i<4;i++){
     asym[i]->Write();
@@ -301,8 +295,8 @@ void processOne(TTree *QweakSimG4_Tree){
 
 	  angNormN[ii]->Scale(1./angNormN[ii]->GetEntries());
 	  angNormA[ii]->Scale(1./angNormA[ii]->GetEntries());
-	  convN[ii]->SetPoint(ngN,ngN,angNormN[ii]->Integral());
-	  convA[ii]->SetPoint(ngN,ngN,angNormA[ii]->Integral());
+	  convN[ii]->SetPoint(ngN[ii],ngN[ii],angNormN[ii]->Integral());
+	  convA[ii]->SetPoint(ngN[ii],ngN[ii],angNormA[ii]->Integral());
 	  angNormN[ii]->Scale(angNormN[ii]->GetEntries());
 	  angNormA[ii]->Scale(angNormA[ii]->GetEntries());
 	  ngN[ii]++;
@@ -322,11 +316,6 @@ void processOne(TTree *QweakSimG4_Tree){
 	    ngR[ii]++;
 	  }
 	}
-
-      asymNorm[0]->Scale(1./asymNorm[0]->GetEntries());
-      conv->SetPoint(ng,ng,asymNorm[0]->Integral());
-      asymNorm[0]->Scale(asymNorm[0]->GetEntries());
-      ng++;
 
       distAngL->Fill(angX,asVal[0]*lpe);
       distAngR->Fill(angX,asVal[0]*rpe);
