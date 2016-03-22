@@ -300,7 +300,6 @@ void processOne(TTree *QweakSimG4_Tree){
 	  angNormN[ii]->Scale(angNormN[ii]->GetEntries());
 	  angNormA[ii]->Scale(angNormA[ii]->GetEntries());
 	  ngN[ii]++;
-	  cout<<ngN[ii]<<" <> "<<angNormN[ii]->GetEntries()<<" "<<angNormA[ii]->GetEntries()<<endl;
 	  
 	  if(angX<0){
 	    angNormL[ii]->Fill(angX,asVal[0]);
