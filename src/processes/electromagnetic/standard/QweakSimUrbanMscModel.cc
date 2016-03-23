@@ -976,12 +976,20 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
     }
     G4double pp=1.+_amplitude*sin(phi);
     G4double pm=1.-_amplitude*sin(phi);
-    if(asymInfo->at(0)<-1){
-      asymInfo->at(0) = pp;
-      asymInfo->at(1) = pm;
-    }else{
-      asymInfo->at(0) *= pp;
-      asymInfo->at(1) *= pm;
+    if(asymInfo->at(2)==-2){
+      if(asymInfo->at(0)<-1){
+	asymInfo->at(0) = pp;
+	asymInfo->at(1) = pm;
+      }else{
+	asymInfo->at(0) *= pp;
+	asymInfo->at(1) *= pm;
+      }
+    }
+    if(debugPring){
+      G4cout<<"U: "<<_amplitude<<"\t"<<eEnergy<<"\t"<<acos(cth)*180/3.1415<<"\t"<<phi*180/3.1415
+	    <<"\t"<<pp<<"\t"<<pm<<"\t"<<asymInfo->at(0)<<"\t"<<asymInfo->at(1)<<G4endl;
+      //G4cout<<"\t"<<polarization.getX()<<"\t"<<polarization.getY()<<"\t"<<polarization.getZ()<<G4endl;
+      G4cout<<" ~~~ asinof "<<(asymInfo->at(0)-asymInfo->at(1))/(asymInfo->at(0)+asymInfo->at(1))<<G4endl;
     }
   }
   //FIXME
