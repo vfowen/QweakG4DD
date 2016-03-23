@@ -43,7 +43,8 @@ double asCut[asCuts]={0.005,0.01,0.05,0.5};
 TGraph *convL[asCuts],*convR[asCuts],*convN[asCuts],*convA[asCuts];
 TH1D *angNormL[asCuts],*angNormR[asCuts],*angNormN[asCuts],*angNormA[asCuts];
 int ngL[asCuts]={0,0,0,0},ngR[asCuts]={0,0,0,0},ngN[asCuts]={0,0,0,0};
-
+TGraph *as;
+int nga(0);
 
 int main(int argc, char** argv)
 {
@@ -60,6 +61,7 @@ int main(int argc, char** argv)
   TFile *fout=new TFile("o_calcAsym.root","RECREATE");  
 
   TH1I *hNev=new TH1I("hNev","total number of events processed",1,0,1);
+  as=new TGraph();
   for(int i=0;i<asCuts;i++){
     convL[i]=new TGraph();
     convR[i]=new TGraph();
@@ -191,6 +193,8 @@ int main(int argc, char** argv)
   distAsR->Write();
   distAngL->Write();
   distAngR->Write();
+  as->SetName("as");
+  as->SetTitle("asymmetry;ev number");
   fout->Close();
   return 0;
 }
@@ -315,6 +319,9 @@ void processOne(TTree *QweakSimG4_Tree){
 	    ngR[ii]++;
 	  }
 	}
+
+      as->SetPoint(nga,nga,asVal[0]);
+      nga++;
 
       distAngL->Fill(angX,asVal[0]*lpe);
       distAngR->Fill(angX,asVal[0]*rpe);
