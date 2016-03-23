@@ -195,6 +195,7 @@ int main(int argc, char** argv)
   distAngR->Write();
   as->SetName("as");
   as->SetTitle("asymmetry;ev number");
+  as->Write();
   fout->Close();
   return 0;
 }
