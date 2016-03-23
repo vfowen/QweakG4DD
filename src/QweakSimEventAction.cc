@@ -50,6 +50,8 @@ Target, Region 1, Region 2, Region 3, Trigger Scintillator and Lumi
 #include "QweakSimTrajectory.hh"
 #include "QweakSimUserMainEvent.hh"
 
+#include <iostream>
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 QweakSimEventAction::QweakSimEventAction(std::vector<double>*asInfo,QweakSimAnalysis* AN, QweakSimUserInformation* UI)
 : analysis(AN),myUserInfo(UI),asymInfo(asInfo)
@@ -625,255 +627,15 @@ void QweakSimEventAction::EndOfEventAction(const G4Event* evt) {
         // Store Number Of Hits of each Detector
         //===========================================
 
-        // // Store Number of Hits for: UPlane DriftCell of Front Chamber
-        // analysis->fRootEvent->Region3.ChamberFront.DriftCell.StoreUDriftCellNbOfHits(n_VDChitDCFront);
-
-        // // Store Number of Hits for: VPlane DriftCell of Front Chamber
-        // analysis->fRootEvent->Region3.ChamberFront.DriftCell.StoreVDriftCellNbOfHits(n_VDChitDCBack);
-
         // Store Number of Hits for: Cerenkov Detector
         analysis->fRootEvent->Cerenkov.Detector.StoreDetectorNbOfHits(n_hitCerenkov);
 		
         // Store Number of Hits for: Cerenkov PMT Detector
         analysis->fRootEvent->Cerenkov.PMT.StoreDetectorNbOfHits(n_hitCerenkovPMT);
 
-        // Store Number of Hits for: Target Detector
-        //analysis->fRootEvent->Target.Detector.StoreDetectorNbOfHits(n_hitTarget);
-
-        // // Store Number of Hits for: Lumi Detector
-        // analysis->fRootEvent->Lumi.Detector.StoreDetectorNbOfHits(n_hitLumi);
-
-        // Store Number of Hits for: LeadGlass Detector
-	// analysis->fRootEvent->LeadGlass.Detector.StoreDetectorNbOfHits(n_hitLeadGlass);
-        
-        // Store Number of Hits for: PMTOnly Detector
-        //analysis->fRootEvent->PMTOnly.Detector.StoreDetectorNbOfHits(n_hitPMTOnly);
-        
-        // Store Number of Hits for: PMTOnly PMT Detector
-        //analysis->fRootEvent->PMTOnly.PMT.StoreDetectorNbOfHits(n_hitPMTOnlyPMT);
-        
-        // Store Number of Hits for: Trigger Scintillator
-	// analysis->fRootEvent->TriggerScintillator.Detector.StoreDetectorNbOfHits(n_hitTriggerScintillator);
-
-        //==========================================================================================================
 
 
-    //     //========================================
-//         // Store VDC Hit Information into /Region3
-//         //========================================
-
-//         int VDC_Chamber_Plane_NbOfHits[2][2];
-//         for (int chamber = 0; chamber < 2; chamber++)
-//           for (int plane = 0; plane < 2; plane++)
-//             VDC_Chamber_Plane_NbOfHits[chamber][plane] = 0;
-
-//         // loop over wire plane hits
-//         for (int i1=0;i1<n_VDChitWirePlane;i1++) {
-
-//             // get hit pointer for each hit
-//             QweakSimVDC_WirePlaneHit* aHit = (*VDC_WirePlane_HC)[i1];
-
-//             if (print_VDC_WirePlaneHit) aHit->Print();
-
-//             // get local position of hit
-//             G4ThreeVector localPosition  = aHit->GetLocalPosition();
-//             Float_t rLocalPositionX = (Float_t) localPosition.x() / cm;
-//             Float_t rLocalPositionY = (Float_t) localPosition.y() / cm;
-//             Float_t rLocalPositionZ = (Float_t) localPosition.z() / cm;
-
-//             // get world position of hit
-//             G4ThreeVector globalPosition  = aHit->GetWorldPosition();
-//             Float_t rGlobalPositionX = (Float_t) globalPosition.x() / cm;
-//             Float_t rGlobalPositionY = (Float_t) globalPosition.y() / cm;
-//             Float_t rGlobalPositionZ = (Float_t) globalPosition.z() / cm;
-
-//             // get local Momentum of hit
-//             G4ThreeVector localMomentum = aHit->GetLocalMomentum();
-//             Float_t rLocalMomentumX = (Float_t) localMomentum.x() / MeV;
-//             Float_t rLocalMomentumY = (Float_t) localMomentum.y() / MeV;
-//             Float_t rLocalMomentumZ = (Float_t) localMomentum.z() / MeV;
-
-//             // get world Momentum of hit
-//             G4ThreeVector globalMomentum  = aHit->GetWorldMomentum();
-//             Float_t rGlobalMomentumX = (Float_t) globalMomentum.x() / MeV;
-//             Float_t rGlobalMomentumY = (Float_t) globalMomentum.y() / MeV;
-//             Float_t rGlobalMomentumZ = (Float_t) globalMomentum.z() / MeV;
-//             Float_t rGlobalThetaAngle = (Float_t) globalMomentum.theta() / degree;
-//             Float_t rGlobalPhiAngle   = (Float_t) globalMomentum.phi() / degree - 90.0;
-
-//             // get total Energy of hit
-//             Float_t rTotalEnergy     = (Float_t) aHit->GetTotalEnergy() / MeV;
-
-//             // get kinetic Energy of hit
-//             Float_t rKineticEnergy     = (Float_t) aHit->GetKineticEnergy() / MeV;
-
-
-//             G4ThreeVector originVertexPosition  = aHit->GetOriginVertexPosition();
-//             Float_t rOriginVertexPositionX      = (Float_t) originVertexPosition.x() / cm;
-//             Float_t rOriginVertexPositionY      = (Float_t) originVertexPosition.y() / cm;
-//             Float_t rOriginVertexPositionZ      = (Float_t) originVertexPosition.z() / cm;
-
-
-//             G4ThreeVector originVertexMomentumDirection = aHit->GetOriginVertexMomentumDirection();
-//             Float_t rOriginVertexMomentumDirectionX = (Float_t) originVertexMomentumDirection.x();
-//             Float_t rOriginVertexMomentumDirectionY = (Float_t) originVertexMomentumDirection.y();
-//             Float_t rOriginVertexMomentumDirectionZ = (Float_t) originVertexMomentumDirection.z();
-//             Float_t rOriginVertexPhiAngle   = (Float_t) originVertexMomentumDirection.phi() / degree;
-//             Float_t rOriginVertexThetaAngle = (Float_t) originVertexMomentumDirection.theta() / degree;
-
-//             Float_t rOriginVertexKineticEnergy = (Float_t) aHit->GetOriginVertexKineticEnergy() / MeV;
-//             Float_t rOriginVertexTotalEnergy   = (Float_t) aHit->GetOriginVertexTotalEnergy() / MeV;
-
-//             Float_t rGlobalTime = (Float_t) aHit->GetGlobalTime() / ns;
-
-//             TString rParticleName = TString(aHit->GetParticleName());
-//             Int_t rParticleType = (Int_t) aHit->GetParticleType();
-
-//             //-----------------------------------
-//             int iVDCID = aHit->GetVDCID();
-//             int iVDC_Chamber = -1; // 0 corresponds to Front, 1 corresponds to Back
-//             QweakSimUserVDC_SingleVDCEvent* single_vdc_event = 0;
-//             if (iVDCID == 0 || iVDCID == 2){
-//                iVDC_Chamber = 0;
-//                single_vdc_event = &(analysis->fRootEvent->Region3.ChamberFront);
-//             }
-//             if (iVDCID == 1 || iVDCID == 3){
-//                iVDC_Chamber = 1;
-//                single_vdc_event = &(analysis->fRootEvent->Region3.ChamberBack);
-//             }
-//             int iVDCpackage = -1;  // 0 Corresponds to pkg 1, 1 corresponds to pkg 2
-//             if(iVDCID == 0 || iVDCID == 1)
-//             	iVDCpackage = 1;
-//             if(iVDCID == 2 || iVDCID == 3)
-//             	iVDCpackage = 2;
-//             //-----------------------------------
-//             if (single_vdc_event == 0) {
-//                 G4cerr << "VDC hit with incorrect chamber ID: " << iVDCID << G4endl;
-//                 break;
-//             }
-
-//             //-----------------------------------
-//             int iWirePlaneID = aHit->GetWirePlaneID();
-//             QweakSimUserVDC_WirePlaneEvent* wire_plane_event = 0;
-//             if (iWirePlaneID == 0)
-//               wire_plane_event = &(single_vdc_event->WirePlaneU);
-//             if (iWirePlaneID == 1)
-//               wire_plane_event = &(single_vdc_event->WirePlaneV);
-
-//             //-----------------------------------
-//             if (wire_plane_event == 0) {
-//                 G4cerr << "VDC hit with incorrect plane ID." << G4endl;
-//                 break;
-//             }
-
-//             //-----------------------------------
-//             VDC_Chamber_Plane_NbOfHits[iVDC_Chamber][iWirePlaneID]++;
-//             wire_plane_event->StoreNbOfHits(VDC_Chamber_Plane_NbOfHits[iVDC_Chamber][iWirePlaneID]);
-
-//             // mark wire plane as been hit
-//             wire_plane_event->StoreHasBeenHit(5);
-
-//             wire_plane_event->StorePackageID(iVDCpackage);
-
-//             wire_plane_event->StoreParticleName(rParticleName);
-//             wire_plane_event->StoreParticleType(rParticleType);
-
-//             // store total+kinetic energy of hit
-//             wire_plane_event->StoreTotalEnergy(rTotalEnergy);
-//             wire_plane_event->StoreKineticEnergy(rKineticEnergy);
-
-//             // store origin vertex info
-//             wire_plane_event->StoreOriginVertexPositionX(rOriginVertexPositionX);
-//             wire_plane_event->StoreOriginVertexPositionY(rOriginVertexPositionY);
-//             wire_plane_event->StoreOriginVertexPositionZ(rOriginVertexPositionZ);
-
-//             wire_plane_event->StoreOriginVertexMomentumDirectionX(rOriginVertexMomentumDirectionX);
-//             wire_plane_event->StoreOriginVertexMomentumDirectionY(rOriginVertexMomentumDirectionY);
-//             wire_plane_event->StoreOriginVertexMomentumDirectionZ(rOriginVertexMomentumDirectionZ);
-//             wire_plane_event->StoreOriginVertexPhiAngle(rOriginVertexPhiAngle);
-//             wire_plane_event->StoreOriginVertexThetaAngle(rOriginVertexThetaAngle);
-
-//             wire_plane_event->StoreOriginVertexKineticEnergy(rOriginVertexKineticEnergy);
-//             wire_plane_event->StoreOriginVertexTotalEnergy(rOriginVertexTotalEnergy);
-
-//             wire_plane_event->StoreGlobalTimeOfHit(rGlobalTime);
-
-//             // store wire plane hit position
-//             wire_plane_event->StoreLocalPositionX(rLocalPositionX);
-//             wire_plane_event->StoreLocalPositionY(rLocalPositionY);
-//             wire_plane_event->StoreLocalPositionZ(rLocalPositionZ);
-
-//             wire_plane_event->StoreGlobalPositionX(rGlobalPositionX);
-//             wire_plane_event->StoreGlobalPositionY(rGlobalPositionY);
-//             wire_plane_event->StoreGlobalPositionZ(rGlobalPositionZ);
-
-//             // store wire plane hit momentum
-//             wire_plane_event->StoreLocalMomentumX(rLocalMomentumX);
-//             wire_plane_event->StoreLocalMomentumY(rLocalMomentumY);
-//             wire_plane_event->StoreLocalMomentumZ(rLocalMomentumZ);
-
-//             wire_plane_event->StoreGlobalMomentumX(rGlobalMomentumX);
-//             wire_plane_event->StoreGlobalMomentumY(rGlobalMomentumY);
-//             wire_plane_event->StoreGlobalMomentumZ(rGlobalMomentumZ);
-
-//             // store global track angles Phi and Theta
-//             wire_plane_event->StoreGlobalPhiAngle(rGlobalPhiAngle);
-//             wire_plane_event->StoreGlobalThetaAngle(rGlobalThetaAngle);
-
-//         }
-
-// //=========================================================================================================
-
-//         //----------------------------------
-//         // Hit in Front VDC, Front DriftCells
-//         //----------------------------------
-//         if (n_VDChitDCFront) {
-
-//             // loop over DriftCell hits
-//             for (G4int i1 = 0; i1 < n_VDChitDCFront; i1++) {
-
-//                 QweakSimVDC_DriftCellHit* aHit = (*VDC_DriftCellFront_HC)[i1];
-//                 if (print_VDC_DriftCellHit) aHit->Print();
-
-//             } // end for (G4int i1 = 0; i1 < n_VDChitDCFront; i1++)
-
-
-//             // Extract the DriftCell Config from the 1st DC hit
-//             QweakSimVDC_DriftCellHit* aHit = (*VDC_DriftCellFront_HC)[0];
-
-
-//             Float_t rDCWidthOnFrame    = (Float_t) aHit->GetDCWidthOnFrame()/mm;
-//             Float_t rDCFullThickness   = (Float_t) aHit->GetDCFullThickness()/mm;
-//             Float_t rDCUPlaneWireAngle = (Float_t) aHit->GetDCUPlaneWireAngle()/degree;
-//             Float_t rDCVPlaneWireAngle = (Float_t) aHit->GetDCVPlaneWireAngle()/degree;
-
-//             // Store DriftCell Setup Parameter
-//             analysis->fRootEvent->Region3.Config.StoreDCWidthOnFrame(rDCWidthOnFrame);
-//             analysis->fRootEvent->Region3.Config.StoreDCFullThickness(rDCFullThickness);
-//             analysis->fRootEvent->Region3.Config.StoreDCUPlaneWireAngle(rDCUPlaneWireAngle);
-//             analysis->fRootEvent->Region3.Config.StoreDCVPlaneWireAngle(rDCVPlaneWireAngle);
-
-//         } // end of   if(n_VDChitDCFront)
-
-
-//         //----------------------------------
-//         // Hit in Front VDC, Back DriftCells
-//         //----------------------------------
-//         if (n_VDChitDCBack) {
-//             // loop over hits
-//             for (G4int i1=0;i1<n_VDChitDCBack;i1++) {
-
-//                 QweakSimVDC_DriftCellHit* aHit = (*VDC_DriftCellBack_HC)[i1];
-//                 if (print_VDC_DriftCellHit) aHit->Print();
-
-//             } // end for(int i1=0;i1<n_hitBack;i1++
-
-
-//         } // end of if(n_VDChitDCBack)
-
-
-
-//         //===============================================================================================================
+        //===============================================================================================================
 
         //=========================================================
         // Store Cerenkov Detector hits into /Cerenkov
@@ -1031,39 +793,6 @@ void QweakSimEventAction::EndOfEventAction(const G4Event* evt) {
                 analysis->fRootEvent->Cerenkov.Detector.StoreTotalEnergy(rTotalEnergy);
                 analysis->fRootEvent->Cerenkov.Detector.StoreKineticEnergy(rKineticEnergy);
 
-                //-----------------------------------------------------------------------------
-//
-// Peiqing: comment out the followings for speeding up
-//
-//                 for (int sec = 0; sec < myUserInfo->GetCerenkovSecondaryParticleCount(); sec++) {
-// 
-//                     SecondaryParticleOrigin = myUserInfo->GetCerenkovSecondaryParticleOrigin(sec);
-//                     rSecondaryPartOriginX = (Float_t) SecondaryParticleOrigin.x()/cm;
-//                     rSecondaryPartOriginY = (Float_t) SecondaryParticleOrigin.y()/cm;
-//                     rSecondaryPartOriginZ = (Float_t) SecondaryParticleOrigin.z()/cm;
-// 
-//                     SecondaryParticleMomentum = myUserInfo->GetCerenkovSecondaryParticleMomentum(sec);
-//                     rSecondaryPartMomentumX = (Float_t) SecondaryParticleMomentum.x()/MeV;
-//                     rSecondaryPartMomentumY = (Float_t) SecondaryParticleMomentum.y()/MeV;
-//                     rSecondaryPartMomentumZ = (Float_t) SecondaryParticleMomentum.z()/MeV;
-// 
-//                     rSecondaryPartEnergy = (Float_t) myUserInfo->GetCerenkovSecondaryParticleEnergy(sec)/MeV;
-//                     rSecondaryPartCharge = (Float_t) myUserInfo->GetCerenkovSecondaryParticleCharge(sec);
-// 
-//                     analysis->fRootEvent->Cerenkov.Detector.AddSecondaryParticleEvent(rSecondaryPartOriginX,
-//                             rSecondaryPartOriginY,
-//                             rSecondaryPartOriginZ,
-//                             rSecondaryPartMomentumX,
-//                             rSecondaryPartMomentumY,
-//                             rSecondaryPartMomentumZ,
-//                             rSecondaryPartEnergy,
-//                             rSecondaryPartCharge);
-//                 } // end for (int sec = 0; sec < myUserInfo->GetCerenkovSecondaryParticleCount(); sec++)
-                //-----------------------------------------------------------------------------
-
-                //--------------------------------------------------------------------------------------------
-                // Check if the track passed entirely thru the cerenkov detector without getting stuck
-                // or hitting an edge
                 Int_t edgeEvent;
                 if (GetDistance(localPosition,localExitPosition)/cm < 1.15)
                     edgeEvent = 1;
@@ -1071,14 +800,8 @@ void QweakSimEventAction::EndOfEventAction(const G4Event* evt) {
                     edgeEvent = 0;
 
                 analysis->fRootEvent->Cerenkov.Detector.StoreEdgeEventFlag(edgeEvent);
-
-                // << "Edge Event Flag = " << edgeEvent << G4endl;
-                //--------------------------------------------------------------------------------------------
-
-
             } // end  for(int i1=0;i1<n_hitCerenkov;i1++)
         } // end    if (n_hitCerenkov >0)
-
 
         //=========================================================
         // Store Number of Photoelectrons of Cerenkov Detector hits
@@ -2505,6 +2228,7 @@ void QweakSimEventAction::EndOfEventAction(const G4Event* evt) {
 
     //reset asymInfo	
     asymInfo->at(0)=-2;
+    asymInfo->at(2)=-2;
 //=======================================================================
 
 } // end of  QweakSimEventAction::EndOfEventAction()
