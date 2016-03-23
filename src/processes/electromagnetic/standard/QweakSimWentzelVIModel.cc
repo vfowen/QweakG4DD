@@ -663,12 +663,14 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	
 	G4double pp=1.+_amplitude*sin(phi);
 	G4double pm=1.-_amplitude*sin(phi);
-	if(asymInfo->at(3)<-1){
-	  asymInfo->at(0) = pp;
-	  asymInfo->at(1) = pm;
-	}else{
-	  asymInfo->at(0) *= pp;
-	  asymInfo->at(1) *= pm;
+	if(asymInfo->at(2)==-2){
+	  if(asymInfo->at(0)<-1){
+	    asymInfo->at(0) = pp;
+	    asymInfo->at(1) = pm;
+	  }else{
+	    asymInfo->at(0) *= pp;
+	    asymInfo->at(1) *= pm;
+	  }
 	}
 	
 	G4double vx1 = sint*cos(phi);
@@ -730,12 +732,14 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	}
 	G4double pp=1.+_amplitude*sin(phi);
 	G4double pm=1.-_amplitude*sin(phi);
-	if(asymInfo->at(3)<-1){
-	  asymInfo->at(0) = pp;
-	  asymInfo->at(1) = pm;
-	}else{
-	  asymInfo->at(0) *= pp;
-	  asymInfo->at(1) *= pm;
+	if(asymInfo->at(2)==-2){
+	  if(asymInfo->at(0)<-1){
+	    asymInfo->at(0) = pp;
+	    asymInfo->at(1) = pm;
+	  }else{
+	    asymInfo->at(0) *= pp;
+	    asymInfo->at(1) *= pm;
+	  }
 	}
       }
       //FIXME
