@@ -120,7 +120,7 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
   G4bool writeOutAll=false;
   // toggle for filling the Pb ntuple
   G4bool fillNtuple=false; 
-
+  
   if(debugPrint)
     G4cout<<"Start Pb nTuple stepping block"<<G4endl;
   
@@ -132,10 +132,21 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
   G4ThreeVector _polarization=theStep->GetTrack()->GetPolarization();
   G4Material *_material=thePostPoint->GetMaterial();
   G4double depol(0),eLossPercent(0);
+
+  //this gets used in the physics process to stop the asymmetry calculation
+  if( theStep->GetTrack()->GetVolume()->GetName().compare("QuartzBar_PhysicalRight") == 0 ||
+      theStep->GetTrack()->GetVolume()->GetName().compare("QuartzBar_PhysicalLeft") == 0 )
+    asymInfo->at(2)=0;
+
   
-  if(_material){
+  if(_material){    
     if(debugPrint)
-      G4cout<<"   "<<_material->GetName()<<G4endl;
+      G4cout<<"~~~ Step in "<<_material->GetName()<<" "<<theStep->GetTrack()->GetVolume()->GetName()
+	    <<" pos: "
+	    <<thePostPoint->GetPosition().getX()
+	    <<" "<<thePostPoint->GetPosition().getY()
+	    <<" "<<thePostPoint->GetPosition().getZ()
+	    <<asymInfo->at(2)<<G4endl;
 
     if(_material->GetName().compare("PBA")==0){ // perform this only in the Radiator
 
