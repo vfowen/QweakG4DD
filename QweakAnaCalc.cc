@@ -232,6 +232,9 @@ void processOne(TTree *QweakSimG4_Tree){
     asVal[2]=event->Primary.GetAsymDeno() - 2;
     asVal[3]=event->Primary.GetAsymPlus() - 1;
 
+    double asAv=0;
+    int nAv=0;
+    
     for (int hit = 0; hit < event->Cerenkov.Detector.GetDetectorNbOfHits(); hit++) {	
       if(event->Cerenkov.Detector.GetDetectorID()[hit]!=3) continue;
       if(event->Cerenkov.Detector.GetParticleType()[hit]!=11) continue;
@@ -321,8 +324,13 @@ void processOne(TTree *QweakSimG4_Tree){
 	  }
 	}
 
-      as->SetPoint(nga,nga,asVal[0]);
-      nga++;
+      asAv+=asVal[0];
+      nAv++;
+      if(nAv%500==0){
+	as->SetPoint(nga,nga,asAv/nAv);
+	nga++;
+	asAv=0;
+      }
 
       distAngL->Fill(angX,asVal[0]*lpe);
       distAngR->Fill(angX,asVal[0]*rpe);
