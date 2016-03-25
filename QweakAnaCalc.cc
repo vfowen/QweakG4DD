@@ -217,8 +217,11 @@ void processOne(TTree *QweakSimG4_Tree){
   for (int i = 0; i < QweakSimG4_Tree->GetEntries(); i++) {
     QweakSimG4_Tree->GetEntry(i);
     if(i%10000==1){
-      cout<<"   at event: "<<i<<" "<<tstasAv<<" "<<angNormN[4]->GetIntegral()<<endl;
-      cout<<"      "<<tstnAv<<" "<<angNormA[4]->GetEntries()<<endl;
+      cout<<"   at event: "<<i<<endl;
+      if(tstnAv>100){
+	cout<<"      "<<tstasAv<<" "<<angNormN[4]->GetIntegral()<<endl;
+	cout<<"      "<<tstnAv<<" "<<angNormA[4]->GetEntries()<<endl;
+      }
     }
 
     if(i>100 && i%1000==0){
