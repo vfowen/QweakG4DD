@@ -216,13 +216,7 @@ void processOne(TTree *QweakSimG4_Tree){
   double klpeM(0),krpeM(0);
   for (int i = 0; i < QweakSimG4_Tree->GetEntries(); i++) {
     QweakSimG4_Tree->GetEntry(i);
-    if(i%10000==1){
-      cout<<"   at event: "<<i<<endl;
-      if(tstnAv>100){
-	cout<<"      "<<tstasAv<<" "<<angNormN[4]->GetIntegral()<<endl;
-	cout<<"      "<<tstnAv<<" "<<angNormA[4]->GetEntries()<<endl;
-      }
-    }
+    if(i%10000==1)  cout<<"   at event: "<<i<<endl;
 
     if(i>100 && i%1000==0){
       distAsL->Fill( (klpeP-klpeM)/(klpeP+klpeM) );
@@ -333,11 +327,10 @@ void processOne(TTree *QweakSimG4_Tree){
 	  }
 	}
 
-      tstasAv+=asVal[0];
-      tstnAv++;
-      if(nAv%1000==0){
-	as->SetPoint(nga,nga,asAv/1000);
-	nga++;
+      if(nAv%1000==0 && nAv>0){
+	tstasAv+=asAv/1000.;
+	tstnAv++;
+	as->SetPoint(tstnAv,tstnAv,tstasAv/tstnAv);
 	asAv=0;
       }
 
