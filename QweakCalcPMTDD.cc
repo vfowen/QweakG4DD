@@ -193,7 +193,8 @@ double processOneFile(string fname,int verbose){
 }
 
 void readPEs(){
-  ifstream fin("macros/yl_md3_angle_scan.txt");
+  ifstream fin("input/idealBar_alongDir_acrossAng0_lightPara.txt");
+  //ifstream fin("input/md8Config16_alongDir_acrossAng0_lightPara.txt");
   if(!fin.is_open()) {
     cout<<" cannot read file for PE parametrization :macros/yl_md3_angle_scan.txt" <<endl;
     exit(2);

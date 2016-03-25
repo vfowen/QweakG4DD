@@ -197,7 +197,8 @@ void processOneFile(string fname){
 }
 
 void readPEs(){
-  ifstream fin("macros/yl_md3_angle_scan.txt");
+  ifstream fin("input/idealBar_alongDir_acrossAng0_lightPara.txt");
+  //ifstream fin("input/md8Config16_alongDir_acrossAng0_lightPara.txt");
   double x1,x2,x3,x4,x5,x6,x7,x8,x9;  
   string data;
   getline(fin,data);

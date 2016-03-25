@@ -358,7 +358,7 @@ void processOne(TTree *QweakSimG4_Tree){
 
 
 void readPEs(){
-  ifstream fin("macros/yl_md3_angle_scan.txt");
+
   if(!fin.is_open()) {
     cout<<" cannot read file for PE parametrization :macros/yl_md3_angle_scan.txt" <<endl;
     exit(2);
