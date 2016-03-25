@@ -45,6 +45,9 @@ TH1D *angNormL[asCuts],*angNormR[asCuts],*angNormN[asCuts],*angNormA[asCuts];
 int ngL[asCuts]={0,0,0,0},ngR[asCuts]={0,0,0,0},ngN[asCuts]={0,0,0,0};
 TGraph *as;
 int nga(0);
+double tstasAv(0);
+int tstnAv(0);
+
 
 int main(int argc, char** argv)
 {
@@ -213,7 +216,10 @@ void processOne(TTree *QweakSimG4_Tree){
   double klpeM(0),krpeM(0);
   for (int i = 0; i < QweakSimG4_Tree->GetEntries(); i++) {
     QweakSimG4_Tree->GetEntry(i);
-    if(i%10000==1) cout<<"   at event: "<<i<<endl;
+    if(i%10000==1){
+      cout<<"   at event: "<<i<<" "<<tstasAv<<" "<<angNormN[4]->GetIntegral()<<endl;
+      cout<<"      "<<tstnAv<<" "<<angNormA[4]->GetEntries()<<endl;
+    }
 
     if(i>100 && i%1000==0){
       distAsL->Fill( (klpeP-klpeM)/(klpeP+klpeM) );
@@ -324,14 +330,17 @@ void processOne(TTree *QweakSimG4_Tree){
 	  }
 	}
 
-      asAv+=asVal[0];
-      nAv++;
-      if(nAv%500==0){
-	as->SetPoint(nga,nga,asAv/nAv);
+      tstasAv+=asVal[0];
+      tstnAv++;
+      if(nAv%1000==0){
+	as->SetPoint(nga,nga,asAv/1000);
 	nga++;
 	asAv=0;
       }
 
+      asAv+=asVal[0];
+      nAv++;
+      
       distAngL->Fill(angX,asVal[0]*lpe);
       distAngR->Fill(angX,asVal[0]*rpe);
       
