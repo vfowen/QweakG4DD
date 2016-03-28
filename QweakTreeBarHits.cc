@@ -26,7 +26,7 @@ int main(int argc, char** argv){
   }
 
   string files(argv[1]);
-  
+
   TFile *fout=new TFile("o_hits.root","RECREATE");  
   TTree *tout=new TTree("t","Stripped QweakSimG4 tree for hits");
   tout->Branch("evNr",&evNr,"evNr/I");
@@ -63,7 +63,7 @@ int main(int argc, char** argv){
     ifstream ifile(files.c_str());
     string data;
     while(ifile>>data){
-      TFile *fin=new TFile(files.c_str(),"READ");
+      TFile *fin=new TFile(data.c_str(),"READ");
       if(!fin->IsOpen()){
 	cout<<"Problem: can't find file: "<<data<<endl;
 	continue;
