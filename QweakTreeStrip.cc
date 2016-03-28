@@ -1,4 +1,3 @@
-// Author Ciprian
 #include <string.h>
 #include "stdio.h"
 #include "iostream"
@@ -14,8 +13,7 @@
 using namespace std;
 int findInt(std::vector<int> &inter,std::vector<int> &val, int check, int parent, int &hasPar);
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv){
   if(argc != 3) {
     cout<<" run as: build/QweakTreeStrip [detector number] [path to infile with list of output QweakSimG4 trees] "<<endl;
     return 1;
