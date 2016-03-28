@@ -34,6 +34,7 @@ int main(int argc, char** argv){
   tout->Branch("x",&x,"x/F");
   tout->Branch("y",&y,"y/F");
   tout->Branch("z",&z,"z/F");
+  tout->Branch("E",&E,"E/F");
   tout->Branch("angX",&angX,"angX/F");
   tout->Branch("angY",&angY,"angY/F");
   tout->Branch("polT",&polT,"polT/F");
