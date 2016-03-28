@@ -126,9 +126,9 @@ void processOne(TTree *QweakSimG4_Tree, TTree *tout){
       double polY=event->Cerenkov.Detector.GetPolarizationY()[hit];
       polT=sqrt(pow(polX,2)+pow(polY,2));
 
-      x=event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit];
-      y=event->Cerenkov.Detector.GetDetectorGlobalPositionY()[hit];
-      z=event->Cerenkov.Detector.GetDetectorGlobalPositionZ()[hit];
+      x=event->Cerenkov.Detector.GetDetectorLocalPositionX()[hit];
+      y=event->Cerenkov.Detector.GetDetectorLocalPositionY()[hit];
+      z=event->Cerenkov.Detector.GetDetectorLocalPositionZ()[hit];
       
       double Gphi   = event->Cerenkov.Detector.GetGlobalPhiAngle()[hit];
       double Gtheta = event->Cerenkov.Detector.GetGlobalThetaAngle()[hit];	
