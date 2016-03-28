@@ -117,6 +117,9 @@ target_link_libraries(QweakAnaCalc ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSi
 # - QweakTreeStrip
 add_executable(QweakTreeStrip QweakTreeStrip.cc)
 target_link_libraries(QweakTreeStrip ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
+# - QweakTreeBarHits
+add_executable(QweakTreeBarHits QweakTreeBarHits.cc)
+target_link_libraries(QweakTreeBarHits ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
 # - DrawMSAn
 add_executable(DrawMSAn DrawMSAn.cc)
 target_link_libraries(DrawMSAn ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
