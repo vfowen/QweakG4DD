@@ -214,6 +214,9 @@ void processOne(TTree *QweakSimG4_Tree){
 
   double klpeP(0),krpeP(0);
   double klpeM(0),krpeM(0);
+  double asAv=0;
+  int nAv=0;
+
   for (int i = 0; i < QweakSimG4_Tree->GetEntries(); i++) {
     QweakSimG4_Tree->GetEntry(i);
     if(i%10000==1)  cout<<"   at event: "<<i<<endl;
@@ -234,9 +237,6 @@ void processOne(TTree *QweakSimG4_Tree){
     asVal[1]=event->Primary.GetAsymNomi();
     asVal[2]=event->Primary.GetAsymDeno() - 2;
     asVal[3]=event->Primary.GetAsymPlus() - 1;
-
-    double asAv=0;
-    int nAv=0;
     
     for (int hit = 0; hit < event->Cerenkov.Detector.GetDetectorNbOfHits(); hit++) {	
       if(event->Cerenkov.Detector.GetDetectorID()[hit]!=3) continue;
@@ -330,7 +330,7 @@ void processOne(TTree *QweakSimG4_Tree){
       if(nAv%1000==0 && nAv>0){
 	tstasAv+=asAv/1000.;
 	tstnAv++;
-	as->SetPoint(tstnAv,tstnAv,tstasAv/tstnAv);
+	as->SetPoint(tstnAv-1,tstnAv,tstasAv/tstnAv);
 	asAv=0;
       }
 
