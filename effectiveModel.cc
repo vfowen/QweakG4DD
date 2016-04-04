@@ -26,6 +26,17 @@ void getCorners(int lowerIndex, int upperIndex, int depth, std::vector<double> p
 void getPEs(std::vector<double> in[dimension], std::vector<double> pt,
 	    double &outL, double &outR);
 
+const int processModel = 2;
+//model,L/R,Upper/Lower
+//0= 221nm pos md8Config16 - DA moustache
+//1= 3e-4  ang md8Config16 - DA moustache
+//2= 4e-6  ang md8Config16 - DA moustache
+double asymLimits[3][2][2]={
+  {{-0.194,-0.186},{0.200,0.208}},
+  {{-16.7,-16.0},{13.,13.4}},
+  {{-0.223,-0.216},{0.174,0.182}}
+  };
+
 float model(float val,int type);
 
 
@@ -65,14 +76,15 @@ int main(int argc, char** argv)
   string lr[2]={"l","r"};
   
   TH1D *hpe[2][3],*posPE[2][3],*angPE[2][3];
-  // //position 221nm - md8
-  // TH1D *asR=new TH1D("asR","asymmetry Right PMT",200,-0.194,-0.186);
-  // TH1D *asL=new TH1D("asL","asymmetry Left PMT" ,200, 0.200, 0.208);
 
-  //angle 3e-4 deg -md8
-  TH1D *asR=new TH1D("asR","asymmetry Right PMT",200,-16.7,-16.0);
-  TH1D *asL=new TH1D("asL","asymmetry Left PMT" ,200, 13, 13.4);
-
+  TH1D *asR=new TH1D("asR","asymmetry Right PMT",
+		     200,asymLimits[processModel][0][0],asymLimits[processModel][0][1]);
+  TH1D *asL=new TH1D("asL","asymmetry Left PMT" ,
+		     200,asymLimits[processModel][1][0],asymLimits[processModel][1][1]);
+  cout<<" Limits for the asymmetry histograms :"<<endl;
+  cout<<asymLimits[processModel][0][0]<<" "<<asymLimits[processModel][0][1]<<endl;
+  cout<<asymLimits[processModel][1][0]<<" "<<asymLimits[processModel][1][1]<<endl;
+  
   for(int i=0;i<2;i++)
     for(int j=0;j<3;j++){
       hpe[i][j] = new TH1D(Form("h%spe%s",lr[i].c_str(),hnm[j].c_str()),Form("%s #PEs %s",lr[i].c_str(),hti[j].c_str()),
@@ -104,13 +116,14 @@ int main(int argc, char** argv)
       asR->Fill((procPE[1][1]-procPE[1][2])/(procPE[1][1]+procPE[1][2]) * 1e6);
       cout<<i<<" L "<<(procPE[0][1]-procPE[0][2])/(procPE[0][1]+procPE[0][2]) * 1e6<<endl;
       cout<<i<<" R "<<(procPE[1][1]-procPE[1][2])/(procPE[1][1]+procPE[1][2]) * 1e6<<endl;
+
       for(int ii=0;ii<2;ii++)
 	for(int jj=0;jj<3;jj++){
 	  procPE[ii][jj]=0;
 	}
       currentStep+=stepSize;
     }
-
+    
     //if(i>3000000) break;
     
     if(E<3) continue;
@@ -200,10 +213,12 @@ int main(int argc, char** argv)
 
 //future models go here
 float model(float val,int type){
-  // if(type==0)
-  //   return 2.21e-5;//position alone (this is DM 221nm HC position difference)
-  if(type==2)
+  if(processModel==0 && type==0)
+    return 2.21e-5;//position alone (this is DM 221nm HC position difference)
+  else if(processModel==1 && type==2)
     return 2.97e-4;//DM estimation of 5.2 urad (3e-4 deg)
+  else if(processModel==2 && type==2)
+    return 4e-6;//angle to get ~400ppb DD
   return 0;
 }
 
