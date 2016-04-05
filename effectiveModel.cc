@@ -49,7 +49,7 @@ int main(int argc, char** argv)
   }
 
   readPEs();
-  
+
   string files(argv[1]);
 
   TFile *fin=TFile::Open(files.c_str(),"READ");
@@ -226,6 +226,8 @@ float model(float val,int type){
 void readPEs(){
   //ifstream fin("input/idealBar_alongDir_acrossAng0_lightPara.txt");
   ifstream fin("input/md8Config16_alongDir_acrossAng0_lightPara.txt");
+  //ifstream fin("input/idealBar_alongDir_acrossAng23_lightPara.txt");
+  //ifstream fin("input/md8Config16_alongDir_acrossAng23_lightPara.txt");
   if(!fin.is_open()) {
     cout<<" cannot read file for PE parametrization :macros/yl_md3_angle_scan.txt" <<endl;
     exit(2);
