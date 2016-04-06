@@ -166,8 +166,8 @@ void readInitial(string fnm){
 
   string posfnm=fnm.substr(0,fnm.rfind("/")+1)+"positionMomentum.in";
   string polfnm=fnm.substr(0,fnm.rfind("/")+1)+"polarization.in";
-  ifstream finpos(posfnm);
-  ifstream finpol(polfnm);
+  ifstream finpos(posfnm.c_str());
+  ifstream finpol(polfnm.c_str());
   float tmpx,tmpy,tmpz,tmpax,tmpay,tmppx,tmppy;
   while(finpos>>tmpx>>tmpy>>tmpz>>tmpax>>tmpay){
     finpol>>tmppx>>tmppy;
@@ -176,7 +176,7 @@ void readInitial(string fnm){
     zI.push_back(tmpz);
     aXi.push_back(tmpax);
     aYi.push_back(tmpay);
-    polI.push_back(sqrt(pow(tmpx,2)+pow(tmpy,2)));
+    polI.push_back(sqrt(pow(tmppx,2)+pow(tmppy,2)));
   }
   finpos.close();
   finpol.close();
