@@ -25,20 +25,38 @@ void getPEs(std::vector<double> in[dimension], std::vector<double> pt,
 	    double &outL, double &outR);
 
 const int nModels = 5;
-//0=                                      - md8Config16 - DA moustache
-//1= cnst*sgn(angX) for abs(angX)=[20,40] - md8Config16 - DA moustache
-//2= cnst*angX                            - md8Config16 - DA moustache
-//3= cnst*sgn(angX)*angX^2                - md8Config16 - DA moustache
-//4= cnst*angX^3                          - md8Config16 - DA moustache
+//0=                                     
+//1= cnst*sgn(angX) for abs(angX)=[20,40]
+//2= cnst*angX                           
+//3= cnst*sgn(angX)*angX^2               
+//4= cnst*angX^3                         
 
 //model,L/R,Upper/Lower
+const int rangeTst=0;
+// //DA moustache/centered - md8Config16 - acrossAng0
+// double asymLimits[nModels][2][2]={
+//   {{-0.200,-0.175},{0.200,0.225}},
+//   {{-0.200,-0.170},{0.190,0.225}},
+//   {{-0.237,-0.210},{0.257,0.283}},
+//   {{-0.210,-0.175},{0.200,0.235}},
+//   {{-0.250,-0.155},{0.150,0.255}}
+// };
+// //DA moustache/centered - md8Config16 - acrossAng23
+// double asymLimits[nModels][2][2]={
+//   {{-0.200,-0.175},{0.200,0.225}},
+//   {{-0.175,-0.140},{0.175,0.205}},
+//   {{-0.175,-0.145},{0.205,0.240}},
+//   {{-0.225,-0.160},{0.190,0.240}},
+//   {{-0.250,-0.165},{0.180,0.285}}
+// };
+//DA moustache mirrored x,x' - md8Config16 - acrossAng23 
 double asymLimits[nModels][2][2]={
-  {{-0.194,-0.186},{0.200,0.208}},
-  {{-16.7,-16.0},{13.,13.4}},
-  {{-0.223,-0.216},{0.174,0.182}},
-  {{-0.223,-0.216},{0.174,0.182}},
-  {{-0.223,-0.216},{0.174,0.182}}
-  };
+  {{-0.200,-0.175},{0.200,0.225}},
+  {{-0.195,-0.165},{0.155,0.185}},
+  {{-0.230,-0.200},{0.150,0.190}},
+  {{-0.225,-0.180},{0.160,0.210}},
+  {{-0.265,-0.185},{0.170,0.250}}
+};
 
 float model(float val,int type);
 
@@ -110,8 +128,10 @@ int main(int argc, char** argv)
       for(int imod=1;imod<nModels;imod++){
 	as[0][imod]->Fill( avgStepR[imod]/avgStepR[0]*1e6 );
 	as[1][imod]->Fill( avgStepL[imod]/avgStepL[0]*1e6 );
-	cout<<i<<" "<<imod<<" L "<<avgStepR[imod]<<" "<<avgStepR[0]<<" "<<avgStepR[imod]/avgStepR[0]*1e6<<endl;
-	cout<<i<<" "<<imod<<" R "<<avgStepL[imod]<<" "<<avgStepL[0]<<" "<<avgStepL[imod]/avgStepL[0]*1e6<<endl;
+	if(rangeTst){
+	  cout<<i<<" "<<imod<<" L "<<avgStepR[imod]<<" "<<avgStepR[0]<<" "<<avgStepR[imod]/avgStepR[0]*1e6<<endl;
+	  cout<<i<<" "<<imod<<" R "<<avgStepL[imod]<<" "<<avgStepL[0]<<" "<<avgStepL[imod]/avgStepL[0]*1e6<<endl;
+	}
 	avgStepL[imod]=0;
 	avgStepR[imod]=0;
       }
@@ -121,7 +141,11 @@ int main(int argc, char** argv)
       currentStep+=stepSize;
     }
     
-    //if(i>1000000) break;
+    if(i>1000000 && rangeTst) break;
+
+    //x-=3.335;
+    x=-x;
+    angX=-angX;
     
     if(abs(x)>90) continue;
     if(abs(angX)>80) continue;
@@ -183,13 +207,13 @@ float model(float val,int type){
   if(type==0)
     return 1;  
   else if(type==1 && (abs(val)>=20 && abs(val)<40) )
-    return 2e-6*val/abs(val);
+    return 4e-6*val/abs(val);
   else if(type==2)
-    return 2e-6*val;
+    return 4e-8*val;
   else if(type==3)
-    return 2e-6*val/abs(val)*pow(val,2);
+    return 1.5e-9*val/abs(val)*pow(val,2);
   else if(type==4)
-    return 2e-7*pow(val,3);
+    return 4e-11*pow(val,3);
 
   return 0;
 }
@@ -197,9 +221,9 @@ float model(float val,int type){
 
 void readPEs(){
   //ifstream fin("input/idealBar_alongDir_acrossAng0_lightPara.txt");
-  ifstream fin("input/md8Config16_alongDir_acrossAng0_lightPara.txt");
+  //ifstream fin("input/md8Config16_alongDir_acrossAng0_lightPara.txt");
   //ifstream fin("input/idealBar_alongDir_acrossAng23_lightPara.txt");
-  //ifstream fin("input/md8Config16_alongDir_acrossAng23_lightPara.txt");
+  ifstream fin("input/md8Config16_alongDir_acrossAng23_lightPara.txt");
   if(!fin.is_open()) {
     cout<<" cannot read file for PE parametrization :macros/yl_md3_angle_scan.txt" <<endl;
     exit(2);
