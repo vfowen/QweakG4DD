@@ -13,10 +13,15 @@ using namespace std;
 int evNr;
 int primary;//0 secondary, 1 primary
 float x,y,z,E;
-float angX,angY;
-float polT;
+float angX,angY,angXi,angYi;
+float xi,yi,zi;
+float polT,polTi;
+std::vector<double> xI,yI,zI,aXi,aYi,polI;
+
 void findInt(std::vector<int> &inter,std::vector<int> &val, int trackID,int parent, int &hasPar, int &nInt);
 void processOne(TTree *QweakSimG4_Tree,TTree *tout);
+void readInitial(string fnm);
+
 
 int main(int argc, char** argv){
 
@@ -38,9 +43,16 @@ int main(int argc, char** argv){
   tout->Branch("angX",&angX,"angX/F");
   tout->Branch("angY",&angY,"angY/F");
   tout->Branch("polT",&polT,"polT/F");
-    
+  tout->Branch("xi",&xi,"xi/F");
+  tout->Branch("yi",&yi,"yi/F");
+  tout->Branch("zi",&zi,"zi/F");
+  tout->Branch("angXi",&angXi,"angXi/F");
+  tout->Branch("angYi",&angYi,"angYi/F");
+  tout->Branch("polTi",&polTi,"polTi/F");
+  
   int totEv=0;
   if ( files.find(".root") < files.size() ){
+    readInitial(files);
     TFile *fin=new TFile(files.c_str(),"READ");
     if(!fin->IsOpen()){
       cout<<"Problem: can't find file: "<<files<<endl;
@@ -64,6 +76,7 @@ int main(int argc, char** argv){
     ifstream ifile(files.c_str());
     string data;
     while(ifile>>data){
+      readInitial(data);
       TFile *fin=new TFile(data.c_str(),"READ");
       if(!fin->IsOpen()){
 	cout<<"Problem: can't find file: "<<data<<endl;
@@ -103,6 +116,12 @@ void processOne(TTree *QweakSimG4_Tree, TTree *tout){
     if(i%10000==1) cout<<"   at event: "<<i<<endl;
 
     evNr=event->Primary.GetPrimaryEventNumber();
+    xi=xI[i];
+    yi=yI[i];
+    zi=zI[i];
+    angXi=aXi[i];
+    angYi=aYi[i];
+    polTi=polI[i];
     
     interaction.clear();
     trackID.clear();
@@ -142,6 +161,26 @@ void processOne(TTree *QweakSimG4_Tree, TTree *tout){
   }//tree entries
 }
 
+void readInitial(string fnm){
+  xI.clear();yI.clear();zI.clear();aXi.clear();aYi.clear();polI.clear();
+
+  string posfnm=fnm.substr(0,fnm.rfind("/")+1)+"positionMomentum.in";
+  string polfnm=fnm.substr(0,fnm.rfind("/")+1)+"polarization.in";
+  ifstream finpos(posfnm);
+  ifstream finpol(polfnm);
+  float tmpx,tmpy,tmpz,tmpax,tmpay,tmppx,tmppy;
+  while(finpos>>tmpx>>tmpy>>tmpz>>tmpax>>tmpay){
+    finpol>>tmppx>>tmppy;
+    xI.push_back(tmpx);
+    yI.push_back(tmpy);
+    zI.push_back(tmpz);
+    aXi.push_back(tmpax);
+    aYi.push_back(tmpay);
+    polI.push_back(sqrt(pow(tmpx,2)+pow(tmpy,2)));
+  }
+  finpos.close();
+  finpol.close();
+}
 
 void findInt(std::vector<int> &inter,std::vector<int> &val, int trackID,int parent, int &hasPar, int &nInt){
   int found=0;
