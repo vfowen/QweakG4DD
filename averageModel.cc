@@ -33,29 +33,46 @@ const int nModels = 5;
 
 //model,L/R,Upper/Lower
 const int rangeTst=0;
-// //DA moustache/centered - md8Config16 - acrossAng0
+// // //DA moustache/centered - md8Config16 - acrossAng0
 // double asymLimits[nModels][2][2]={
 //   {{-0.200,-0.175},{0.200,0.225}},
-//   {{-0.200,-0.170},{0.190,0.225}},
-//   {{-0.237,-0.210},{0.257,0.283}},
-//   {{-0.210,-0.175},{0.200,0.235}},
-//   {{-0.250,-0.155},{0.150,0.255}}
+//   {{-0.245,-0.205},{0.190,0.225}},
+//   {{-0.275,-0.245},{0.225,0.255}},
+//   {{-0.240,-0.200},{0.185,0.225}},
+//   {{-0.245,-0.195},{0.170,0.245}}
 // };
 // //DA moustache/centered - md8Config16 - acrossAng23
 // double asymLimits[nModels][2][2]={
 //   {{-0.200,-0.175},{0.200,0.225}},
-//   {{-0.175,-0.140},{0.175,0.205}},
-//   {{-0.175,-0.145},{0.205,0.240}},
-//   {{-0.225,-0.160},{0.190,0.240}},
-//   {{-0.250,-0.165},{0.180,0.285}}
+//   {{-0.170,-0.130},{0.205,0.245}},
+//   {{-0.155,-0.115},{0.240,0.285}},
+//   {{-0.205,-0.140},{0.220,0.280}},
+//   {{-0.240,-0.160},{0.205,0.295}}
 // };
-//DA moustache mirrored x,x' - md8Config16 - acrossAng23 
+// //DA moustache mirrored x,x' - md8Config16 - acrossAng23 
+// double asymLimits[nModels][2][2]={
+//   {{-0.200,-0.175},{0.200,0.225}},
+//   {{-0.185,-0.145},{0.175,0.225}},
+//   {{-0.200,-0.160},{0.195,0.235}},
+//   {{-0.225,-0.165},{0.195,0.255}},
+//   {{-0.265,-0.185},{0.22,0.300}}
+// };
+
+// //DA moustache/centered - ideal - acrossAng23
+// double asymLimits[nModels][2][2]={
+//   {{-0.245,-0.215},{0.200,0.225}},
+//   {{-0.250,-0.210},{0.190,0.225}},
+//   {{-0.255,-0.225},{0.200,0.230}},
+//   {{-0.255,-0.215},{0.195,0.235}},
+//   {{-0.285,-0.220},{0.190,0.260}}
+// };
+//DA moustache/centered mirrored x,x'- ideal - acrossAng23
 double asymLimits[nModels][2][2]={
-  {{-0.200,-0.175},{0.200,0.225}},
-  {{-0.195,-0.165},{0.155,0.185}},
-  {{-0.230,-0.200},{0.150,0.190}},
-  {{-0.225,-0.180},{0.160,0.210}},
-  {{-0.265,-0.185},{0.170,0.250}}
+  {{-0.245,-0.215},{0.200,0.225}},
+  {{-0.235,-0.190},{0.210,0.250}},
+  {{-0.235,-0.200},{0.215,0.260}},
+  {{-0.230,-0.190},{0.210,0.270}},
+  {{-0.265,-0.190},{0.220,0.290}}
 };
 
 float model(float val,int type);
@@ -79,6 +96,7 @@ int main(int argc, char** argv)
   int primary;//0 secondary, 1 primary
   float x,y,z,E;
   float angX,angY;
+  float angXi,angYi;
   float polT;
   t->SetBranchAddress("evNr",&evNr);
   t->SetBranchAddress("primary",&primary);
@@ -88,11 +106,13 @@ int main(int argc, char** argv)
   t->SetBranchAddress("E",&E);
   t->SetBranchAddress("angX",&angX);
   t->SetBranchAddress("angY",&angY);
+  t->SetBranchAddress("angXi",&angXi);
+  t->SetBranchAddress("angYi",&angYi);
   t->SetBranchAddress("polT",&polT);
   
   TFile *fout=new TFile("o_avgModel.root","RECREATE");  
 
-  string lr[2]={"R","L"};
+  string lr[2]={"L","R"};
 
   TH1D *hpe[2][nModels],*posPE[2][nModels],*angPE[2][nModels];
   TH1D *as[2][nModels];
@@ -108,7 +128,7 @@ int main(int argc, char** argv)
 			     200,-100,100);
       angPE[j][i] = new TH1D(Form("pe%s_ang_%d",lr[j].c_str(),i),
 			     Form("model %d %s #PEs;angle [deg]",i,lr[j].c_str()),
-			     180,-90,90);
+			     240,-120,120);
     }
   
   
@@ -143,9 +163,12 @@ int main(int argc, char** argv)
     
     if(i>1000000 && rangeTst) break;
 
+    //center
     //x-=3.335;
+    //mirror:
     x=-x;
     angX=-angX;
+    angXi=-angXi;
     
     if(abs(x)>90) continue;
     if(abs(angX)>80) continue;
@@ -172,16 +195,16 @@ int main(int argc, char** argv)
     }
 
     for(int imod=0;imod<nModels;imod++){
-      double asym=model(angX,imod);
+      double asym=model(angX-angXi,imod);
       avgStepL[imod]+=asym*lpe;
       avgStepR[imod]+=asym*rpe;
 
       hpe[0][imod]->Fill((1.+asym)*rpe);
-      posPE[0][imod]->Fill(x,(1.+asym)*rpe);
-      angPE[0][imod]->Fill(angX,(1.+asym)*rpe);
+      posPE[0][imod]->Fill(x,asym*rpe);
+      angPE[0][imod]->Fill(angX-angXi,asym*rpe);
       hpe[1][imod]->Fill((1.+asym)*lpe);
-      posPE[1][imod]->Fill(x,(1.+asym)*lpe);
-      angPE[1][imod]->Fill(angX,(1.+asym)*lpe);
+      posPE[1][imod]->Fill(x,asym*lpe);
+      angPE[1][imod]->Fill(angX-angXi,asym*lpe);
     }
     
     
@@ -222,8 +245,8 @@ float model(float val,int type){
 void readPEs(){
   //ifstream fin("input/idealBar_alongDir_acrossAng0_lightPara.txt");
   //ifstream fin("input/md8Config16_alongDir_acrossAng0_lightPara.txt");
-  //ifstream fin("input/idealBar_alongDir_acrossAng23_lightPara.txt");
-  ifstream fin("input/md8Config16_alongDir_acrossAng23_lightPara.txt");
+  ifstream fin("input/idealBar_alongDir_acrossAng23_lightPara.txt");
+  //ifstream fin("input/md8Config16_alongDir_acrossAng23_lightPara.txt");
   if(!fin.is_open()) {
     cout<<" cannot read file for PE parametrization :macros/yl_md3_angle_scan.txt" <<endl;
     exit(2);
