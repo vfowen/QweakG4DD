@@ -26,14 +26,16 @@ void getCorners(int lowerIndex, int upperIndex, int depth, std::vector<double> p
 void getPEs(std::vector<double> in[dimension], std::vector<double> pt,
 	    double &outL, double &outR);
 
-const int processModel = 2;
+const int processModel = 3;
 //model,L/R,Upper/Lower
 //0= 221nm pos md8Config16 - DA moustache
 //1= 3e-4  ang md8Config16 - DA moustache
 //2= 4e-6  ang md8Config16 - DA moustache
-double asymLimits[3][2][2]={
+//3= 4e-6  ang md8Config16 - centered moustache
+double asymLimits[4][2][2]={
   {{-0.194,-0.186},{0.200,0.208}},
   {{-16.7,-16.0},{13.,13.4}},
+  {{-0.223,-0.216},{0.174,0.182}},
   {{-0.223,-0.216},{0.174,0.182}}
   };
 
@@ -82,8 +84,8 @@ int main(int argc, char** argv)
   TH1D *asL=new TH1D("asL","asymmetry Left PMT" ,
 		     200,asymLimits[processModel][1][0],asymLimits[processModel][1][1]);
   cout<<" Limits for the asymmetry histograms :"<<endl;
-  cout<<asymLimits[processModel][0][0]<<" "<<asymLimits[processModel][0][1]<<endl;
-  cout<<asymLimits[processModel][1][0]<<" "<<asymLimits[processModel][1][1]<<endl;
+  cout<<asymLimits[processModel][1][0]<<" <Left < "<<asymLimits[processModel][1][1]<<endl;
+  cout<<asymLimits[processModel][0][0]<<" <Right< "<<asymLimits[processModel][0][1]<<endl;
   
   for(int i=0;i<2;i++)
     for(int j=0;j<3;j++){
@@ -129,7 +131,8 @@ int main(int argc, char** argv)
     if(E<3) continue;
     if(E>100) E=100;
 
-    //double var[3]={x-3.335,E,angX};//center on bar
+    if(processModel==3)
+      x-=3.335;//center distribution on bar
     double var[3]={x,E,angX};
     double modVar[3];
     for(int ivar=0;ivar<3;ivar++)
@@ -156,6 +159,7 @@ int main(int argc, char** argv)
       if(debugPrint){
 	cout<<endl<<__LINE__<<" "<<__PRETTY_FUNCTION__<<endl;
 	cout<<i<<" "<<x<<" "<<E<<" "<<angX<<endl;
+	cout<<" == "<<var[0]<<" "<<var[1]<<" "<<var[2]<<endl;
 	cout<<" "<<pt[0]<<" "<<pt[1]<<" "<<pt[2]<<endl;
 	cout<<" "<<modVar[0]<<" "<<modVar[1]<<" "<<modVar[2]<<endl;
       }
@@ -217,7 +221,7 @@ float model(float val,int type){
     return 2.21e-5;//position alone (this is DM 221nm HC position difference)
   else if(processModel==1 && type==2)
     return 2.97e-4;//DM estimation of 5.2 urad (3e-4 deg)
-  else if(processModel==2 && type==2)
+  else if((processModel==2 || processModel==3) && type==2)
     return 4e-6;//angle to get ~400ppb DD
   return 0;
 }
