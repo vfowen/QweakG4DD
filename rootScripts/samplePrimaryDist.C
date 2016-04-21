@@ -3,8 +3,7 @@
 
 TH3D *hIn;
 
-//void samplePrimaryDist(int seed, int nevents,int vPol){
-void samplePrimaryDist(){
+void samplePrimaryDist(int seed, int nevents,int vPol){
   if(gRandom) delete gRandom;
   gRandom = new TRandom3(0);  
   //gRandom = new TRandom3(seed);
