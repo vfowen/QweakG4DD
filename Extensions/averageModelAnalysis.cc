@@ -49,32 +49,27 @@ int main(Int_t argc, Char_t* argv[]) {
     TApplication *app = new TApplication("slopes", &argc, argv);
 
     // Histograms to fill from rootfile
-    std::vector < TH1D* > peL_pos(4);
-    std::vector < TH1D* > peR_pos(4);
-    std::vector < TH1D* > peL_ang(4);
-    std::vector < TH1D* > peR_ang(4);
+    std::vector < TH1D* > peL_pos(5);
+    std::vector < TH1D* > peR_pos(5);
+    std::vector < TH1D* > peL_ang(5);
+    std::vector < TH1D* > peR_ang(5);
     // Histogram results
-    std::vector < TH1D* > pe_pos_diff(4);
-    std::vector < TH1D* > pe_ang_diff(4);
+    std::vector < TH1D* > pe_pos_diff(5);
+    std::vector < TH1D* > pe_ang_diff(5);
 
     // Read out the histograms into vectors
-    for(int i = 0; i < 4; i++) {
-        peL_pos[i] = (TH1D*)rootfile->Get(Form("peL_pos_%d",i+1));
-        peR_pos[i] = (TH1D*)rootfile->Get(Form("peR_pos_%d",i+1));
-        peL_ang[i] = (TH1D*)rootfile->Get(Form("peL_ang_%d",i+1));
-        peR_ang[i] = (TH1D*)rootfile->Get(Form("peR_ang_%d",i+1));
-    }
+    for(int i = 0; i < 5; i++) {
+        peL_pos[i] = (TH1D*)rootfile->Get(Form("peL_pos_%d",i));
+        peR_pos[i] = (TH1D*)rootfile->Get(Form("peR_pos_%d",i));
+        peL_ang[i] = (TH1D*)rootfile->Get(Form("peL_ang_%d",i));
+        peR_ang[i] = (TH1D*)rootfile->Get(Form("peR_ang_%d",i));
 
-    // Scale histograms by integral
-    for(int i = 0; i < 4; i++) {
-        peL_pos[i]->Scale(peL_pos[i]->Integral());
-        peR_pos[i]->Scale(peR_pos[i]->Integral());
-        peL_ang[i]->Scale(peL_ang[i]->Integral());
-        peR_ang[i]->Scale(peR_ang[i]->Integral());
-    }
+        // Scale histograms by integral
+        peL_pos[i]->Scale(peL_pos[0]->Integral());
+        peR_pos[i]->Scale(peR_pos[0]->Integral());
+        peL_ang[i]->Scale(peL_ang[0]->Integral());
+        peR_ang[i]->Scale(peR_ang[0]->Integral());
 
-    // Scale histograms by integral
-    for(int i = 0; i < 4; i++) {
         // Clone the left histograms and subtract the right histograms
         pe_pos_diff[i] = (TH1D*)peL_pos[i]->Clone();
         pe_ang_diff[i] = (TH1D*)peL_ang[i]->Clone();
@@ -94,7 +89,7 @@ int main(Int_t argc, Char_t* argv[]) {
     pad2->SetFillColor(0);
     pad1->cd();
     TPaveText *text1 = new TPaveText(.05,.1,.95,.8);
-    text1->AddText("Normalized Asym*PE L-R vs position");
+    text1->AddText("Normalized Asym*PE L-R vs position mirrored, md8Config16, across23");
     text1->Draw();
     pad2->Divide(2,2);
     pad2->cd();
@@ -116,14 +111,14 @@ int main(Int_t argc, Char_t* argv[]) {
     pad4->SetFillColor(0);
     pad3->cd();
     TPaveText *text2 = new TPaveText(.05,.1,.95,.8);
-    text2->AddText("Normalized Asym*PE L-R vs angle");
+    text2->AddText("Normalized Asym*PE L-R vs angle mirrored, md8Config16, across23");
     text2->Draw();
     pad4->Divide(2,2);
     pad4->cd();
 
     for(int i = 0; i < 4; i++) {
         pad4->cd(i+1);
-        pe_ang_diff[i]->Draw();
+        pe_ang_diff[i+1]->Draw();
     }
 
     /* Close rootfile. */
