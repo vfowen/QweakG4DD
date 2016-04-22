@@ -103,10 +103,10 @@ int main(Int_t argc, Char_t* argv[]) {
         "Normalized Asym*PE L+R vs angle mirrored, md8Config16, across23"};
 
     for(int i = 0; i < 4; i++) {
-        tc[i] = new TCanvas("tc"+i,"tc1"+i,1200,800);
+        tc[i] = new TCanvas(Form("tc%d",i),Form("tc%d",i),1200,800);
         tc[i]->Draw();
-        pad1[i] = new TPad("pad1","pad1",0.005,0.900,0.990,0.990);
-        pad2[i] = new TPad("pad2","pad2",0.005,0.005,0.990,0.900);
+        pad1[i] = new TPad(Form("pad1%d",i),Form("pad1%d",i),0.005,0.900,0.990,0.990);
+        pad2[i] = new TPad(Form("pad2%d",i),Form("pad2%d",i),0.005,0.005,0.990,0.900);
         pad1[i]->SetFillColor(0);
         pad1[i]->Draw();
         pad2[i]->Draw();
