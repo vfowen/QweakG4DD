@@ -79,10 +79,16 @@ int main(Int_t argc, Char_t* argv[]) {
         pe_ang_diff[i] = (TH1D*)peL_ang[i]->Clone();
         pe_pos_sum[i] = (TH1D*)peL_pos[i]->Clone();
         pe_ang_sum[i] = (TH1D*)peL_ang[i]->Clone();
+
+        // Calculate sums and differences
         pe_pos_diff[i]->Add(peR_pos[i], -1);
         pe_ang_diff[i]->Add(peR_ang[i], -1);
         pe_pos_sum[i]->Add(peR_pos[i], 1);
         pe_ang_sum[i]->Add(peR_ang[i], 1);
+
+        // Scale sums by 0.5 to get averages
+        pe_pos_sum[i]->Scale(0.5);
+        pe_ang_sum[i]->Scale(0.5);
     }
 
     // Create all the canvases and such
