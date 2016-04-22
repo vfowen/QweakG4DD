@@ -26,17 +26,17 @@
  *
  * Compile with:
  *
- * g++ `root-config --glibs --cflags` -ggdb -O0 -Wall -Wextra -o \
+ * g++ --std=c++11 `root-config --glibs --cflags` -ggdb -O0 -Wall -Wextra -o \
  * averageModelAnalysis averageModelAnalysis.cc 
  *
  */
 
 int main(Int_t argc, Char_t* argv[]) {
 
-    TString rootfile_name = ""; 
-    for(Int_t i = 1; i < argc; i++) {                          
+    TString rootfile_name = "";
+    for(Int_t i = 1; i < argc; i++) {
         if(0 == strcmp("--rootfile", argv[i])) rootfile_name = argv[i+1];
-    }                                                          
+    }
 
     // Print paramaters
     cout << "rootfile:  " << rootfile_name << endl;
@@ -56,69 +56,71 @@ int main(Int_t argc, Char_t* argv[]) {
     // Histogram results
     std::vector < TH1D* > pe_pos_diff(5);
     std::vector < TH1D* > pe_ang_diff(5);
+    std::vector < TH1D* > pe_pos_sum(5);
+    std::vector < TH1D* > pe_ang_sum(5);
 
-    // Read out the histograms into vectors
+    // Read out the histograms for models 0-4 into vectors
     for(int i = 0; i < 5; i++) {
         peL_pos[i] = (TH1D*)rootfile->Get(Form("peL_pos_%d",i));
         peR_pos[i] = (TH1D*)rootfile->Get(Form("peR_pos_%d",i));
         peL_ang[i] = (TH1D*)rootfile->Get(Form("peL_ang_%d",i));
         peR_ang[i] = (TH1D*)rootfile->Get(Form("peR_ang_%d",i));
+    }
 
-        // Scale histograms by integral
-        peL_pos[i]->Scale(peL_pos[0]->Integral());
-        peR_pos[i]->Scale(peR_pos[0]->Integral());
-        peL_ang[i]->Scale(peL_ang[0]->Integral());
-        peR_ang[i]->Scale(peR_ang[0]->Integral());
+    // Scale histograms for models 1-4 by integral
+    for(int i = 1; i < 5; i++) {
+        peL_pos[i]->Scale(2/peL_pos[0]->Integral());
+        peR_pos[i]->Scale(2/peR_pos[0]->Integral());
+        peL_ang[i]->Scale(2/peL_ang[0]->Integral());
+        peR_ang[i]->Scale(2/peR_ang[0]->Integral());
 
         // Clone the left histograms and subtract the right histograms
         pe_pos_diff[i] = (TH1D*)peL_pos[i]->Clone();
         pe_ang_diff[i] = (TH1D*)peL_ang[i]->Clone();
+        pe_pos_sum[i] = (TH1D*)peL_pos[i]->Clone();
+        pe_ang_sum[i] = (TH1D*)peL_ang[i]->Clone();
         pe_pos_diff[i]->Add(peR_pos[i], -1);
         pe_ang_diff[i]->Add(peR_ang[i], -1);
+        pe_pos_sum[i]->Add(peR_pos[i], 1);
+        pe_ang_sum[i]->Add(peR_ang[i], 1);
     }
 
-    // Draw position
-    TCanvas* tc1;
-    tc1 = new TCanvas("tc1","tc1",1200,800);
-    tc1->Draw();
-    TPad*pad1 = new TPad("pad1","pad1",0.005,0.900,0.990,0.990);
-    TPad*pad2 = new TPad("pad2","pad2",0.005,0.005,0.990,0.900);
-    pad1->SetFillColor(0);
-    pad1->Draw();
-    pad2->Draw();
-    pad2->SetFillColor(0);
-    pad1->cd();
-    TPaveText *text1 = new TPaveText(.05,.1,.95,.8);
-    text1->AddText("Normalized Asym*PE L-R vs position mirrored, md8Config16, across23");
-    text1->Draw();
-    pad2->Divide(2,2);
-    pad2->cd();
+    // Create all the canvases and such
+    std::vector< TCanvas* > tc(4);
+    std::vector< TPad* > pad1(4);
+    std::vector< TPad* > pad2(4);
+    std::vector< TPaveText* > text1(4);
+    std::vector<TString> title = {
+        "Normalized Asym*PE L-R vs position mirrored, md8Config16, across23",
+        "Normalized Asym*PE L-R vs angle mirrored, md8Config16, across23",
+        "Normalized Asym*PE L+R vs position mirrored, md8Config16, across23",
+        "Normalized Asym*PE L+R vs angle mirrored, md8Config16, across23"};
 
     for(int i = 0; i < 4; i++) {
-        pad2->cd(i+1);
-        pe_pos_diff[i]->Draw();
+        tc[i] = new TCanvas("tc"+i,"tc1"+i,1200,800);
+        tc[i]->Draw();
+        pad1[i] = new TPad("pad1","pad1",0.005,0.900,0.990,0.990);
+        pad2[i] = new TPad("pad2","pad2",0.005,0.005,0.990,0.900);
+        pad1[i]->SetFillColor(0);
+        pad1[i]->Draw();
+        pad2[i]->Draw();
+        pad2[i]->SetFillColor(0);
+        pad1[i]->cd();
+        text1[i] = new TPaveText(.05,.1,.95,.8);
+        text1[i]->AddText(title[i]);
+        text1[i]->Draw();
+        pad2[i]->Divide(2,2);
     }
 
-    // Draw position
-    TCanvas* tc2;
-    tc2 = new TCanvas("tc2","tc2",1200,800);
-    tc2->Draw();
-    TPad*pad3 = new TPad("pad3","pad3",0.005,0.900,0.990,0.990);
-    TPad*pad4 = new TPad("pad4","pad4",0.005,0.005,0.990,0.900);
-    pad3->SetFillColor(0);
-    pad3->Draw();
-    pad4->Draw();
-    pad4->SetFillColor(0);
-    pad3->cd();
-    TPaveText *text2 = new TPaveText(.05,.1,.95,.8);
-    text2->AddText("Normalized Asym*PE L-R vs angle mirrored, md8Config16, across23");
-    text2->Draw();
-    pad4->Divide(2,2);
-    pad4->cd();
-
     for(int i = 0; i < 4; i++) {
-        pad4->cd(i+1);
+        pad2[0]->cd(i+1);
+        pe_pos_diff[i+1]->Draw();
+        pad2[1]->cd(i+1);
         pe_ang_diff[i+1]->Draw();
+        pad2[2]->cd(i+1);
+        pe_pos_sum[i+1]->Draw();
+        pad2[3]->cd(i+1);
+        pe_ang_sum[i+1]->Draw();
     }
 
     /* Close rootfile. */
