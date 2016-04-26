@@ -92,68 +92,103 @@ int main(Int_t argc, Char_t* argv[]) {
     }
 
     // Take the sum of + and - bids and plot vs + bin number
-    std::vector<int> pe_pos_nbin(4);
-    std::vector<int> pe_ang_nbin(4);
-    std::vector<int> pe_pos_midbin(4);
-    std::vector<int> pe_ang_midbin(4);
+    std::vector<int> pe_pos_sum_nbin(4);
+    std::vector<int> pe_ang_sum_nbin(4);
+    std::vector<int> pe_pos_sum_midbin(4);
+    std::vector<int> pe_ang_sum_midbin(4);
+    std::vector<int> pe_pos_diff_nbin(4);
+    std::vector<int> pe_ang_diff_nbin(4);
+    std::vector<int> pe_pos_diff_midbin(4);
+    std::vector<int> pe_ang_diff_midbin(4);
     // Offset in case there are an even number of bins
-    std::vector<int> pe_pos_offset(4,0);
-    std::vector<int> pe_ang_offset(4,0);
+    std::vector<int> pe_pos_sum_offset(4,0);
+    std::vector<int> pe_ang_sum_offset(4,0);
+    std::vector<int> pe_pos_diff_offset(4,0);
+    std::vector<int> pe_ang_diff_offset(4,0);
     // Output summed histograms
     std::vector < TH1D* > pe_pos_sum_wrap(4);
     std::vector < TH1D* > pe_ang_sum_wrap(4);
+    std::vector < TH1D* > pe_pos_diff_wrap(4);
+    std::vector < TH1D* > pe_ang_diff_wrap(4);
     for(int i = 0; i < 4; i++) {
         // Store the number of bins in a vector
-        pe_pos_nbin[i] = pe_pos_sum[1]->GetNbinsX();
-        pe_ang_nbin[i] = pe_ang_sum[1]->GetNbinsX();
+        pe_pos_sum_nbin[i] = pe_pos_sum[1]->GetNbinsX();
+        pe_ang_sum_nbin[i] = pe_ang_sum[1]->GetNbinsX();
+        pe_pos_diff_nbin[i] = pe_pos_diff[1]->GetNbinsX();
+        pe_ang_diff_nbin[i] = pe_ang_diff[1]->GetNbinsX();
 
         // Compute the mid position of the positive bins and offset
-        if(pe_pos_midbin[i] % 2 == 0) {
-            pe_pos_midbin[i] = pe_pos_nbin[i]/2;
-            pe_ang_midbin[i] = pe_ang_nbin[i]/2;
-            pe_pos_offset[i] = 1;
-            pe_ang_offset[i] = 1;
+        if(pe_pos_sum_midbin[i] % 2 == 0) {
+            pe_pos_sum_midbin[i] = pe_pos_sum_nbin[i]/2;
+            pe_ang_sum_midbin[i] = pe_ang_sum_nbin[i]/2;
+            pe_pos_sum_offset[i] = 1;
+            pe_ang_sum_offset[i] = 1;
+            pe_pos_diff_midbin[i] = pe_pos_diff_nbin[i]/2;
+            pe_ang_diff_midbin[i] = pe_ang_diff_nbin[i]/2;
+            pe_pos_diff_offset[i] = 1;
+            pe_ang_diff_offset[i] = 1;
         } else {
-            pe_pos_midbin[i] = (pe_pos_midbin[i]+1)/2;
-            pe_ang_midbin[i] = (pe_pos_midbin[i]+1)/2;
+            pe_pos_sum_midbin[i] = (pe_pos_sum_midbin[i]+1)/2;
+            pe_ang_sum_midbin[i] = (pe_pos_sum_midbin[i]+1)/2;
+            pe_pos_diff_midbin[i] = (pe_pos_diff_midbin[i]+1)/2;
+            pe_ang_diff_midbin[i] = (pe_pos_diff_midbin[i]+1)/2;
         }
         
         // Initilize histogram
+        cout <<  pe_ang_sum[1]->GetBinLowEdge(pe_ang_sum_nbin[i]) + pe_ang_sum[1]->GetBinWidth(pe_ang_sum_nbin[i]) << endl;
         pe_pos_sum_wrap[i] = new TH1D(Form("pe_pos_sum_wrap_%d",i+1),
                                       Form("pe_pos_sum_wrap_%d",i+1),
-                                      pe_pos_midbin[i], 0, pe_pos_midbin[i]);
+                                      pe_pos_sum_midbin[i], 0,
+                                      pe_pos_sum[1]->GetBinLowEdge(pe_pos_sum_nbin[i])
+                                      + pe_pos_sum[1]->GetBinWidth(pe_pos_sum_nbin[i]));
         pe_ang_sum_wrap[i] = new TH1D(Form("pe_ang_sum_wrap_%d",i+1),
                                       Form("pe_ang_sum_wrap_%d",i+1),
-                                      pe_ang_midbin[i], 0, pe_ang_midbin[i]);
+                                      pe_ang_sum_midbin[i], 0,
+                                      pe_ang_sum[1]->GetBinLowEdge(pe_ang_sum_nbin[i])
+                                      + pe_ang_sum[1]->GetBinWidth(pe_ang_sum_nbin[i]));
+        pe_pos_diff_wrap[i] = new TH1D(Form("pe_pos_diff_wrap_%d",i+1),
+                                      Form("pe_pos_diff_wrap_%d",i+1),
+                                      pe_pos_diff_midbin[i], 0,
+                                      pe_pos_diff[1]->GetBinLowEdge(pe_pos_diff_nbin[i])
+                                      + pe_pos_diff[1]->GetBinWidth(pe_pos_diff_nbin[i]));
+        pe_ang_diff_wrap[i] = new TH1D(Form("pe_ang_diff_wrap_%d",i+1),
+                                      Form("pe_ang_diff_wrap_%d",i+1),
+                                      pe_ang_diff_midbin[i], 0,
+                                      pe_ang_diff[1]->GetBinLowEdge(pe_ang_diff_nbin[i])
+                                      + pe_ang_diff[1]->GetBinWidth(pe_ang_diff_nbin[i]));
 
-        for (int j = 1; j <= pe_pos_midbin[i]; j++) {
+        for (int j = 1; j <= pe_pos_sum_midbin[i]; j++) {
             double temp_lbin = pe_pos_sum[i]->GetBinContent(
-                    pe_pos_midbin[i]-j+pe_pos_offset[i]);
+                    pe_pos_sum_midbin[i]-j+pe_pos_sum_offset[i]);
             double temp_rbin = pe_pos_sum[i]->GetBinContent(
-                    pe_pos_midbin[i]+j);
+                    pe_pos_sum_midbin[i]+j);
             pe_pos_sum_wrap[i]->SetBinContent(j, temp_lbin+temp_rbin);
-            //cout << "L bin Center:  "
-            //    << pe_pos_sum[i]->GetBinCenter(
-            //            pe_pos_midbin[i]-j+pe_pos_offset[i])
-            //    << "  R bin Center:  "
-            //    << pe_pos_sum[i]->GetBinCenter(pe_pos_midbin[i]+j)
-            //    << "  value  "
-            //    << temp_lbin
-            //    << "  bin value  "
-            //    << j 
-            //    << endl;
         }
-        for (int j = 1; j <= pe_ang_midbin[i]; j++) {
+        for (int j = 1; j <= pe_ang_sum_midbin[i]; j++) {
             double temp_lbin = pe_ang_sum[i]->GetBinContent(
-                    pe_ang_midbin[i]-j+pe_ang_offset[i]);
+                    pe_ang_sum_midbin[i]-j+pe_ang_sum_offset[i]);
             double temp_rbin = pe_ang_sum[i]->GetBinContent(
-                    pe_ang_midbin[i]+j);
+                    pe_ang_sum_midbin[i]+j);
             pe_ang_sum_wrap[i]->SetBinContent(j, temp_lbin+temp_rbin);
+        }
+        for (int j = 1; j <= pe_pos_diff_midbin[i]; j++) {
+            double temp_lbin = pe_pos_diff[i]->GetBinContent(
+                    pe_pos_diff_midbin[i]-j+pe_pos_diff_offset[i]);
+            double temp_rbin = pe_pos_diff[i]->GetBinContent(
+                    pe_pos_diff_midbin[i]+j);
+            pe_pos_diff_wrap[i]->SetBinContent(j, temp_lbin+temp_rbin);
+        }
+        for (int j = 1; j <= pe_ang_diff_midbin[i]; j++) {
+            double temp_lbin = pe_ang_diff[i]->GetBinContent(
+                    pe_ang_diff_midbin[i]-j+pe_ang_diff_offset[i]);
+            double temp_rbin = pe_ang_diff[i]->GetBinContent(
+                    pe_ang_diff_midbin[i]+j);
+            pe_ang_diff_wrap[i]->SetBinContent(j, temp_lbin+temp_rbin);
         }
     }
 
     // Create all the canvases and such
-    int num_plots = 6;
+    int num_plots = 8;
     std::vector< TCanvas* > tc(num_plots);
     std::vector< TPad* > pad1(num_plots);
     std::vector< TPad* > pad2(num_plots);
@@ -165,6 +200,8 @@ int main(Int_t argc, Char_t* argv[]) {
         "Normalized Asym*PE L+R vs angle mirrored, md8Config16, across23",
         "Wrapped Asym*PE L+R vs position mirrored, md8Config16, across23",
         "Wrapped Asym*PE L+R vs angle mirrored, md8Config16, across23",
+        "Wrapped Asym*PE L-R vs position mirrored, md8Config16, across23",
+        "Wrapped Asym*PE L-R vs angle mirrored, md8Config16, across23",
     };
 
     for(int i = 0; i < num_plots; i++) {
@@ -194,8 +231,12 @@ int main(Int_t argc, Char_t* argv[]) {
         pe_ang_sum[i]->Draw();
         pad2[4]->cd(i+1);
         pe_pos_sum_wrap[i]->Draw();
-        //pad2[5]->cd(i+1);
-        //pe_ang_sum_wrap[i]->Draw();
+        pad2[5]->cd(i+1);
+        pe_ang_sum_wrap[i]->Draw();
+        pad2[6]->cd(i+1);
+        pe_pos_diff_wrap[i]->Draw();
+        pad2[7]->cd(i+1);
+        pe_ang_diff_wrap[i]->Draw();
     }
 
     /* Close rootfile. */
