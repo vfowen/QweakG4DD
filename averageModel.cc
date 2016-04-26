@@ -18,7 +18,7 @@ const int dimension=5;//3 DoF + 2 PE values
 vector<double> scanPoints[dimension];
 int debugPrint=0;
 vector<double> totPE(4,0);
-void readPEs();
+void readPEs(TString);
 void getCorners(int lowerIndex, int upperIndex, int depth, std::vector<double> point,
 		std::vector<double> points[dimension]);
 void getPEs(std::vector<double> in[dimension], std::vector<double> pt,
@@ -86,7 +86,12 @@ int main(int argc, char** argv)
     return 1;
   }
 
-  readPEs();
+  TString barModel = "";
+  for(Int_t i = 1; i < argc; i++) {
+      if(0 == strcmp("--barmodel", argv[i])) barModel = argv[i+1];
+  }
+
+  readPEs(barModel);
 
   string files(argv[1]);
 
@@ -242,11 +247,20 @@ float model(float val,int type){
 }
 
 
-void readPEs(){
-  //ifstream fin("input/idealBar_alongDir_acrossAng0_lightPara.txt");
-  //ifstream fin("input/md8Config16_alongDir_acrossAng0_lightPara.txt");
-  ifstream fin("input/idealBar_alongDir_acrossAng23_lightPara.txt");
-  //ifstream fin("input/md8Config16_alongDir_acrossAng23_lightPara.txt");
+void readPEs(TString barModel){
+  ifstream fin;
+  if("ideal0" == barModel)
+      cout << "Using input/idealBar_alongDir_acrossAng0_lightPara.txt" << endl;
+      fin.open("input/idealBar_alongDir_acrossAng0_lightPara.txt");
+  if("md8config0" == barModel)
+      cout << "Using input/md8Config16_alongDir_acrossAng0_lightPara.txt" << endl;
+      fin.open("input/md8Config16_alongDir_acrossAng0_lightPara.txt");
+  if("ideal23" == barModel)
+      cout << "Using input/idealBar_alongDir_acrossAng23_lightPara.txt" << endl;
+      fin.open("input/idealBar_alongDir_acrossAng23_lightPara.txt");
+  if("md8config23" == barModel)
+      cout << "Using input/md8Config16_alongDir_acrossAng23_lightPara.txt" << endl;
+      fin.open("input/md8Config16_alongDir_acrossAng23_lightPara.txt");
   if(!fin.is_open()) {
     cout<<" cannot read file for PE parametrization :macros/yl_md3_angle_scan.txt" <<endl;
     exit(2);
