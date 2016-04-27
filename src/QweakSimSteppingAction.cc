@@ -121,9 +121,6 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
   // toggle for filling the Pb ntuple
   G4bool fillNtuple=false; 
   
-  if(debugPrint)
-    G4cout<<"Start Pb nTuple stepping block"<<G4endl;
-  
   int _trackID=theStep->GetTrack()->GetTrackID(); 
   int _parentID = theStep->GetTrack()->GetParentID();
   double _priE=theStep->GetTrack()->GetTotalEnergy();
@@ -140,14 +137,26 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
 
   
   if(_material){    
-    if(debugPrint)
-      G4cout<<"~~~ Step in "<<_material->GetName()<<" "<<theStep->GetTrack()->GetVolume()->GetName()
-	    <<" pos: "
+    if(debugPrint){
+      G4cout<<__PRETTY_FUNCTION__<<G4endl;
+      G4cout<<"\tStep in "<<_material->GetName()<<" "
+	    <<theStep->GetTrack()->GetVolume()->GetName()<<G4endl
+	    <<"\tpreKEnergy\tpostKEnergy\tstepEnergy"<<G4endl
+	    <<"\t"<<thePrePoint->GetKineticEnergy()<<"\t"
+	    <<thePostPoint->GetKineticEnergy()<<"\t"<<_priE<<G4endl
+	    <<"\tpos: cart: "
 	    <<thePostPoint->GetPosition().getX()
 	    <<" "<<thePostPoint->GetPosition().getY()
 	    <<" "<<thePostPoint->GetPosition().getZ()
+	    <<G4endl<<"\tsph: "<<thePostPoint->GetPosition().getR()
+	    <<" "<<thePostPoint->GetPosition().getTheta()
+	    <<" "<<thePostPoint->GetPosition().getPhi()
+	    <<G4endl<<"\taI(0)\taI(1)\taI(2): "
+	    <<asymInfo->at(0)<<"\t"
+	    <<asymInfo->at(1)<<"\t"
 	    <<asymInfo->at(2)<<G4endl;
-
+    }
+    
     if(_material->GetName().compare("PBA")==0){ // perform this only in the Radiator
 
       eLossPercent = 1. - thePostPoint->GetKineticEnergy()/thePrePoint->GetKineticEnergy();
@@ -161,9 +170,14 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
 	else depol = 0.;
  
 	if(debugPrint){
-	  G4cout<<" ~~~ eBrem depol : "<<eLossPercent<<"% E loss means "<< depol <<" depolarization"<<G4endl;
-	  G4cout<<" ~~~ kin E pre post "<<thePrePoint->GetKineticEnergy()<<" "<<thePostPoint->GetKineticEnergy()<<G4endl;
-	  G4cout<<" ~~~~ polarization X Y Z "
+	  G4cout<<__PRETTY_FUNCTION__<<G4endl;
+	  G4cout<<"\teBrem depol : "
+		<<eLossPercent<<"% E loss means\t"
+		<< depol <<" depolarization"<<G4endl;
+	  G4cout<<"\tpreKinE postKinE: "
+		<<thePrePoint->GetKineticEnergy()
+		<<" "<<thePostPoint->GetKineticEnergy()<<G4endl;
+	  G4cout<<"\tpolarization X Y Z: "
 		<<_polarization.getX()<<" "
 		<<_polarization.getY()<<" "
 		<<_polarization.getZ()<<" => ";
@@ -179,11 +193,12 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
       }
       
       if(debugPrint){
-	G4cout<<myUserInfo->GetPrimaryEventNumber()<<" step "
-	      <<asymInfo->at(0)<<" "
-	      <<asymInfo->at(1)<<" "
+	G4cout<<__PRETTY_FUNCTION__<<G4endl;
+	G4cout<<"\tPrimaryEventNumber\tasymInfo(0)\tasymInfo(1)"<<G4endl<<"\t"
+	      <<myUserInfo->GetPrimaryEventNumber()<<"\t"
+	      <<asymInfo->at(0)<<"\t"
+	      <<asymInfo->at(1)<<"\t"
 	      <<G4endl;
-	std::cin.ignore();
       }
 
       // either write out only the primaries or all e\pm and gammas
@@ -262,20 +277,21 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
 	  tout->Fill(_var);
 	
 	if(debugPrint){
-	  G4cout<<"~Primary: "<<_trackID<<" "<<_parentID<<" "<<_priE<<" "<<_pn<<" "<<_name<<" "
-		<<_material->GetName()<<" angle "<<scatAng<<" "<<_pn<<" "<<_steplength<<G4endl;
-	  G4cout<<"  preP R th phi "<<_preP.getR()<<" "<<_preP.getTheta()<<" "<<_preP.getPhi()<<G4endl;
-	  G4cout<<" postP R th phi "<<_postP.getR()<<" "<<_postP.getTheta()<<" "<<_postP.getPhi()<<G4endl;
-	  G4cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<G4endl;
+	  G4cout<<__PRETTY_FUNCTION__<<G4endl;
+	  G4cout<<"\tPrimary:\ttrackID\tparentID\ttotE\tprocessName\tpartName"<<G4endl
+		<<"\t\t\t"<<_trackID<<"\t"<<_parentID<<"\t"<<_priE<<"\t"<<_pn<<"\t"<<_name<<G4endl
+		<<"\tmaterialName\tScatteringAngle\tstepLength"<<G4endl<<"\t"
+		<<_material->GetName()<<"\t"<<scatAng<<"\t"<<_steplength<<G4endl;
+	  G4cout<<"\tpreP R th phi "
+		<<_preP.getR()<<" "<<_preP.getTheta()<<" "<<_preP.getPhi()<<G4endl;
+	  G4cout<<"\tpostP R th phi "
+		<<_postP.getR()<<" "<<_postP.getTheta()<<" "<<_postP.getPhi()<<G4endl;
+	  G4cout<<"\tpre.angle(post): "<<_preP.angle(_postP)<<G4endl;
 	}
 
       }//if(writeOut)      
     }//if(PBA)
   }//if(material)
-
-  if(debugPrint)
-    G4cout<<"End Pb nTuple stepping block"<<G4endl;
-
   
   if(particleType==G4Electron::ElectronDefinition())
     {
@@ -398,8 +414,13 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
   if ( theStep->GetTrack()->GetCurrentStepNumber() > 100000 )
     theStep->GetTrack()->SetTrackStatus(fStopAndKill);
 
-  if(debugPrint)
-    G4cout<<"Finished step"<<G4endl;
+  if(debugPrint){
+    G4cout<<__PRETTY_FUNCTION__<<G4endl;
+    G4cout<<"\tFinished step"<<G4endl<<G4endl<<G4endl;
+    if(_material)
+      if(_material->GetName().compare("PBA")==0)
+	std::cin.ignore();
+  }
   return;
 }       // end of QweakSimSteppingAction::UserSteppingAction
 
