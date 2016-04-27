@@ -18,7 +18,7 @@ const int dimension=5;//3 DoF + 2 PE values
 vector<double> scanPoints[dimension];
 int debugPrint=0;
 vector<double> totPE(4,0);
-void readPEs();
+void readPEs(TString);
 void getCorners(int lowerIndex, int upperIndex, int depth, std::vector<double> point,
 		std::vector<double> points[dimension]);
 void getPEs(std::vector<double> in[dimension], std::vector<double> pt,
@@ -81,14 +81,26 @@ float model(float val,int type);
 int main(int argc, char** argv)
 {
 
-  if( argc < 2 ) {
-    cout<<" usage: build/avgModel [root file with hits]"<<endl;
+  if( argc == 1 ) {
+    cout << " usage: build/avgModel [options]" << endl;
+    cout << " --rootfile <path to rootfile>" << endl;
+    cout << " --barmodel ideal0, ideal23, md8config0 or md8config23" << endl;
+    cout << " --distmodel mirror (omit for as is)" << endl;
     return 1;
   }
 
-  readPEs();
+  TString barModel = "";
+  TString distModel = "";
+  TString rootfile = "";
+  for(Int_t i = 1; i < argc; i++) {
+      if(0 == strcmp("--barmodel", argv[i])) barModel = argv[i+1];
+      if(0 == strcmp("--distmodel", argv[i])) distModel = argv[i+1];
+      if(0 == strcmp("--rootfile", argv[i])) rootfile = argv[i+1];
+  }
 
-  string files(argv[1]);
+  readPEs(barModel);
+
+  string files(rootfile);
 
   TFile *fin=TFile::Open(files.c_str(),"READ");
   TTree *t=(TTree*)fin->Get("t");
@@ -166,9 +178,11 @@ int main(int argc, char** argv)
     //center
     //x-=3.335;
     //mirror:
-    x=-x;
-    angX=-angX;
-    angXi=-angXi;
+    if("mirror" == distModel) {
+        x=-x;
+        angX=-angX;
+        angXi=-angXi;
+    }
     
     if(abs(x)>90) continue;
     if(abs(angX)>80) continue;
@@ -212,6 +226,34 @@ int main(int argc, char** argv)
 
 
   fout->cd();
+  TNamed* tn1;                              
+  TNamed* tn2;                              
+  TNamed* tn3;                              
+  if("ideal0" == barModel) {
+      tn1 = new TNamed("bar","ideal bar");
+      tn2 = new TNamed("angle","angle 0");
+  }
+  if("md8config0" == barModel) {
+      tn1 = new TNamed("bar","md8config16");
+      tn2 = new TNamed("angle","angle 0");
+  }                                         
+  if("ideal23" == barModel) {
+      tn1 = new TNamed("bar","ideal bar");
+      tn2 = new TNamed("angle","angle 23");
+  }
+  if("md8config23" == barModel) {
+      tn1 = new TNamed("bar","md8config16");
+      tn2 = new TNamed("angle","angle 23");
+  }
+  if("mirror" == distModel) {
+	  tn3 = new TNamed("distribution", "mirror");
+  }
+  else {
+	  tn3 = new TNamed("distribution", "as is");
+  }
+  tn1->Write();                              
+  tn2->Write();                              
+  tn3->Write();                              
   for(int i=0;i<2;i++)
     for(int j=0;j<nModels;j++){      
       hpe[i][j]->Write();
@@ -242,18 +284,34 @@ float model(float val,int type){
 }
 
 
-void readPEs(){
-  //ifstream fin("input/idealBar_alongDir_acrossAng0_lightPara.txt");
-  //ifstream fin("input/md8Config16_alongDir_acrossAng0_lightPara.txt");
-  ifstream fin("input/idealBar_alongDir_acrossAng23_lightPara.txt");
-  //ifstream fin("input/md8Config16_alongDir_acrossAng23_lightPara.txt");
+void readPEs(TString barModel){
+  TString path;
+  if("ideal0" == barModel) {
+      cout << "Using input/idealBar_alongDir_acrossAng0_lightPara.txt" << endl;
+      path = "input/idealBar_alongDir_acrossAng0_lightPara.txt";
+  }
+  if("md8config0" == barModel) {
+      cout << "Using input/md8Config16_alongDir_acrossAng0_lightPara.txt" << endl;
+      path = "input/md8Config16_alongDir_acrossAng0_lightPara.txt";
+  }
+  if("ideal23" == barModel) {
+      cout << "Using input/idealBar_alongDir_acrossAng23_lightPara.txt" << endl;
+      path = "input/idealBar_alongDir_acrossAng23_lightPara.txt";
+  }
+  if("md8config23" == barModel) {
+      cout << "Using input/md8Config16_alongDir_acrossAng23_lightPara.txt" << endl;
+      path = "input/md8Config16_alongDir_acrossAng23_lightPara.txt";
+  }
+  ifstream fin(path);
   if(!fin.is_open()) {
     cout<<" cannot read file for PE parametrization :macros/yl_md3_angle_scan.txt" <<endl;
     exit(2);
   }
+
+
   double x1,x2,x3,x4,x5,x6,x7,x8,x9;  
   string data;
-  getline(fin,data);
+  getline(fin, data);
 
   for(int i=0;i<dimension;i++)
     scanPoints[i].clear();
