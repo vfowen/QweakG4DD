@@ -59,6 +59,13 @@ int main(Int_t argc, Char_t* argv[]) {
     std::vector < TH1D* > pe_pos_sum(4);
     std::vector < TH1D* > pe_ang_sum(4);
 
+    TString bar;
+    TString angle;
+    TString dist;
+    bar = rootfile->Get("bar")->GetTitle();
+    angle = rootfile->Get("angle")->GetTitle();
+    dist = rootfile->Get("distribution")->GetTitle();
+
     // Read out the histograms for models 0-4 into vectors
     for(int i = 0; i < 5; i++) {
         peL_pos[i] = (TH1D*)rootfile->Get(Form("peL_pos_%d",i));
@@ -135,7 +142,6 @@ int main(Int_t argc, Char_t* argv[]) {
         }
         
         // Initilize histogram
-        cout <<  pe_ang_sum[1]->GetBinLowEdge(pe_ang_sum_nbin[i]) + pe_ang_sum[1]->GetBinWidth(pe_ang_sum_nbin[i]) << endl;
         pe_pos_sum_wrap[i] = new TH1D(Form("pe_pos_sum_wrap_%d",i+1),
                                       Form("pe_pos_sum_wrap_%d",i+1),
                                       pe_pos_sum_midbin[i], 0,
@@ -194,14 +200,14 @@ int main(Int_t argc, Char_t* argv[]) {
     std::vector< TPad* > pad2(num_plots);
     std::vector< TPaveText* > text1(num_plots);
     std::vector<TString> title = {
-        "Normalized Asym*PE L-R vs position mirrored, md8Config16, across23",
-        "Normalized Asym*PE L-R vs angle mirrored, md8Config16, across23",
-        "Normalized Asym*PE L+R vs position mirrored, md8Config16, across23",
-        "Normalized Asym*PE L+R vs angle mirrored, md8Config16, across23",
-        "Wrapped Asym*PE L+R vs position mirrored, md8Config16, across23",
-        "Wrapped Asym*PE L+R vs angle mirrored, md8Config16, across23",
-        "Wrapped Asym*PE L-R vs position mirrored, md8Config16, across23",
-        "Wrapped Asym*PE L-R vs angle mirrored, md8Config16, across23",
+        Form("Normalized Asym*PE L-R vs position: %s, %s, %s",dist.Data(),bar.Data(),angle.Data()),
+        Form("Normalized Asym*PE L-R vs angle: %s, %s, %s",dist.Data(),bar.Data(),angle.Data()),
+        Form("Normalized Asym*PE L+R vs position: %s, %s, %s",dist.Data(),bar.Data(),angle.Data()),
+        Form("Normalized Asym*PE L+R vs angle: %s, %s, %s",dist.Data(),bar.Data(),angle.Data()),
+        Form("Wrapped Asym*PE L+R vs position: %s, %s, %s",dist.Data(),bar.Data(),angle.Data()),
+        Form("Wrapped Asym*PE L+R vs angle: %s, %s, %s",dist.Data(),bar.Data(),angle.Data()),
+        Form("Wrapped Asym*PE L-R vs position: %s, %s, %s",dist.Data(),bar.Data(),angle.Data()),
+        Form("Wrapped Asym*PE L-R vs angle: %s, %s, %s",dist.Data(),bar.Data(),angle.Data())
     };
 
     for(int i = 0; i < num_plots; i++) {
