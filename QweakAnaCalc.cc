@@ -30,24 +30,13 @@ void getCorners(int lowerIndex, int upperIndex, int depth, std::vector<double> p
 void getPEs(std::vector<double> in[dimension], std::vector<double> pt,
 	    double &outL, double &outR);
 
-TH1D *asym[4];
-TH1D *asymNorm[4];
-TH1D *angleNorm[4];
-TH2D *lPEvsAsym,*rPEvsAsym;
-TH1D *distAsL,*distAsR;//1000 ev Asymmetry distributions 
-TH1D *distAngL,*distAngR;//angle distributions normalized by PE*Asymmetry
-double lpeP(0),lpeM(0),rpeP(0),rpeM(0);
-double asymCut(0);
-const int asCuts=4;
-double asCut[asCuts]={0.005,0.01,0.05,0.5};
-TGraph *convL[asCuts],*convR[asCuts],*convN[asCuts],*convA[asCuts];
-TH1D *angNormL[asCuts],*angNormR[asCuts],*angNormN[asCuts],*angNormA[asCuts];
-int ngL[asCuts]={0,0,0,0},ngR[asCuts]={0,0,0,0},ngN[asCuts]={0,0,0,0};
-TGraph *as;
-int nga(0);
-double tstasAv(0);
-int tstnAv(0);
+void analyzePEs(TH1D *h1,TH1D *h2,TFile *fout,string hNm);
+TH1D *wrapHist(TH1D *h,double op);
 
+TH1D *dasym,*dasymPos,*dasymAng;
+TH1D *dpe[2],*dpePos[2],*dpeAng[2];//[2]=l/r
+double lpeP(0),lpeM(0),rpeP(0),rpeM(0);
+TH2D *lPEvsAsym,*rPEvsAsym;
 
 int main(int argc, char** argv)
 {
@@ -62,40 +51,20 @@ int main(int argc, char** argv)
   string files(argv[1]);
 
   TFile *fout=new TFile("o_calcAsym.root","RECREATE");  
+  string lr[2]={"L","R"};
 
-  TH1I *hNev=new TH1I("hNev","total number of events processed",1,0,1);
-  as=new TGraph();
-  for(int i=0;i<asCuts;i++){
-    convL[i]=new TGraph();
-    convR[i]=new TGraph();
-    convN[i]=new TGraph();
-    convA[i]=new TGraph();
-    angNormL[i]=new TH1D(Form("angNormL_%d",i),Form("angX<-0.01 asym Normalized for abs(asym)<%f; angle[deg]",asCut[i]),360,-90,90);
-    angNormR[i]=new TH1D(Form("angNormR_%d",i),Form("angX> 0.01 asym Normalized for abs(asym)<%f; angle[deg]",asCut[i]),360,-90,90);
-    angNormN[i]=new TH1D(Form("angNormN_%d",i),Form("Null asym Normalized for abs(asym)<%f; angle[deg]",asCut[i]),360,-90,90);
-    angNormA[i]=new TH1D(Form("angNormA_%d",i),Form("Angle sign weigthed asym Normalized for abs(asym)<%f; angle[deg]",asCut[i]),360,-90,90);
+  dasym=new TH1D("dasym","Asymmetry distribution",1000,-1,1);
+  dasymPos=new TH1D("dasymPos","Asymmetry distribution;position[cm]",200,-100,100);
+  dasymAng=new TH1D("dasymAng","Asymmetry distribution;angle in shower[deg]",360,-90,90);
+
+  for(int i=0;i<2;i++){
+    dpe[i]=new TH1D(Form("dpe_%s",lr[i].c_str()),Form("%s PE*asym",lr[i].c_str()),1000,-1,1);
+    dpePos[i]=new TH1D(Form("dpePos_%s",lr[i].c_str()),Form("%s PE*asym;position[cm]",lr[i].c_str()),200,-100,100);
+    dpeAng[i]=new TH1D(Form("dpeAng_%s",lr[i].c_str()),Form("%s PE*asym;angle in shower [deg]",lr[i].c_str()),360,-90,90);
   }
   
-  lPEvsAsym=new TH2D("lPEvsAsym","; left # PEs;asymetry",500,0,500,500,-1,1);
-  rPEvsAsym=new TH2D("rPEvsAsym",";right # PEs;asymetry",500,0,500,500,-1,1);
-  distAsL=new TH1D("distAsL","Left distAs" ,1000,-1e-3,1e-3);
-  distAsR=new TH1D("distAsR","Right distAs",1000,-1e-3,1e-3);
-  distAngL=new TH1D("distAngL","Left  distAng",360,-90,90);
-  distAngR=new TH1D("distAngR","Right distAng",360,-90,90);
-  
-  string hTitle[4]={"(P+ - P-)/(P+ + P-)","(P+ - P-)","(P+ + P-) - 2","P+ - 1"};
-
-  for(int i=0;i<4;i++){
-    asym[i]=new TH1D(Form("asym%d",i),Form("dist %s",hTitle[i].c_str()),
-		     500,-1,1);
-
-    asymNorm[i]=new TH1D(Form("asymNorm%d",i),Form("Norm dist %s",hTitle[i].c_str()),
-			 500,-1,1);
-
-    angleNorm[i]=new TH1D(Form("angleNorm%d",i),Form("Norm angle %s",hTitle[i].c_str()),
-			  360,-90,90);
-
-  }
+  lPEvsAsym=new TH2D("lPEvsAsym","; left # PEs;asymetry",500,0,500,500,-1e-1,1e-1);
+  rPEvsAsym=new TH2D("rPEvsAsym",";right # PEs;asymetry",500,0,500,500,-1e-1,1e-1);
 
   int totEv=0;
   if ( files.find(".root") < files.size() ){
@@ -141,64 +110,42 @@ int main(int argc, char** argv)
   }
   
   cout<<"Processed "<<totEv<<" events"<<endl;
-  //13.46 is the ratio for light between all the shower and primaries
 
-  cout<<"Primary plus minus asymmetry"<<endl;
+  cout<<"Primary: plus minus asymmetry"<<endl;
   cout<<"L "<<lpeP<<" "<<lpeM<<" "<<(lpeP-lpeM)/(lpeP+lpeM)<<endl;
   cout<<"R "<<rpeP<<" "<<rpeM<<" "<<(rpeP-rpeM)/(rpeP+rpeM)<<endl;
   cout<<" DD "<<(lpeP-lpeM)/(lpeP+lpeM) - (rpeP-rpeM)/(rpeP+rpeM)<<endl;
+  cout<<" bias "<<((lpeP-lpeM)/(lpeP+lpeM) + (rpeP-rpeM)/(rpeP+rpeM))/2.<<endl;
   double lave=(lpeP+lpeM)/2.;
   double rave=(rpeP+rpeM)/2.;
+  //13.46 is the ratio for light between all the shower and primaries
   lpeP += lave*13.46;
   lpeM += lave*13.46;
   rpeP += rave*13.46;
   rpeM += rave*13.46;
-  cout<<"Everything plus minus asymmetry"<<endl;
+  cout<<"Everything: plus minus asymmetry"<<endl;
   cout<<"L "<<lpeP<<" "<<lpeM<<" "<<(lpeP-lpeM)/(lpeP+lpeM)<<endl;
   cout<<"R "<<rpeP<<" "<<rpeM<<" "<<(rpeP-rpeM)/(rpeP+rpeM)<<endl;
   cout<<" DD "<<(lpeP-lpeM)/(lpeP+lpeM) - (rpeP-rpeM)/(rpeP+rpeM)<<endl;
+  cout<<" bias "<<((lpeP-lpeM)/(lpeP+lpeM) + (rpeP-rpeM)/(rpeP+rpeM))/2.<<endl;
   
-
   fout->cd();
 
-  for(int i=0;i<asCuts;i++){    
-    convL[i]->SetName(Form("convL_%d",i));
-    convL[i]->SetTitle(Form("convergence of x<-0.01 asymmetry for abs(asym)<%f;ev number",asCut[i]));
-    convL[i]->Write();
-    convR[i]->SetName(Form("convR_%d",i));
-    convR[i]->SetTitle(Form("convergence of x> 0.01 asymmetry for abs(asym)<%f;ev number",asCut[i]));
-    convR[i]->Write();
-    convN[i]->SetName(Form("convN_%d",i));
-    convN[i]->SetTitle(Form("Null convergence asymmetry for abs(asym)<%f;ev number",asCut[i]));
-    convN[i]->Write();
-    convA[i]->SetName(Form("convA_%d",i));
-    convA[i]->SetTitle(Form("convergence for angle sign weighted asymmetry for abs(asym)<%f;ev number",asCut[i]));
-    convA[i]->Write();
-    angNormL[i]->Write();
-    angNormR[i]->Write();
-    angNormN[i]->Write();
-    angNormA[i]->Write();
-  }
-  
-  hNev->SetBinContent(1,totEv);
-  hNev->Write();
-  
-  for(int i=0;i<4;i++){
-    asym[i]->Write();
-    asymNorm[i]->Scale(1./asymNorm[i]->GetEntries());
-    angleNorm[i]->Scale(1./angleNorm[i]->GetEntries());
-    asymNorm[i]->Write();
-    angleNorm[i]->Write();    
+  dasym->Write();
+  dasymAng->Write();
+  dasymPos->Write();
+  for(int i=0;i<2;i++){
+    dpe[i]->Write();
+    dpePos[i]->Write();
+    dpeAng[i]->Write();
   }
   lPEvsAsym->Write();
   rPEvsAsym->Write();
-  distAsL->Write();
-  distAsR->Write();
-  distAngL->Write();
-  distAngR->Write();
-  as->SetName("as");
-  as->SetTitle("asymmetry;ev number");
-  as->Write();
+
+  analyzePEs(dpe[0],dpe[1],fout,"h");
+  analyzePEs(dpePos[0],dpePos[1],fout,"hPos");
+  analyzePEs(dpeAng[0],dpeAng[1],fout,"hAng");
+
   fout->Close();
   return 0;
 }
@@ -212,23 +159,10 @@ void processOne(TTree *QweakSimG4_Tree){
   QweakSimUserMainEvent* event = 0;
   QweakSimG4_Tree->SetBranchAddress("QweakSimUserMainEvent",&event);    
 
-  double klpeP(0),krpeP(0);
-  double klpeM(0),krpeM(0);
-  double asAv=0;
-  int nAv=0;
-
   for (int i = 0; i < QweakSimG4_Tree->GetEntries(); i++) {
     QweakSimG4_Tree->GetEntry(i);
     if(i%10000==1)  cout<<"   at event: "<<i<<endl;
 
-    if(i>100 && i%1000==0){
-      distAsL->Fill( (klpeP-klpeM)/(klpeP+klpeM) );
-      distAsR->Fill( (krpeP-krpeM)/(krpeP+krpeM) );
-      klpeP = 0;
-      klpeM = 0;
-      krpeP = 0;
-      krpeM = 0;
-    }
     interaction.clear();
     trackID.clear();
 
@@ -264,102 +198,97 @@ void processOne(TTree *QweakSimG4_Tree){
       if(E>100) E=100;
 
       std::vector<double> pt1(dimension-2,0);//correct point
-      std::vector<double> pt2(dimension-2,0);//mirror point
       std::vector<double> pts1[dimension];
-      std::vector<double> pts2[dimension];
 
       pt1[0]=x;
       pt1[2]=angX;
       pt1[1]=E;
-
-      pt2[0]=-pt1[0];
-      pt2[2]=-pt1[2];
-      pt2[1]=pt1[1];
             
       double rpe(-1),lpe(-1);
-      double rp1(-1),rp2(-1);
-      double lp1(-1),lp2(-1);
       getCorners(0,scanPoints[0].size(),0,pt1,pts1);
-      getPEs(pts1,pt1,lp1,rp1);
+      getPEs(pts1,pt1,lpe,rpe);
       
-      getCorners(0,scanPoints[0].size(),0,pt2,pts2);
-      getPEs(pts2,pt2,lp2,rp2);
-      
-      if(lp1!=-1 && rp1!=-1 && lp2!=-1 && rp2!=-1){
-	lpe=(lp1+rp2)/2;
-	rpe=(rp1+lp2)/2;	    
-      }else{
+      if(lpe==-1 || rpe==-1 ||
+	 isnan(lpe) || isnan(rpe) ||
+	 isinf(lpe) || isinf(rpe)){
+
 	cout<<"Problem with interpolator!"<<lpe<<" "<<rpe<<" "<<pt1[0]<<" "<<pt1[1]<<" "<<pt1[2]<<endl;
 	exit(1);
       }      
-      
-      for(int j=0;j<4;j++){
-	asym[j]->Fill(asVal[j]);
-	asymNorm[j]->Fill(asVal[j],asVal[j]);
-	angleNorm[j]->Fill(angX,asVal[j]);
-      }
 
-      for(int ii=0;ii<asCuts;ii++)
-	if(abs(asVal[0])<asCut[ii]){
-	  angNormN[ii]->Fill(angX,asVal[0]);
-	  angNormA[ii]->Fill(angX,asVal[0]*angX/abs(angX));
+      dasym->Fill(asVal[0]);
+      dasymPos->Fill(x,asVal[0]);
+      dasymAng->Fill(angX,asVal[0]);
 
-	  angNormN[ii]->Scale(1./angNormN[ii]->GetEntries());
-	  angNormA[ii]->Scale(1./angNormA[ii]->GetEntries());
-	  convN[ii]->SetPoint(ngN[ii],ngN[ii],angNormN[ii]->Integral());
-	  convA[ii]->SetPoint(ngN[ii],ngN[ii],angNormA[ii]->Integral());
-	  angNormN[ii]->Scale(angNormN[ii]->GetEntries());
-	  angNormA[ii]->Scale(angNormA[ii]->GetEntries());
-	  ngN[ii]++;
-	  
-	  if(angX<0){
-	    angNormL[ii]->Fill(angX,asVal[0]);
-	    angNormL[ii]->Scale(1./angNormL[ii]->GetEntries());
-	    convL[ii]->SetPoint(ngL[ii],ngL[ii],angNormL[ii]->Integral());	
-	    angNormL[ii]->Scale(angNormL[ii]->GetEntries());
-	    ngL[ii]++;
-	  }else if(angX>0){
-	    angNormR[ii]->Fill(angX,asVal[0]);
-	    angNormR[ii]->Scale(1./angNormR[ii]->GetEntries());
-	    convR[ii]->SetPoint(ngR[ii],ngR[ii],angNormR[ii]->Integral());	
-	    angNormR[ii]->Scale(angNormR[ii]->GetEntries());
-	    ngR[ii]++;
-	  }
-	}
+      dpe[0]->Fill(lpe*asVal[0]);
+      dpe[1]->Fill(rpe*asVal[0]);
 
-      if(nAv%1000==0 && nAv>0){
-	tstasAv+=asAv/1000.;
-	tstnAv++;
-	as->SetPoint(tstnAv-1,tstnAv,tstasAv/tstnAv);
-	asAv=0;
-      }
+      dpePos[0]->Fill(x,lpe*asVal[0]);
+      dpePos[1]->Fill(x,rpe*asVal[0]);
 
-      asAv+=asVal[0];
-      nAv++;
-      
-      distAngL->Fill(angX,asVal[0]*lpe);
-      distAngR->Fill(angX,asVal[0]*rpe);
-      
+      dpeAng[0]->Fill(angX,lpe*asVal[0]);
+      dpeAng[1]->Fill(angX,rpe*asVal[0]);
+
       lPEvsAsym->Fill(lpe,asVal[0]);
       rPEvsAsym->Fill(rpe,asVal[0]);
-      
+            
       lpeP += lpe*(1. + asVal[0]);
       lpeM += lpe*(1. - asVal[0]);
       rpeP += rpe*(1. + asVal[0]);
       rpeM += rpe*(1. - asVal[0]);
-
-      klpeP += lpe*(1. + asVal[0]);
-      klpeM += lpe*(1. - asVal[0]);
-      krpeP += rpe*(1. + asVal[0]);
-      krpeM += rpe*(1. - asVal[0]);      
     }//nhit
   }//tree entries
 }
 
+void analyzePEs(TH1D *h1,TH1D *h2,TFile *fout,string hNm){
+
+  fout->cd();
+  TH1D *hdd=(TH1D*)h1->Clone(Form("%sdd",hNm.c_str()));
+  hdd->Scale(1./hdd->Integral());
+  hdd->Add(h2,-1./h2->Integral());
+  hdd->Write();
+  TH1D *hddwp=wrapHist(hdd,1);
+  hddwp->Write();
+  TH1D *hddwm=wrapHist(hdd,-1);
+  hddwm->Write();
+
+  TH1D *hbias=(TH1D*)h1->Clone(Form("%sbias",hNm.c_str()));
+  hbias->Scale(1./hbias->Integral());
+  hbias->Add(h2,1./h2->Integral());
+  hbias->Scale(1./2);
+  hbias->Write();
+  TH1D *hbiaswp=wrapHist(hbias,1);
+  hbiaswp->Write();
+  TH1D *hbiaswm=wrapHist(hbias,-1);
+  hbiaswm->Write();
+  
+}
+
+TH1D *wrapHist(TH1D *h,double op){
+  int nbin=h->GetXaxis()->GetNbins();
+  double bh=h->GetBinLowEdge(nbin)+h->GetBinWidth(nbin);
+
+  string hnm;
+  if(op==1)
+    hnm="sum";
+  else
+    hnm="dif";
+  TH1D *wrap=new TH1D(Form("wrap_%s_%s",h->GetName(),hnm.c_str()),
+		      Form("wrap: %s Mbin+(%d)*Pbin",h->GetTitle(),(int)op),
+		      nbin/2,0,bh);
+
+  for(int i=nbin/2+1;i<=nbin;i++){
+    double pbin=h->GetBinContent(i);
+    double mbin=h->GetBinContent(nbin-i+1);
+    wrap->SetBinContent(i-nbin/2,pbin+op*mbin);
+  }
+  return wrap;
+}
+
 
 void readPEs(){
-  ifstream fin("input/idealBar_alongDir_acrossAng0_lightPara.txt");
-  //ifstream fin("input/md8Config16_alongDir_acrossAng0_lightPara.txt");
+  //ifstream fin("input/idealBar_alongDir_acrossAng0_lightPara.txt");
+  ifstream fin("input/md8Config16_alongDir_acrossAng0_lightPara.txt");
   if(!fin.is_open()) {
     cout<<" cannot read file for PE parametrization :macros/yl_md3_angle_scan.txt" <<endl;
     exit(2);
