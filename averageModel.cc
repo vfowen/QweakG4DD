@@ -81,22 +81,30 @@ float model(float val,int type);
 int main(int argc, char** argv)
 {
 
-  if( argc == 1 ) {
+  // Print help
+  if( argc == 1 || (0 == strcmp("--help", argv[1]))) {
     cout << " usage: build/avgModel [options]" << endl;
     cout << " --rootfile <path to rootfile>" << endl;
     cout << " --barmodel ideal0, ideal23, md8config0 or md8config23" << endl;
     cout << " --distmodel mirror (omit for as is)" << endl;
     return 1;
   }
-
-  TString barModel = "";
-  TString distModel = "";
+  
+  // Read in command line paramaters
+  TString barModel = "md8config23";
+  TString distModel = "asis";
   TString rootfile = "";
   for(Int_t i = 1; i < argc; i++) {
       if(0 == strcmp("--barmodel", argv[i])) barModel = argv[i+1];
       if(0 == strcmp("--distmodel", argv[i])) distModel = argv[i+1];
       if(0 == strcmp("--rootfile", argv[i])) rootfile = argv[i+1];
   }
+
+  // Print out command line paramaters
+  cout << "bar model:  " << barModel
+       << "distribution model:  " << distModel
+       << "using rootfile:  " << rootfile
+       << endl;
 
   readPEs(barModel);
 
