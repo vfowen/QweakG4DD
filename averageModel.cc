@@ -68,11 +68,11 @@ const int rangeTst=0;
 // };
 //DA moustache/centered mirrored x,x'- ideal - acrossAng23
 double asymLimits[nModels][2][2]={
-  {{-0.245,-0.215},{0.200,0.225}},
-  {{-0.235,-0.190},{0.210,0.250}},
-  {{-0.235,-0.200},{0.215,0.260}},
-  {{-0.230,-0.190},{0.210,0.270}},
-  {{-0.265,-0.190},{0.220,0.290}}
+    {{-0.395,-0.08},{0.00,0.52}},
+    {{-0.380,-0.06},{0.06,0.51}},
+    {{-0.370,-0.08},{0.08,0.52}},
+    {{-0.370,-0.08},{0.08,0.53}},
+    {{-0.350,-0.09},{0.08,0.57}}
 };
 
 float model(float val,int type);
@@ -101,10 +101,9 @@ int main(int argc, char** argv)
   }
 
   // Print out command line paramaters
-  cout << "bar model:  " << barModel
-       << "distribution model:  " << distModel
-       << "using rootfile:  " << rootfile
-       << endl;
+  cout << "bar model:  " << barModel << endl
+       << "distribution model:  " << distModel << endl
+       << "using rootfile:  " << rootfile << endl;
 
   readPEs(barModel);
 
@@ -130,7 +129,8 @@ int main(int argc, char** argv)
   t->SetBranchAddress("angYi",&angYi);
   t->SetBranchAddress("polT",&polT);
   
-  TFile *fout=new TFile("o_avgModel.root","RECREATE");  
+  TFile *fout=new TFile(Form("o_avgModel_%s_%s.root", barModel.Data(),
+                             distModel.Data()),"RECREATE");
 
   string lr[2]={"L","R"};
 
