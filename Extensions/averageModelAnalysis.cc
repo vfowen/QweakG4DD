@@ -245,6 +245,23 @@ int main(Int_t argc, Char_t* argv[]) {
         pe_ang_diff_wrap[i]->Draw();
     }
 
+    std::vector<TString> files = {
+        "pe_pos_diff.png",
+        "pe_ang_diff.png",
+        "pe_pos_sum.png",
+        "pe_ang_sum.png",
+        "pe_pos_sum_wrapped.png",
+        "pe_ang_sum_wrapped.png",
+        "pe_pos_diff_wrapped.png",
+        "pe_ang_diff_wrapped.png"
+    };
+
+    for(int i = 0; i < num_plots; i++) {
+        tc[i]->Update();
+        tc[i]->Modified();
+        tc[i]->Print(files[i]);
+    }
+
     /* Close rootfile. */
     /* TApplication crap. */
     app->Run();
