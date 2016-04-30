@@ -22,6 +22,7 @@ void getCorners(int lowerIndex, int upperIndex, int depth, std::vector<double> p
 		std::vector<double> points[dimension]);
 void getPEs(std::vector<double> in[dimension], std::vector<double> pt,
 	    double &outL, double &outR);
+void printInfo(TH1D *hl,TH1D *hr);
 
 const int nModels = 5;
 //0=                                     
@@ -224,14 +225,17 @@ int main(int argc, char** argv)
   tn1->Write();                              
   tn2->Write();                              
   tn3->Write();                              
-  for(int i=0;i<2;i++)
-    for(int j=0;j<nModels;j++){      
+  for(int j=0;j<nModels;j++){      
+    for(int i=0;i<2;i++){
       hpe[i][j]->Write();
       posPE[i][j]->Write();
       angPE[i][j]->Write();
       as[i][j]->Write();
     }
-  
+    cout<<endl<<" ~~ "<<j<<endl;
+    printInfo(as[0][j],as[1][j]);
+  }
+
   fout->Close();
   return 0;
 }
@@ -253,6 +257,16 @@ float model(float val,int type){
   return 0;
 }
 
+void printInfo(TH1D *hl,TH1D *hr){
+  double al=hl->GetMean();
+  double dal=hl->GetMeanError();
+  double ar=hr->GetMean();
+  double dar=hr->GetMeanError();
+
+  cout<<al<<"\t"<<dal<<"\t"<<ar<<"\t"<<dar<<"\t"
+      <<al-ar<<"\t"<<sqrt(dar*dar+dal*dal)<<"\t"
+      <<(al+ar)/2<<"\t"<<sqrt(dar*dar+dal*dal)/2<<endl;
+}
 
 void readPEs(TString barModel){
   TString path;
