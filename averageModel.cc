@@ -50,7 +50,7 @@ int main(int argc, char** argv)
   if( argc == 1 ) {
     cout << " usage: build/avgModel [options]" << endl;
     cout << " --rootfile <path to rootfile>" << endl;
-    cout << " --barmodel ideal0, ideal23, md8config0 or md8config23" << endl;
+    cout << " --barmodel ideal0, ideal23, md8config16_0 or md8config16_23" << endl;
     cout << " --distmodel mirror (omit for as is)" << endl;
     return 1;
   }
@@ -140,7 +140,6 @@ int main(int argc, char** argv)
     
     if(i>1000000 && rangeTst) break;
 
-    //mirror:
     if("mirror" == distModel) {
         x=-x;
         angX=-angX;
@@ -277,7 +276,7 @@ void readPEs(TString barModel){
       cout << "Using input/idealBar_alongDir_acrossAng0_lightPara.txt" << endl;
       path = "input/idealBar_alongDir_acrossAng0_lightPara.txt";
   }
-  if("md8config0" == barModel) {
+  if("md8config16_0" == barModel) {
       cout << "Using input/md8Config16_alongDir_acrossAng0_lightPara.txt" << endl;
       path = "input/md8Config16_alongDir_acrossAng0_lightPara.txt";
   }
@@ -285,7 +284,7 @@ void readPEs(TString barModel){
       cout << "Using input/idealBar_alongDir_acrossAng23_lightPara.txt" << endl;
       path = "input/idealBar_alongDir_acrossAng23_lightPara.txt";
   }
-  if("md8config23" == barModel) {
+  if("md8config16_23" == barModel) {
       cout << "Using input/md8Config16_alongDir_acrossAng23_lightPara.txt" << endl;
       path = "input/md8Config16_alongDir_acrossAng23_lightPara.txt";
   }
