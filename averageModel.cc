@@ -234,6 +234,9 @@ int main(int argc, char** argv)
     }
     cout<<endl<<" ~~ "<<j<<endl;
     printInfo(as[0][j],as[1][j]);
+    if(as[0][j]->GetBinContent(0)>0 || as[0][j]->GetBinContent(as[0][j]->GetXaxis()->GetNbins()+1)>0
+       as[1][j]->GetBinContent(0)>0 || as[1][j]->GetBinContent(as[1][j]->GetXaxis()->GetNbins()+1)>0)
+      cout<<"!!!!! overUnder flow"<<endl;
   }
 
   fout->Close();
