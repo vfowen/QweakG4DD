@@ -32,7 +32,7 @@ const int nModels = 5;
 //4= cnst*angX^3                         
 
 //model,L/R,Upper/Lower
-const int rangeTst=1;
+const int rangeTst=0;
 double asymLimits[nModels][2][2]={
   {{-0.350,-0.150},{0.150,0.350}},
   {{-0.350,-0.150},{0.150,0.350}},
