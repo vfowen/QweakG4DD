@@ -260,7 +260,7 @@ int main(int argc, char** argv)
 	    <<as[0][j]->GetBinContent(as[0][j]->GetXaxis()->GetNbins()+1)<<"\t"
 	    <<as[1][j]->GetBinContent(0)<<"\t"
 	    <<as[1][j]->GetBinContent(as[1][j]->GetXaxis()->GetNbins()+1)<<endl;
-      
+      }
     }
   }
 
