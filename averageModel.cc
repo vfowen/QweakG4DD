@@ -32,7 +32,7 @@ const int nModels = 5;
 //4= cnst*angX^3                         
 
 //model,L/R,Upper/Lower
-const int rangeTst=0;
+const int rangeTst=1;
 double asymLimits[nModels][2][2]={
   {{-0.350,-0.150},{0.150,0.350}},
   {{-0.350,-0.150},{0.150,0.350}},
@@ -187,14 +187,13 @@ int main(int argc, char** argv)
   }
 
   cout<<endl<<"total PE average"<<endl;
-  for(int imod=0;imod<nModels;imod++)
+  for(int imod=1;imod<nModels;imod++)
     cout<<imod<<" "<<lAvgTotPE[imod]/lAvgTotPE[0]<<" "<<rAvgTotPE[imod]/rAvgTotPE[0]
 	<<" DD: "<<lAvgTotPE[imod]/lAvgTotPE[0]-rAvgTotPE[imod]/rAvgTotPE[0]
 	<<" bias: "<<(lAvgTotPE[imod]/lAvgTotPE[0]+rAvgTotPE[imod]/rAvgTotPE[0])/2
 	<<" bias/DD: "<<
       ((lAvgTotPE[imod]/lAvgTotPE[0]+rAvgTotPE[imod]/rAvgTotPE[0])/2)/
       (lAvgTotPE[imod]/lAvgTotPE[0]-rAvgTotPE[imod]/rAvgTotPE[0])<<endl;
-  
   fout->cd();
   TNamed* tn1;                              
   TNamed* tn2;                              
@@ -203,7 +202,7 @@ int main(int argc, char** argv)
       tn1 = new TNamed("bar","ideal bar");
       tn2 = new TNamed("angle","angle 0");
   }
-  if("md8config0" == barModel) {
+  if("md8config16_0" == barModel) {
       tn1 = new TNamed("bar","md8config16");
       tn2 = new TNamed("angle","angle 0");
   }                                         
@@ -211,7 +210,7 @@ int main(int argc, char** argv)
       tn1 = new TNamed("bar","ideal bar");
       tn2 = new TNamed("angle","angle 23");
   }
-  if("md8config23" == barModel) {
+  if("md8config16_23" == barModel) {
       tn1 = new TNamed("bar","md8config16");
       tn2 = new TNamed("angle","angle 23");
   }
@@ -223,7 +222,8 @@ int main(int argc, char** argv)
   }
   tn1->Write();                              
   tn2->Write();                              
-  tn3->Write();                              
+  tn3->Write();
+
   for(int j=0;j<nModels;j++){      
     for(int i=0;i<2;i++){
       hpe[i][j]->Write();
@@ -231,11 +231,14 @@ int main(int argc, char** argv)
       angPE[i][j]->Write();
       as[i][j]->Write();
     }
-    cout<<endl<<" ~~ "<<j<<endl;
-    printInfo(as[0][j],as[1][j]);
-    if(as[0][j]->GetBinContent(0)>0 || as[0][j]->GetBinContent(as[0][j]->GetXaxis()->GetNbins()+1)>0 ||
-       as[1][j]->GetBinContent(0)>0 || as[1][j]->GetBinContent(as[1][j]->GetXaxis()->GetNbins()+1)>0)
-      cout<<"!!!!! overUnder flow"<<endl;
+
+    if(j>0){
+      cout<<endl<<" ~~ "<<j<<endl;
+      printInfo(as[0][j],as[1][j]);
+      if(as[0][j]->GetBinContent(0)>0 || as[0][j]->GetBinContent(as[0][j]->GetXaxis()->GetNbins()+1)>0 ||
+	 as[1][j]->GetBinContent(0)>0 || as[1][j]->GetBinContent(as[1][j]->GetXaxis()->GetNbins()+1)>0)
+	cout<<"!!!!! overUnder flow"<<endl;
+    }
   }
 
   fout->Close();
