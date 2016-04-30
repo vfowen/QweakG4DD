@@ -17,7 +17,6 @@ using namespace std;
 const int dimension=5;//3 DoF + 2 PE values
 vector<double> scanPoints[dimension];
 int debugPrint=0;
-vector<double> totPE(4,0);
 void readPEs(TString);
 void getCorners(int lowerIndex, int upperIndex, int depth, std::vector<double> point,
 		std::vector<double> points[dimension]);
@@ -33,46 +32,12 @@ const int nModels = 5;
 
 //model,L/R,Upper/Lower
 const int rangeTst=0;
-// // //DA moustache/centered - md8Config16 - acrossAng0
-// double asymLimits[nModels][2][2]={
-//   {{-0.200,-0.175},{0.200,0.225}},
-//   {{-0.245,-0.205},{0.190,0.225}},
-//   {{-0.275,-0.245},{0.225,0.255}},
-//   {{-0.240,-0.200},{0.185,0.225}},
-//   {{-0.245,-0.195},{0.170,0.245}}
-// };
-// //DA moustache/centered - md8Config16 - acrossAng23
-// double asymLimits[nModels][2][2]={
-//   {{-0.200,-0.175},{0.200,0.225}},
-//   {{-0.170,-0.130},{0.205,0.245}},
-//   {{-0.155,-0.115},{0.240,0.285}},
-//   {{-0.205,-0.140},{0.220,0.280}},
-//   {{-0.240,-0.160},{0.205,0.295}}
-// };
-// //DA moustache mirrored x,x' - md8Config16 - acrossAng23 
-// double asymLimits[nModels][2][2]={
-//   {{-0.200,-0.175},{0.200,0.225}},
-//   {{-0.185,-0.145},{0.175,0.225}},
-//   {{-0.200,-0.160},{0.195,0.235}},
-//   {{-0.225,-0.165},{0.195,0.255}},
-//   {{-0.265,-0.185},{0.22,0.300}}
-// };
-
-// //DA moustache/centered - ideal - acrossAng23
-// double asymLimits[nModels][2][2]={
-//   {{-0.245,-0.215},{0.200,0.225}},
-//   {{-0.250,-0.210},{0.190,0.225}},
-//   {{-0.255,-0.225},{0.200,0.230}},
-//   {{-0.255,-0.215},{0.195,0.235}},
-//   {{-0.285,-0.220},{0.190,0.260}}
-// };
-//DA moustache/centered mirrored x,x'- ideal - acrossAng23
 double asymLimits[nModels][2][2]={
-  {{-0.245,-0.215},{0.200,0.225}},
-  {{-0.235,-0.190},{0.210,0.250}},
-  {{-0.235,-0.200},{0.215,0.260}},
-  {{-0.230,-0.190},{0.210,0.270}},
-  {{-0.265,-0.190},{0.220,0.290}}
+  {{-0.350,-0.150},{0.150,0.350}},
+  {{-0.350,-0.150},{0.150,0.350}},
+  {{-0.350,-0.150},{0.150,0.350}},
+  {{-0.350,-0.150},{0.150,0.350}},
+  {{-0.350,-0.150},{0.150,0.350}}
 };
 
 float model(float val,int type);
@@ -123,16 +88,14 @@ int main(int argc, char** argv)
   t->SetBranchAddress("polT",&polT);
   
   TFile *fout=new TFile("o_avgModel.root","RECREATE");  
-
   string lr[2]={"L","R"};
-
   TH1D *hpe[2][nModels],*posPE[2][nModels],*angPE[2][nModels];
   TH1D *as[2][nModels];
 
   for(int i=0;i<nModels;i++)
     for(int j=0;j<2;j++){
       as[j][i]=new TH1D(Form("as%s_%d",lr[j].c_str(),i),Form("model %d %s PMT;asymmetry [ppm]",i,lr[j].c_str()),
-			200,asymLimits[i][j][0],asymLimits[i][j][1]);      
+			400,asymLimits[i][j][0],asymLimits[i][j][1]);      
       hpe[j][i] = new TH1D(Form("pe%s_%d",lr[j].c_str(),i),Form("model %d %s #PEs",i,lr[j].c_str()),
 			   500,0,500);
       posPE[j][i] = new TH1D(Form("pe%s_pos_%d",lr[j].c_str(),i),
@@ -142,10 +105,11 @@ int main(int argc, char** argv)
 			     Form("model %d %s #PEs;angle [deg]",i,lr[j].c_str()),
 			     240,-120,120);
     }
-  
-  
+    
   std::vector<double> avgStepL(nModels,0);
   std::vector<double> avgStepR(nModels,0);
+  std::vector<double> lAvgTotPE(nModels,0);
+  std::vector<double> rAvgTotPE(nModels,0);
   
   double stepSize=0.2;
   double currentStep=stepSize;
@@ -175,8 +139,6 @@ int main(int argc, char** argv)
     
     if(i>1000000 && rangeTst) break;
 
-    //center
-    //x-=3.335;
     //mirror:
     if("mirror" == distModel) {
         x=-x;
@@ -212,6 +174,8 @@ int main(int argc, char** argv)
       double asym=model(angX-angXi,imod);
       avgStepL[imod]+=asym*lpe;
       avgStepR[imod]+=asym*rpe;
+      lAvgTotPE[imod]+=asym*lpe;
+      rAvgTotPE[imod]+=asym*rpe;
 
       hpe[0][imod]->Fill((1.+asym)*rpe);
       posPE[0][imod]->Fill(x,asym*rpe);
@@ -219,12 +183,18 @@ int main(int argc, char** argv)
       hpe[1][imod]->Fill((1.+asym)*lpe);
       posPE[1][imod]->Fill(x,asym*lpe);
       angPE[1][imod]->Fill(angX-angXi,asym*lpe);
-    }
-    
-    
+    }        
   }
 
-
+  cout<<endl<<"total PE average"<<endl;
+  for(int imod=0;imod<nModels;imod++)
+    cout<<imod<<" "<<lAvgTotPE[imod]/lAvgTotPE[0]<<" "<<rAvgTotPE[imod]/rAvgTotPE[0]
+	<<" DD: "<<lAvgTotPE[imod]/lAvgTotPE[0]-rAvgTotPE[imod]/rAvgTotPE[0]
+	<<" bias: "<<(lAvgTotPE[imod]/lAvgTotPE[0]+rAvgTotPE[imod]/rAvgTotPE[0])/2
+	<<" bias/DD: "<<
+      ((lAvgTotPE[imod]/lAvgTotPE[0]+rAvgTotPE[imod]/rAvgTotPE[0])/2)/
+      (lAvgTotPE[imod]/lAvgTotPE[0]-rAvgTotPE[imod]/rAvgTotPE[0])<<endl;
+  
   fout->cd();
   TNamed* tn1;                              
   TNamed* tn2;                              
