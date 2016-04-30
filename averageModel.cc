@@ -24,21 +24,23 @@ void getPEs(std::vector<double> in[dimension], std::vector<double> pt,
 	    double &outL, double &outR);
 void printInfo(TH1D *hl,TH1D *hr);
 
-const int nModels = 5;
+const int nModels = 6;
 //0=                                     
 //1= cnst*sgn(angX) for abs(angX)=[20,40]
 //2= cnst*angX                           
 //3= cnst*sgn(angX)*angX^2               
 //4= cnst*angX^3                         
+//5= microscopic model calculation
 
 //model,L/R,Upper/Lower
 const int rangeTst=0;
 double asymLimits[nModels][2][2]={
-  {{-0.350,-0.150},{0.150,0.350}},
-  {{-0.350,-0.150},{0.150,0.350}},
-  {{-0.350,-0.150},{0.150,0.350}},
-  {{-0.350,-0.150},{0.150,0.350}},
-  {{-0.350,-0.150},{0.150,0.350}}
+  {{-0.350,-0.150},{ 0.150, 0.350}},
+  {{-0.350,-0.150},{ 0.150, 0.350}},
+  {{-0.350,-0.150},{ 0.150, 0.350}},
+  {{-0.350,-0.150},{ 0.150, 0.350}},
+  {{-0.350,-0.150},{ 0.150, 0.350}},
+  {{ 0.000, 9.000},{-9.000, 0.000}}
 };
 
 float model(float val,int type);
@@ -58,11 +60,22 @@ int main(int argc, char** argv)
   TString barModel = "";
   TString distModel = "";
   TString rootfile = "";
+  string ofnm="o_avgModel";
   for(Int_t i = 1; i < argc; i++) {
-      if(0 == strcmp("--barmodel", argv[i])) barModel = argv[i+1];
-      if(0 == strcmp("--distmodel", argv[i])) distModel = argv[i+1];
-      if(0 == strcmp("--rootfile", argv[i])) rootfile = argv[i+1];
+    if(0 == strcmp("--barmodel", argv[i])){
+      barModel = argv[i+1];
+      ofnm+="_";
+      ofnm+= argv[i+1];
+    }else if(0 == strcmp("--distmodel", argv[i])){
+      distModel = argv[i+1];
+      ofnm+="_";
+      ofnm+=argv[i+1];
+    }else if(0 == strcmp("--rootfile", argv[i])){
+      rootfile = argv[i+1];
+      //FIXME maybe figure something out here
+    }
   }
+  ofnm+=".root";
 
   readPEs(barModel);
 
@@ -76,6 +89,7 @@ int main(int argc, char** argv)
   float angX,angY;
   float angXi,angYi;
   float polT;
+  double calcAsym(0);
   t->SetBranchAddress("evNr",&evNr);
   t->SetBranchAddress("primary",&primary);
   t->SetBranchAddress("x",&x);
@@ -87,8 +101,10 @@ int main(int argc, char** argv)
   t->SetBranchAddress("angXi",&angXi);
   t->SetBranchAddress("angYi",&angYi);
   t->SetBranchAddress("polT",&polT);
+  if(t->GetListOfBranches()->FindObject("calcAsym"))
+    t->SetBranchAddress("calcAsym",&calcAsym);
   
-  TFile *fout=new TFile("o_avgModel.root","RECREATE");  
+  TFile *fout=new TFile(ofnm.c_str(),"RECREATE");  
   string lr[2]={"L","R"};
   TH1D *hpe[2][nModels],*posPE[2][nModels],*angPE[2][nModels];
   TH1D *as[2][nModels];
@@ -172,6 +188,7 @@ int main(int argc, char** argv)
 
     for(int imod=0;imod<nModels;imod++){
       double asym=model(angX-angXi,imod);
+      if(imod==5) asym=calcAsym;
       avgStepL[imod]+=asym*lpe;
       avgStepR[imod]+=asym*rpe;
       lAvgTotPE[imod]+=asym*lpe;
@@ -186,12 +203,12 @@ int main(int argc, char** argv)
     }        
   }
 
-  cout<<endl<<"total PE average"<<endl;
+  cout<<endl<<"total PE average: A_L A_R DD A_ave A_ave/DD"<<endl;
   for(int imod=1;imod<nModels;imod++)
-    cout<<imod<<" "<<lAvgTotPE[imod]/lAvgTotPE[0]<<" "<<rAvgTotPE[imod]/rAvgTotPE[0]
-	<<" DD: "<<lAvgTotPE[imod]/lAvgTotPE[0]-rAvgTotPE[imod]/rAvgTotPE[0]
-	<<" bias: "<<(lAvgTotPE[imod]/lAvgTotPE[0]+rAvgTotPE[imod]/rAvgTotPE[0])/2
-	<<" bias/DD: "<<
+    cout<<imod<<"\t"<<lAvgTotPE[imod]/lAvgTotPE[0]<<"\t"<<rAvgTotPE[imod]/rAvgTotPE[0]
+	<<"\t"<<lAvgTotPE[imod]/lAvgTotPE[0]-rAvgTotPE[imod]/rAvgTotPE[0]
+	<<"\t"<<(lAvgTotPE[imod]/lAvgTotPE[0]+rAvgTotPE[imod]/rAvgTotPE[0])/2
+	<<"\t"<<
       ((lAvgTotPE[imod]/lAvgTotPE[0]+rAvgTotPE[imod]/rAvgTotPE[0])/2)/
       (lAvgTotPE[imod]/lAvgTotPE[0]-rAvgTotPE[imod]/rAvgTotPE[0])<<endl;
   fout->cd();
@@ -224,7 +241,7 @@ int main(int argc, char** argv)
   tn2->Write();                              
   tn3->Write();
 
-  cout<<endl<<" average asymmetry histogram results:"<<endl;
+  cout<<endl<<" average asymmetry histogram results: A_L dA_L A_R dA_R DD dDD A_ave dA_Ave"<<endl;
   for(int j=0;j<nModels;j++){      
     for(int i=0;i<2;i++){
       hpe[i][j]->Write();
@@ -237,8 +254,13 @@ int main(int argc, char** argv)
       cout<<j<<"\t";
       printInfo(as[0][j],as[1][j]);
       if(as[0][j]->GetBinContent(0)>0 || as[0][j]->GetBinContent(as[0][j]->GetXaxis()->GetNbins()+1)>0 ||
-	 as[1][j]->GetBinContent(0)>0 || as[1][j]->GetBinContent(as[1][j]->GetXaxis()->GetNbins()+1)>0)
-	cout<<"!!!!! overUnder flow"<<endl;
+	 as[1][j]->GetBinContent(0)>0 || as[1][j]->GetBinContent(as[1][j]->GetXaxis()->GetNbins()+1)>0){
+	cout<<"!!!!! overUnder flow: L R: "<<endl;
+	cout<<as[0][j]->GetBinContent(0)<<"\t"
+	    <<as[0][j]->GetBinContent(as[0][j]->GetXaxis()->GetNbins()+1)<<"\t"
+	    <<as[1][j]->GetBinContent(0)<<"\t"
+	    <<as[1][j]->GetBinContent(as[1][j]->GetXaxis()->GetNbins()+1)<<endl;
+      
     }
   }
 
@@ -259,6 +281,8 @@ float model(float val,int type){
     return 1.5e-9*val/abs(val)*pow(val,2);
   else if(type==4)
     return 4e-11*pow(val,3);
+  else if(type==5)
+    return 0; //reserved for microscopic model
 
   return 0;
 }
