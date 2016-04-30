@@ -224,6 +224,7 @@ int main(int argc, char** argv)
   tn2->Write();                              
   tn3->Write();
 
+  cout<<endl<<" average asymmetry histogram results:"<<endl;
   for(int j=0;j<nModels;j++){      
     for(int i=0;i<2;i++){
       hpe[i][j]->Write();
@@ -233,7 +234,7 @@ int main(int argc, char** argv)
     }
 
     if(j>0){
-      cout<<endl<<" ~~ "<<j<<endl;
+      cout<<j<<"\t";
       printInfo(as[0][j],as[1][j]);
       if(as[0][j]->GetBinContent(0)>0 || as[0][j]->GetBinContent(as[0][j]->GetXaxis()->GetNbins()+1)>0 ||
 	 as[1][j]->GetBinContent(0)>0 || as[1][j]->GetBinContent(as[1][j]->GetXaxis()->GetNbins()+1)>0)
