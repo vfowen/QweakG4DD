@@ -51,15 +51,15 @@ int main(Int_t argc, Char_t* argv[]) {
     TApplication *app = new TApplication("slopes", &argc, argv);
 
     // Histograms to fill from rootfile
-    std::vector < TH1D* > peL_pos(5);
-    std::vector < TH1D* > peR_pos(5);
-    std::vector < TH1D* > peL_ang(5);
-    std::vector < TH1D* > peR_ang(5);
+    std::vector < TH1D* > peL_pos(6);
+    std::vector < TH1D* > peR_pos(6);
+    std::vector < TH1D* > peL_ang(6);
+    std::vector < TH1D* > peR_ang(6);
     // Histogram results
-    std::vector < TH1D* > pe_pos_diff(4);
-    std::vector < TH1D* > pe_ang_diff(4);
-    std::vector < TH1D* > pe_pos_sum(4);
-    std::vector < TH1D* > pe_ang_sum(4);
+    std::vector < TH1D* > pe_pos_diff(5);
+    std::vector < TH1D* > pe_ang_diff(5);
+    std::vector < TH1D* > pe_pos_sum(5);
+    std::vector < TH1D* > pe_ang_sum(5);
 
     TString bar;
     TString angle;
@@ -69,7 +69,7 @@ int main(Int_t argc, Char_t* argv[]) {
     dist = rootfile->Get("distribution")->GetTitle();
 
     // Read out the histograms for models 0-4 into vectors
-    for(int i = 0; i < 5; i++) {
+    for(int i = 0; i < 6; i++) {
         peL_pos[i] = (TH1D*)rootfile->Get(Form("peL_pos_%d",i));
         peR_pos[i] = (TH1D*)rootfile->Get(Form("peR_pos_%d",i));
         peL_ang[i] = (TH1D*)rootfile->Get(Form("peL_ang_%d",i));
@@ -77,7 +77,7 @@ int main(Int_t argc, Char_t* argv[]) {
     }
 
     // Scale histograms for models 1-4 by integral
-    for(int i = 0; i < 4; i++) {
+    for(int i = 0; i < 5; i++) {
         peL_pos[i+1]->Scale(2/peL_pos[0]->Integral());
         peR_pos[i+1]->Scale(2/peR_pos[0]->Integral());
         peL_ang[i+1]->Scale(2/peL_ang[0]->Integral());
@@ -120,7 +120,7 @@ int main(Int_t argc, Char_t* argv[]) {
     std::vector < TH1D* > pe_pos_diff_wrap(4);
     std::vector < TH1D* > pe_ang_diff_wrap(4);
 
-    for(int i = 0; i < 4; i++) {
+    for(int i = 0; i < 5; i++) {
         // Store the number of bins in a vector
         pe_pos_sum_nbin[i] = pe_pos_sum[1]->GetNbinsX();
         pe_ang_sum_nbin[i] = pe_ang_sum[1]->GetNbinsX();
@@ -203,7 +203,7 @@ int main(Int_t argc, Char_t* argv[]) {
     std::vector < TH1D* > pe_ang_wrap_div(4);
 
     // Clone wrapped sum histograms and divide by diff histograms
-    for(int i = 0; i < 4; i++) {
+    for(int i = 0; i < 5; i++) {
         pe_pos_wrap_div[i] = (TH1D*)pe_pos_sum_wrap[i]->Clone();
         pe_ang_wrap_div[i] = (TH1D*)pe_ang_sum_wrap[i]->Clone();
 
@@ -254,10 +254,10 @@ int main(Int_t argc, Char_t* argv[]) {
         text1[i] = new TPaveText(.05,.1,.95,.8);
         text1[i]->AddText(title[i]);
         text1[i]->Draw();
-        pad2[i]->Divide(2,2);
+        pad2[i]->Divide(3,2);
     }
 
-    for(int i = 0; i < 4; i++) {
+    for(int i = 0; i < 5; i++) {
         pad2[0]->cd(i+1);
         gPad->SetGridx(1);
         gPad->SetGridy(1);
