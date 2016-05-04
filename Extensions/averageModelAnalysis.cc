@@ -14,6 +14,8 @@
 #include <TLegend.h>
 #include <TF1.h>
 #include <TChain.h>
+#include <TPad.h>
+#include <TVirtualPad.h>
 #include <TH1D.h>
 #include <TH2D.h>
 #include <TColor.h>
@@ -117,6 +119,7 @@ int main(Int_t argc, Char_t* argv[]) {
     std::vector < TH1D* > pe_ang_sum_wrap(4);
     std::vector < TH1D* > pe_pos_diff_wrap(4);
     std::vector < TH1D* > pe_ang_diff_wrap(4);
+
     for(int i = 0; i < 4; i++) {
         // Store the number of bins in a vector
         pe_pos_sum_nbin[i] = pe_pos_sum[1]->GetNbinsX();
@@ -141,6 +144,8 @@ int main(Int_t argc, Char_t* argv[]) {
             pe_ang_diff_midbin[i] = (pe_pos_diff_midbin[i]+1)/2;
         }
         
+        //cout << pe_pos_sum_midbin[i] << endl;
+        //cout << pe_ang_sum_midbin[i] << endl;
         // Initilize histogram
         pe_pos_sum_wrap[i] = new TH1D(Form("pe_pos_sum_wrap_%d",i+1),
                                       Form("pe_pos_sum_wrap_%d",i+1),
@@ -193,8 +198,32 @@ int main(Int_t argc, Char_t* argv[]) {
         }
     }
 
+    // Output divided histograms
+    std::vector < TH1D* > pe_pos_wrap_div(4);
+    std::vector < TH1D* > pe_ang_wrap_div(4);
+
+    // Clone wrapped sum histograms and divide by diff histograms
+    for(int i = 0; i < 4; i++) {
+        pe_pos_wrap_div[i] = (TH1D*)pe_pos_sum_wrap[i]->Clone();
+        pe_ang_wrap_div[i] = (TH1D*)pe_ang_sum_wrap[i]->Clone();
+
+        pe_pos_wrap_div[i]->Divide(pe_pos_diff_wrap[i]);
+        pe_ang_wrap_div[i]->Divide(pe_ang_diff_wrap[i]);
+    }
+    //cout << pe_ang_sum_wrap[1]->GetBinContent(20) << "  " <<
+    //        pe_ang_diff_wrap[1]->GetBinContent(20) << "  " <<
+    //        pe_ang_wrap_div[1]->GetBinContent(20) << endl;
+    //cout << pe_ang_sum_wrap[1]->GetBinLowEdge(20) << "  " <<
+    //        pe_ang_diff_wrap[1]->GetBinLowEdge(20) << "  " <<
+    //        pe_ang_wrap_div[1]->GetBinLowEdge(20) << endl;
+    //cout << pe_ang_sum_wrap[1]->GetBinWidth(20) << "  " <<
+    //        pe_ang_diff_wrap[1]->GetBinWidth(20) << "  " <<
+    //        pe_ang_wrap_div[1]->GetBinWidth(20) << endl;
+
+    gStyle->SetOptStat("eiRM");
+
     // Create all the canvases and such
-    int num_plots = 8;
+    int num_plots = 10;
     std::vector< TCanvas* > tc(num_plots);
     std::vector< TPad* > pad1(num_plots);
     std::vector< TPad* > pad2(num_plots);
@@ -207,7 +236,9 @@ int main(Int_t argc, Char_t* argv[]) {
         Form("Wrapped Asym*PE L+R vs position: %s, %s, %s",dist.Data(),bar.Data(),angle.Data()),
         Form("Wrapped Asym*PE L+R vs angle: %s, %s, %s",dist.Data(),bar.Data(),angle.Data()),
         Form("Wrapped Asym*PE L-R vs position: %s, %s, %s",dist.Data(),bar.Data(),angle.Data()),
-        Form("Wrapped Asym*PE L-R vs angle: %s, %s, %s",dist.Data(),bar.Data(),angle.Data())
+        Form("Wrapped Asym*PE L-R vs angle: %s, %s, %s",dist.Data(),bar.Data(),angle.Data()),
+        Form("Wrapped Asym*PE L+R/L-R vs position: %s, %s, %s",dist.Data(),bar.Data(),angle.Data()),
+        Form("Wrapped Asym*PE L+R/L-R vs angle: %s, %s, %s",dist.Data(),bar.Data(),angle.Data())
     };
 
     for(int i = 0; i < num_plots; i++) {
@@ -228,21 +259,45 @@ int main(Int_t argc, Char_t* argv[]) {
 
     for(int i = 0; i < 4; i++) {
         pad2[0]->cd(i+1);
+        gPad->SetGridx(1);
+        gPad->SetGridy(1);
         pe_pos_diff[i]->Draw();
         pad2[1]->cd(i+1);
+        gPad->SetGridx(1);
+        gPad->SetGridy(1);
         pe_ang_diff[i]->Draw();
         pad2[2]->cd(i+1);
+        gPad->SetGridx(1);
+        gPad->SetGridy(1);
         pe_pos_sum[i]->Draw();
         pad2[3]->cd(i+1);
+        gPad->SetGridx(1);
+        gPad->SetGridy(1);
         pe_ang_sum[i]->Draw();
         pad2[4]->cd(i+1);
+        gPad->SetGridx(1);
+        gPad->SetGridy(1);
         pe_pos_sum_wrap[i]->Draw();
         pad2[5]->cd(i+1);
+        gPad->SetGridx(1);
+        gPad->SetGridy(1);
         pe_ang_sum_wrap[i]->Draw();
         pad2[6]->cd(i+1);
+        gPad->SetGridx(1);
+        gPad->SetGridy(1);
         pe_pos_diff_wrap[i]->Draw();
         pad2[7]->cd(i+1);
+        gPad->SetGridx(1);
+        gPad->SetGridy(1);
         pe_ang_diff_wrap[i]->Draw();
+        pad2[8]->cd(i+1);
+        gPad->SetGridx(1);
+        gPad->SetGridy(1);
+        pe_pos_wrap_div[i]->Draw();
+        pad2[9]->cd(i+1);
+        gPad->SetGridx(1);
+        gPad->SetGridy(1);
+        pe_ang_wrap_div[i]->Draw();
     }
 
     std::vector<TString> files = {
@@ -253,7 +308,9 @@ int main(Int_t argc, Char_t* argv[]) {
         "pe_pos_sum_wrapped.png",
         "pe_ang_sum_wrapped.png",
         "pe_pos_diff_wrapped.png",
-        "pe_ang_diff_wrapped.png"
+        "pe_ang_diff_wrapped.png",
+        "pe_pos_wrapped_div.png",
+        "pe_ang_wrapped_div.png"
     };
 
     for(int i = 0; i < num_plots; i++) {
