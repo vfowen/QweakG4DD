@@ -71,7 +71,6 @@ int main(int argc, char** argv)
       rootfile = argv[i+1];
     }
   }
-  ofnm+=".root";
 
   // Print out command line paramaters
   cout << "bar model:  " << barModel << endl
