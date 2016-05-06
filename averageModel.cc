@@ -32,15 +32,15 @@ const int nModels = 6;
 //4= cnst*angX^3                         
 //5= microscopic model calculation
 
-//model,L/R,Upper/Lower
+//model,R/L,Upper/Lower
 const int rangeTst=0;
 double asymLimits[nModels][2][2]={
-  {{-0.350,-0.150},{ 0.150, 0.350}},
-  {{-0.350,-0.150},{ 0.150, 0.350}},
-  {{-0.350,-0.150},{ 0.150, 0.350}},
-  {{-0.350,-0.150},{ 0.150, 0.350}},
-  {{-0.350,-0.150},{ 0.150, 0.350}},
-  {{ 0.000, 9.000},{-9.000, 0.000}}
+  {{-0.350,-0.100},{ 0.100, 0.350}},
+  {{-0.350,-0.100},{ 0.100, 0.350}},
+  {{-0.350,-0.100},{ 0.100, 0.350}},
+  {{-0.350,-0.100},{ 0.100, 0.350}},
+  {{-0.350,-0.100},{ 0.100, 0.350}},
+  {{-9.000, 9.000},{-9.000, 9.000}}
 };
 
 float model(float val,int type);
@@ -105,7 +105,7 @@ int main(int argc, char** argv)
     t->SetBranchAddress("calcAsym",&calcAsym);
   
   TFile *fout=new TFile(ofnm.c_str(),"RECREATE");  
-  string lr[2]={"L","R"};
+  string lr[2]={"R","L"};
   TH1D *hpe[2][nModels],*posPE[2][nModels],*angPE[2][nModels];
   TH1D *as[2][nModels];
 
@@ -142,8 +142,8 @@ int main(int argc, char** argv)
 	as[0][imod]->Fill( avgStepR[imod]/avgStepR[0]*1e6 );
 	as[1][imod]->Fill( avgStepL[imod]/avgStepL[0]*1e6 );
 	if(rangeTst){
-	  cout<<i<<" "<<imod<<" L "<<avgStepR[imod]<<" "<<avgStepR[0]<<" "<<avgStepR[imod]/avgStepR[0]*1e6<<endl;
-	  cout<<i<<" "<<imod<<" R "<<avgStepL[imod]<<" "<<avgStepL[0]<<" "<<avgStepL[imod]/avgStepL[0]*1e6<<endl;
+	  cout<<i<<" "<<imod<<" R "<<avgStepR[imod]<<" "<<avgStepR[0]<<" "<<avgStepR[imod]/avgStepR[0]*1e6<<endl;
+	  cout<<i<<" "<<imod<<" L "<<avgStepL[imod]<<" "<<avgStepL[0]<<" "<<avgStepL[imod]/avgStepL[0]*1e6<<endl;
 	}
 	avgStepL[imod]=0;
 	avgStepR[imod]=0;
@@ -178,7 +178,7 @@ int main(int argc, char** argv)
     getCorners(0,scanPoints[0].size(),0,pt,pts);
     getPEs(pts,pt,lpe,rpe);
 
-    if(lpe==-1 || rpe==-1 ||
+    if(lpe<0 || rpe<0 ||
        isnan(lpe) || isnan(rpe) ||
        isinf(lpe) || isinf(rpe)){
       cout<<"Problem with interpolator! "<<endl;
@@ -188,7 +188,11 @@ int main(int argc, char** argv)
 
     for(int imod=0;imod<nModels;imod++){
       double asym=model(angX-angXi,imod);
-      if(imod==5) asym=calcAsym;
+      if(imod==5){
+	asym=calcAsym;
+	if(distModel == "mirror" ) asym=-asym;
+      }
+
       avgStepL[imod]+=asym*lpe;
       avgStepR[imod]+=asym*rpe;
       lAvgTotPE[imod]+=asym*lpe;
@@ -252,10 +256,10 @@ int main(int argc, char** argv)
 
     if(j>0){
       cout<<j<<"\t";
-      printInfo(as[0][j],as[1][j]);
+      printInfo(as[1][j],as[0][j]);
       if(as[0][j]->GetBinContent(0)>0 || as[0][j]->GetBinContent(as[0][j]->GetXaxis()->GetNbins()+1)>0 ||
 	 as[1][j]->GetBinContent(0)>0 || as[1][j]->GetBinContent(as[1][j]->GetXaxis()->GetNbins()+1)>0){
-	cout<<"!!!!! overUnder flow: L R: "<<endl;
+	cout<<"!!!!! overUnder flow: R L: "<<endl;
 	cout<<as[0][j]->GetBinContent(0)<<"\t"
 	    <<as[0][j]->GetBinContent(as[0][j]->GetXaxis()->GetNbins()+1)<<"\t"
 	    <<as[1][j]->GetBinContent(0)<<"\t"
