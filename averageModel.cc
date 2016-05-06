@@ -49,33 +49,34 @@ float model(float val,int type);
 int main(int argc, char** argv)
 {
 
-  if( argc == 1 ) {
+  // Print help
+  if( argc == 1 || (0 == strcmp("--help", argv[1]))) {
     cout << " usage: build/avgModel [options]" << endl;
     cout << " --rootfile <path to rootfile>" << endl;
     cout << " --barmodel ideal0, ideal23, md8config16_0 or md8config16_23" << endl;
     cout << " --distmodel mirror (omit for as is)" << endl;
     return 1;
   }
-
-  TString barModel = "";
-  TString distModel = "";
+  
+  // Read in command line paramaters
+  TString barModel = "md8config16_23";
+  TString distModel = "asIs";
   TString rootfile = "";
-  string ofnm="o_avgModel";
   for(Int_t i = 1; i < argc; i++) {
     if(0 == strcmp("--barmodel", argv[i])){
       barModel = argv[i+1];
-      ofnm+="_";
-      ofnm+= argv[i+1];
     }else if(0 == strcmp("--distmodel", argv[i])){
       distModel = argv[i+1];
-      ofnm+="_";
-      ofnm+=argv[i+1];
     }else if(0 == strcmp("--rootfile", argv[i])){
       rootfile = argv[i+1];
-      //FIXME maybe figure something out here
     }
   }
   ofnm+=".root";
+
+  // Print out command line paramaters
+  cout << "bar model:  " << barModel << endl
+       << "distribution model:  " << distModel << endl
+       << "using rootfile:  " << rootfile << endl;
 
   readPEs(barModel);
 
@@ -104,11 +105,13 @@ int main(int argc, char** argv)
   if(t->GetListOfBranches()->FindObject("calcAsym"))
     t->SetBranchAddress("calcAsym",&calcAsym);
   
-  TFile *fout=new TFile(ofnm.c_str(),"RECREATE");  
+  TFile *fout=new TFile(Form("o_avgModel_%s_%s.root", barModel.Data(),
+                             distModel.Data()),"RECREATE");
+
   string lr[2]={"R","L"};
   TH1D *hpe[2][nModels],*posPE[2][nModels],*angPE[2][nModels];
   TH1D *as[2][nModels];
-
+  
   for(int i=0;i<nModels;i++)
     for(int j=0;j<2;j++){
       as[j][i]=new TH1D(Form("as%s_%d",lr[j].c_str(),i),Form("model %d %s PMT;asymmetry [ppm]",i,lr[j].c_str()),
