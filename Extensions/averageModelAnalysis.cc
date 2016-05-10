@@ -221,13 +221,14 @@ int main(Int_t argc, Char_t* argv[]) {
     //        pe_ang_wrap_div[1]->GetBinWidth(20) << endl;
 
     gStyle->SetOptStat("eiRM");
+	gStyle->SetStatW(0.3);
+	gStyle->SetStatH(0.1);
 
     // Create all the canvases and such
     int num_plots = 10;
     std::vector< TCanvas* > tc(num_plots);
     std::vector< TPad* > pad1(num_plots);
     std::vector< TPad* > pad2(num_plots);
-    std::vector< TPaveText* > text1(num_plots);
     std::vector<TString> title = {
         Form("Normalized Asym*PE L-R vs position: %s, %s, %s",dist.Data(),bar.Data(),angle.Data()),
         Form("Normalized Asym*PE L-R vs angle: %s, %s, %s",dist.Data(),bar.Data(),angle.Data()),
