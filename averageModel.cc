@@ -53,7 +53,8 @@ int main(int argc, char** argv)
   if( argc == 1 || (0 == strcmp("--help", argv[1]))) {
     cout << " usage: build/avgModel [options]" << endl;
     cout << " --rootfile <path to rootfile>" << endl;
-    cout << " --barmodel ideal0, ideal23, md8config16_0 or md8config16_23" << endl;
+    cout << " --barmodel ideal0, ideal23, ideal23_polish, ideal23_bevel, "
+         << "md8config16_0 or md8config16_23" << endl;
     cout << " --distmodel mirror (omit for as is)" << endl;
     return 1;
   }
@@ -163,9 +164,14 @@ int main(int argc, char** argv)
         angX=-angX;
         angXi=-angXi;
     }
-    
-    if(abs(x)>90) continue;
-    if(abs(angX)>80) continue;
+    if("ideal23_bevel" == barModel || "ideal23_polish" == barModel) {
+        if(abs(x)>100) continue;
+        if(abs(angX)>89) continue;
+    }
+    else {
+        if(abs(x)>90) continue;
+        if(abs(angX)>80) continue;
+    }
     if(E<3) continue;
     if(E>100) E=100;
         
@@ -235,6 +241,14 @@ int main(int argc, char** argv)
   }
   if("md8config16_23" == barModel) {
       tn1 = new TNamed("bar","md8config16");
+      tn2 = new TNamed("angle","angle 23");
+  }
+  if("ideal23_polish" == barModel) {
+      tn1 = new TNamed("bar","ideal bar with polish");
+      tn2 = new TNamed("angle","angle 23");
+  }
+  if("ideal23_bevel" == barModel) {
+      tn1 = new TNamed("bar","ideal bar with bevel");
       tn2 = new TNamed("angle","angle 23");
   }
   if("mirror" == distModel) {
@@ -321,6 +335,14 @@ void readPEs(TString barModel){
   if("md8config16_23" == barModel) {
       cout << "Using input/md8Config16_alongDir_acrossAng23_lightPara.txt" << endl;
       path = "input/md8Config16_alongDir_acrossAng23_lightPara.txt";
+  }
+  if("ideal23_polish" == barModel) {
+      cout << "Using input/idealBar_alongDir_acrossAng23_Polish0977.txt" << endl;
+      path = "input/idealBar_alongDir_acrossAng23_Polish0977.txt";
+  }
+  if("ideal23_bevel" == barModel) {
+      cout << "input/idealBar_alongDir_acrossAng23_Bevel1mmRightBar05mmLeftBar.txt" << endl;
+      path = "input/idealBar_alongDir_acrossAng23_Bevel1mmRightBar05mmLeftBar.txt";
   }
   ifstream fin(path);
   if(!fin.is_open()) {
