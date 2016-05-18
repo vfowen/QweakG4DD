@@ -229,6 +229,7 @@ int main(Int_t argc, Char_t* argv[]) {
     std::vector< TCanvas* > tc(num_plots);
     std::vector< TPad* > pad1(num_plots);
     std::vector< TPad* > pad2(num_plots);
+    std::vector< TPaveText* > text1(num_plots);
     std::vector<TString> title = {
         Form("Normalized Asym*PE L-R vs position: %s, %s, %s",dist.Data(),bar.Data(),angle.Data()),
         Form("Normalized Asym*PE L-R vs angle: %s, %s, %s",dist.Data(),bar.Data(),angle.Data()),
