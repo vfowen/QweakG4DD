@@ -51,11 +51,11 @@ int main(int argc, char** argv)
 
   // Print help
   if( argc == 1 || (0 == strcmp("--help", argv[1]))) {
-    cout << " usage: build/avgModel [options]" << endl;
-    cout << " --rootfile <path to rootfile>" << endl;
-    cout << " --barmodel ideal0, ideal23, ideal23_polish, ideal23_bevel, "
-         << "md8config16_0 or md8config16_23" << endl;
-    cout << " --distmodel mirror (omit for as is)" << endl;
+    cout << " usage: build/avgModel [options]" << endl
+         << " --rootfile <path to rootfile>" << endl
+         << " --barmodel ideal0, ideal23, ideal23_polish, ideal23_bevel, "
+         << "md8config16_0 or md8config16_23" << endl
+         << " --distmodel mirror (omit for as is)" << endl;
     return 1;
   }
   
@@ -63,20 +63,27 @@ int main(int argc, char** argv)
   TString barModel = "md8config16_23";
   TString distModel = "asIs";
   TString rootfile = "";
+  Int_t offset = 0;
   for(Int_t i = 1; i < argc; i++) {
-    if(0 == strcmp("--barmodel", argv[i])){
+    if(0 == strcmp("--barmodel", argv[i])) {
       barModel = argv[i+1];
-    }else if(0 == strcmp("--distmodel", argv[i])){
+    }
+    if(0 == strcmp("--distmodel", argv[i])) {
       distModel = argv[i+1];
-    }else if(0 == strcmp("--rootfile", argv[i])){
+    }
+    if(0 == strcmp("--rootfile", argv[i])) {
       rootfile = argv[i+1];
+    }
+    if(0 == strcmp("--offset", argv[i])) {
+      offset = atoi(argv[i+1]);
     }
   }
 
   // Print out command line paramaters
   cout << "bar model:  " << barModel << endl
        << "distribution model:  " << distModel << endl
-       << "using rootfile:  " << rootfile << endl;
+       << "using rootfile:  " << rootfile << endl
+       << "using offset:  " << offset << endl;
 
   readPEs(barModel);
 
@@ -158,6 +165,8 @@ int main(int argc, char** argv)
     }
     
     if(i>1000000 && rangeTst) break;
+
+    x += offset;
 
     if("mirror" == distModel) {
         x=-x;
