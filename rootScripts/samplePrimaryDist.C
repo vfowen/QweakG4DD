@@ -12,6 +12,7 @@ void samplePrimaryDist(int seed, int nevents,int vPol){
   //use for MC files (JP)
   hIn=new TH3D("hIn","input h",22,324,346,200,-100,100,14,0.34,0.48);
   readDist();
+  //cout<<"You are offseting the distribution along the bar!"<<endl;
   sampleDist(nevents,vPol);
   //drawDist();
 }
@@ -30,8 +31,8 @@ void readDist(){
   //ifstream fin("../input/Hit_Map_Tracks_13681_MD5_.txt");
   //ifstream fin("../input/Hit_Map_Tracks_15121_MD1_.txt");
   //ifstream fin("../input/Hit_Map_Tracks_15121_MD5_.txt");
-  //ifstream fin("../input/MC_HitMap_Oct1.txt");
-  ifstream fin("../input/MC_HitMap_Oct3.txt");
+  //ifstream fin("../input/MC_HitMap_Oct1.txt");//distribution at the face of the Pb
+  ifstream fin("../input/MC_HitMap_Oct3.txt");//distribution at the face of the Pb
 
   double x,y,xs,val;
   while(fin>>x>>y>>xs>>val){
@@ -51,13 +52,18 @@ void sampleDist(int nevents,int vPol){
     double y(-1);//y position (along bar)  
     double z(-1);//x angle (across bar)    
     hIn->GetRandom3(x,y,z);
+    //y=y+0.5.;//FIXME 
 
     double pbZpos=571.9;//cm
     double deg=180./3.14159265359;
     double pbXang=getAngY(y);
-    double pbXpos=getPbPos(y,pbXang);
     double pbYang=z;
-    double pbYpos=getPbPos(x,z);
+    
+    //double pbXpos=getPbPos(y,pbXang);//this projects from the face of the quartz
+    double pbXpos=y;
+
+    //double pbYpos=getPbPos(x,pbYang);//this projects from the face of the quartz
+    double pbYpos=x;
 
     if( (pow(sin(pbYang),2)+pow(sin(pbXang),2)) > 1 ) continue;
     if( pbYpos<326 || pbYpos>344 ) continue;
