@@ -30,8 +30,8 @@ void readDist(){
   //ifstream fin("../input/Hit_Map_Tracks_13681_MD5_.txt");
   //ifstream fin("../input/Hit_Map_Tracks_15121_MD1_.txt");
   //ifstream fin("../input/Hit_Map_Tracks_15121_MD5_.txt");
-  ifstream fin("../input/MC_HitMap_Oct1.txt");
-  //ifstream fin("../input/MC_HitMap_Oct3.txt");
+  //ifstream fin("../input/MC_HitMap_Oct1.txt");
+  ifstream fin("../input/MC_HitMap_Oct3.txt");
 
   double x,y,xs,val;
   while(fin>>x>>y>>xs>>val){
@@ -103,6 +103,8 @@ double getPbPos(double pos,double ang){
 }
 
 double getAngY(double posY){//[posY]=cm
-  return (1.375e-3 * posY + 0.01); //[rad]
+  //return (1.375e-3 * posY + 0.01); //from DA - data [rad]
+  //return (1.39e-3 * posY - 1.8e-4); //from JP - sim Oct1 [rad]
+  return (1.41e-3 * posY - 5.0e-5); //from JP - sim Oct3 [rad]
 }
 
