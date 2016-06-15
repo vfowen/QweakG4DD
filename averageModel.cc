@@ -345,6 +345,10 @@ void readPEs(TString barModel){
       cout << "Using input/md8Config16_alongDir_acrossAng23_lightPara.txt" << endl;
       path = "input/md8Config16_alongDir_acrossAng23_lightPara.txt";
   }
+  if("md6config3_23" == barModel) {
+      cout << "Using input/md6Config3_alongDir_acrossAng23_lightPara.txt" << endl;
+      path = "input/md6Config3_alongDir_acrossAng23_lightPara.txt";
+  }
   if("ideal23_polish" == barModel) {
       cout << "Using input/idealBar_alongDir_acrossAng23_Polish0977.txt" << endl;
       path = "input/idealBar_alongDir_acrossAng23_Polish0977.txt";
