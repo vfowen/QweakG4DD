@@ -244,6 +244,10 @@ int main(int argc, char** argv)
       tn1 = new TNamed("bar","md8config16");
       tn2 = new TNamed("angle","angle 0");
   }                                         
+  if("md6config3_23" == barModel) {
+      tn1 = new TNamed("bar","md6config3");
+      tn2 = new TNamed("angle","angle 23");
+  }                                         
   if("ideal23" == barModel) {
       tn1 = new TNamed("bar","ideal bar");
       tn2 = new TNamed("angle","angle 23");
