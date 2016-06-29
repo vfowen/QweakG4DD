@@ -111,8 +111,8 @@ int main(int argc, char** argv)
   if(t->GetListOfBranches()->FindObject("calcAsym"))
     t->SetBranchAddress("calcAsym",&calcAsym);
   
-  TFile *fout=new TFile(Form("o_avgModel_%s_%s.root", barModel.Data(),
-                             distModel.Data()),"RECREATE");
+  TFile *fout=new TFile(Form("o_avgModel_%s_%s_offset_%d.root", barModel.Data(),
+                             distModel.Data(),offset),"RECREATE");
 
   string lr[2]={"R","L"};
   TH1D *hpe[2][nModels],*posPE[2][nModels],*angPE[2][nModels];
