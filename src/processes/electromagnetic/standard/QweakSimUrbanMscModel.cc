@@ -445,7 +445,7 @@ G4double QweakSimUrbanMscModel::ComputeTruePathLengthLimit(
   const G4DynamicParticle* dp = track.GetDynamicParticle();
 
   // FIXME
-  modifyTrajectory=false;
+  modifyTrajectory=true;
   ePolarized=false;
   debugPrint=false;
   if(strcmp(track.GetParticleDefinition()->GetParticleName().data() , "e-") == 0)
@@ -458,7 +458,7 @@ G4double QweakSimUrbanMscModel::ComputeTruePathLengthLimit(
 	eEnergy=track.GetTotalEnergy();
       }
     }      
-  debugPrint=false;
+  debugPrint=false;//comment this line if you want to print out
   // FIXME
   
   G4StepPoint* sp = track.GetStep()->GetPreStepPoint();
@@ -956,33 +956,35 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
 
   //FIXME
   if(ePolarized){
-    G4double _prob=rndmEngineMod->flat();
 
+    G4double transPol=sqrt(pow(polarization.getX(),2)+pow(polarization.getY(),2));
     if(debugPrint){
       G4cout<<__PRETTY_FUNCTION__<<G4endl;
-      G4cout<<"\tpolarization.R: "<<polarization.getR()<<G4endl;
+      G4cout<<"\tpolarization.R\ttransPol: "<<polarization.getR()<<"\t"<<transPol<<G4endl;
     }
-    G4double transPol=sqrt(pow(polarization.getX(),2)+pow(polarization.getY(),2));
     G4double _amplitude = AnalyzingPower(eEnergy, cth) * transPol;
-
-    if(modifyTrajectory){
-      if( _prob < _amplitude * sin(phi-pi) ){
-	phi-=pi;
-      }
-      phi+= polarization.getPhi() - oldDirection.getPhi();//FIXME: prob wrong see below
-      if(phi<0) phi+=twopi;
-      else if(phi>twopi) phi=fmod(phi,twopi);
-    }
 
     G4double tdirx = sth*cos(phi);
     G4double tdiry = sth*sin(phi);    
     G4ThreeVector tnewDirection(tdirx,tdiry,cth);
     tnewDirection.rotateUz(oldDirection);
     G4double phiPol = tnewDirection.getPhi() + polarization.getPhi();    
+    
+    if(modifyTrajectory){
+      G4double _prob=rndmEngineMod->flat();
+      if( _prob < _amplitude * sin(phiPol) ){
+	phi-=pi;
+      }
+      if(phi<0) phi+=twopi;
+      else if(phi>twopi) phi=fmod(phi,twopi);
+    }
+
     if(debugPrint){
       G4cout<<__PRETTY_FUNCTION__<<G4endl;
-      G4cout<<"\tpol.phi\tphi\told.phi\tphiPol : "<<G4endl<<"\t"
-	    <<polarization.getPhi()<<"\t"<<phi<<"\t"<<oldDirection.getPhi()<<"\t"<<phiPol<<"\t"<<sin(phiPol)<<G4endl;
+      G4cout<<" aft rot:\tpol.phi\tphi\told.phi\tnew.phi\tphiPol\tsin(phiPol)\tnew.theta : "<<G4endl
+	    <<"\t"<<polarization.getPhi()<<"\t"<<phi<<"\t"<<oldDirection.getPhi()<<"\t"
+	    <<tnewDirection.getPhi()<<"\t"<<phiPol<<"\t"<<sin(phiPol)<<"\t"
+	    <<tnewDirection.getTheta()<<"\t"<<G4endl;
     }
 
     G4double pp=1.+_amplitude*sin(phiPol);

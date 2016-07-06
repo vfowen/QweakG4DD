@@ -266,7 +266,7 @@ G4double QweakSimWentzelVIModel::ComputeTruePathLengthLimit(
   singleScatteringMode = false;
 
   // FIXME
-  modifyTrajectory=false;
+  modifyTrajectory=true;
   ePolarized=false;
   debugPrint=false;
   if(strcmp(track.GetParticleDefinition()->GetParticleName().data() , "e-") == 0)
@@ -642,23 +642,13 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
       sint = sqrt((1.0 - cost)*(1.0 + cost));
       phi=temp.getPhi();
       if(ePolarized){
-	G4double _prob=G4UniformRand();
 
+	G4double transPol=sqrt(pow(polarization.getX(),2)+pow(polarization.getY(),2));
 	if(debugPrint){
 	  G4cout<<__PRETTY_FUNCTION__<<G4endl;
-	  G4cout<<"\tpolarization.R: "<<polarization.getR()<<G4endl;
+	  G4cout<<"\tpolarization.R\ttransPol: "<<polarization.getR()<<"\t"<<transPol<<G4endl;
 	}
-	G4double transPol=sqrt(pow(polarization.getX(),2)+pow(polarization.getY(),2));
 	G4double _amplitude = AnalyzingPower(eEnergy, cost) * transPol;
-
-	if(modifyTrajectory){
-	  if( _prob < _amplitude * sin(phi-pi) ){
-	    phi-=pi;
-	  }		
-	  phi+= polarization.getPhi() - oldDirection.getPhi();//prob wrong?! see below FIXME
-	  if(phi<0) phi+=twopi;
-	  else if(phi>twopi) phi=fmod(phi,twopi);
-	}
 
 	G4double vx1 = sint*cos(phi);
 	G4double vy1 = sint*sin(phi);
@@ -666,8 +656,16 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	G4ThreeVector tnewDirection(vx1,vy1,cost);
 	tnewDirection.rotateUz(oldDirection);
 	G4double phiPol = tnewDirection.getPhi() + polarization.getPhi();
-	if(phi<0) phi+=twopi;
-	else if(phi>twopi) phi=fmod(phi,twopi);
+
+	if(modifyTrajectory){
+	  G4double _prob=G4UniformRand();
+	  if( _prob < _amplitude * sin(phiPol) ){
+	    phi-=pi;
+	  }		
+	  if(phi<0) phi+=twopi;
+	  else if(phi>twopi) phi=fmod(phi,twopi);
+	}
+
 	if(debugPrint){
 	  G4cout<<__PRETTY_FUNCTION__<<G4endl;
 	  G4cout<<"\tpol.phi\tphi\told.phi\tphiPol : "<<G4endl<<"\t"
@@ -731,18 +729,24 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 
       //FIXME
       if(ePolarized){
-	G4double _prob=G4UniformRand();
 	
+	G4double transPol=sqrt(pow(polarization.getX(),2)+pow(polarization.getY(),2));
 	if(debugPrint){
 	  G4cout<<__PRETTY_FUNCTION__<<G4endl;
-	  G4cout<<"\tpolarization.R: "<<polarization.getR()<<G4endl;
+	  G4cout<<"\tpolarization.R\ttransPol: "<<polarization.getR()<<"\t"<<transPol<<G4endl;
 	}
-		
-	G4double transPol=sqrt(pow(polarization.getX(),2)+pow(polarization.getY(),2));
 	G4double _amplitude = AnalyzingPower(eEnergy, cost) * transPol;
+	
+	G4double vx1 = sint*cos(phi);
+	G4double vy1 = sint*sin(phi);
+	temp.set(vx1,vy1,cost);
+	G4ThreeVector tnewDirection(vx1,vy1,cost);
+	tnewDirection.rotateUz(oldDirection);
+	G4double phiPol = tnewDirection.getPhi() + polarization.getPhi();
 
 	if(modifyTrajectory){
-	  if( _prob < _amplitude * sin(phi-pi) ){
+	  G4double _prob=G4UniformRand();
+	  if( _prob < _amplitude * sin(phiPol) ){
 	    phi-=pi;
 	  }
 	  phi+= polarization.getPhi() - oldDirection.getPhi();
@@ -750,20 +754,12 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	  else if(phi>twopi) phi=fmod(phi,twopi);
 	}
 
-	G4double vx1 = sint*cos(phi);
-	G4double vy1 = sint*sin(phi);
-	temp.set(vx1,vy1,cost);
-	G4ThreeVector tnewDirection(vx1,vy1,cost);
-	tnewDirection.rotateUz(oldDirection);
-	G4double phiPol = tnewDirection.getPhi() + polarization.getPhi();
-	if(phi<0) phi+=twopi;
-	else if(phi>twopi) phi=fmod(phi,twopi);
 	if(debugPrint){
 	  G4cout<<__PRETTY_FUNCTION__<<G4endl;
 	  G4cout<<"\tpol.phi\tphi\told.phi\tphiPol : "<<G4endl<<"\t"
 		<<polarization.getPhi()<<"\t"<<phi<<"\t"<<oldDirection.getPhi()<<"\t"<<phiPol<<G4endl;
 	}
-
+	
 	G4double pp=1.+_amplitude*sin(phiPol);
 	G4double pm=1.-_amplitude*sin(phiPol);
 	if(asymInfo->at(2)==-2){
@@ -775,7 +771,7 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	    asymInfo->at(1) *= pm;
 	  }
 	}
-
+	
 	if(debugPrint){
 	  G4cout<<__PRETTY_FUNCTION__<<G4endl;
 	  G4cout<<"\tAmplitude\teEnerty\ttheta(deg)\tphi(deg)\ttheta(rad)\tphi(rad)"<<G4endl;

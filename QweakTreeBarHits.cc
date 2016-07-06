@@ -7,6 +7,7 @@
 #include "QweakSimSystemOfUnits.hh"
 #include "TFile.h"
 #include "TTree.h"
+#include "TH1I.h"
 
 using namespace std;
 
@@ -33,7 +34,8 @@ int main(int argc, char** argv){
 
   string files(argv[1]);
 
-  TFile *fout=new TFile("o_hits.root","RECREATE");  
+  TFile *fout=new TFile("o_hits.root","RECREATE");
+  TH1I *hEntries=new TH1I("hEntries","number of processed events",1,0,1);
   TTree *tout=new TTree("t","Stripped QweakSimG4 tree for hits");
   tout->Branch("evNr",&evNr,"evNr/I");
   tout->Branch("primary",&primary,"primary/I");
@@ -97,8 +99,9 @@ int main(int argc, char** argv){
   }
   
   cout<<"Processed "<<totEv<<" events"<<endl;
-  
+  hEntries->SetBinContent(1,totEv);
   fout->cd();
+  hEntries->Write();
   tout->Write();
   fout->Close();
   return 0;
