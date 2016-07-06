@@ -243,6 +243,10 @@ int main(int argc, char** argv)
       tn1 = new TNamed("bar","md8config16");
       tn2 = new TNamed("angle","angle 0");
   }                                         
+  if("md6config3_23" == barModel) {
+      tn1 = new TNamed("bar","md6config3");
+      tn2 = new TNamed("angle","angle 23");
+  }                                         
   if("ideal23" == barModel) {
       tn1 = new TNamed("bar","ideal bar");
       tn2 = new TNamed("angle","angle 23");
@@ -344,6 +348,10 @@ void readPEs(TString barModel){
   if("md8config16_23" == barModel) {
       cout << "Using input/md8Config16_alongDir_acrossAng23_lightPara.txt" << endl;
       path = "input/md8Config16_alongDir_acrossAng23_lightPara.txt";
+  }
+  if("md6config3_23" == barModel) {
+      cout << "Using input/md6Config3_alongDir_acrossAng23_lightPara.txt" << endl;
+      path = "input/md6Config3_alongDir_acrossAng23_lightPara.txt";
   }
   if("ideal23_polish" == barModel) {
       cout << "Using input/idealBar_alongDir_acrossAng23_Polish0977.txt" << endl;

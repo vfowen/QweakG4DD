@@ -12,9 +12,9 @@ inline G4double AnalyzingPower(G4double energy, G4double cth){
 
   G4double theta = acos(cth);
   
-  G4double ahat = -22e-6 * 207./82.;
+  G4double ahat = -35e-6 * 207./82.;
   G4double twoPhoton = ahat * sqrt(4.*pow(energy/1000.,2) * sin(theta/2.) );
-  twoPhoton *= 1000.;
+  twoPhoton *= 10000.;
   if( fabs(twoPhoton) > 1 ) twoPhoton = 1. * twoPhoton/fabs(twoPhoton);
 
   G4bool debugPrint=false;
@@ -29,8 +29,9 @@ inline G4double AnalyzingPower(G4double energy, G4double cth){
   if( fabs(mott) > 1 ) mott = 1. * mott/fabs(mott);
   //if(mott<0) mott=0;
 
-  //return twoPhoton; 
-  return mott;
+  if( fabs(twoPhoton) > 1 ) twoPhoton = 1. * twoPhoton/fabs(twoPhoton);
+  return twoPhoton; 
+  //return mott;
   // return twoPhoton + mott ;  
 }
 
