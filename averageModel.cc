@@ -269,7 +269,7 @@ int main(int argc, char** argv)
   tn2->Write();                              
   tn3->Write();
 
-  cout<<endl<<" average asymmetry histogram results: A_L dA_L A_R dA_R DD dDD A_ave dA_Ave"<<endl;
+  cout<<endl<<" average asymmetry histogram results: A_L dA_L A_R dA_R DD dDD A_bias dA_bia A_bias/DD*100"<<endl;
   for(int j=0;j<nModels;j++){      
     for(int i=0;i<2;i++){
       hpe[i][j]->Write();
@@ -323,7 +323,8 @@ void printInfo(TH1D *hl,TH1D *hr){
 
   cout<<al<<"\t"<<dal<<"\t"<<ar<<"\t"<<dar<<"\t"
       <<al-ar<<"\t"<<sqrt(dar*dar+dal*dal)<<"\t"
-      <<(al+ar)/2<<"\t"<<sqrt(dar*dar+dal*dal)/2<<endl;
+      <<(al+ar)/2<<"\t"<<sqrt(dar*dar+dal*dal)/2<<"\t"
+      <<((al+ar)/2)/(al-ar)*100<<endl;
 }
 
 void readPEs(TString barModel){
