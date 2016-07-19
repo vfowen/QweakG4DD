@@ -1,11 +1,10 @@
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 #include <math.h>
 #include <algorithm>
 
-#include "QweakSimUserMainEvent.hh"
-#include "QweakSimSystemOfUnits.hh"
 #include "TH1D.h"
 #include "TH2D.h"
 #include "TH3D.h"
@@ -54,7 +53,8 @@ int main(int argc, char** argv)
     cout << " usage: build/avgModel [options]" << endl
          << " --rootfile <path to rootfile>" << endl
          << " --barmodel ideal0, ideal23, ideal23_polish, ideal23_bevel, "
-         << "md8config16_0 or md8config16_23" << endl
+         << "md6config3_23, md7config2_23, md8config16_0 or md8config16_23"
+         << endl
          << " --distmodel mirror (omit for as is)" << endl;
     return 1;
   }
@@ -112,8 +112,8 @@ int main(int argc, char** argv)
   if(t->GetListOfBranches()->FindObject("calcAsym"))
     t->SetBranchAddress("calcAsym",&calcAsym);
   
-  TFile *fout=new TFile(Form("o_avgModel_%s_%s.root", barModel.Data(),
-                             distModel.Data()),"RECREATE");
+  TFile *fout=new TFile(Form("o_avgModel_%s_%s_offset_%d.root", barModel.Data(),
+                             distModel.Data(),offset),"RECREATE");
 
   string lr[2]={"R","L"};
   TH1D *hpe[2][nModels],*posPE[2][nModels],*angPE[2][nModels];
@@ -173,7 +173,9 @@ int main(int argc, char** argv)
         angX=-angX;
         angXi=-angXi;
     }
-    if("ideal23_bevel" == barModel || "ideal23_polish" == barModel) {
+    if("ideal23_bevel" == barModel || "ideal23_polish" == barModel ||
+       "md6config3_23" == barModel || "md7config2_23" == barModel ||
+       "md8config16_23" == barModel) {
         if(abs(x)>100) continue;
         if(abs(angX)>89) continue;
     }
@@ -248,6 +250,10 @@ int main(int argc, char** argv)
       tn1 = new TNamed("bar","md6config3");
       tn2 = new TNamed("angle","angle 23");
   }                                         
+  if("md7config2_23" == barModel) {
+      tn1 = new TNamed("bar","md7config2");
+      tn2 = new TNamed("angle","angle 23");
+  }                                         
   if("ideal23" == barModel) {
       tn1 = new TNamed("bar","ideal bar");
       tn2 = new TNamed("angle","angle 23");
@@ -274,7 +280,7 @@ int main(int argc, char** argv)
   tn2->Write();                              
   tn3->Write();
 
-  cout<<endl<<" average asymmetry histogram results: A_L dA_L A_R dA_R DD dDD A_ave dA_Ave"<<endl;
+  cout<<endl<<" average asymmetry histogram results: A_L dA_L A_R dA_R DD dDD A_bias dA_bia A_bias/DD*100"<<endl;
   for(int j=0;j<nModels;j++){      
     for(int i=0;i<2;i++){
       hpe[i][j]->Write();
@@ -328,7 +334,8 @@ void printInfo(TH1D *hl,TH1D *hr){
 
   cout<<al<<"\t"<<dal<<"\t"<<ar<<"\t"<<dar<<"\t"
       <<al-ar<<"\t"<<sqrt(dar*dar+dal*dal)<<"\t"
-      <<(al+ar)/2<<"\t"<<sqrt(dar*dar+dal*dal)/2<<endl;
+      <<(al+ar)/2<<"\t"<<sqrt(dar*dar+dal*dal)/2<<"\t"
+      <<((al+ar)/2)/(al-ar)*100<<endl;
 }
 
 void readPEs(TString barModel){
@@ -352,6 +359,10 @@ void readPEs(TString barModel){
   if("md6config3_23" == barModel) {
       cout << "Using input/md6Config3_alongDir_acrossAng23_lightPara.txt" << endl;
       path = "input/md6Config3_alongDir_acrossAng23_lightPara.txt";
+  }
+  if("md7config2_23" == barModel) {
+      cout << "Using input/md7Config2_alongDir_acrossAng23_lightPara.txt" << endl;
+      path = "input/md7Config2_alongDir_acrossAng23_lightPara.txt";
   }
   if("ideal23_polish" == barModel) {
       cout << "Using input/idealBar_alongDir_acrossAng23_Polish0977.txt" << endl;
