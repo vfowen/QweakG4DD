@@ -9,12 +9,17 @@ void samplePrimaryDist(int seed, int nevents,int vPol){
   //gRandom = new TRandom3(seed);
   //use for files with Hit_Map_Tracks ... DA tracking files
   //hIn=new TH3D("hIn","input h",15,320,350,20,-100,100,14,0.34,0.48);
+
   //use for MC files (JP)
-  hIn=new TH3D("hIn","input h",22,324,346,200,-100,100,14,0.34,0.48);
+  // hIn=new TH3D("hIn","input h",22,324,346,200,-100,100,14,0.34,0.48);
+
+  //use this for MC files from qelog Det 117 (JP)
+  hIn=new TH3D("hIn","input h",24,323,347,200,-100,100,14,0.34,0.48);
+
   readDist();
   //cout<<"You are offseting the distribution along the bar!"<<endl;
-  sampleDist(nevents,vPol);
-  //drawDist();
+  //sampleDist(nevents,vPol);
+  drawDist();
 }
 
 void readDist(){
@@ -110,7 +115,8 @@ double getPbPos(double pos,double ang){
 
 double getAngY(double posY){//[posY]=cm
   //return (1.375e-3 * posY + 0.01); //from DA - data [rad]
-  //return (1.39e-3 * posY - 1.8e-4); //from JP - sim Oct1 [rad]
-  return (1.41e-3 * posY - 5.0e-5); //from JP - sim Oct3 [rad]
+  //return (1.39e-3 * posY - 1.8e-4); //from JP - sim Oct1 with prob FIXME[rad]
+  //return (1.41e-3 * posY - 5.0e-5); //from JP - sim Oct3 with prob FIXME[rad]
+  return (1.37e-3 * posY + 1.8e-4); //simOct - det Elog 117 [rad]
 }
 
