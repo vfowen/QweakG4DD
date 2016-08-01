@@ -12,13 +12,13 @@ int nDist=203;
 
 int draw=0;
 
-void samplePrimaryDist(int seed, int nevents,int vPol, int chooseDist=0){
+void samplePrimaryDist(int nevents,int vPol, int chooseDist=0){
 
   if(chooseDist!=0)
     nDist=chooseDist;
   
   if(gRandom) delete gRandom;
-  gRandom = new TRandom3(seed);
+  gRandom = new TRandom3(0);
 
   if(nDist<200)
     //use for files with Hit_Map_Tracks ... DA tracking files
