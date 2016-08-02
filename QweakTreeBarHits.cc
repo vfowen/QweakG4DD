@@ -17,7 +17,7 @@ float x,y,z,E;
 float angX,angY,angXi,angYi;
 float xi,yi,zi;
 float polT,polTi;
-double calcAsym;
+double asymPpM,asymPmM;
 std::vector<double> xI,yI,zI,aXi,aYi,polI;
 
 void findInt(std::vector<int> &inter,std::vector<int> &val, int trackID,int parent, int &hasPar, int &nInt);
@@ -52,7 +52,8 @@ int main(int argc, char** argv){
   tout->Branch("angXi",&angXi,"angXi/F");
   tout->Branch("angYi",&angYi,"angYi/F");
   tout->Branch("polTi",&polTi,"polTi/F");
-  tout->Branch("calcAsym",&calcAsym,"calcAsym/D");
+  tout->Branch("asymPpM",&asymPpM,"asymPpM/D");
+  tout->Branch("asymPmM",&asymPmM,"asymPmM/D");
   
   int totEv=0;
   if ( files.find(".root") < files.size() ){
@@ -121,7 +122,8 @@ void processOne(TTree *QweakSimG4_Tree, TTree *tout){
     if(i%10000==1) cout<<"   at event: "<<i<<endl;
 
     evNr=event->Primary.GetPrimaryEventNumber();
-    calcAsym = event->Primary.GetAsymPrim();
+    asymPpM = event->Primary.GetAsymDeno();
+    asymPmM = event->Primary.GetAsymNomi();
     
     xi=xI[i];
     yi=yI[i];
