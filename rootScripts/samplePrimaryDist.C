@@ -9,10 +9,10 @@ TH3D *hIn;
 //   x = oct number;
 //   Y either 0 or 1 for data refers to either the first or second tracking run (see readDist)
 int nDist=203;
-
+double getAngYa, getAngYb;
 int draw=0;
 
-void samplePrimaryDist(int nevents,int vPol, int chooseDist=0){
+void samplePrimaryDistv2(int nevents,int vPol, int chooseDist=0){
 
   if(chooseDist!=0)
     nDist=chooseDist;
@@ -40,6 +40,12 @@ void readDist(){
   int nData= ( (nDist-nDist%100)/10 ) %10;
   string fnm;
   int trackingRuns[8][2]={{15121,13681},{13671,0},{13679,13676},{13674,0},{13681,15121},{13671,0},{13676,13679},{13674,0}};
+
+  //for equation a*X+b =>JP det elog 117
+  double a[8]={1.37e-3, 1.37e-3, 1.37e-3, 1.37e-3, 1.38e-3, 1.37e-3, 1.37e-3, 1.37e-3};
+  double b[8]={-1.8e-4, -1.9e-4,  1.8e-4,  3.1e-4, -2.0e-5,  1.6e-4,  2.2e-4,  1.1e-4};
+  getAngYa=a[nOct];
+  getAngYb=b[nOct];
   
   if(nDist<200){
     if(trackingRuns[nOct][nData]==0){
@@ -132,13 +138,10 @@ double getPbPos(double pos,double ang){
 }
 
 double getAngY(double posY){//[posY]=cm
-  //for equation a*X+b =>JP det elog 117
-  double a[8]={1.37e-3, 1.37e-3, 1.37e-3, 1.37e-3, 1.38e-3, 1.37e-3, 1.37e-3, 1.37e-3};
-  double b[8]={-1.8e-4, -1.9e-4,  1.8e-4,  3.1e-4, -2.0e-5,  1.6e-4,  2.2e-4,  1.1e-4};
-  int nOct=nDist%100 - 1;
+
   if(nDist<200)
     return (1.375e-3 * posY + 0.01); //from DA - data [rad]
   else
-    return a[nOct] * posY - b[nOct];//from JP - det elog 117
+    return getAngYa * posY - getAngYb;//from JP - det elog 117
 }
 
