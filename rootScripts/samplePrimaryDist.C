@@ -12,7 +12,7 @@ int nDist=203;
 double getAngYa, getAngYb;
 int draw=0;
 
-void samplePrimaryDistv2(int nevents,int vPol, int chooseDist=0){
+void samplePrimaryDist(int nevents,int vPol, int chooseDist=0){
 
   if(chooseDist!=0)
     nDist=chooseDist;
