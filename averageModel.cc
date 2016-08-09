@@ -53,7 +53,7 @@ int main(int argc, char** argv)
     cout << " usage: build/avgModel [options]" << endl
          << " --rootfile <path to rootfile>" << endl
          << " --barmodel ideal0, ideal23, ideal23_polish, ideal23_bevel, "
-         << "md6config3_23, md7config2_23, md8config16_0 or md8config16_23"
+         << "md4config4_23, md6config3_23, md7config2_23, md8config16_0 or md8config16_23"
          << endl
          << " --distmodel mirror (omit for as is)" << endl;
     return 1;
@@ -173,9 +173,9 @@ int main(int argc, char** argv)
         angX=-angX;
         angXi=-angXi;
     }
-    if("ideal23_bevel" == barModel || "ideal23_polish" == barModel ||
-       "md6config3_23" == barModel || "md7config2_23" == barModel ||
-       "md8config16_23" == barModel) {
+    if("ideal23_bevel" == barModel  || "ideal23_polish" == barModel ||
+       "md6config3_23" == barModel  || "md7config2_23" == barModel ||
+       "md8config16_23" == barModel || "md4config4_23" == barModel) {
         if(abs(x)>100) continue;
         if(abs(angX)>89) continue;
     }
@@ -245,6 +245,10 @@ int main(int argc, char** argv)
   if("md8config16_0" == barModel) {
       tn1 = new TNamed("bar","md8config16");
       tn2 = new TNamed("angle","angle 0");
+  }                                         
+  if("md4config4_23" == barModel) {
+      tn1 = new TNamed("bar","md4config4");
+      tn2 = new TNamed("angle","angle 23");
   }                                         
   if("md6config3_23" == barModel) {
       tn1 = new TNamed("bar","md6config3");
@@ -355,6 +359,10 @@ void readPEs(TString barModel){
   if("md8config16_23" == barModel) {
       cout << "Using input/md8Config16_alongDir_acrossAng23_lightPara.txt" << endl;
       path = "input/md8Config16_alongDir_acrossAng23_lightPara.txt";
+  }
+  if("md4config4_23" == barModel) {
+      cout << "Using input/md4Config4_alongDir_acrossAng23_lightPara.txt" << endl;
+      path = "input/md4Config4_alongDir_acrossAng23_lightPara.txt";
   }
   if("md6config3_23" == barModel) {
       cout << "Using input/md6Config3_alongDir_acrossAng23_lightPara.txt" << endl;
