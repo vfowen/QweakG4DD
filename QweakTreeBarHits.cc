@@ -174,7 +174,7 @@ void processOne(TTree *QweakSimG4_Tree, TTree *tout, int &nrEvts){
       tout->Fill();
     }//nhit
   }//tree entries
-  nrEvts += evNr;
+  nrEvts = evNr;
 }
 
 void readInitial(string fnm){
