@@ -61,10 +61,10 @@ void interpolatePEs::readScan(){
     xAngLowLimit  = -89;
     xAngHighLimit =  89;
   } else {
-    xPosLowLimit  = -100;
-    xPosHighLimit =  100;
-    xAngLowLimit  = -89;
-    xAngHighLimit =  89;
+    xPosLowLimit  = -90;
+    xPosHighLimit =  90;
+    xAngLowLimit  = -80;
+    xAngHighLimit =  80;
   }
         
   
@@ -104,6 +104,9 @@ int interpolatePEs::getPEs(double E, double x, double angX ,double &outL,double 
   std::vector<double> pt(dimension-2,0);
   std::vector<double> pts[dimension];
 
+  if(verbosity)
+    cout<<__LINE__<<"\t"<<__PRETTY_FUNCTION__<<endl
+	<<"\tTrying to interpolate (E,x,angX):"<<E<<"\t"<<x<<"\t"<<angX<<endl;
   pt[0]=x;
   pt[1]=E;
   pt[2]=angX;
@@ -120,6 +123,9 @@ int interpolatePEs::getPEs(double E, double x, double angX ,double &outL,double 
     exit(1);
   }
 
+  if(verbosity)
+    cout<<"\tObtained L R: "<<lpe<<" "<<rpe<<endl;
+  
   outL=lpe;
   outR=rpe;
   return 1;
