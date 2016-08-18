@@ -23,13 +23,15 @@ void getPEs(std::vector<double> in[dimension], std::vector<double> pt,
 	    double &outL, double &outR);
 void printInfo(TH1D *hl,TH1D *hr);
 
-const int nModels = 6;
+const int nModels = 8;
 //0=                                     
 //1= cnst*sgn(angX) for abs(angX)=[20,40]
 //2= cnst*angX                           
 //3= cnst*sgn(angX)*angX^2               
 //4= cnst*angX^3                         
-//5= microscopic model calculation
+//5= distribution weighted with P
+//6= distribution weighted with M
+//7= [5]/[6] microscopic distribution
 
 //model,R/L,Upper/Lower
 const int rangeTst=0;
@@ -39,6 +41,8 @@ double asymLimits[nModels][2][2]={
   {{-0.350,-0.100},{ 0.100, 0.350}},
   {{-0.350,-0.100},{ 0.100, 0.350}},
   {{-0.350,-0.100},{ 0.100, 0.350}},
+  {{-9.000, 9.000},{-9.000, 9.000}},
+  {{-9.000, 9.000},{-9.000, 9.000}},
   {{-9.000, 9.000},{-9.000, 9.000}}
 };
 
@@ -97,7 +101,7 @@ int main(int argc, char** argv)
   float angX,angY;
   float angXi,angYi;
   float polT;
-  double calcAsym(0);
+  double asymPpM(0),asymPmM(0);
   t->SetBranchAddress("evNr",&evNr);
   t->SetBranchAddress("primary",&primary);
   t->SetBranchAddress("x",&x);
@@ -109,8 +113,10 @@ int main(int argc, char** argv)
   t->SetBranchAddress("angXi",&angXi);
   t->SetBranchAddress("angYi",&angYi);
   t->SetBranchAddress("polT",&polT);
-  if(t->GetListOfBranches()->FindObject("calcAsym"))
-    t->SetBranchAddress("calcAsym",&calcAsym);
+  if(t->GetListOfBranches()->FindObject("asymPpM")){
+    t->SetBranchAddress("asymPpM",&asymPpM);
+    t->SetBranchAddress("asymPmM",&asymPmM);
+  }
   
   TFile *fout=new TFile(Form("o_avgModel_%s_%s_offset_%d.root", barModel.Data(),
                              distModel.Data(),offset),"RECREATE");
@@ -149,11 +155,13 @@ int main(int argc, char** argv)
 
     if(float(i+1)/nev*100>currentStep){
       for(int imod=1;imod<nModels;imod++){
-	as[0][imod]->Fill( avgStepR[imod]/avgStepR[0]*1e6 );
-	as[1][imod]->Fill( avgStepL[imod]/avgStepL[0]*1e6 );
-	if(rangeTst){
-	  cout<<i<<" "<<imod<<" R "<<avgStepR[imod]<<" "<<avgStepR[0]<<" "<<avgStepR[imod]/avgStepR[0]*1e6<<endl;
-	  cout<<i<<" "<<imod<<" L "<<avgStepL[imod]<<" "<<avgStepL[0]<<" "<<avgStepL[imod]/avgStepL[0]*1e6<<endl;
+	if(avgStepR[0]>0 && avgStepL[0]>0){
+	  as[0][imod]->Fill( avgStepR[imod]/avgStepR[0]*1e6 );
+	  as[1][imod]->Fill( avgStepL[imod]/avgStepL[0]*1e6 );
+	  if(rangeTst){
+	    cout<<i<<" "<<imod<<" R "<<avgStepR[imod]<<" "<<avgStepR[0]<<" "<<avgStepR[imod]/avgStepR[0]*1e6<<endl;
+	    cout<<i<<" "<<imod<<" L "<<avgStepL[imod]<<" "<<avgStepL[0]<<" "<<avgStepL[imod]/avgStepL[0]*1e6<<endl;
+	  }
 	}
 	avgStepL[imod]=0;
 	avgStepR[imod]=0;
@@ -205,10 +213,18 @@ int main(int argc, char** argv)
       exit(1);
     }
 
-    for(int imod=0;imod<nModels;imod++){
+    //nModels-1 because microscopic is special and done at the end
+    for(int imod=0;imod<nModels-1;imod++){
+
       double asym=model(angX-angXi,imod);
-      if(imod==5){
-	asym=calcAsym;
+      if(imod>4){
+	double P=(asymPpM+asymPmM)/2;
+	double M=(asymPpM-asymPmM)/2;
+	if(imod==5){
+	  asym=P;
+	}else if(imod==6)
+	  asym=M;
+
 	if(distModel == "mirror" ) asym=-asym;
       }
 
@@ -216,16 +232,34 @@ int main(int argc, char** argv)
       avgStepR[imod]+=asym*rpe;
       lAvgTotPE[imod]+=asym*lpe;
       rAvgTotPE[imod]+=asym*rpe;
-
+      
       hpe[0][imod]->Fill((1.+asym)*rpe);
       posPE[0][imod]->Fill(x,asym*rpe);
       angPE[0][imod]->Fill(angX-angXi,asym*rpe);
       hpe[1][imod]->Fill((1.+asym)*lpe);
       posPE[1][imod]->Fill(x,asym*lpe);
       angPE[1][imod]->Fill(angX-angXi,asym*lpe);
+      
     }        
   }
 
+  int posBin=posPE[0][7]->GetXaxis()->GetNbins();
+  int angBin=angPE[0][7]->GetXaxis()->GetNbins();
+  for(int j=0;j<2;j++){
+    for(int i=1;i<=posBin;i++){
+      double a=posPE[j][5]->GetBinContent(i);
+      double b=posPE[j][6]->GetBinContent(i);
+      if(a+b>0)
+	posPE[j][7]->SetBinContent(i, (a-b)/(a+b) );
+    }
+    for(int i=1;i<=angBin;i++){
+      double a=angPE[j][5]->GetBinContent(i);
+      double b=angPE[j][6]->GetBinContent(i);
+      if(a+b>0)
+	angPE[j][7]->SetBinContent(i, (a-b)/(a+b) );
+    }
+  }
+  
   cout<<endl<<"total PE average: A_L A_R DD A_ave A_ave/DD"<<endl;
   for(int imod=1;imod<nModels;imod++)
     cout<<imod<<"\t"<<lAvgTotPE[imod]/lAvgTotPE[0]<<"\t"<<rAvgTotPE[imod]/rAvgTotPE[0]
