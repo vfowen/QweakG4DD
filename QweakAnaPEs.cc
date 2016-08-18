@@ -122,9 +122,9 @@ int main(int argc, char** argv){
 	}
     }
     
-    float flip(-1.);
+    float flip(1.);
     if(distModel == "mirror")
-      flip=1.;
+      flip=-1.;
 
     double pes[2];
     if(!interpolator.getPEs(E,flip*x,flip*angX,pes[0],pes[1])) continue;
