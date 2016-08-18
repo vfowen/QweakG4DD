@@ -100,34 +100,21 @@ target_link_libraries(QweakSimG4 ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
 # - QweakSimRoot
 add_executable(QweakSimRoot QweakSimRoot.cc)
 target_link_libraries(QweakSimRoot ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
-# - QweakAna
-add_executable(QweakAna QweakAna.cc)
-target_link_libraries(QweakAna ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
-# - QweakCalcPMTDD
-add_executable(QweakCalcPMTDD QweakCalcPMTDD.cc)
-target_link_libraries(QweakCalcPMTDD ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
-# - QweakAnaPEs
-add_executable(anaPEs QweakAnaPEs.cc)
-target_link_libraries(anaPEs ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
-# - QweakAnaCalc
-add_executable(QweakAnaCalc QweakAnaCalc.cc)
-target_link_libraries(QweakAnaCalc ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
-# - QweakTreeStrip
-add_executable(QweakTreeStrip QweakTreeStrip.cc)
-target_link_libraries(QweakTreeStrip ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
-# - QweakTreeBarHits
+
+# - QweakTreeBarHits: strip down QweakSimG4 output to bare hits
 add_executable(QweakTreeBarHits QweakTreeBarHits.cc)
 target_link_libraries(QweakTreeBarHits ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
+# - QweakAnaPEs: Take output from QweakTreeBarHits and analyze it with PEs
+add_executable(anaPEs QweakAnaPEs.cc)
+target_link_libraries(anaPEs ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
+# - DrawMSAn: makes plots of the analyzing power defined in the QweakSimMScAnalyzingPower.hh
+add_executable(DrawMSAn DrawMSAn.cc)
+target_link_libraries(DrawMSAn ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
+
 # - effective Model
 add_executable(effModel effectiveModel.cc)
 target_link_libraries(effModel ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
 # - average Model
 add_executable(avgModel averageModel.cc)
 target_link_libraries(avgModel ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
-# - DrawMSAn
-add_executable(DrawMSAn DrawMSAn.cc)
-target_link_libraries(DrawMSAn ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
-# - QweakGetPEs
-add_executable(QweakGetPEs QweakGetPEs.cc)
-target_link_libraries(QweakGetPEs ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
 
