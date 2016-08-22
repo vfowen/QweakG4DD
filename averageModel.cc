@@ -160,14 +160,12 @@ int main(int argc, char** argv)
     
     if(i>1000000 && rangeTst) break;
 
-    x += offset;
-
     float flip(1.);
     if(distModel == "mirror")
       flip=-1.;
 
     double lpe(-1),rpe(-1);
-    if(!interpolator.getPEs(E,flip*x,flip*angX,lpe,rpe)) continue;
+    if(!interpolator.getPEs(E,flip*x+offset,flip*angX,lpe,rpe)) continue;
     // cout<<" asdf L R "<<lpe<<" "<<rpe<<endl;
     // std::cin.ignore();
     
