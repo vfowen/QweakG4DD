@@ -7,7 +7,13 @@ interpolatePEs::interpolatePEs(string bar):
 {
   readScan();
 }
-
+void interpolatePEs::setLightMap(string bar){
+  barModel=bar;
+  for(int i=0;i<dimension;i++)
+    scanPoints[i].clear();
+  readScan();
+}
+  
 void interpolatePEs::readScan(){
 
   string path;
