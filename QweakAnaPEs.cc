@@ -17,15 +17,15 @@ int main(int argc, char** argv){
   if( argc == 1 || (0 == strcmp("--help", argv[1]))) {
     cout << " usage: build/anaPEs [options]" << endl
          << " --rootfile <path to rootfile>" << endl
-         << " --barmodel ideal0, ideal23, ideal23_polish, ideal23_bevel, "
-         << "md6config3_23, md7config2_23, md8config16_0 or md8config16_23"
-         << endl
+         << " --barmodel tracks, ideal0, ideal23, ideal23_polish, ideal23_bevel, "
+         << "md6config3_23, md7config2_23, md8config16_0 or md8config16_23"<<endl
+         << "\t <tracks> is default and does not calculate PEs" << endl
          << " --distmodel mirror (omit for as is)" << endl;
     return 1;
   }
   
   // Read in command line paramaters
-  string barModel = "md8config16_23";
+  string barModel = "tracks";
   string distModel = "asIs";
   string rootfile = "";
   int offset = 0;
@@ -40,7 +40,10 @@ int main(int argc, char** argv){
       offset = atoi(argv[i+1]);
     }
   }
-  interpolatePEs interpolator(barModel);
+  interpolatePEs interpolator;
+  if(barModel!="tracks"){
+    interpolator.setLightMap(barModel);
+  }
 
   TFile *fin=TFile::Open(rootfile.c_str(),"READ");
   TTree *t=(TTree*)fin->Get("t");
@@ -127,8 +130,13 @@ int main(int argc, char** argv){
       flip=-1.;
 
     double pes[2];
-    if(!interpolator.getPEs(E,flip*x,flip*angX,pes[0],pes[1])) continue;
-
+    if(barModel == "tracks"){
+      pes[0]=1;
+      pes[1]=1;
+    }else{
+      if(!interpolator.getPEs(E,flip*x,flip*angX,pes[0],pes[1])) continue;
+    }
+    
     for(int j=0;j<2;j++){
       TotPE[primary][j]+=pes[j];
       AvgPE[primary][j]+=pes[j];
