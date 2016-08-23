@@ -14,7 +14,7 @@ using namespace std;
 
 void calcAsym(TH1 *hp,TH1 *hm, TH1 *ha);
 
-Int main(int argc, char** argv){
+int main(int argc, char** argv){
 
   if( argc == 1 || (0 == strcmp("--help", argv[1]))) {
     cout << " usage: build/anaPEsWgt [options]" << endl
@@ -72,14 +72,14 @@ Int main(int argc, char** argv){
     fillPhi=1;
   }
   if(t->GetListOfBranches()->FindObject("asymPpM")){
-    t->SetBranchAddress("asymPpM",asymInfo[0]);
-    t->SetBranchAddress("asymPmM",asymInfo[1]);
+    t->SetBranchAddress("asymPpM",&asymInfo[0]);
+    t->SetBranchAddress("asymPmM",&asymInfo[1]);
   }
 
   TFile *fout=new TFile(Form("o_anaWgt_%s_%s.root",barModel.c_str(),distModel.c_str()),"RECREATE");
   string lr[2]={"R","L"};
   string species[3]={"N","P","A"};
-  string pm[2]={"p","m"}
+  string pm[2]={"p","m"};
 
   TH1D *hTotPE=new TH1D("hTotPE","",8,0,8);
   hTotPE->GetXaxis()->SetBinLabel(1,"Plus  N left  Total number of PEs");
@@ -93,7 +93,7 @@ Int main(int argc, char** argv){
 
   //[L|R][Primary|NonPrimary|All][Plus|Minus]
   TH1D *hpe[2][3][2],*posPE[2][3][2],*angPE[2][3][2],*phiPE[2][3][2],*hpeAvg[2][3][2];
-  TH1D *posAs[2][3],*angAs[2][3],*phiPE[2][3];
+  TH1D *posAs[2][3],*angAs[2][3],*phiAs[2][3];
   for(int i=0;i<2;i++)
     for(int j=0;j<3;j++){
       for(int ipm=0;ipm<2;ipm++){
@@ -102,39 +102,39 @@ Int main(int argc, char** argv){
 				Form("%s %s %s;number of PEs",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
 				300,0,300);
 	
-	hpeAvg[i][j]=new TH1D(Form("hpeAvg_%s_%s_%s",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
-			      Form("1k ev Avg %s %s;number of PEs",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
-			      600,0,20);
+	hpeAvg[i][j][ipm]=new TH1D(Form("hpeAvg_%s_%s_%s",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
+				   Form("1k ev Avg %s %s %s;number of PEs",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
+				   600,0,20);
 	
-	posPE[i][j]=new TH1D(Form("posPE_%s_%s_%s",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
-			     Form("%s %s %s;position along bar[cm]",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
-			     400,-100,100);
+	posPE[i][j][ipm]=new TH1D(Form("posPE_%s_%s_%s",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
+				  Form("%s %s %s;position along bar[cm]",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
+				  400,-100,100);
       
-	angPE[i][j]=new TH1D(Form("angPE_%s_%s_%s",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
-			     Form("%s %s %s;angle in shower [deg]",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
-			     400,-100,100);      
+	angPE[i][j][ipm]=new TH1D(Form("angPE_%s_%s_%s",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
+				  Form("%s %s %s;angle in shower [deg]",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
+				  400,-100,100);      
 
-	phiPE[i][j]=new TH1D(Form("phiPE_%s_%s_%s",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
-			     Form("%s %s %s;global phi [deg]",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
-			     400,0,400);      
+	phiPE[i][j][ipm]=new TH1D(Form("phiPE_%s_%s_%s",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
+				  Form("%s %s %s;global phi [deg]",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
+				  400,0,400);      
       }
 
-      posAs[i][j]=new TH1D(Form("posAs_%s_%s_%s",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
-			   Form("%s %s %s;position along bar[cm]",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
+      posAs[i][j]=new TH1D(Form("posAs_%s_%s",lr[i].c_str(),species[j].c_str()),
+			   Form("asym %s %s;position along bar[cm]",lr[i].c_str(),species[j].c_str()),
 			   400,-100,100);
       
-      angAs[i][j]=new TH1D(Form("angAs_%s_%s_%s",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
-			   Form("%s %s %s;angle in shower [deg]",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
+      angAs[i][j]=new TH1D(Form("angAs_%s_%s",lr[i].c_str(),species[j].c_str()),
+			   Form("Asym %s %s;angle in shower [deg]",lr[i].c_str(),species[j].c_str()),
 			   400,-100,100);      
       
-      phiAs[i][j]=new TH1D(Form("phiAs_%s_%s_%s",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
-			   Form("%s %s %s;global phi [deg]",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
+      phiAs[i][j]=new TH1D(Form("phiAs_%s_%s",lr[i].c_str(),species[j].c_str()),
+			   Form("Asym %s %s;global phi [deg]",lr[i].c_str(),species[j].c_str()),
 			   400,0,400);      
     }
 
   //[N|P][R|L][plus|minus]
-  double TotPE[2][2][2]={{0,0},{0,0},{0,0}};
-  double AvgPE[2][2][2]={{0,0},{0,0},{0,0}};
+  double TotPE[2][2][2]={{{0,0},{0,0}},{{0,0},{0,0}}};
+  double AvgPE[2][2][2]={{{0,0},{0,0}},{{0,0},{0,0}}};
 
   int incrementNr(1000),recordNr(1000);
   int nev=t->GetEntries();
@@ -147,11 +147,12 @@ Int main(int argc, char** argv){
     
     if(evNr>recordNr){
       recordNr+=incrementNr;
-      for(int j=0;j<2;j++)
-	for(int k=0;k<2;k++){
-	  hpeAvg[k][j]->Fill(AvgPE[j][k]/1000.);
-	  AvgPE[j][k]=0;
-	}
+      for(int ipm=0;ipm<2;ipm++)
+	for(int j=0;j<2;j++)
+	  for(int k=0;k<2;k++){
+	    hpeAvg[k][j][ipm]->Fill(AvgPE[j][k][ipm]/1000.);
+	    AvgPE[j][k][ipm]=0;
+	  }
     }
     
     float flip(1.);
