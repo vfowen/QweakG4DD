@@ -107,6 +107,9 @@ target_link_libraries(QweakTreeBarHits ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} Qwe
 # - QweakAnaPEs: Take output from QweakTreeBarHits and analyze it with PEs
 add_executable(anaPEs QweakAnaPEs.cc)
 target_link_libraries(anaPEs ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
+# - QweakAnaPEsWgt: Similar to QweakAnaPEs above only that it takes the plus and minus weights from a weighted simulation and calculates an asymmetry as well
+add_executable(anaWgt QweakAnaPEsWgt.cc)
+target_link_libraries(anaWgt ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
 # - DrawMSAn: makes plots of the analyzing power defined in the QweakSimMScAnalyzingPower.hh
 add_executable(DrawMSAn DrawMSAn.cc)
 target_link_libraries(DrawMSAn ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
