@@ -7,34 +7,40 @@ interpolatePEs::interpolatePEs(string bar):
 {
   readScan();
 }
-
+void interpolatePEs::setLightMap(string bar){
+  barModel=bar;
+  for(int i=0;i<dimension;i++)
+    scanPoints[i].clear();
+  readScan();
+}
+  
 void interpolatePEs::readScan(){
 
   string path;
   if("ideal0" == barModel) {
-      cout << "Using input/idealBar_alongDir_acrossAng0_lightPara.txt" << endl;
-      path = "input/idealBar_alongDir_acrossAng0_lightPara.txt";
+    cout << "Using input/idealBar_alongDir_acrossAng0_lightPara.txt" << endl;
+    path = "input/idealBar_alongDir_acrossAng0_lightPara.txt";
   }else if("md8config16_0" == barModel) {
-      cout << "Using input/md8Config16_alongDir_acrossAng0_lightPara.txt" << endl;
-      path = "input/md8Config16_alongDir_acrossAng0_lightPara.txt";
+    cout << "Using input/md8Config16_alongDir_acrossAng0_lightPara.txt" << endl;
+    path = "input/md8Config16_alongDir_acrossAng0_lightPara.txt";
   }else if("ideal23" == barModel) {
-      cout << "Using input/idealBar_alongDir_acrossAng23_lightPara.txt" << endl;
-      path = "input/idealBar_alongDir_acrossAng23_lightPara.txt";
+    cout << "Using input/idealBar_alongDir_acrossAng23_lightPara.txt" << endl;
+    path = "input/idealBar_alongDir_acrossAng23_lightPara.txt";
   }else if("md8config16_23" == barModel) {
-      cout << "Using input/md8Config16_alongDir_acrossAng23_lightPara.txt" << endl;
-      path = "input/md8Config16_alongDir_acrossAng23_lightPara.txt";
+    cout << "Using input/md8Config16_alongDir_acrossAng23_lightPara.txt" << endl;
+    path = "input/md8Config16_alongDir_acrossAng23_lightPara.txt";
   }else if("md6config3_23" == barModel) {
-      cout << "Using input/md6Config3_alongDir_acrossAng23_lightPara.txt" << endl;
-      path = "input/md6Config3_alongDir_acrossAng23_lightPara.txt";
+    cout << "Using input/md6Config3_alongDir_acrossAng23_lightPara.txt" << endl;
+    path = "input/md6Config3_alongDir_acrossAng23_lightPara.txt";
   }else if("md7config2_23" == barModel) {
-      cout << "Using input/md7Config2_alongDir_acrossAng23_lightPara.txt" << endl;
-      path = "input/md7Config2_alongDir_acrossAng23_lightPara.txt";
+    cout << "Using input/md7Config2_alongDir_acrossAng23_lightPara.txt" << endl;
+    path = "input/md7Config2_alongDir_acrossAng23_lightPara.txt";
   }else if("ideal23_polish" == barModel) {
-      cout << "Using input/idealBar_alongDir_acrossAng23_Polish0977.txt" << endl;
-      path = "input/idealBar_alongDir_acrossAng23_Polish0977.txt";
+    cout << "Using input/idealBar_alongDir_acrossAng23_Polish0977.txt" << endl;
+    path = "input/idealBar_alongDir_acrossAng23_Polish0977.txt";
   }else if("ideal23_bevel" == barModel) {
-      cout << "input/idealBar_alongDir_acrossAng23_Bevel1mmRightBar05mmLeftBar.txt" << endl;
-      path = "input/idealBar_alongDir_acrossAng23_Bevel1mmRightBar05mmLeftBar.txt";
+    cout << "input/idealBar_alongDir_acrossAng23_Bevel1mmRightBar05mmLeftBar.txt" << endl;
+    path = "input/idealBar_alongDir_acrossAng23_Bevel1mmRightBar05mmLeftBar.txt";
   }else{
     cout << "Cannot match your barModel to available list: update list or check name"<<endl;
     exit(2);
@@ -43,7 +49,7 @@ void interpolatePEs::readScan(){
   for(int i=0;i<dimension;i++)
     scanPoints[i].clear();
 
-  ifstream fin(path);
+  ifstream fin(path.c_str());
   if(!fin.is_open()) {
     cout<<" cannot read file for PE parametrization :macros/yl_md3_angle_scan.txt" <<endl;
     exit(2);

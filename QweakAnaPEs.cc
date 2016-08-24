@@ -17,15 +17,15 @@ int main(int argc, char** argv){
   if( argc == 1 || (0 == strcmp("--help", argv[1]))) {
     cout << " usage: build/anaPEs [options]" << endl
          << " --rootfile <path to rootfile>" << endl
-         << " --barmodel ideal0, ideal23, ideal23_polish, ideal23_bevel, "
-         << "md6config3_23, md7config2_23, md8config16_0 or md8config16_23"
-         << endl
+         << " --barmodel tracks, ideal0, ideal23, ideal23_polish, ideal23_bevel, "
+         << "md6config3_23, md7config2_23, md8config16_0 or md8config16_23"<<endl
+         << "\t <tracks> is default and does not calculate PEs" << endl
          << " --distmodel mirror (omit for as is)" << endl;
     return 1;
   }
   
   // Read in command line paramaters
-  string barModel = "md8config16_23";
+  string barModel = "tracks";
   string distModel = "asIs";
   string rootfile = "";
   int offset = 0;
@@ -40,14 +40,19 @@ int main(int argc, char** argv){
       offset = atoi(argv[i+1]);
     }
   }
-  interpolatePEs interpolator(barModel);
+  interpolatePEs interpolator;
+  if(barModel!="tracks"){
+    interpolator.setLightMap(barModel);
+  }
 
   TFile *fin=TFile::Open(rootfile.c_str(),"READ");
   TTree *t=(TTree*)fin->Get("t");
   int evNr;
   int primary;//0 secondary, 1 primary
   float x,y,z,E,angX,angY,angXi,angYi,polT;
+  float phi,theta;
   double asymPpM(0),asymPmM(0);
+  int fillPhi=0;
   t->SetBranchAddress("evNr",&evNr);
   t->SetBranchAddress("primary",&primary);
   t->SetBranchAddress("x",&x);
@@ -59,6 +64,11 @@ int main(int argc, char** argv){
   t->SetBranchAddress("angXi",&angXi);
   t->SetBranchAddress("angYi",&angYi);
   t->SetBranchAddress("polT",&polT);
+  if(t->GetListOfBranches()->FindObject("phi")){
+    t->SetBranchAddress("phi",&phi);
+    t->SetBranchAddress("th",&theta);
+    fillPhi=1;
+  }
   if(t->GetListOfBranches()->FindObject("asymPpM")){
     t->SetBranchAddress("asymPpM",&asymPpM);
     t->SetBranchAddress("asymPmM",&asymPmM);
@@ -74,7 +84,7 @@ int main(int argc, char** argv){
   hTotPE->GetXaxis()->SetBinLabel(3,"P left  Total number of PEs");
   hTotPE->GetXaxis()->SetBinLabel(4,"P right Total number of PEs");
   //[L/R][Primary/NonPrimary/All]
-  TH1D *hpe[2][3],*posPE[2][3],*angPE[2][3],*hpeAvg[2][3];
+  TH1D *hpe[2][3],*posPE[2][3],*angPE[2][3],*phiPE[2][3],*hpeAvg[2][3];
   for(int i=0;i<2;i++)
     for(int j=0;j<3;j++){
       hpe[i][j]=new TH1D(Form("hpe_%s_%s",lr[i].c_str(),species[j].c_str()),
@@ -92,6 +102,10 @@ int main(int argc, char** argv){
       angPE[i][j]=new TH1D(Form("angPE_%s_%s",lr[i].c_str(),species[j].c_str()),
 			   Form("%s %s;angle in shower [deg]",lr[i].c_str(),species[j].c_str()),
 			   400,-100,100);      
+
+      phiPE[i][j]=new TH1D(Form("phiPE_%s_%s",lr[i].c_str(),species[j].c_str()),
+			   Form("%s %s;global phi [deg]",lr[i].c_str(),species[j].c_str()),
+			   400,0,400);      
     }
 
   double TotPE[2][2]={{0,0},{0,0}};
@@ -127,8 +141,13 @@ int main(int argc, char** argv){
       flip=-1.;
 
     double pes[2];
-    if(!interpolator.getPEs(E,flip*x,flip*angX,pes[0],pes[1])) continue;
-
+    if(barModel == "tracks"){
+      pes[0]=1;
+      pes[1]=1;
+    }else{
+      if(!interpolator.getPEs(E,flip*x,flip*angX,pes[0],pes[1])) continue;
+    }
+    
     for(int j=0;j<2;j++){
       TotPE[primary][j]+=pes[j];
       AvgPE[primary][j]+=pes[j];
@@ -136,10 +155,16 @@ int main(int argc, char** argv){
       hpe[j][primary]->Fill(pes[j]);
       posPE[j][primary]->Fill(x,pes[j]);
       angPE[j][primary]->Fill(angX-angXi,pes[j]);
-
+      
       hpe[j][2]->Fill(pes[j]);
       posPE[j][2]->Fill(x,pes[j]);
       angPE[j][2]->Fill(angX-angXi,pes[j]);
+
+      if(fillPhi){
+	double tmpPhi= phi < 0 ? 360 + phi : phi;
+	phiPE[j][primary]->Fill(tmpPhi,pes[j]);
+	phiPE[2][primary]->Fill(tmpPhi,pes[j]);
+      }      
     }
     
     
@@ -158,6 +183,7 @@ int main(int argc, char** argv){
       hpeAvg[i][j]->Write();
       posPE[i][j]->Write();
       angPE[i][j]->Write();
+      phiPE[i][j]->Write();
     }
   
   fout->Close();
