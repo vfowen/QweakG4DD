@@ -323,13 +323,24 @@ float model(float val,int type){
 }
 
 void printInfo(TH1D *hl,TH1D *hr){
-  double al=hl->GetMean();
-  double dal=hl->GetMeanError();
-  double ar=hr->GetMean();
-  double dar=hr->GetMeanError();
+    double al=hl->GetMean();
+    double dal=hl->GetMeanError();
+    double ar=hr->GetMean();
+    double dar=hr->GetMeanError();
+    // Double difference and error
+    double dd = al-ar;
+    double ddd = sqrt(dar*dar+dal*dal);
+    // a_bias and error
+    double abias = (al+ar)/2;
+    double dabias = sqrt(dar*dar+dal*dal)/2;
+    // figure of merit (a_bias/dd*100) and error
+    double fom = ((al+ar)/2)/(al-ar)*100;
+    double dfom = sqrt(pow(fom,2)*(pow(ddd/dd,2)+pow(dabias/abias,2)));
 
-  cout<<al<<"\t"<<dal<<"\t"<<ar<<"\t"<<dar<<"\t"
-      <<al-ar<<"\t"<<sqrt(dar*dar+dal*dal)<<"\t"
-      <<(al+ar)/2<<"\t"<<sqrt(dar*dar+dal*dal)/2<<"\t"
-      <<((al+ar)/2)/(al-ar)*100<<endl;
+        cout << al << "\t" << dal << "\t" << ar << "\t" << dar << "\t"
+        << dd << "\t" << ddd << "\t"
+        << abias << "\t" << dabias <<"\t"
+        << fom << "\t"
+        << dfom << endl;
+
 }
