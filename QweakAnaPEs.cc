@@ -40,9 +40,12 @@ int main(int argc, char** argv){
       offset = atoi(argv[i+1]);
     }
   }
+  cout<<"Bar Model: "<<barModel<<endl;
   interpolatePEs interpolator;
+  int maxAvg=2;
   if(barModel!="tracks"){
     interpolator.setLightMap(barModel);
+    maxAvg=20;
   }
 
   TFile *fin=TFile::Open(rootfile.c_str(),"READ");
@@ -93,7 +96,7 @@ int main(int argc, char** argv){
 
       hpeAvg[i][j]=new TH1D(Form("hpeAvg_%s_%s",lr[i].c_str(),species[j].c_str()),
 			    Form("1k ev Avg %s %s;number of PEs",lr[i].c_str(),species[j].c_str()),
-			    600,0,20);
+			    600,0,maxAvg);
 
       posPE[i][j]=new TH1D(Form("posPE_%s_%s",lr[i].c_str(),species[j].c_str()),
 			   Form("%s %s;position along bar[cm]",lr[i].c_str(),species[j].c_str()),
@@ -112,13 +115,17 @@ int main(int argc, char** argv){
   double AvgPE[2][2]={{0,0},{0,0}};
 
   int prevEvNr(0),currEvNr(0),realEvNr(0),nrFiles(0),recordNr(1000);
+  float startProc=0,stopProc=15,currentProc=0,procStep=10;
   int nev=t->GetEntries();
   for(int i=0;i<nev;i++){
-    t->GetEntry(i);
-    if( i % 1000000 == 1)
-      cout<<" at event: "<<i<<" "<<float(i+1)/nev*100<<"%"<<endl;
-
+    if( float(i+1)/nev*100 > currentProc ){
+      cout<<" at event: "<<i<<"\t"<<float(i+1)/nev*100<<"%"<<endl;
+      currentProc+=procStep;
+    }
     //if( i>5000000) break;
+    //if( float(i+1)/nev*100<startProc || float(i+1)/nev*100>stopProc ) continue;
+
+    t->GetEntry(i);
     
     if( i>0 )
       prevEvNr=currEvNr;
@@ -140,10 +147,10 @@ int main(int argc, char** argv){
     if(distModel == "mirror")
       flip=-1.;
 
-    double pes[2];
+    double pes[2]={0,0};
     if(barModel == "tracks"){
-      pes[0]=1;
-      pes[1]=1;
+      if(x>0) pes[0]=1;
+      else if(x<0) pes[1]=1;
     }else{
       if(!interpolator.getPEs(E,flip*x,flip*angX,pes[0],pes[1])) continue;
     }
