@@ -43,8 +43,10 @@ int main(int argc, char** argv){
     }
   }
   interpolatePEs interpolator;
+  int maxAvg=2;
   if(barModel!="tracks"){
     interpolator.setLightMap(barModel);
+    maxAvg=20;
   }
 
   TFile *fin=TFile::Open(rootfile.c_str(),"READ");
@@ -93,7 +95,7 @@ int main(int argc, char** argv){
 
   //[L|R][Primary|NonPrimary|All][Plus|Minus]
   TH1D *hpe[2][3][2],*posPE[2][3][2],*angPE[2][3][2],*phiPE[2][3][2],*hpeAvg[2][3][2];
-  TH1D *posAs[2][3],*angAs[2][3],*phiAs[2][3];
+  TH1D *posAs[2][3],*angAs[2][3],*phiAs[2][3],*avgAs[2][3];
   for(int i=0;i<2;i++)
     for(int j=0;j<3;j++){
       for(int ipm=0;ipm<2;ipm++){
@@ -104,7 +106,7 @@ int main(int argc, char** argv){
 	
 	hpeAvg[i][j][ipm]=new TH1D(Form("hpeAvg_%s_%s_%s",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
 				   Form("1k ev Avg %s %s %s;number of PEs",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
-				   600,0,20);
+				   600,0,maxAvg);
 	
 	posPE[i][j][ipm]=new TH1D(Form("posPE_%s_%s_%s",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
 				  Form("%s %s %s;position along bar[cm]",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
@@ -130,29 +132,47 @@ int main(int argc, char** argv){
       phiAs[i][j]=new TH1D(Form("phiAs_%s_%s",lr[i].c_str(),species[j].c_str()),
 			   Form("Asym %s %s;global phi [deg]",lr[i].c_str(),species[j].c_str()),
 			   400,0,400);      
+      avgAs[i][j]=new TH1D(Form("avgAs_%s_%s",lr[i].c_str(),species[j].c_str()),
+			   Form("Avg asym %s %s",lr[i].c_str(),species[j].c_str()),
+			   400,-0.005,0.005);      
     }
 
   //[N|P][R|L][plus|minus]
   double TotPE[2][2][2]={{{0,0},{0,0}},{{0,0},{0,0}}};
   double AvgPE[2][2][2]={{{0,0},{0,0}},{{0,0},{0,0}}};
 
+  double pmVal[2]={0,0};
   int incrementNr(1000),recordNr(1000);
+  float startProc=0,stopProc=15,currentProc=0,procStep=5;
   int nev=t->GetEntries();
   for(int i=0;i<nev;i++){
-    t->GetEntry(i);
-    if( i % 1000000 == 1)
-      cout<<" at event: "<<i<<" "<<float(i+1)/nev*100<<"%"<<endl;
+    if( float(i+1)/nev*100 > currentProc ){
+      cout<<" at event: "<<i<<"\t"<<float(i+1)/nev*100<<"%"<<endl;
+      currentProc+=procStep;
+    }
 
     //if( i>5000000) break;
+    //if( float(i+1)/nev*100<startProc || float(i+1)/nev*100>stopProc ) continue;
+
+    t->GetEntry(i);
+    
+    pmVal[0]=(asymInfo[0]+asymInfo[1])/2.;
+    pmVal[1]=(asymInfo[0]-asymInfo[1])/2.;
     
     if(evNr>recordNr){
       recordNr+=incrementNr;
-      for(int ipm=0;ipm<2;ipm++)
-	for(int j=0;j<2;j++)
-	  for(int k=0;k<2;k++){
-	    hpeAvg[k][j][ipm]->Fill(AvgPE[j][k][ipm]/1000.);
-	    AvgPE[j][k][ipm]=0;
+      for(int j=0;j<2;j++)
+	for(int k=0;k<2;k++){
+	  for(int ipm=0;ipm<2;ipm++){
+	    hpeAvg[k][j][ipm]->Fill(AvgPE[j][k][ipm]/(float)incrementNr);
 	  }
+
+	  if( (AvgPE[j][k][0] + AvgPE[j][k][1]) > 0 )
+	    avgAs[k][j]->Fill( (AvgPE[j][k][0] - AvgPE[j][k][1]) /  (AvgPE[j][k][0] + AvgPE[j][k][1]) );
+	  
+	  AvgPE[j][k][0]=0;
+	  AvgPE[j][k][1]=0;
+	}
     }
     
     float flip(1.);
@@ -169,21 +189,21 @@ int main(int argc, char** argv){
 
     for(int ipm=0;ipm<2;ipm++)
       for(int j=0;j<2;j++){
-	TotPE[primary][j][ipm]+=pes[j]*asymInfo[ipm];
-	AvgPE[primary][j][ipm]+=pes[j]*asymInfo[ipm];
+	TotPE[primary][j][ipm]+=pes[j]*pmVal[ipm];
+	AvgPE[primary][j][ipm]+=pes[j]*pmVal[ipm];
+	
+	hpe[j][primary][ipm]->Fill(pes[j]*pmVal[ipm]);
+	posPE[j][primary][ipm]->Fill(x,pes[j]*pmVal[ipm]);
+	angPE[j][primary][ipm]->Fill(angX-angXi,pes[j]*pmVal[ipm]);
       
-	hpe[j][primary][ipm]->Fill(pes[j]*asymInfo[ipm]);
-	posPE[j][primary][ipm]->Fill(x,pes[j]*asymInfo[ipm]);
-	angPE[j][primary][ipm]->Fill(angX-angXi,pes[j]*asymInfo[ipm]);
-      
-	hpe[j][2][ipm]->Fill(pes[j]*asymInfo[ipm]);
-	posPE[j][2][ipm]->Fill(x,pes[j]*asymInfo[ipm]);
-	angPE[j][2][ipm]->Fill(angX-angXi,pes[j]*asymInfo[ipm]);
+	hpe[j][2][ipm]->Fill(pes[j]*pmVal[ipm]);
+	posPE[j][2][ipm]->Fill(x,pes[j]*pmVal[ipm]);
+	angPE[j][2][ipm]->Fill(angX-angXi,pes[j]*pmVal[ipm]);
 
 	if(fillPhi){
 	  double tmpPhi= phi < 0 ? 360 + phi : phi;
-	  phiPE[j][primary][ipm]->Fill(tmpPhi,pes[j]*asymInfo[ipm]);
-	  phiPE[2][primary][ipm]->Fill(tmpPhi,pes[j]*asymInfo[ipm]);
+	  phiPE[j][primary][ipm]->Fill(tmpPhi,pes[j]*pmVal[ipm]);
+	  phiPE[2][primary][ipm]->Fill(tmpPhi,pes[j]*pmVal[ipm]);
 	}      
       }
     
@@ -215,6 +235,7 @@ int main(int argc, char** argv){
       angAs[i][j]->Write();
       calcAsym(phiPE[i][j][0],phiPE[i][j][1],phiAs[i][j]);
       phiAs[i][j]->Write();
+      avgAs[i][j]->Write();
     }
   
   fout->Close();
