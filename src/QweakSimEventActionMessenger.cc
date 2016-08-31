@@ -53,6 +53,12 @@ QweakSimEventActionMessenger::QweakSimEventActionMessenger(QweakSimEventAction* 
   thePrintHitsCommand->SetDefaultValue("true");
   thePrintHitsCommand->AvailableForStates(G4State_Init,G4State_Idle);
 
+  physProcCmd = new G4UIcmdWithAnInteger("/PhysicsProcesses/settingFlag",this);
+  physProcCmd->SetGuidance("int with the form: a*2^0+b*2^1");
+  physProcCmd->SetGuidance("   if you want to debugPrint a=1");
+  physProcCmd->SetGuidance("   if you want to modify trajectory b=1");
+  physProcCmd->SetParameterName("settingFlag", false);
+
   G4cout << G4endl << "###### Leaving QweakSimEventActionMessenger::QweakSimEventActionMessenger() " << G4endl << G4endl;
 }
 
@@ -67,7 +73,8 @@ QweakSimEventActionMessenger::~QweakSimEventActionMessenger()
   if (theTriggerDisableCommand) delete theTriggerDisableCommand;
   if (thePrintHitsCommand)      delete thePrintHitsCommand;
   if (theTriggerDir)            delete theTriggerDir;
-
+  if (physProcCmd)              delete physProcCmd;
+  
   G4cout << G4endl << "###### Leaving QweakSimEventActionMessenger::~QweakSimEventActionMessenger() " << G4endl << G4endl;
 }
 
@@ -78,17 +85,32 @@ void QweakSimEventActionMessenger::SetNewValue(G4UIcommand* command, G4String ne
   if ( command == theTriggerShowCommand )
   {
     theEventAction->ShowTrigger();
-  }
-  if ( command == theTriggerEnableCommand )
+  }else if ( command == theTriggerEnableCommand )
   {
     theEventAction->EnableTrigger(newValue);
-  }
-  if ( command == theTriggerDisableCommand )
+  }else if ( command == theTriggerDisableCommand )
   {
     theEventAction->DisableTrigger(newValue);
-  }
-  if ( command == thePrintHitsCommand )
+  }else if ( command == thePrintHitsCommand )
   {
-    theEventAction->SetPrintHits(thePrintHitsCommand->GetNewBoolValue(newValue));
+    theEventAction->SetPrintHits(thePrintHitsCommand->GetNewBoolValue(newValue));  
+  }else if( command == physProcCmd ){
+    G4int flag=physProcCmd->GetNewIntValue(newValue);
+    theEventAction->SetPhysicsProcFlag(flag);
+
+    G4cout<<G4endl<<G4endl<<__LINE__<<"\t"<<__PRETTY_FUNCTION__<<G4endl;
+    if( (flag & 0x1)==0x1 )
+      G4cout<<"\tGet ready for some huge output!!! debugPrint is on!"<<G4endl;
+    else
+      G4cout<<"\tNo debugPrint!"<<G4endl;
+    if( (flag & 0x2)==0x2 )
+      G4cout<<"\tWill modify trajectory"<<G4endl;
+    else
+      G4cout<<"\tWon't modify trajectory"<<G4endl;
+    G4cout<<G4endl<<G4endl;
+  }
+  else{
+    G4cerr<<__LINE__<<"\t"<<__PRETTY_FUNCTION__<<G4endl
+	  <<command<<" has no definition"<<G4endl;
   }
 }
