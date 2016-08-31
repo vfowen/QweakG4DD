@@ -91,18 +91,24 @@ void QweakSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   particleGun->SetParticleMomentumDirection(G4ThreeVector(myNormMomentumX,
 							  myNormMomentumY,
 							  myNormMomentumZ));
-
-  if(myEventCounter<10)
+  if(myEventCounter<10){
+    G4cout<<__LINE__<<" "<<__PRETTY_FUNCTION__<<G4endl;
     G4cout<<myEventCounter<<" posmom "<<myPositionX<<" "<<myPositionY<<" "<<myPositionZ<<" "
 	  <<myNormMomentumX<<" "<<myNormMomentumY<<" "<<myNormMomentumZ<<" "<<G4endl;
+    G4ThreeVector tmp(myNormMomentumX,myNormMomentumY,myNormMomentumZ);
+    G4cout<<"\tmom (R,T,P) "<<tmp.getR()<<"\t"<<tmp.getTheta()<<"\t"<<tmp.getPhi()<<G4endl;
+  }
+
   if (fPolarization == "f") {
     G4double myPolX(0),myPolY(0),myPolZ(0);
     myPolX=myUserInfo->GetBeamPolarizationX(myEventCounter);
     myPolY=myUserInfo->GetBeamPolarizationY(myEventCounter);
     myPolZ=sqrt(1-myPolX*myPolX-myPolY*myPolY);
-
-    if(myEventCounter<10)
-      G4cout<<" pol "<<myPolX<<" "<<myPolY<<" "<<myPolZ<<G4endl;
+    if(myEventCounter<10){
+      G4ThreeVector tmp(myPolX,myPolY,myPolZ);
+      G4cout<<"\tpol (X,Y,Z) "<<myPolX<<"\t"<<myPolY<<"\t"<<myPolZ<<G4endl;
+      G4cout<<"\tpol (R,T,P) "<<tmp.getR()<<"\t"<<tmp.getTheta()<<"\t"<<tmp.getPhi()<<G4endl;
+    }
     
     particleGun->SetParticlePolarization(G4ThreeVector(myPolX,myPolY,myPolZ));
   }else{
