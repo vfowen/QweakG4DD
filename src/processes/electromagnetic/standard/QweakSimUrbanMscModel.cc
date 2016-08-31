@@ -967,6 +967,7 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
     if(debugPrint){
       G4cout<<__PRETTY_FUNCTION__<<G4endl;
       G4cout<<"\tpolarization.R\ttransPol: "<<polarization.getR()<<"\t"<<transPol<<G4endl;
+      G4cout<<"\tpol (R,T,P) "<<polarization.getR()<<"\t"<<polarization.getTheta()<<"\t"<<polarization.getPhi()<<G4endl;
     }
     G4double _amplitude = AnalyzingPower(eEnergy, cth) * transPol;
     G4double phiPol = phi - polarization.getPhi();    
