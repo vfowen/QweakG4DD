@@ -73,9 +73,9 @@ int main(int argc, char** argv){
     t->SetBranchAddress("th",&theta);
     fillPhi=1;
   }
-  if(t->GetListOfBranches()->FindObject("asymPpM")){
-    t->SetBranchAddress("asymPpM",&asymInfo[0]);
-    t->SetBranchAddress("asymPmM",&asymInfo[1]);
+  if(t->GetListOfBranches()->FindObject("asymPM")){
+    t->SetBranchAddress("asymPP",&asymInfo[0]);
+    t->SetBranchAddress("asymPM",&asymInfo[1]);
   }
 
   TFile *fout=new TFile(Form("o_anaWgt_%s_%s.root",barModel.c_str(),distModel.c_str()),"RECREATE");
@@ -96,6 +96,8 @@ int main(int argc, char** argv){
   //[L|R][Primary|NonPrimary|All][Plus|Minus]
   TH1D *hpe[2][3][2],*posPE[2][3][2],*angPE[2][3][2],*phiPE[2][3][2],*hpeAvg[2][3][2];
   TH1D *posAs[2][3],*angAs[2][3],*phiAs[2][3],*avgAs[2][3];
+  int incrementNr(10000),recordNr(10000);
+
   for(int i=0;i<2;i++)
     for(int j=0;j<3;j++){
       for(int ipm=0;ipm<2;ipm++){
@@ -105,7 +107,8 @@ int main(int argc, char** argv){
 				300,0,300);
 	
 	hpeAvg[i][j][ipm]=new TH1D(Form("hpeAvg_%s_%s_%s",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
-				   Form("1k ev Avg %s %s %s;number of PEs",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
+				   Form("%dk ev Avg %s %s %s;number of PEs",
+					incrementNr/1000,pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
 				   600,0,maxAvg);
 	
 	posPE[i][j][ipm]=new TH1D(Form("posPE_%s_%s_%s",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
@@ -134,16 +137,15 @@ int main(int argc, char** argv){
 			   400,0,400);      
       avgAs[i][j]=new TH1D(Form("avgAs_%s_%s",lr[i].c_str(),species[j].c_str()),
 			   Form("Avg asym %s %s",lr[i].c_str(),species[j].c_str()),
-			   400,-0.005,0.005);      
+			   400,-2e-3,2e-3);      
     }
 
   //[N|P][R|L][plus|minus]
   double TotPE[2][2][2]={{{0,0},{0,0}},{{0,0},{0,0}}};
   double AvgPE[2][2][2]={{{0,0},{0,0}},{{0,0},{0,0}}};
 
-  double pmVal[2]={0,0};
-  int incrementNr(1000),recordNr(1000);
-  float startProc=0,stopProc=15,currentProc=0,procStep=5;
+  //double pmVal[2]={0,0};
+  float startProc=0,stopProc=15,currentProc=0,procStep=10;
   int nev=t->GetEntries();
   for(int i=0;i<nev;i++){
     if( float(i+1)/nev*100 > currentProc ){
@@ -156,8 +158,8 @@ int main(int argc, char** argv){
 
     t->GetEntry(i);
     
-    pmVal[0]=(asymInfo[0]+asymInfo[1])/2.;
-    pmVal[1]=(asymInfo[0]-asymInfo[1])/2.;
+    // pmVal[0]=(asymInfo[0]+asymInfo[1])/2.;
+    // pmVal[1]=(asymInfo[0]-asymInfo[1])/2.;
     
     if(evNr>recordNr){
       recordNr+=incrementNr;
@@ -179,31 +181,31 @@ int main(int argc, char** argv){
     if(distModel == "mirror")
       flip=-1.;
 
-    double pes[2];
+    double pes[2]={0,0};
     if(barModel == "tracks"){
-      pes[0]=1;
-      pes[1]=1;
+      if(x>0) pes[0]=1;
+      else if(x<0) pes[1]=1;
     }else{
       if(!interpolator.getPEs(E,flip*x,flip*angX,pes[0],pes[1])) continue;
     }
 
     for(int ipm=0;ipm<2;ipm++)
       for(int j=0;j<2;j++){
-	TotPE[primary][j][ipm]+=pes[j]*pmVal[ipm];
-	AvgPE[primary][j][ipm]+=pes[j]*pmVal[ipm];
+	TotPE[primary][j][ipm]+=pes[j]*asymInfo[ipm];
+	AvgPE[primary][j][ipm]+=pes[j]*asymInfo[ipm];
 	
-	hpe[j][primary][ipm]->Fill(pes[j]*pmVal[ipm]);
-	posPE[j][primary][ipm]->Fill(x,pes[j]*pmVal[ipm]);
-	angPE[j][primary][ipm]->Fill(angX-angXi,pes[j]*pmVal[ipm]);
+	hpe[j][primary][ipm]->Fill(pes[j]*asymInfo[ipm]);
+	posPE[j][primary][ipm]->Fill(x,pes[j]*asymInfo[ipm]);
+	angPE[j][primary][ipm]->Fill(angX-angXi,pes[j]*asymInfo[ipm]);
       
-	hpe[j][2][ipm]->Fill(pes[j]*pmVal[ipm]);
-	posPE[j][2][ipm]->Fill(x,pes[j]*pmVal[ipm]);
-	angPE[j][2][ipm]->Fill(angX-angXi,pes[j]*pmVal[ipm]);
+	hpe[j][2][ipm]->Fill(pes[j]*asymInfo[ipm]);
+	posPE[j][2][ipm]->Fill(x,pes[j]*asymInfo[ipm]);
+	angPE[j][2][ipm]->Fill(angX-angXi,pes[j]*asymInfo[ipm]);
 
 	if(fillPhi){
 	  double tmpPhi= phi < 0 ? 360 + phi : phi;
-	  phiPE[j][primary][ipm]->Fill(tmpPhi,pes[j]*pmVal[ipm]);
-	  phiPE[2][primary][ipm]->Fill(tmpPhi,pes[j]*pmVal[ipm]);
+	  phiPE[j][primary][ipm]->Fill(tmpPhi,pes[j]*asymInfo[ipm]);
+	  phiPE[2][primary][ipm]->Fill(tmpPhi,pes[j]*asymInfo[ipm]);
 	}      
       }
     
