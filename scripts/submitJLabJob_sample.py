@@ -21,7 +21,8 @@ def main():
     _pol="V"
     modTrj=1
     submit=1
-
+    ndist=203
+    
     idRoot= _pol+'_sampled_%03dk'% (_nEv/1000) 
     for nr in range(_nrStart,_nrStop): # repeat for nr jobs
         _idN= idRoot+'_%04d'% (nr) 
@@ -30,9 +31,10 @@ def main():
         ##create input files
         seedA=int(time.time()/1346.)+10000*nr+nr
         if _pol=="V":
-            call("root -l -q -b ../rootScripts/samplePrimaryDist.C\\("+str(seedA)+","+str(_nEv)+",1\\)",shell=True)
+            call("root -l -q -b ../rootScripts/samplePrimaryDist.C\\("+str(_nEv)+",1,"+str(nDist)+"\\)",shell=True)
         else:
-            call("root -l -q -b ../rootScripts/samplePrimaryDist.C\\("+str(seedA)+","+str(_nEv)+",-1\\)",shell=True)
+            call("root -l -q -b ../rootScripts/samplePrimaryDist.C\\("+str(_nEv)+",-1,"+str(nDist)+"\\)",shell=True)
+
         call(["mv","positionMomentum.in",_directory+"/"+_idN+"/positionMomentum.in"])
         call(["mv","polarization.in",_directory+"/"+_idN+"/polarization.in"])
 
