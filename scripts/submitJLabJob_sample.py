@@ -25,7 +25,7 @@ def main():
     for nr in range(_nrStart,_nrStop): # repeat for nr jobs
         _idN= idRoot+'_%04d'% (nr) 
         print _idN
-        createMacFile(_directory,_idN,_xP,_yP,_zP,_Px,_Py,_tracking,_beamE,_pol,_nEv,nr)
+        createMacFile(_directory,_idN,_xP,_yP,_zP,_Px,_Py,_tracking,_beamE,_nEv,nr)
         ##create input files
         seedA=int(time.time()/1346.)+10000*nr+nr
         if _pol=="V":
@@ -54,7 +54,7 @@ def main():
 def createMacFile(directory,idname,
                   xPos,yPos,zPos,
                   Px,Py,tracking,
-                  beamE,pol,nEv,nr):
+                  beamE,nEv,nr):
     if not os.path.exists(directory+"/"+idname+"/log"):
         os.makedirs(directory+"/"+idname+"/log")
    
@@ -66,7 +66,7 @@ def createMacFile(directory,idname,
     f.write("/PrimaryEvent/SetBeamDirectionX "+str(Px)+" deg\n")
     f.write("/PrimaryEvent/SetBeamDirectionY "+str(Py)+" deg\n")
     f.write("/PrimaryEvent/SetFixedPosMom false\n")
-    f.write("/PrimaryEvent/SetPolarization "+pol+"\n")
+    f.write("/PrimaryEvent/SetPolarization f\n")
     f.write("/EventGen/SetBeamEnergy    "+str(beamE)+" MeV\n")
     f.write("/TrackingAction/TrackingFlag "+str(tracking)+"\n")
     f.write("/EventGen/SelectOctant 3\n")
