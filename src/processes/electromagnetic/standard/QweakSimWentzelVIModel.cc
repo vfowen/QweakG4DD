@@ -665,7 +665,8 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	  }		
 	  if(phi<0) phi+=twopi;
 	  else if(phi>twopi) phi=fmod(phi,twopi);
-	  G4cout<<__LINE__<<"\t"<<__PRETTY_FUNCTION__<<" Ws: Just modified trajectory"<<G4endl;
+	  if(debugPrint)
+	    G4cout<<__LINE__<<"\t"<<__PRETTY_FUNCTION__<<" Ws: Just modified trajectory"<<G4endl;
 	}
 	
 	G4double pp=1.+_amplitude*sin(phiPol);
@@ -743,7 +744,8 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	  phi+= polarization.getPhi() - oldDirection.getPhi();
 	  if(phi<0) phi+=twopi;
 	  else if(phi>twopi) phi=fmod(phi,twopi);
-	  G4cout<<__LINE__<<"\t"<<__PRETTY_FUNCTION__<<" Wm: Just modified trajectory"<<G4endl;
+	  if(debugPrint)
+	    G4cout<<__LINE__<<"\t"<<__PRETTY_FUNCTION__<<" Wm: Just modified trajectory"<<G4endl;
 	}
 	
 	G4double pp=1.+_amplitude*sin(phiPol);
