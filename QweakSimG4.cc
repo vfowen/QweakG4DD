@@ -72,7 +72,19 @@ int main(int argc,char** argv) {
 
   runManager->SetUserInitialization(myQweakSimExperiment);
 
+  /*
+    vector to pass asym information around
+    0: pp = \Pi (1+A_i)
+    1: pm = \Pi (1-A_i)
+    2: calculation flag (can be used to stop calculation during event 
+       -- not used now; if needed needs to be set in steppingAction)
+    3: bitInfo for physProcesses: a*2^0+b*2^1
+             a=1 for debugPrint; 
+             b=1 for modifyTrajectory; 
+        e.g.: 3:modifyTrajectory is on and will print for debugging 
+   */
   std::vector<double> asymInfo(4,-2);
+  asymInfo[3]=0;//default false for both
 
   // Calls a reference physics list for the simulation
   G4PhysListFactory factory;
