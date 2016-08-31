@@ -266,12 +266,19 @@ G4double QweakSimWentzelVIModel::ComputeTruePathLengthLimit(
   singleScatteringMode = false;
 
   // FIXME
-  modifyTrajectory=true;
+  if( (int(asymInfo->at(3)) & 0x2) == 0x2 )
+    modifyTrajectory=true;
+  else
+    modifyTrajectory=false;
+
+  if( (int(asymInfo->at(3)) & 0x1) == 0x1 )
+    debugPrint=true;
+  else
+    debugPrint=false;
+  
   ePolarized=false;
-  debugPrint=false;
   if(strcmp(track.GetParticleDefinition()->GetParticleName().data() , "e-") == 0)
     if(strcmp(track.GetMaterial()->GetName(),"PBA") == 0){
-      if(track.GetPolarization().getR() >= 0.1) debugPrint=true;
       if(sqrt(pow(track.GetPolarization().getX(),2)+
 	      pow(track.GetPolarization().getY(),2))>0.01){
 	ePolarized=true;
@@ -279,7 +286,6 @@ G4double QweakSimWentzelVIModel::ComputeTruePathLengthLimit(
 	eEnergy=track.GetTotalEnergy();
       }
     }
-  debugPrint=false;//comment this line if you want to print out
   // FIXME
   
   //G4cout << "QweakSimWentzelVIModel::ComputeTruePathLengthLimit stepStatus= " 
@@ -658,6 +664,7 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	  }		
 	  if(phi<0) phi+=twopi;
 	  else if(phi>twopi) phi=fmod(phi,twopi);
+	  G4cout<<__LINE__<<"\t"<<__PRETTY_FUNCTION__<<" Ws: Just modified trajectory"<<G4endl;
 	}
 	
 	G4double pp=1.+_amplitude*sin(phiPol);
@@ -734,6 +741,7 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	  phi+= polarization.getPhi() - oldDirection.getPhi();
 	  if(phi<0) phi+=twopi;
 	  else if(phi>twopi) phi=fmod(phi,twopi);
+	  G4cout<<__LINE__<<"\t"<<__PRETTY_FUNCTION__<<" Wm: Just modified trajectory"<<G4endl;
 	}
 	
 	G4double pp=1.+_amplitude*sin(phiPol);

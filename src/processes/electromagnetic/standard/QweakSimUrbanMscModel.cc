@@ -445,12 +445,19 @@ G4double QweakSimUrbanMscModel::ComputeTruePathLengthLimit(
   const G4DynamicParticle* dp = track.GetDynamicParticle();
 
   // FIXME
-  modifyTrajectory=true;
+  if( (int(asymInfo->at(3)) & 0x2) == 0x2 )
+    modifyTrajectory=true;
+  else
+    modifyTrajectory=false;
+
+  if( (int(asymInfo->at(3)) & 0x1) == 0x1 )
+    debugPrint=true;
+  else
+    debugPrint=false;
+
   ePolarized=false;
-  debugPrint=false;
   if(strcmp(track.GetParticleDefinition()->GetParticleName().data() , "e-") == 0)
     if(strcmp(track.GetMaterial()->GetName(),"PBA") == 0){
-      if(track.GetPolarization().getR() >= 0.1) debugPrint=true;
       if(sqrt(pow(track.GetPolarization().getX(),2)+
 	      pow(track.GetPolarization().getY(),2))>0.01){
 	ePolarized=true;
@@ -458,7 +465,6 @@ G4double QweakSimUrbanMscModel::ComputeTruePathLengthLimit(
 	eEnergy=track.GetTotalEnergy();
       }
     }      
-  debugPrint=false;//comment this line if you want to print out
   // FIXME
   
   G4StepPoint* sp = track.GetStep()->GetPreStepPoint();
@@ -965,13 +971,14 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
     G4double _amplitude = AnalyzingPower(eEnergy, cth) * transPol;
     G4double phiPol = phi - polarization.getPhi();    
     
-    if(modifyTrajectory){
+    if(modifyTrajectory){      
       G4double _prob=rndmEngineMod->flat();
       if( _prob < _amplitude * sin(phiPol) ){
 	phi-=pi;
       }
       if(phi<0) phi+=twopi;
       else if(phi>twopi) phi=fmod(phi,twopi);
+      G4cout<<__LINE__<<"\t"<<__PRETTY_FUNCTION__<<" U: Just modified trajectory"<<G4endl;
     }
 
     G4double pp=1.+_amplitude*sin(phiPol);
