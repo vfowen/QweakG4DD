@@ -69,6 +69,7 @@ public:
   void EnableTrigger(const G4String value) { SetTrigger(value, true); };
   void DisableTrigger(const G4String value) { SetTrigger(value, false); };
   void SetPrintHits(bool value) {printhits = value;};
+  void SetPhysicsProcFlag(int flag){asymInfo->at(3)=flag;}
 
 private:
 
