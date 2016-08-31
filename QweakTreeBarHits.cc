@@ -13,11 +13,11 @@ using namespace std;
 
 int evNr;
 int primary;//0 secondary, 1 primary
-float x,y,z,E;
+float x,y,z,E,phi,th;
 float angX,angY,angXi,angYi;
 float xi,yi,zi;
 float polT,polTi;
-double asymPpM,asymPmM;
+double asymPM,asymPP;
 std::vector<double> xI,yI,zI,aXi,aYi,polI;
 
 void findInt(std::vector<int> &inter,std::vector<int> &val, int trackID,int parent, int &hasPar, int &nInt);
@@ -43,6 +43,8 @@ int main(int argc, char** argv){
   tout->Branch("y",&y,"y/F");
   tout->Branch("z",&z,"z/F");
   tout->Branch("E",&E,"E/F");
+  tout->Branch("phi",&phi,"phi/F");
+  tout->Branch("th",&th,"th/F");
   tout->Branch("angX",&angX,"angX/F");
   tout->Branch("angY",&angY,"angY/F");
   tout->Branch("polT",&polT,"polT/F");
@@ -52,8 +54,8 @@ int main(int argc, char** argv){
   tout->Branch("angXi",&angXi,"angXi/F");
   tout->Branch("angYi",&angYi,"angYi/F");
   tout->Branch("polTi",&polTi,"polTi/F");
-  tout->Branch("asymPpM",&asymPpM,"asymPpM/D");
-  tout->Branch("asymPmM",&asymPmM,"asymPmM/D");
+  tout->Branch("asymPM",&asymPM,"asymPM/D");
+  tout->Branch("asymPP",&asymPP,"asymPP/D");
   
   int totEv=0;
   int simEvts(0);
@@ -128,9 +130,11 @@ void processOne(TTree *QweakSimG4_Tree, TTree *tout, int &nrEvts){
     if(i%10000==1) cout<<"   at event: "<<i<<endl;
 
     evNr = nrEvts + event->Primary.GetPrimaryEventNumber();
-    asymPpM = event->Primary.GetAsymDeno();
-    asymPmM = event->Primary.GetAsymNomi();
-    
+    double asymPpM = event->Primary.GetAsymDeno();
+    double asymPmM = event->Primary.GetAsymNomi();
+    asymPP = (asymPpM + asymPmM)/2;
+    asymPM = (asymPpM - asymPmM)/2;
+
     xi=xI[i];
     yi=yI[i];
     zi=zI[i];
@@ -168,6 +172,8 @@ void processOne(TTree *QweakSimG4_Tree, TTree *tout, int &nrEvts){
       double Gtheta = event->Cerenkov.Detector.GetGlobalThetaAngle()[hit];	
       double _Gtheta=Gtheta/180.*pi;
       double _Gphi=(Gphi+90)/180.*pi; //+90 to account for the offset in the output
+      phi = Gphi;
+      th  = Gtheta;
       angX = atan2(sin(_Gtheta)*cos(_Gphi),cos(_Gtheta)) * 180.0 / pi;
       angY = atan2(sin(_Gtheta)*sin(_Gphi),cos(_Gtheta)) * 180.0 / pi;
 
