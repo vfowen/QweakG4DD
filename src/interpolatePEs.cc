@@ -29,6 +29,9 @@ void interpolatePEs::readScan(){
   }else if("md8config16_23" == barModel) {
     cout << "Using input/md8Config16_alongDir_acrossAng23_lightPara.txt" << endl;
     path = "input/md8Config16_alongDir_acrossAng23_lightPara.txt";
+  }else if("md4config4_23" == barModel) {
+    cout << "Using input/md4Config4_alongDir_acrossAng23_lightPara.txt" << endl;
+    path = "input/md4Config4_alongDir_acrossAng23_lightPara.txt";
   }else if("md6config3_23" == barModel) {
     cout << "Using input/md6Config3_alongDir_acrossAng23_lightPara.txt" << endl;
     path = "input/md6Config3_alongDir_acrossAng23_lightPara.txt";
@@ -60,8 +63,9 @@ void interpolatePEs::readScan(){
   energyHighLimit = 100;
 
   if("ideal23_bevel" == barModel || "ideal23_polish" == barModel ||
-     "md6config3_23" == barModel || "md7config2_23" == barModel ||
-     "md8config16_23" == barModel || "ideal23" == barModel ) {
+     "md4config4_23" == barModel || "md6config3_23" == barModel ||
+     "md7config2_23" == barModel || "md8config16_23" == barModel || 
+     "ideal23" == barModel ) {
     xPosLowLimit  = -100;
     xPosHighLimit =  100;
     xAngLowLimit  = -89;
