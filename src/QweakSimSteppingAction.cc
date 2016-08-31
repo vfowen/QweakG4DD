@@ -116,6 +116,9 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
   // Events that happen in the Pb FIXME
   // debug toggle !!!! it prints out a lot of things
   G4bool debugPrint=false;
+  if( (int(asymInfo->at(3)) & 0x1) == 0x1 )
+    debugPrint=true;
+  
   // toggle to write out e\pm/gammas on top of primary electrons !! really big files
   G4bool writeOutAll=false;
   // toggle for filling the Pb ntuple
@@ -130,6 +133,12 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
   G4Material *_material=thePostPoint->GetMaterial();
   G4double depol(0),eLossPercent(0);
 
+  if(debugPrint){
+    G4cout<<_polarization.getX()<<" "
+	  <<_polarization.getY()<<" "
+	  <<_polarization.getZ()<<G4endl
+	  <<"\tDefining process "<<_pn<<G4endl;
+  }
   //this gets used in the physics process to stop the asymmetry calculation
   if( theStep->GetTrack()->GetVolume()->GetName().compare("QuartzBar_PhysicalRight") == 0 ||
       theStep->GetTrack()->GetVolume()->GetName().compare("QuartzBar_PhysicalLeft") == 0 )
@@ -158,6 +167,8 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
     }
     
     if(_material->GetName().compare("PBA")==0){ // perform this only in the Radiator
+      if(debugPrint)
+	G4cout<<"depol:\t"<<_pn.compare("eBrem")<<"\t"<<int(fabs(_polarization.getX())>0)<<"\t"<<int(fabs(_polarization.getY())>0)<<G4endl;
 
       eLossPercent = 1. - thePostPoint->GetKineticEnergy()/thePrePoint->GetKineticEnergy();
       
@@ -172,7 +183,7 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
 	if(debugPrint){
 	  G4cout<<__PRETTY_FUNCTION__<<G4endl;
 	  G4cout<<"\teBrem depol : "
-		<<eLossPercent<<"% E loss means\t"
+		<<eLossPercent*100<<"% E loss means\t"
 		<< depol <<" depolarization"<<G4endl;
 	  G4cout<<"\tpreKinE postKinE: "
 		<<thePrePoint->GetKineticEnergy()
