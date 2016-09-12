@@ -29,12 +29,12 @@ This macro loads another macro (https://github.com/cipriangal/QweakG4DD/blob/mas
   To automate the creation of these two static files there is a root macro available (https://github.com/cipriangal/QweakG4DD/blob/master/rootScripts/samplePrimaryDist.C). One should run the macro before running the main simulation if flag is "false". It takes the number of events, polarization as either "1" or "-1" and octant distribution (for example running: root -l rootScripts\(100,1,204\) will generate the two static files for 100 events with vertical polarization from a main octant distribution on the face of oct 4. 
 - `/PrimaryEvent/SetPolarization V`
   Indendently of the position and momentum direction one could choose to not use the polarization static file generated in the macro and set a fixed polarization for the primary electron, however it is recommended that if using "false" for the SetFixedPosMom above one should set this flag to "f". If not using one of the recognized flags it will default to longitudinal polarization (the custom physics libraries are not in use).
--`/PhysicsProcesses/settingFlag 0`
+- `/PhysicsProcesses/settingFlag 0`
   This is a flag that allows to turn off the track modification from the macro. A reason for doing this would be to just use the weighting calculation (the track modification will cause it to be wrong by "double-dipping").
--`/TrackingAction/TrackingFlag 0`
+- `/TrackingAction/TrackingFlag 0`
   This flag allows for speed up of the simulation by only following certain particles (explaination in the macro). Leaving the optical photons in is quite expensive computationally so we mostly run the primaries or the primaries+secondaries and then use a lookup table to convert the electrons that make it to the quartz in a later step (see below).
--`/random/setSeeds largeNr1 largeNr2`
-  Set the two seeds needed by Geant4 for the random number generation. 
+- `/random/setSeeds largeNr1 largeNr2`
+  Set the two seeds needed by Geant4 for the random number generation.
 
 It produces two output files: **QwSim_0.root**(main output) and **o_tuple.root**(depricated -- should be removed at some point). 
 
