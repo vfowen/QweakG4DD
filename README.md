@@ -2,13 +2,14 @@
 Fork of the Qweak G4 simulation 
 
 To get repo:
-  git clone git@github.com:cipriangal/QweakG4DD
+  'git clone git@github.com:cipriangal/QweakG4DD'
 
 To build:
+  '''
   mkdir build; cd build
   cmake ../
   make
-
+  '''
 There are quite a few warnings but overall it should compile without errors (including on Macs).
 
 Note: 
@@ -16,34 +17,35 @@ This package comes with 2 modified physics processes that will replace the stand
 
 Their purpose is to either modify the phi diretion (see https://github.com/cipriangal/QweakG4DD/blob/master/src/processes/electromagnetic/standard/QweakSimUrbanMscModel.cc#L975)  of particles to introduce a transverse asymmetry and calculate an asymmetry weight (https://github.com/cipriangal/QweakG4DD/blob/master/src/processes/electromagnetic/standard/QweakSimUrbanMscModel.cc#L988) and propogate it through to the output. 
 
-Analysis chain:
+##Analysis chain:
 1. To run the simulation do:
-  build/QweakSimG4 macro/runPMTDD.mac
+  'build/QweakSimG4 macro/runPMTDD.mac'
 This macro loads another macro (https://github.com/cipriangal/QweakG4DD/blob/master/myQweakCerenkovOnly.mac) that sets up the positions. It also has a couple of other important flags inside the file (that should be included if creating your own macro):
-  /PrimaryEvent/SetFixedPosMom true 
-    When set to "true" the exec will shoot electrons at a fixed position set by "/PrimaryEvent/SetBeamPosition?" above. This flag can be set to false and the exec will look for two local files: polarization.in positionMomentum.in to read in the initial position, direction and polarization for the primary electron for each event -- for example running 100 ev in this mode needs 2 files with 100 lines each in a specific format. 
-    
-    To automate the creation of these two static files there is a root macro available (https://github.com/cipriangal/QweakG4DD/blob/master/rootScripts/samplePrimaryDist.C). One should run the macro before running the main simulation if flag is "false". It takes the number of events, polarization as either "1" or "-1" and octant distribution (for example running: root -l rootScripts\(100,1,204\) will generate the two static files for 100 events with vertical polarization from a main octant distribution on the face of oct 4. 
-  
-  /PrimaryEvent/SetPolarization V
-    Indendently of the position and momentum direction one could choose to not use the polarization static file generated in the macro and set a fixed polarization for the primary electron, however it is recommended that if using "false" for the SetFixedPosMom above one should set this flag to "f". If not using one of the recognized flags it will default to longitudinal polarization (the custom physics libraries are not in use).
+*'/PrimaryEvent/SetFixedPosMom true'
+When set to "true" the exec will shoot electrons at a fixed position set by "/PrimaryEvent/SetBeamPosition?" above. This flag can be set to false and the exec will look for two local files: polarization.in positionMomentum.in to read in the initial position, direction and polarization for the primary electron for each event -- for example running 100 ev in this mode needs 2 files with 100 lines each in a specific format. 
 
-  /PhysicsProcesses/settingFlag 0
-    This is a flag that allows to turn off the track modification from the macro. A reason for doing this would be to just use the weighting calculation (the track modification will cause it to be wrong by "double-dipping"). 
-    
-  /TrackingAction/TrackingFlag 0
-    This flag allows for speed up of the simulation by only following certain particles (explaination in the macro). Leaving the optical photons in is quite expensive computationally so we mostly run the primaries or the primaries+secondaries and then use a lookup table to convert the electrons that make it to the quartz in a later step (see below). 
-    
-  /random/setSeeds
-    Set the two seeds needed by Geant4 for the random number generation. 
-    
+To automate the creation of these two static files there is a root macro available (https://github.com/cipriangal/QweakG4DD/blob/master/rootScripts/samplePrimaryDist.C). One should run the macro before running the main simulation if flag is "false". It takes the number of events, polarization as either "1" or "-1" and octant distribution (for example running: root -l rootScripts\(100,1,204\) will generate the two static files for 100 events with vertical polarization from a main octant distribution on the face of oct 4. 
+  
+*'/PrimaryEvent/SetPolarization V'
+Indendently of the position and momentum direction one could choose to not use the polarization static file generated in the macro and set a fixed polarization for the primary electron, however it is recommended that if using "false" for the SetFixedPosMom above one should set this flag to "f". If not using one of the recognized flags it will default to longitudinal polarization (the custom physics libraries are not in use).
+
+*'/PhysicsProcesses/settingFlag 0'
+This is a flag that allows to turn off the track modification from the macro. A reason for doing this would be to just use the weighting calculation (the track modification will cause it to be wrong by "double-dipping"). 
+
+*'/TrackingAction/TrackingFlag 0'
+This flag allows for speed up of the simulation by only following certain particles (explaination in the macro). Leaving the optical photons in is quite expensive computationally so we mostly run the primaries or the primaries+secondaries and then use a lookup table to convert the electrons that make it to the quartz in a later step (see below). 
+
+*'/random/setSeeds largeNr1 largeNr2'
+Set the two seeds needed by Geant4 for the random number generation. 
+
 It produces two output files: QwSim_0.root(main output) and o_tuple.root(depricated -- should be removed at some point). 
 
 2. To get the relevant hits at the face of quartz (and strip the rest of the information that is normally not needed for the rest of the analysis) one then uses https://github.com/cipriangal/QweakG4DD/blob/master/QweakTreeBarHits.cc as
-  build/QweakTreeBarHits QwSim_0.root 
+  'build/QweakTreeBarHits QwSim_0.root'
 or
-  build/QweakTreeBarHits file.list
+  'build/QweakTreeBarHits file.list'
 where file.list contains a list of paths and output root files from multiple simulations (for example when running on a farm and you have X files with the same configuration -- see above for different flags).
+
 This produces a "o_hits.root" file that contains:
   - position and energy information at the face of the quartz: "x,y,z,E" 
   - position information at the beginning sim at the face of the Pb: "xi,yi,zi" 
@@ -54,15 +56,18 @@ This produces a "o_hits.root" file that contains:
   - transverse polarization at the face of the Pb (polTi) and quartz (polT)
   - weight factors for the asymmetry calculation asymPM, asymPP 
 
-3 a. Using the hit map from the previous step one can apply different optical models to the hits and get PE distributions using https://github.com/cipriangal/QweakG4DD/blob/master/QweakAnaPEs.cc as:
-  buils/anaPE --rootfile <path to o_hits.root file> --barmodel <name>
-Note: This should be used for track modification simulations.
-
-3 b. Alternatively if a weighted simulation was generated to get the number of PEs one should use https://github.com/cipriangal/QweakG4DD/blob/master/QweakAnaPEsWgt.cc as:
-  build/anaPEsWgt --rootfile <path to o_hits.root file> --barmodel <name>
+3. 
+  *Using the hit map from the previous step one can apply different optical models to the hits and get PE distributions using https://github.com/cipriangal/QweakG4DD/blob/master/QweakAnaPEs.cc as:
+    'buils/anaPE --rootfile <path to o_hits.root file> --barmodel <name>'
   
-3 c. We have the option to run effective models on the hit distribution (asign an asymmetry to each hit based on some criteria -- either position or momentum direction or energy --) using https://github.com/cipriangal/QweakG4DD/blob/master/averageModel.cc as:
- build/avgModel --rootfile <path to o_hits.root file> --barmodel <name>
+  Note: This should be used for track modification simulations.
+
+  *Alternatively if a weighted simulation was generated to get the number of PEs one should use https://github.com/cipriangal/QweakG4DD/blob/master/QweakAnaPEsWgt.cc as:
+    'build/anaPEsWgt --rootfile <path to o_hits.root file> --barmodel <name>'
+  
+  *We have the option to run effective models on the hit distribution (asign an asymmetry to each hit based on some criteria -- either position or momentum direction or energy --) using https://github.com/cipriangal/QweakG4DD/blob/master/averageModel.cc as:
+    'build/avgModel --rootfile <path to o_hits.root file> --barmodel <name>'
+
 Note: this should ONLY be used on hit distributions that do not have track modification since track modification already puts an asymmetry into the hit distribution. This uses an enhancement of the number of PEs proportional to the asymmetry (hence the name average model). An earlier version of the effective models moved the track or angle and then calculated the number of PEs (https://github.com/cipriangal/QweakG4DD/blob/master/effectiveModel.cc) -- this is not actively worked on right now, since it can take particles in and out of acceptance --.
 
 This produces a "o_avgModel_%s_%s_offset_%d.root" output file (where the %s are different options) that contains histograms as a function of position, angle along the bar with either the number of PEs for the L/R tubes or the asymmetry, or the Abias or DD. It also prints out a table of values for the asymmetries (L/R), DD and Abias for easy copy paste into a spreadsheet or presentation. 
