@@ -30,9 +30,9 @@ This macro loads another macro (https://github.com/cipriangal/QweakG4DD/blob/mas
 - `/PrimaryEvent/SetPolarization V`
   Indendently of the position and momentum direction one could choose to not use the polarization static file generated in the macro and set a fixed polarization for the primary electron, however it is recommended that if using "false" for the SetFixedPosMom above one should set this flag to "f". If not using one of the recognized flags it will default to longitudinal polarization (the custom physics libraries are not in use).
 -`/PhysicsProcesses/settingFlag 0`
-  This is a flag that allows to turn off the track modification from the macro. A reason for doing this would be to just use the weighting calculation (the track modification will cause it to be wrong by "double-dipping"). 
+  This is a flag that allows to turn off the track modification from the macro. A reason for doing this would be to just use the weighting calculation (the track modification will cause it to be wrong by "double-dipping").
 -`/TrackingAction/TrackingFlag 0`
-  This flag allows for speed up of the simulation by only following certain particles (explaination in the macro). Leaving the optical photons in is quite expensive computationally so we mostly run the primaries or the primaries+secondaries and then use a lookup table to convert the electrons that make it to the quartz in a later step (see below). 
+  This flag allows for speed up of the simulation by only following certain particles (explaination in the macro). Leaving the optical photons in is quite expensive computationally so we mostly run the primaries or the primaries+secondaries and then use a lookup table to convert the electrons that make it to the quartz in a later step (see below).
 -`/random/setSeeds largeNr1 largeNr2`
   Set the two seeds needed by Geant4 for the random number generation. 
 
@@ -40,9 +40,13 @@ It produces two output files: **QwSim_0.root**(main output) and **o_tuple.root**
 
 ### Tree strip
 To get the relevant hits at the face of quartz (and strip the rest of the information that is normally not needed for the rest of the analysis) one then uses https://github.com/cipriangal/QweakG4DD/blob/master/QweakTreeBarHits.cc as
+
   `build/QweakTreeBarHits QwSim_0.root`
+
 or
+
   `build/QweakTreeBarHits file.list`
+
 where file.list contains a list of paths and output root files from multiple simulations (for example when running on a farm and you have X files with the same configuration -- see above for different flags).
 
 This produces a **o_hits.root** file that contains:
@@ -59,6 +63,7 @@ This produces a **o_hits.root** file that contains:
 **Track modification analysis**
 
 Using the hit map from the previous step one can apply different optical models to the hits and get PE distributions using https://github.com/cipriangal/QweakG4DD/blob/master/QweakAnaPEs.cc as:
+
   `buils/anaPE --rootfile <path to o_hits.root file> --barmodel <name>`
   
 Note: This should be used for track modification simulations.
@@ -66,12 +71,14 @@ Note: This should be used for track modification simulations.
 **Weighted analysis**
 
 Alternatively if a weighted simulation was generated to get the number of PEs one should use https://github.com/cipriangal/QweakG4DD/blob/master/QweakAnaPEsWgt.cc as:
+
   `build/anaPEsWgt --rootfile <path to o_hits.root file> --barmodel <name>`
   
 
 **Effective models analysis**
 
 We have the option to run effective models on the hit distribution (asign an asymmetry to each hit based on some criteria -- either position or momentum direction or energy --) using https://github.com/cipriangal/QweakG4DD/blob/master/averageModel.cc as:
+
   `build/avgModel --rootfile <path to o_hits.root file> --barmodel <name>`
 
 Note: this should ONLY be used on hit distributions that do not have track modification since track modification already puts an asymmetry into the hit distribution. This uses an enhancement of the number of PEs proportional to the asymmetry (hence the name average model). An earlier version of the effective models moved the track or angle and then calculated the number of PEs (https://github.com/cipriangal/QweakG4DD/blob/master/effectiveModel.cc) -- this is not actively worked on right now, since it can take particles in and out of acceptance --.
