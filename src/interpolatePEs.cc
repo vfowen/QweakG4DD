@@ -17,27 +17,33 @@ void interpolatePEs::setLightMap(string bar){
 void interpolatePEs::readScan(){
 
   string path;
-  if("ideal0" == barModel) {
-    cout << "Using input/idealBar_alongDir_acrossAng0_lightPara.txt" << endl;
-    path = "input/idealBar_alongDir_acrossAng0_lightPara.txt";
-  }else if("md8config16_0" == barModel) {
-    cout << "Using input/md8Config16_alongDir_acrossAng0_lightPara.txt" << endl;
-    path = "input/md8Config16_alongDir_acrossAng0_lightPara.txt";
-  }else if("ideal23" == barModel) {
-    cout << "Using input/idealBar_alongDir_acrossAng23_lightPara.txt" << endl;
-    path = "input/idealBar_alongDir_acrossAng23_lightPara.txt";
-  }else if("md8config16_23" == barModel) {
-    cout << "Using input/md8Config16_alongDir_acrossAng23_lightPara.txt" << endl;
-    path = "input/md8Config16_alongDir_acrossAng23_lightPara.txt";
+  if("md3config4_23" == barModel) {
+    cout << "Using input/md3Config4_alongDir_acrossAng23_lightPara.txt" << endl;
+    path = "input/md3Config4_alongDir_acrossAng23_lightPara.txt";
   }else if("md4config4_23" == barModel) {
     cout << "Using input/md4Config4_alongDir_acrossAng23_lightPara.txt" << endl;
     path = "input/md4Config4_alongDir_acrossAng23_lightPara.txt";
+  }else if("md5config4_23" == barModel) {
+    cout << "Using input/md5Config4_alongDir_acrossAng23_lightPara.txt" << endl;
+    path = "input/md5Config4_alongDir_acrossAng23_lightPara.txt";
   }else if("md6config3_23" == barModel) {
     cout << "Using input/md6Config3_alongDir_acrossAng23_lightPara.txt" << endl;
     path = "input/md6Config3_alongDir_acrossAng23_lightPara.txt";
   }else if("md7config2_23" == barModel) {
     cout << "Using input/md7Config2_alongDir_acrossAng23_lightPara.txt" << endl;
     path = "input/md7Config2_alongDir_acrossAng23_lightPara.txt";
+  }else if("md8config16_0" == barModel) {
+    cout << "Using input/md8Config16_alongDir_acrossAng0_lightPara.txt" << endl;
+    path = "input/md8Config16_alongDir_acrossAng0_lightPara.txt";
+  }else if("md8config16_23" == barModel) {
+    cout << "Using input/md8Config16_alongDir_acrossAng23_lightPara.txt" << endl;
+    path = "input/md8Config16_alongDir_acrossAng23_lightPara.txt";
+  }else if("ideal0" == barModel) {
+    cout << "Using input/idealBar_alongDir_acrossAng0_lightPara.txt" << endl;
+    path = "input/idealBar_alongDir_acrossAng0_lightPara.txt";
+  }else if("ideal23" == barModel) {
+    cout << "Using input/idealBar_alongDir_acrossAng23_lightPara.txt" << endl;
+    path = "input/idealBar_alongDir_acrossAng23_lightPara.txt";
   }else if("ideal23_polish" == barModel) {
     cout << "Using input/idealBar_alongDir_acrossAng23_Polish0977.txt" << endl;
     path = "input/idealBar_alongDir_acrossAng23_Polish0977.txt";
@@ -54,7 +60,8 @@ void interpolatePEs::readScan(){
 
   ifstream fin(path.c_str());
   if(!fin.is_open()) {
-    cout<<" cannot read file for PE parametrization :macros/yl_md3_angle_scan.txt" <<endl;
+    cout << " cannot read file for PE parametrizations"
+         << path << endl;
     exit(2);
   }
 

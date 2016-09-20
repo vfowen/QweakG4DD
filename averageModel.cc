@@ -48,7 +48,8 @@ int main(int argc, char** argv)
     cout << " usage: build/avgModel [options]" << endl
          << " --rootfile <path to rootfile>" << endl
          << " --barmodel ideal0, ideal23, ideal23_polish, ideal23_bevel, "
-         << "md4config4_23, md6config3_23, md7config2_23, md8config16_0 or md8config16_23"
+         << "md3config4_23, md4config4_23, md5config4_23, md6config3_23, "
+         << "md7config2_23, md8config16_0 or md8config16_23"
          << endl
          << " --distmodel mirror (omit for as is)" << endl;
     return 1;
@@ -228,16 +229,16 @@ int main(int argc, char** argv)
   TNamed* tn1;                              
   TNamed* tn2;                              
   TNamed* tn3;                              
-  if("ideal0" == barModel) {
-      tn1 = new TNamed("bar","ideal bar");
-      tn2 = new TNamed("angle","angle 0");
-  }
-  if("md8config16_0" == barModel) {
-      tn1 = new TNamed("bar","md8config16");
-      tn2 = new TNamed("angle","angle 0");
+  if("md3config4_23" == barModel) {
+      tn1 = new TNamed("bar","md3config4");
+      tn2 = new TNamed("angle","angle 23");
   }                                         
   if("md4config4_23" == barModel) {
       tn1 = new TNamed("bar","md4config4");
+      tn2 = new TNamed("angle","angle 23");
+  }                                         
+  if("md5config4_23" == barModel) {
+      tn1 = new TNamed("bar","md5config4");
       tn2 = new TNamed("angle","angle 23");
   }                                         
   if("md6config3_23" == barModel) {
@@ -248,12 +249,20 @@ int main(int argc, char** argv)
       tn1 = new TNamed("bar","md7config2");
       tn2 = new TNamed("angle","angle 23");
   }                                         
-  if("ideal23" == barModel) {
-      tn1 = new TNamed("bar","ideal bar");
-      tn2 = new TNamed("angle","angle 23");
-  }
+  if("md8config16_0" == barModel) {
+      tn1 = new TNamed("bar","md8config16");
+      tn2 = new TNamed("angle","angle 0");
+  }                                         
   if("md8config16_23" == barModel) {
       tn1 = new TNamed("bar","md8config16");
+      tn2 = new TNamed("angle","angle 23");
+  }
+  if("ideal0" == barModel) {
+      tn1 = new TNamed("bar","ideal bar");
+      tn2 = new TNamed("angle","angle 0");
+  }
+  if("ideal23" == barModel) {
+      tn1 = new TNamed("bar","ideal bar");
       tn2 = new TNamed("angle","angle 23");
   }
   if("ideal23_polish" == barModel) {
