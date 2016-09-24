@@ -14,35 +14,35 @@ def main():
     _tracking=0#0=primary only | 1=prim + opt photon | 2=no optical ph and 10x faster than 3=full
     _email="ciprian@jlab.org"
     _source="/lustre/expphy/work/hallc/qweak/ciprian/simCodeG410/QweakG4DD"
-    _directory="/lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput/g41001p01/sampled/mc3MtCalc_0001mm_v2"
-    _nEv=5000
-    _nrStop=1000
-    _nrStart=0
-    _pol="V"
-    modTrj=1
+    _directory="/lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput/g41001p01/center/Mtx5e1_modTrj_glPhi_stp005mm"
+    _nEv=200000
+    _nrStop=1500
+    _nrStart=500
+    _pol="mV"
+    modTrj=2 ## 1:debug print == big NONO! 2: modifyTraj
     submit=1
-    ndist=203
-    
+    nDist=203
+    sample=0
+
     idRoot= _pol+'_sampled_%03dk'% (_nEv/1000) 
     for nr in range(_nrStart,_nrStop): # repeat for nr jobs
         _idN= idRoot+'_%04d'% (nr) 
         print _idN
-        createMacFile(_directory,_idN,_xP,_yP,_zP,_Px,_Py,_tracking,_beamE,_nEv,nr,modTrj)
+        createMacFile(_directory,_idN,_xP,_yP,_zP,_Px,_Py,_tracking,_beamE,_nEv,nr,modTrj,sample,_pol)
         ##create input files
-        seedA=int(time.time()/1346.)+10000*nr+nr
-        if _pol=="V":
-            call("root -l -q -b ../rootScripts/samplePrimaryDist.C\\("+str(_nEv)+",1,"+str(nDist)+"\\)",shell=True)
-        else:
-            call("root -l -q -b ../rootScripts/samplePrimaryDist.C\\("+str(_nEv)+",-1,"+str(nDist)+"\\)",shell=True)
+        if sample==1:
+            if _pol=="V":
+                call("root -l -q -b ../rootScripts/samplePrimaryDist.C\\("+str(_nEv)+",1,"+str(nDist)+"\\)",shell=True)
+            else:
+                call("root -l -q -b ../rootScripts/samplePrimaryDist.C\\("+str(_nEv)+",-1,"+str(nDist)+"\\)",shell=True)
 
-        call(["mv","positionMomentum.in",_directory+"/"+_idN+"/positionMomentum.in"])
-        call(["mv","polarization.in",_directory+"/"+_idN+"/polarization.in"])
+            call(["mv","positionMomentum.in",_directory+"/"+_idN+"/positionMomentum.in"])
+            call(["mv","polarization.in",_directory+"/"+_idN+"/polarization.in"])
 
         call(["cp",_source+"/build/QweakSimG4",_directory+"/"+_idN+"/QweakSimG4"])
         call(["cp",_source+"/myQweakCerenkovOnly.mac",_directory+"/"+_idN+"/myQweakCerenkovOnly.mac"])
 
-
-    createXMLfile(_source,_directory,idRoot,_nrStart,_nrStop,_email)
+    createXMLfile(_source,_directory,idRoot,_nrStart,_nrStop,_email,sample)
 
 
     if submit==1:
@@ -57,7 +57,7 @@ def main():
 def createMacFile(directory,idname,
                   xPos,yPos,zPos,
                   Px,Py,tracking,
-                  beamE,nEv,nr,modTrj):
+                  beamE,nEv,nr,modTrj,sample,pol):
     if not os.path.exists(directory+"/"+idname+"/log"):
         os.makedirs(directory+"/"+idname+"/log")
    
@@ -68,8 +68,12 @@ def createMacFile(directory,idname,
     f.write("/PrimaryEvent/SetBeamPositionZ "+str(zPos)+" cm\n")
     f.write("/PrimaryEvent/SetBeamDirectionX "+str(Px)+" deg\n")
     f.write("/PrimaryEvent/SetBeamDirectionY "+str(Py)+" deg\n")
-    f.write("/PrimaryEvent/SetFixedPosMom false\n")
-    f.write("/PrimaryEvent/SetPolarization f\n")
+    if sample==1:
+        f.write("/PrimaryEvent/SetFixedPosMom false\n")
+        f.write("/PrimaryEvent/SetPolarization f\n")
+    else:
+        f.write("/PrimaryEvent/SetFixedPosMom true\n")
+        f.write("/PrimaryEvent/SetPolarization "+str(pol)+"\n")
     f.write("/PhysicsProcesses/settingFlag "+str(modTrj)+"\n")    
     f.write("/EventGen/SetBeamEnergy    "+str(beamE)+" MeV\n")
     f.write("/TrackingAction/TrackingFlag "+str(tracking)+"\n")
@@ -81,7 +85,7 @@ def createMacFile(directory,idname,
     f.close()
     return 0
 
-def createXMLfile(source,writeDir,idRoot,nStart,nStop,email):
+def createXMLfile(source,writeDir,idRoot,nStart,nStop,email,sample):
     
     if not os.path.exists(source+"/scripts/jobs"):
         os.makedirs(source+"/scripts/jobs")
@@ -105,8 +109,9 @@ def createXMLfile(source,writeDir,idRoot,nStart,nStop,email):
         f.write("    <Input src=\""+idName+"/QweakSimG4\" dest=\"QweakSimG4\"/>\n")
         f.write("    <Input src=\""+idName+"/myQweakCerenkovOnly.mac\" dest=\"myQweakCerenkovOnly.mac\"/>\n")
         f.write("    <Input src=\""+idName+"/myRun.mac\" dest=\"myRun.mac\"/>\n")
-        f.write("    <Input src=\""+idName+"/positionMomentum.in\" dest=\"positionMomentum.in\"/>\n")
-        f.write("    <Input src=\""+idName+"/polarization.in\" dest=\"polarization.in\"/>\n")
+        if sample==1:
+            f.write("    <Input src=\""+idName+"/positionMomentum.in\" dest=\"positionMomentum.in\"/>\n")
+            f.write("    <Input src=\""+idName+"/polarization.in\" dest=\"polarization.in\"/>\n")
         f.write("    <Output src=\"QwSim_0.root\" dest=\""+idName+"/QwSim_0.root\"/>\n")
         f.write("    <Output src=\"o_tuple.root\" dest=\""+idName+"/o_tuple.root\"/>\n")
         f.write("    <Stdout dest=\""+idName+"/log/log.out\"/>\n")
