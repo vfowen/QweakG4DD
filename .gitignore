@@ -69,3 +69,4 @@ output/*
 *.in
 z_*
 o_*
+scripts/jobs
