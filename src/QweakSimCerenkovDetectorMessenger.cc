@@ -20,7 +20,7 @@ G4UIcmdWithADoubleAndUnit* QweakSimCerenkovDetectorMessenger::SetPbStepSizeCmd =
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 QweakSimCerenkovDetectorMessenger::QweakSimCerenkovDetectorMessenger(QweakSimCerenkovDetector* theCerenkovDetector, G4int octant)
-:myCerenkovDetector(theCerenkovDetector),fOctant(octant)
+  :myCerenkovDetector(theCerenkovDetector),fOctant(octant)
 {
   G4String Dir_name = "/Cerenkov";
   if (Dir == 0) {
@@ -162,7 +162,6 @@ void QweakSimCerenkovDetectorMessenger::SetNewValue(G4UIcommand* command,G4Strin
   }else if( command == SetPbStepSizeCmd ){
     G4cout << "!!~~ Messenger: Setting Pb preRadiator Step size to " << newValue << G4endl;
     myCerenkovDetector->SetCerenkovDetectorPbStepSize(SetPbStepSizeCmd->GetNewDoubleValue(newValue));
-    std::cin.ignore();
   }else{
     G4cout<< G4endl << G4endl << __PRETTY_FUNCTION__ << G4endl
 	  << " Error!!! Command not known. Value: "<<newValue<<G4endl;

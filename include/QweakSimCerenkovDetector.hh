@@ -22,7 +22,7 @@ class QweakSimCerenkovDetector
 public:
   QweakSimCerenkovDetector(QweakSimUserInformation*);
   virtual ~QweakSimCerenkovDetector();
-
+  
   void SetMotherVolume(G4VPhysicalVolume* mv) {theMotherPV = mv;}
   void PlacePVCerenkovMasterContainer();
 
@@ -41,7 +41,10 @@ public:
   void SetCerenkovDetectorCenterPositionInZ(G4double zPos, G4int octant);
   void SetCerenkovDetectorTiltAngle(G4double tiltangle);
   void SetCerenkovDetectorThickness(G4double thickness);
-  void SetCerenkovDetectorPbStepSize(G4double size);
+
+  void SetCerenkovDetectorPbStepSize(G4double size){myUserInfo->geantStepSizeInPb = size;}
+      
+    
 
   void CerenkovGeometryPVUpdate();
 
@@ -55,7 +58,7 @@ private:
 
   QweakSimUserInformation *myUserInfo;
 
- std::vector< QweakSimCerenkovDetectorMessenger* >  CerenkovDetectorMessenger;  // pointer to the Messenger
+  std::vector< QweakSimCerenkovDetectorMessenger* >  CerenkovDetectorMessenger;  // pointer to the Messenger
 
   QweakSimMaterial*  pMaterial;
 
@@ -191,10 +194,10 @@ private:
   G4VPhysicalVolume* ExoSkeltonFrame_Physical; 
   G4Material*        ExoSkeltonFrame_Material;
 
-//   G4Box             *QuartzBar_Solid;
-//   G4Box             *PMTEntranceWindow_Solid;
-//   G4Box             *PMT_Solid;
-//   G4Box             *PMTContainer_Solid;
+  //   G4Box             *QuartzBar_Solid;
+  //   G4Box             *PMTEntranceWindow_Solid;
+  //   G4Box             *PMT_Solid;
+  //   G4Box             *PMTContainer_Solid;
 
   G4double Container_FullLength_X;
   G4double Container_FullLength_Y;

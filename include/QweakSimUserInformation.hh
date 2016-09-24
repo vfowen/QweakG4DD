@@ -58,6 +58,8 @@ public:
   G4int    ReactionRegion;
   G4int    EvtGenStatus;
 
+  G4double geantStepSizeInPb;
+  
   // clear the energy loss variables
   void ClearELoss(){
     dEIonIn= dEIonOut=0;

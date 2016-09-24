@@ -170,12 +170,14 @@ QweakSimCerenkovDetector::QweakSimCerenkovDetector(QweakSimUserInformation *user
 
     NumberOfCerenkovDetectors = 8;
     SetNumberOfDetectors(8); // needs to be at the end, updates geometry
-    maxStepInPbRadiator=-0.01*mm;
+
+    maxStepInPbRadiator = myUserInfo->geantStepSizeInPb;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 QweakSimCerenkovDetector::~QweakSimCerenkovDetector() {
-    delete pMaterial;
+  if(pMaterial) delete pMaterial;
+  
     for(size_t h=0; h<CerenkovDetectorMessenger.size(); h++){
       delete CerenkovDetectorMessenger[h];
     }
@@ -2470,12 +2472,6 @@ void QweakSimCerenkovDetector::SetCerenkovDetectorTiltAngle(G4double tiltangle) 
     CerenkovGeometryPVUpdate();
 
     //G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::SetCerenkovDetectorTiltAngle() " << G4endl << G4endl;
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-void QweakSimCerenkovDetector::SetCerenkovDetectorPbStepSize(G4double size) {
-  maxStepInPbRadiator=size;
-  CerenkovGeometryPVUpdate();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
