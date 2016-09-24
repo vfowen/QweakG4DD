@@ -201,7 +201,6 @@ QweakSimDetectorConstruction::~QweakSimDetectorConstruction()
 
 }
 
-
 G4VPhysicalVolume* QweakSimDetectorConstruction::Construct()
 {
   return ConstructQweak();

@@ -75,7 +75,7 @@ QweakSimLeadGlass::~QweakSimLeadGlass()
 	
     if (LeadGlass_VisAtt)          delete LeadGlass_VisAtt;
 	
-    //if (LeadGlassSD)               delete LeadGlassSD;
+    if (LeadGlassSD)               delete LeadGlassSD;
     
     if (LeadGlass_Material)        delete LeadGlass_Material;
 	

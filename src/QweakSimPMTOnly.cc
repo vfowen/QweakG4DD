@@ -126,7 +126,6 @@ QweakSimPMTOnly::QweakSimPMTOnly(QweakSimUserInformation* userInfo)
 QweakSimPMTOnly::~QweakSimPMTOnly()
 {
     /* --- Delete Pointers	
-    if (PMTOnlySD)		delete PMTOnlySD;
 
     if (pMaterial)		delete pMaterial;
     if (PMTOnlyMessenger)	delete PMTOnlyMessenger;
