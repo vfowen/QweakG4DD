@@ -15,6 +15,7 @@ def main():
     _email="ciprian@jlab.org"
     _source="/lustre/expphy/work/hallc/qweak/ciprian/simCodeG410/QweakG4DD"
     _directory="/lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput/g41001p01/center/Mtx5e1_modTrj_glPhi_stp005mm"
+    _stpSize=0.05
     _nEv=200000
     _nrStop=1500
     _nrStart=500
@@ -28,7 +29,7 @@ def main():
     for nr in range(_nrStart,_nrStop): # repeat for nr jobs
         _idN= idRoot+'_%04d'% (nr) 
         print _idN
-        createMacFile(_directory,_idN,_xP,_yP,_zP,_Px,_Py,_tracking,_beamE,_nEv,nr,modTrj,sample,_pol)
+        createMacFile(_directory,_idN,_xP,_yP,_zP,_Px,_Py,_tracking,_beamE,_nEv,nr,modTrj,sample,_pol,_stpSize)
         ##create input files
         if sample==1:
             if _pol=="V":
@@ -57,7 +58,7 @@ def main():
 def createMacFile(directory,idname,
                   xPos,yPos,zPos,
                   Px,Py,tracking,
-                  beamE,nEv,nr,modTrj,sample,pol):
+                  beamE,nEv,nr,modTrj,sample,pol,stpSize):
     if not os.path.exists(directory+"/"+idname+"/log"):
         os.makedirs(directory+"/"+idname+"/log")
    
@@ -80,6 +81,8 @@ def createMacFile(directory,idname,
     f.write("/EventGen/SelectOctant 3\n")
     seedA=int(time.time()/2000.)+   100*nr+nr
     seedB=int(time.time()/300. ) +10000*nr+nr
+    f.write("/Cerenkov/SetPbStepSize "+str(stpSize)+" mm\n");
+    f.write("/HallC/GeometryUpdate\n");
     f.write("/random/setSeeds "+str(seedA)+" "+str(seedB)+"\n")
     f.write("/run/beamOn "+str(nEv)+"\n")
     f.close()
