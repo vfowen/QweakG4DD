@@ -51,6 +51,9 @@ void QweakSimUserInformation::Initialize()
   fNormMomentumX.clear();
   fNormMomentumY.clear();
 
+  //default step size in Pb is the std
+  geantStepSizeInPb = -0.1*mm;
+  
   //default is center, front of Pb for MD3 normal incidence
   fPositionX.push_back(0.0*mm);
   fPositionY.push_back(3350.0*mm);
