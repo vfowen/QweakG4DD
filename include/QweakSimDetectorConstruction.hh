@@ -22,11 +22,11 @@
    \class QweakSimDetectorConstruction
 
    \brief main class of QweakSim.
-    All experiment components are are placed here.
+   All experiment components are are placed here.
 
    Placeholder for a long explaination
 
- */
+*/
 //=============================================================================
 
 #ifndef QweakSimDetectorConstruction_h
@@ -77,10 +77,10 @@ class QweakSimUserInformation;
 
 class QweakSimDetectorConstruction : public G4VUserDetectorConstruction
 {
-  public:
+public:
 
-     QweakSimDetectorConstruction(QweakSimUserInformation*);
-    ~QweakSimDetectorConstruction();
+  QweakSimDetectorConstruction(QweakSimUserInformation*);
+  ~QweakSimDetectorConstruction();
 
 public:
 
@@ -96,14 +96,14 @@ public:
   G4double   GetWorldFullLengthInZ()    {return fWorldLengthInZ;}
 
   void DumpGeometry(
-      G4bool surfchk = false,
-      G4VPhysicalVolume* aVolume = 0,
-      G4int depth = 0);
+		    G4bool surfchk = false,
+		    G4VPhysicalVolume* aVolume = 0,
+		    G4int depth = 0);
 
 private:
 
-    QweakSimUserInformation* myUserInfo;
-    G4VPhysicalVolume*       ConstructQweak();
+  QweakSimUserInformation* myUserInfo;
+  G4VPhysicalVolume*       ConstructQweak();
 
   QweakSimGeometry*          pGeometry;
 
@@ -146,39 +146,39 @@ private:
 
   QweakSimDetectorMessenger*      detectorMessenger;  // pointer to the Messenger
 
-     G4Box*             experimentalHall_Solid;     // pointer to the solid envelope
-     G4LogicalVolume*   experimentalHall_Logical;   // pointer to the logical envelope
-     G4VPhysicalVolume* experimentalHall_Physical;  // pointer to the physical envelope
-     G4Material*        experimentalHall_Material;
+  G4Box*             experimentalHall_Solid;     // pointer to the solid envelope
+  G4LogicalVolume*   experimentalHall_Logical;   // pointer to the logical envelope
+  G4VPhysicalVolume* experimentalHall_Physical;  // pointer to the physical envelope
+  G4Material*        experimentalHall_Material;
 
-     G4Box*             HallFloor_Solid;     // pointer to the solid envelope
-     G4LogicalVolume*   HallFloor_Logical;   // pointer to the logical envelope
-     G4VPhysicalVolume* HallFloor_Physical;  // pointer to the physical envelope
-     G4Material*        HallFloor_Material;
-     G4VisAttributes*   HallFloor_VisAtt;
+  G4Box*             HallFloor_Solid;     // pointer to the solid envelope
+  G4LogicalVolume*   HallFloor_Logical;   // pointer to the logical envelope
+  G4VPhysicalVolume* HallFloor_Physical;  // pointer to the physical envelope
+  G4Material*        HallFloor_Material;
+  G4VisAttributes*   HallFloor_VisAtt;
 
-     G4double fWorldLength;               // Full length of the world volume
-     G4double fWorldLengthInX;            // Full length of the world volume
-     G4double fWorldLengthInY;            // Full length of the world volume
-     G4double fWorldLengthInZ;            // Full length of the world volume
+  G4double fWorldLength;               // Full length of the world volume
+  G4double fWorldLengthInX;            // Full length of the world volume
+  G4double fWorldLengthInY;            // Full length of the world volume
+  G4double fWorldLengthInZ;            // Full length of the world volume
 
-     G4double fFloorLengthInX;
-     G4double fFloorLengthInY;
-     G4double fFloorLengthInZ;
-     G4double fFloorPositionInY;
+  G4double fFloorLengthInX;
+  G4double fFloorLengthInY;
+  G4double fFloorLengthInZ;
+  G4double fFloorPositionInY;
 
-     //----------------------
-     // global magnet section
-     //----------------------
-     //
-     QweakSimMagneticField*  pMagneticField;
+  //----------------------
+  // global magnet section
+  //----------------------
+  //
+  QweakSimMagneticField*  pMagneticField;
 
-     G4FieldManager*         fGlobalFieldManager;
-     G4ChordFinder*          fGlobalChordFinder;
-     G4Mag_EqRhs*            fGlobalEquation;
-     G4MagIntegratorStepper* fGlobalStepper;
+  G4FieldManager*         fGlobalFieldManager;
+  G4ChordFinder*          fGlobalChordFinder;
+  G4Mag_EqRhs*            fGlobalEquation;
+  G4MagIntegratorStepper* fGlobalStepper;
 
-     G4double                fMinStep;
+  G4double                fMinStep;
 
 };
 
