@@ -41,7 +41,7 @@ int main(Int_t argc, Char_t* argv[]) {
     }
 
     // Print paramaters
-    cout << "rootfile:  " << rootfile_name << endl;
+    std::cout << "rootfile:  " << rootfile_name << std::endl;
 
     // Open the rootfile
     TFile* rootfile;
