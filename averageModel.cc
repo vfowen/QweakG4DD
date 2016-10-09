@@ -230,7 +230,7 @@ int main(int argc, char** argv)
   TNamed* tn2;                              
   TNamed* tn3;                              
   if("md1config10_23" == barModel) {
-      tn1 = new TNamed("bar","md3config4");
+      tn1 = new TNamed("bar","md1config10");
       tn2 = new TNamed("angle","angle 23");
   }else if("md3config4_23" == barModel) {
       tn1 = new TNamed("bar","md3config4");
