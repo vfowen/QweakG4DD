@@ -5,34 +5,39 @@
 #include "math.h"
 #include "MSAnalyzingPowerData.hh"
 #include "QweakSimSystemOfUnits.hh"
+#include "G4StokesVector.hh"
 
 inline G4double Mott(G4double energy, G4double theta);
 
-inline G4double AnalyzingPower(G4double energy, G4double cth){
+inline G4double AnalyzingPower(G4double energy, G4double cth, G4double factor){
 
   G4double theta = acos(cth);
-  
+
   G4double ahat = -35e-6 * 207./82.;
   G4double twoPhoton = ahat * sqrt(4.*pow(energy/1000.,2) * sin(theta/2.) );
-  twoPhoton *= 10000.;
+  if(factor<0)
+    twoPhoton *= abs(factor);
   if( fabs(twoPhoton) > 1 ) twoPhoton = 1. * twoPhoton/fabs(twoPhoton);
-
+  
   G4bool debugPrint=false;
   G4double mott = Mott(energy,theta/pi *180.);
-  //G4double mott = Mott(energy,theta/pi *180.) * 100.;
+  if(factor>0)
+    mott *= factor;
+  if( fabs(mott) > 1 ) mott = 1. * mott/fabs(mott);
+  
+  //if(mott<0) mott=0;
 
   if(debugPrint)
     G4cout<<__PRETTY_FUNCTION__<<G4endl
 	  <<"\tenergy\ttheta(rad)\tmott\ttheta(deg)"<<G4endl
 	  <<"\t"<<energy<<"\t"<<theta<<"\t"<<mott<<"\t"<<theta/pi*180<<G4endl;
 
-  if( fabs(mott) > 1 ) mott = 1. * mott/fabs(mott);
-  //if(mott<0) mott=0;
-
-  if( fabs(twoPhoton) > 1 ) twoPhoton = 1. * twoPhoton/fabs(twoPhoton);
-  //return twoPhoton; 
-  return mott;
-  // return twoPhoton + mott ;  
+  if(factor<0)
+    return twoPhoton;
+  else if(factor>0)
+    return mott;
+  else
+    return twoPhoton + mott ;  
 }
 
 inline G4double Mott(G4double energy, G4double theta){
@@ -79,21 +84,28 @@ inline G4double Mott(G4double energy, G4double theta){
 
   G4double mott = a->Eval(energy,0,"");
   
-  // G4double sgn(0);
-  // for(int i=0;i<nEnergy;i++){
-  //   G4double eval=c[i]->Eval(theta,0,"");
-  //   sgn+=eval;
-  // }
-  // if(fabs(sgn)>0)
-  //   sgn/=fabs(sgn);
-  // if( mott*sgn <= 0)
-  //   mott=0.;
-
   for(int i=0;i<nEnergy;i++) delete c[i];
   delete a;
   
   return mott;
 }
 
+inline void PolarizationTransfer(G4ThreeVector ki, G4ThreeVector kf,G4ThreeVector polI, G4ThreeVector &polF){
+  G4StokesVector beamPol = polI;  
+
+  G4ThreeVector  nInteractionFrame = (ki.cross(kf)).unit();
+  
+  // transform polarization from ki-local into Stokes
+  beamPol.RotateAz(nInteractionFrame,ki);
+
+  //polarization transfer
+  //G4double interactionTheta = ki*kf;
+  //beamPol.rotateY( - acos(interactionTheta) + alpha); //where alpha=atan(U/T)
+
+  //rotate from Stokes frame into kf-local
+  beamPol.InvRotateAz(nInteractionFrame,kf);
+
+  polF = (G4ThreeVector)beamPol;
+}
 
 #endif

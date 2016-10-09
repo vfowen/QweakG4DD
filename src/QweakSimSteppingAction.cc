@@ -129,10 +129,12 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
   double _priE=theStep->GetTrack()->GetTotalEnergy();
   G4String _name=theStep->GetTrack()->GetDefinition()->GetParticleName();
   G4String _pn=thePostPoint->GetProcessDefinedStep()->GetProcessName();
-  G4ThreeVector _polarization=theStep->GetTrack()->GetPolarization();
   G4Material *_material=thePostPoint->GetMaterial();
   G4double depol(0),eLossPercent(0);
 
+  G4ThreeVector _polarization=G4ThreeVector(asymInfo->at(5),asymInfo->at(6),asymInfo->at(7));
+  theStep->GetTrack()->SetPolarization(_polarization); // set to transported polarization
+  
   if(debugPrint){
     G4cout<<_polarization.getX()<<" "
 	  <<_polarization.getY()<<" "
@@ -173,7 +175,7 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
       eLossPercent = 1. - thePostPoint->GetKineticEnergy()/thePrePoint->GetKineticEnergy();
       
       if(_pn.compare("eBrem")==0 &&                           // only for eBrem
-	 (fabs(_polarization.getX())>0 || fabs(_polarization.getY())>0)){ // only for transverse polarization
+	 ( abs(_polarization.unit() * thePostPoint->GetMomentum().unit()) < 1 )){ // only for transverse polarization
 
 	depol=0;
 	if( eLossPercent > perpXDepol[perpNval-1]) depol = 1.;

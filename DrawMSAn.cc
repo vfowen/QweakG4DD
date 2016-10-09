@@ -26,7 +26,7 @@ int main(int argc, char** argv){
   ge->SetTitle(Form("AN for theta=%4.0f;energy [MeV]",theta));
   for(int i=0;i<maxPts;i++){
     double e=i*maxE/maxPts;
-    ge->SetPoint(i,e,AnalyzingPower(e,cos(theta*pi/180.)));
+    ge->SetPoint(i,e,AnalyzingPower(e,cos(theta*pi/180.),50));
   }
   
   TGraph *gt=new TGraph();
@@ -35,7 +35,7 @@ int main(int argc, char** argv){
   for(int i=0;i<maxPts;i++){
     double t=i*maxT/maxPts;
     double cth=cos(t*pi/180.);
-    gt->SetPoint(i,t,AnalyzingPower(energy,cth));
+    gt->SetPoint(i,t,AnalyzingPower(energy,cth,50));
   }
 
   fout->cd();

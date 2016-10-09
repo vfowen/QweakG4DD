@@ -459,8 +459,7 @@ G4double QweakSimUrbanMscModel::ComputeTruePathLengthLimit(
   ePolarized=false;
   if(strcmp(track.GetParticleDefinition()->GetParticleName().data() , "e-") == 0)
     if(strcmp(track.GetMaterial()->GetName(),"PBA") == 0){
-      if(sqrt(pow(track.GetPolarization().getX(),2)+
-	      pow(track.GetPolarization().getY(),2))>0.01){
+      if( abs(track.GetPolarization().unit() * track.GetMomentum().unit()) < 1 ){
 	ePolarized=true;
 	polarization=track.GetPolarization();
 	eEnergy=track.GetTotalEnergy();
@@ -960,32 +959,40 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
   */
   G4double sth  = sqrt((1.0 - cth)*(1.0 + cth));
   G4double phi  = twopi*rndmEngineMod->flat(); 
+  G4double dirx = sth*cos(phi);
+  G4double diry = sth*sin(phi);
+  G4ThreeVector newDirection(dirx,diry,cth);
 
   //FIXME
   if(ePolarized){
-
-    G4double transPol=sqrt(pow(polarization.getX(),2)+pow(polarization.getY(),2));
     if(debugPrint){
       G4cout<<__PRETTY_FUNCTION__<<G4endl;
-      G4cout<<"\tpolarization.R\ttransPol: "<<polarization.getR()<<"\t"<<transPol<<G4endl;
       G4cout<<"\tpol (R,T,P) "<<polarization.getR()<<"\t"<<polarization.getTheta()<<"\t"<<polarization.getPhi()<<G4endl;
+      G4cout<<"\tpol (X,Y,Z) "<<polarization.getX()<<"\t"<<polarization.getY()<<"\t"<<polarization.getZ()<<G4endl;
     }
-    G4double _amplitude = AnalyzingPower(eEnergy, cth) * transPol;
-    G4double phiPol = phi - polarization.getPhi();    
+    G4double amplitude = AnalyzingPower(eEnergy, cth,asymInfo->at(4));
+    G4ThreeVector orgLocal(0,0,1);
+    G4ThreeVector normal = (orgLocal.cross(newDirection)).unit();
+    amplitude *= (polarization * normal);
     
     if(modifyTrajectory){      
       G4double _prob=rndmEngineMod->flat();
-      if( _prob < _amplitude * sin(phiPol) ){
+      if( _prob < amplitude ){
 	phi-=pi;
+	if(phi<0) phi+=twopi;
+	else if(phi>twopi) phi=fmod(phi,twopi);
+
+	dirx = sth * cos(phi);
+	diry = sth * sin(phi);
+	newDirection.setX(dirx);
+	newDirection.setY(diry);
       }
-      if(phi<0) phi+=twopi;
-      else if(phi>twopi) phi=fmod(phi,twopi);
       if(debugPrint)
 	G4cout<<__LINE__<<"\t"<<__PRETTY_FUNCTION__<<" U: Just modified trajectory"<<G4endl;
     }
 
-    G4double pp=1.+_amplitude*sin(phiPol);
-    G4double pm=1.-_amplitude*sin(phiPol);
+    G4double pp=1. + amplitude;
+    G4double pm=1. - amplitude;
     if(asymInfo->at(2)==-2){
       if(asymInfo->at(0)<-1){
 	asymInfo->at(0) = pp;
@@ -999,22 +1006,25 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
     if(debugPrint){
       G4cout<<__PRETTY_FUNCTION__<<G4endl;
       G4cout<<"\tAmplitude\teEnerty\ttheta(deg)\tphi(deg)\ttheta(rad)\tphi(rad)"<<G4endl;
-      G4cout<<"\t"<<_amplitude<<"\t"<<eEnergy<<"\t"<<acos(cth)*180/3.1415<<"\t"<<phi*180/3.1415
+      G4cout<<"\t"<<amplitude<<"\t"<<eEnergy<<"\t"<<acos(cth)*180/3.1415<<"\t"<<phi*180/3.1415
 	    <<"\t"<<acos(cth)<<" \t"<<phi<<G4endl;
       G4cout<<"\taI(0)-aI(1)/sum\tpp\tpm\taI(0)\taI(1)"<<G4endl
 	    <<"\t"<<(asymInfo->at(0)-asymInfo->at(1))/(asymInfo->at(0)+asymInfo->at(1))
 	    <<"\t"<<pp<<"\t"<<pm<<"\t"<<asymInfo->at(0)<<"\t"<<asymInfo->at(1)<<G4endl;
-    }
+    }    
   }
   //FIXME
         
-  G4double dirx = sth*cos(phi);
-  G4double diry = sth*sin(phi);
-
-  G4ThreeVector newDirection(dirx,diry,cth);
+  G4ThreeVector newBeamPol(0,1,0);
+  PolarizationTransfer(G4ThreeVector(0,0,1),newDirection,
+		       polarization,newBeamPol);
+  asymInfo->at(5) = newBeamPol.getX();
+  asymInfo->at(6) = newBeamPol.getY();
+  asymInfo->at(7) = newBeamPol.getZ();
+  
   newDirection.rotateUz(oldDirection);
   fParticleChange->ProposeMomentumDirection(newDirection);
-
+  
   //FIXME
   if(debugPrint){
     G4cout<<__PRETTY_FUNCTION__<<G4endl;
@@ -1256,8 +1266,3 @@ G4double QweakSimUrbanMscModel::SampleCosineTheta(G4double trueStepLength,
   }
   return cth ;
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-
-
