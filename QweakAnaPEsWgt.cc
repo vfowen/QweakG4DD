@@ -145,7 +145,7 @@ int main(int argc, char** argv){
   double AvgPE[2][2][2]={{{0,0},{0,0}},{{0,0},{0,0}}};
 
   //double pmVal[2]={0,0};
-  float startProc=0,stopProc=15,currentProc=0,procStep=10;
+  float startProc=50,stopProc=101,currentProc=1,procStep=10;
   int nev=t->GetEntries();
   for(int i=0;i<nev;i++){
     if( float(i+1)/nev*100 > currentProc ){
@@ -155,11 +155,12 @@ int main(int argc, char** argv){
 
     //if( i>5000000) break;
     //if( float(i+1)/nev*100<startProc || float(i+1)/nev*100>stopProc ) continue;
-
     t->GetEntry(i);
+    double wght[2]={2*asymInfo[0]/(asymInfo[0]+asymInfo[1]),2*asymInfo[1]/(asymInfo[0]+asymInfo[1])};
     
-    // pmVal[0]=(asymInfo[0]+asymInfo[1])/2.;
-    // pmVal[1]=(asymInfo[0]-asymInfo[1])/2.;
+    //if(recordNr == incrementNr ) recordNr=evNr;
+
+    //if(abs(angX)>30) continue;
     
     if(evNr>recordNr){
       recordNr+=incrementNr;
@@ -191,21 +192,21 @@ int main(int argc, char** argv){
 
     for(int ipm=0;ipm<2;ipm++)
       for(int j=0;j<2;j++){
-	TotPE[primary][j][ipm]+=pes[j]*asymInfo[ipm];
-	AvgPE[primary][j][ipm]+=pes[j]*asymInfo[ipm];
+	TotPE[primary][j][ipm]+=pes[j]*wght[ipm];
+	AvgPE[primary][j][ipm]+=pes[j]*wght[ipm];
 	
-	hpe[j][primary][ipm]->Fill(pes[j]*asymInfo[ipm]);
-	posPE[j][primary][ipm]->Fill(x,pes[j]*asymInfo[ipm]);
-	angPE[j][primary][ipm]->Fill(angX-angXi,pes[j]*asymInfo[ipm]);
+	hpe[j][primary][ipm]->Fill(pes[j]*wght[ipm]);
+	posPE[j][primary][ipm]->Fill(x,pes[j]*wght[ipm]);
+	angPE[j][primary][ipm]->Fill(angX-angXi,pes[j]*wght[ipm]);
       
-	hpe[j][2][ipm]->Fill(pes[j]*asymInfo[ipm]);
-	posPE[j][2][ipm]->Fill(x,pes[j]*asymInfo[ipm]);
-	angPE[j][2][ipm]->Fill(angX-angXi,pes[j]*asymInfo[ipm]);
+	hpe[j][2][ipm]->Fill(pes[j]*wght[ipm]);
+	posPE[j][2][ipm]->Fill(x,pes[j]*wght[ipm]);
+	angPE[j][2][ipm]->Fill(angX-angXi,pes[j]*wght[ipm]);
 
 	if(fillPhi){
 	  double tmpPhi= phi < 0 ? 360 + phi : phi;
-	  phiPE[j][primary][ipm]->Fill(tmpPhi,pes[j]*asymInfo[ipm]);
-	  phiPE[2][primary][ipm]->Fill(tmpPhi,pes[j]*asymInfo[ipm]);
+	  phiPE[j][primary][ipm]->Fill(tmpPhi,pes[j]*wght[ipm]);
+	  phiPE[2][primary][ipm]->Fill(tmpPhi,pes[j]*wght[ipm]);
 	}      
       }
     
