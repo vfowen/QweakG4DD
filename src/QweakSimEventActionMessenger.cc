@@ -59,6 +59,12 @@ QweakSimEventActionMessenger::QweakSimEventActionMessenger(QweakSimEventAction* 
   physProcCmd->SetGuidance("   if you want to modify trajectory b=1");
   physProcCmd->SetParameterName("settingFlag", false);
 
+  physProcAnCmd = new G4UIcmdWithAnInteger("/PhysicsProcesses/setAN",this);
+  physProcAnCmd->SetGuidance("val<0 use twoPhoton AN * abs(val)");
+  physProcAnCmd->SetGuidance("val>0 use Mott AN * abs(val)");
+  physProcAnCmd->SetGuidance("val=0 use Mott+2photon");
+  physProcAnCmd->SetParameterName("setAN", false);
+
   G4cout << G4endl << "###### Leaving QweakSimEventActionMessenger::QweakSimEventActionMessenger() " << G4endl << G4endl;
 }
 
@@ -74,6 +80,7 @@ QweakSimEventActionMessenger::~QweakSimEventActionMessenger()
   if (thePrintHitsCommand)      delete thePrintHitsCommand;
   if (theTriggerDir)            delete theTriggerDir;
   if (physProcCmd)              delete physProcCmd;
+  if (physProcAnCmd)            delete physProcAnCmd;
   
   G4cout << G4endl << "###### Leaving QweakSimEventActionMessenger::~QweakSimEventActionMessenger() " << G4endl << G4endl;
 }
@@ -108,8 +115,12 @@ void QweakSimEventActionMessenger::SetNewValue(G4UIcommand* command, G4String ne
     else
       G4cout<<"\tWon't modify trajectory"<<G4endl;
     G4cout<<G4endl<<G4endl;
-  }
-  else{
+  }else if( command == physProcAnCmd ){
+    G4int val = physProcAnCmd->GetNewIntValue(newValue);
+    G4cout<<G4endl<<G4endl<<__LINE__<<"\t"<<__PRETTY_FUNCTION__<<G4endl;
+    G4cout<<"setting AN flag to "<<val<<G4endl<<G4endl;
+    theEventAction->SetAnFlag(val);
+  }else{
     G4cerr<<__LINE__<<"\t"<<__PRETTY_FUNCTION__<<G4endl
 	  <<command<<" has no definition"<<G4endl;
   }

@@ -62,6 +62,7 @@ class QweakSimEventActionMessenger: public G4UImessenger
     G4UIcmdWithAString*        theTriggerDisableCommand;
     G4UIcmdWithABool*          thePrintHitsCommand;
     G4UIcmdWithAnInteger*      physProcCmd;
+    G4UIcmdWithAnInteger*      physProcAnCmd;
 };
 
 // ----------------------------------------------------------------------------

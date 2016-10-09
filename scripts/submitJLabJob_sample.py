@@ -24,12 +24,13 @@ def main():
     submit=1
     nDist=203
     sample=0
+    AN=50
 
     idRoot= _pol+'_sampled_%03dk'% (_nEv/1000) 
     for nr in range(_nrStart,_nrStop): # repeat for nr jobs
         _idN= idRoot+'_%04d'% (nr) 
         print _idN
-        createMacFile(_directory,_idN,_xP,_yP,_zP,_Px,_Py,_tracking,_beamE,_nEv,nr,modTrj,sample,_pol,_stpSize)
+        createMacFile(_directory,_idN,_xP,_yP,_zP,_Px,_Py,_tracking,_beamE,_nEv,nr,modTrj,sample,_pol,_stpSize,AN)
         ##create input files
         if sample==1:
             if _pol=="V":
@@ -58,7 +59,7 @@ def main():
 def createMacFile(directory,idname,
                   xPos,yPos,zPos,
                   Px,Py,tracking,
-                  beamE,nEv,nr,modTrj,sample,pol,stpSize):
+                  beamE,nEv,nr,modTrj,sample,pol,stpSize,AN):
     if not os.path.exists(directory+"/"+idname+"/log"):
         os.makedirs(directory+"/"+idname+"/log")
    
@@ -76,6 +77,7 @@ def createMacFile(directory,idname,
         f.write("/PrimaryEvent/SetFixedPosMom true\n")
         f.write("/PrimaryEvent/SetPolarization "+str(pol)+"\n")
     f.write("/PhysicsProcesses/settingFlag "+str(modTrj)+"\n")    
+    f.write("/PhysicsProcesses/setAN "+str(AN)+"\n")    
     f.write("/EventGen/SetBeamEnergy    "+str(beamE)+" MeV\n")
     f.write("/TrackingAction/TrackingFlag "+str(tracking)+"\n")
     f.write("/EventGen/SelectOctant 3\n")

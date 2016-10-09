@@ -33,7 +33,12 @@
 ####if you want to debugPrint a=1
 ####if you want to modify trajectory b=1
 /PhysicsProcesses/settingFlag 0
-
+##Set the AN power
+###val<0 use twoPhoton AN * abs(val)
+###val>0 use Mott AN * abs(val)
+###val=0 use Mott+2photon
+/PhysicsProcesses/setAN 50
+  
 /EventGen/SetBeamEnergy    1160 MeV
 
 # Select the tracking flag
