@@ -17,7 +17,10 @@ void interpolatePEs::setLightMap(string bar){
 void interpolatePEs::readScan(){
 
   string path;
-  if("md3config4_23" == barModel) {
+  if("md1config10_23" == barModel) {
+    cout << "Using input/md1Config10_alongDir_acrossAng23_lightPara.txt" << endl;
+    path = "input/md1Config10_alongDir_acrossAng23_lightPara.txt";
+  }else if("md3config4_23" == barModel) {
     cout << "Using input/md3Config4_alongDir_acrossAng23_lightPara.txt" << endl;
     path = "input/md3Config4_alongDir_acrossAng23_lightPara.txt";
   }else if("md4config4_23" == barModel) {
@@ -70,6 +73,8 @@ void interpolatePEs::readScan(){
   energyHighLimit = 100;
 
   if("ideal23_bevel" == barModel || "ideal23_polish" == barModel ||
+     "md1config10_23" == barModel ||
+     "md3config4_23" == barModel || "md5config4_23" == barModel || 
      "md4config4_23" == barModel || "md6config3_23" == barModel ||
      "md7config2_23" == barModel || "md8config16_23" == barModel || 
      "ideal23" == barModel ) {

@@ -48,7 +48,7 @@ int main(int argc, char** argv)
     cout << " usage: build/avgModel [options]" << endl
          << " --rootfile <path to rootfile>" << endl
          << " --barmodel ideal0, ideal23, ideal23_polish, ideal23_bevel, "
-         << "md3config4_23, md4config4_23, md5config4_23, md6config3_23, "
+         << "md1config10_23, md3config4_23, md4config4_23, md5config4_23, md6config3_23, "
          << "md7config2_23, md8config16_0 or md8config16_23"
          << endl
          << " --distmodel mirror (omit for as is)" << endl;
@@ -229,50 +229,47 @@ int main(int argc, char** argv)
   TNamed* tn1;                              
   TNamed* tn2;                              
   TNamed* tn3;                              
-  if("md3config4_23" == barModel) {
+  if("md1config10_23" == barModel) {
       tn1 = new TNamed("bar","md3config4");
       tn2 = new TNamed("angle","angle 23");
-  }                                         
-  if("md4config4_23" == barModel) {
+  }else if("md3config4_23" == barModel) {
+      tn1 = new TNamed("bar","md3config4");
+      tn2 = new TNamed("angle","angle 23");
+  }else if("md4config4_23" == barModel) {
       tn1 = new TNamed("bar","md4config4");
       tn2 = new TNamed("angle","angle 23");
-  }                                         
-  if("md5config4_23" == barModel) {
+  }else if("md5config4_23" == barModel) {
       tn1 = new TNamed("bar","md5config4");
       tn2 = new TNamed("angle","angle 23");
-  }                                         
-  if("md6config3_23" == barModel) {
+  }else if("md6config3_23" == barModel) {
       tn1 = new TNamed("bar","md6config3");
       tn2 = new TNamed("angle","angle 23");
-  }                                         
-  if("md7config2_23" == barModel) {
+  }else if("md7config2_23" == barModel) {
       tn1 = new TNamed("bar","md7config2");
       tn2 = new TNamed("angle","angle 23");
-  }                                         
-  if("md8config16_0" == barModel) {
+  }else if("md8config16_0" == barModel) {
       tn1 = new TNamed("bar","md8config16");
       tn2 = new TNamed("angle","angle 0");
-  }                                         
-  if("md8config16_23" == barModel) {
+  }else if("md8config16_23" == barModel) {
       tn1 = new TNamed("bar","md8config16");
       tn2 = new TNamed("angle","angle 23");
-  }
-  if("ideal0" == barModel) {
+  }else if("ideal0" == barModel) {
       tn1 = new TNamed("bar","ideal bar");
       tn2 = new TNamed("angle","angle 0");
-  }
-  if("ideal23" == barModel) {
+  }else if("ideal23" == barModel) {
       tn1 = new TNamed("bar","ideal bar");
       tn2 = new TNamed("angle","angle 23");
-  }
-  if("ideal23_polish" == barModel) {
+  }else if("ideal23_polish" == barModel) {
       tn1 = new TNamed("bar","ideal bar with polish");
       tn2 = new TNamed("angle","angle 23");
-  }
-  if("ideal23_bevel" == barModel) {
+  }else if("ideal23_bevel" == barModel) {
       tn1 = new TNamed("bar","ideal bar with bevel");
       tn2 = new TNamed("angle","angle 23");
+  }else{
+    cout<<"not sure what bar model you beam by: "<<barModel<<endl;
+    exit(3);
   }
+  
   if("mirror" == distModel) {
 	  tn3 = new TNamed("distribution", "mirror");
   }
