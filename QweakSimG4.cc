@@ -82,8 +82,15 @@ int main(int argc,char** argv) {
              a=1 for debugPrint; 
              b=1 for modifyTrajectory; 
         e.g.: 3:modifyTrajectory is on and will print for debugging 
+    4: model selection for AN and factor to be multipled by. 
+        if val>0 use AN=val*Mott; if val < 0 use AN=abs(val)*2gamma
+
+    === should really find a better way to do this === FIXME
+    5: x component of Polarization
+    6: y component of Polarization
+    7: z component of Polarization
    */
-  std::vector<double> asymInfo(4,-2);
+  std::vector<double> asymInfo(8,-2);
   asymInfo[3]=0;//default false for both
 
   // Calls a reference physics list for the simulation
