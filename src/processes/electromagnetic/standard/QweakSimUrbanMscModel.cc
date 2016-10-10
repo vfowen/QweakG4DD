@@ -969,7 +969,7 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
       G4cout<<"\tpol (R,T,P) "<<polarization.getR()<<"\t"<<polarization.getTheta()<<"\t"<<polarization.getPhi()<<G4endl;
       G4cout<<"\tpol (X,Y,Z) "<<polarization.getX()<<"\t"<<polarization.getY()<<"\t"<<polarization.getZ()<<G4endl;
     }
-    G4double amplitude = AnalyzingPower(eEnergy, cth,asymInfo->at(4));
+    G4double amplitude = AnalyzingPower(eEnergy, cth,asymInfo->at(4),debugPrint);
     G4ThreeVector orgLocal(0,0,1);
     G4ThreeVector normal = (orgLocal.cross(newDirection)).unit();
     amplitude *= (polarization * normal);
