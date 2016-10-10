@@ -276,13 +276,13 @@ G4double QweakSimWentzelVIModel::ComputeTruePathLengthLimit(
   else
     debugPrint=false;
   
+  polarization=track.GetPolarization();
+  eEnergy=track.GetTotalEnergy();
   ePolarized=false;
   if(strcmp(track.GetParticleDefinition()->GetParticleName().data() , "e-") == 0)
     if(strcmp(track.GetMaterial()->GetName(),"PBA") == 0){
       if( abs(track.GetPolarization().unit() * track.GetMomentum().unit()) < 1 ){
 	ePolarized=true;
-	polarization=track.GetPolarization();
-	eEnergy=track.GetTotalEnergy();
       }
     }
   // FIXME
