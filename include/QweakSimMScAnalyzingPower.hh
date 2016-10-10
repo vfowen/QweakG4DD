@@ -3,6 +3,7 @@
 
 #include "TGraph.h"
 #include "math.h"
+#include <iomanip>
 #include "MSAnalyzingPowerData.hh"
 #include "QweakSimSystemOfUnits.hh"
 #include "G4StokesVector.hh"
@@ -97,16 +98,27 @@ inline void PolarizationTransfer(G4ThreeVector ki, G4ThreeVector kf,
   }
 
   G4StokesVector beamPol = polI;
+  G4double cosAng=ki*kf;
+  
   if(debugPrint){
     G4cout<<"\t"<<__LINE__<<":"<<__PRETTY_FUNCTION__<<G4endl
-	  <<"\t\tInitial beam pol(X,Y,Z): "<<beamPol.getX()<<"t"
+	  <<"\t\tInitial beam pol(X,Y,Z): "<<beamPol.getX()<<"\t"
 	  <<beamPol.getY()<<"\t"<<beamPol.getZ()<<G4endl;
+    G4cout<<"\t\tInitial mom(X,Y,Z): "<<ki.getX()<<"\t"
+	  <<ki.getY()<<"\t"<<ki.getZ()<<G4endl;
+    G4cout<<"\t\t  Final mom(X,Y,Z): "<<kf.getX()<<"\t"
+	  <<kf.getY()<<"\t"<<kf.getZ()<<G4endl;
+    G4cout<<"\t\t cos between mom: "<<std::setprecision(12)<<cosAng<<G4endl;
+  }
+  if(cosAng>0.99999){
+    polF = (G4ThreeVector)beamPol;
+    return;
   }
 
   G4ThreeVector  nInteractionFrame = (ki.cross(kf)).unit();
   if(debugPrint){
     G4cout<<"\t"<<__LINE__<<":"<<__PRETTY_FUNCTION__<<G4endl
-	  <<"\t\tnormal(X,Y,Z): "<<nInteractionFrame.getX()<<"t"
+	  <<"\t\tnormal(X,Y,Z): "<<nInteractionFrame.getX()<<"\t"
 	  <<nInteractionFrame.getY()<<"\t"<<nInteractionFrame.getZ()<<G4endl;
   }
   
@@ -114,7 +126,7 @@ inline void PolarizationTransfer(G4ThreeVector ki, G4ThreeVector kf,
   beamPol.RotateAz(nInteractionFrame,ki);
   if(debugPrint){
     G4cout<<"\t"<<__LINE__<<":"<<__PRETTY_FUNCTION__<<G4endl
-	  <<"\t\tStokes beam pol(X,Y,Z): "<<beamPol.getX()<<"t"
+	  <<"\t\tStokes beam pol(X,Y,Z): "<<beamPol.getX()<<"\t"
 	  <<beamPol.getY()<<"\t"<<beamPol.getZ()<<G4endl;
   }
 
@@ -126,7 +138,7 @@ inline void PolarizationTransfer(G4ThreeVector ki, G4ThreeVector kf,
   beamPol.InvRotateAz(nInteractionFrame,kf);
   if(debugPrint){
     G4cout<<"\t"<<__LINE__<<":"<<__PRETTY_FUNCTION__<<G4endl
-	  <<"\t\tkf beam pol(X,Y,Z): "<<beamPol.getX()<<"t"
+	  <<"\t\tkf beam pol(X,Y,Z): "<<beamPol.getX()<<"\t"
 	  <<beamPol.getY()<<"\t"<<beamPol.getZ()<<G4endl;
   }
 
