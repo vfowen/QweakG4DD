@@ -124,6 +124,13 @@ void QweakSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 							 myNormMomentumY,
 							 myNormMomentumZ)
 					   .cross(G4ThreeVector(1,0,0)));
+      G4ThreeVector tmp=(G4ThreeVector(myNormMomentumX,myNormMomentumY,myNormMomentumZ)
+			 .cross(G4ThreeVector(1,0,0)));
+      if(myEventCounter<10){
+	G4cout<<"\tpol (X,Y,Z) "<<tmp.getX()<<"\t"<<tmp.getY()<<"\t"<<tmp.getZ()<<G4endl;
+	G4cout<<"\tpol (R,T,P) "<<tmp.getR()<<"\t"<<tmp.getTheta()<<"\t"<<tmp.getPhi()<<G4endl;
+      }
+      
     }else if (fPolarization == "H") {
       // horizontal transverse polarization (after generation)
       particleGun->SetParticlePolarization(G4ThreeVector(myNormMomentumX,
