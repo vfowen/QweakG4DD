@@ -89,13 +89,34 @@ inline G4double Mott(G4double energy, G4double theta){
   return mott;
 }
 
-inline void PolarizationTransfer(G4ThreeVector ki, G4ThreeVector kf,G4ThreeVector polI, G4ThreeVector &polF){
-  G4StokesVector beamPol = polI;  
+inline void PolarizationTransfer(G4ThreeVector ki, G4ThreeVector kf,
+				 G4ThreeVector polI, G4ThreeVector &polF,
+				 G4bool debugPrint=false){
+  if(debugPrint){
+    G4cout<<"Polarization Transfer: "<<G4endl;
+  }
+
+  G4StokesVector beamPol = polI;
+  if(debugPrint){
+    G4cout<<"\t"<<__LINE__<<":"<<__PRETTY_FUNCTION__<<G4endl
+	  <<"\t\tInitial beam pol(X,Y,Z): "<<beamPol.getX()<<"t"
+	  <<beamPol.getY()<<"\t"<<beamPol.getZ()<<G4endl;
+  }
 
   G4ThreeVector  nInteractionFrame = (ki.cross(kf)).unit();
+  if(debugPrint){
+    G4cout<<"\t"<<__LINE__<<":"<<__PRETTY_FUNCTION__<<G4endl
+	  <<"\t\tnormal(X,Y,Z): "<<nInteractionFrame.getX()<<"t"
+	  <<nInteractionFrame.getY()<<"\t"<<nInteractionFrame.getZ()<<G4endl;
+  }
   
   // transform polarization from ki-local into Stokes
   beamPol.RotateAz(nInteractionFrame,ki);
+  if(debugPrint){
+    G4cout<<"\t"<<__LINE__<<":"<<__PRETTY_FUNCTION__<<G4endl
+	  <<"\t\tStokes beam pol(X,Y,Z): "<<beamPol.getX()<<"t"
+	  <<beamPol.getY()<<"\t"<<beamPol.getZ()<<G4endl;
+  }
 
   //polarization transfer
   //G4double interactionTheta = ki*kf;
@@ -103,6 +124,11 @@ inline void PolarizationTransfer(G4ThreeVector ki, G4ThreeVector kf,G4ThreeVecto
 
   //rotate from Stokes frame into kf-local
   beamPol.InvRotateAz(nInteractionFrame,kf);
+  if(debugPrint){
+    G4cout<<"\t"<<__LINE__<<":"<<__PRETTY_FUNCTION__<<G4endl
+	  <<"\t\tkf beam pol(X,Y,Z): "<<beamPol.getX()<<"t"
+	  <<beamPol.getY()<<"\t"<<beamPol.getZ()<<G4endl;
+  }
 
   polF = (G4ThreeVector)beamPol;
 }
