@@ -9,7 +9,7 @@
 
 inline G4double Mott(G4double energy, G4double theta);
 
-inline G4double AnalyzingPower(G4double energy, G4double cth, G4double factor){
+inline G4double AnalyzingPower(G4double energy, G4double cth, G4double factor,G4bool debugPrint=false){
 
   G4double theta = acos(cth);
 
@@ -19,7 +19,6 @@ inline G4double AnalyzingPower(G4double energy, G4double cth, G4double factor){
     twoPhoton *= abs(factor);
   if( fabs(twoPhoton) > 1 ) twoPhoton = 1. * twoPhoton/fabs(twoPhoton);
   
-  G4bool debugPrint=false;
   G4double mott = Mott(energy,theta/pi *180.);
   if(factor>0)
     mott *= factor;
@@ -28,9 +27,9 @@ inline G4double AnalyzingPower(G4double energy, G4double cth, G4double factor){
   //if(mott<0) mott=0;
 
   if(debugPrint)
-    G4cout<<__PRETTY_FUNCTION__<<G4endl
-	  <<"\tenergy\ttheta(rad)\tmott\ttheta(deg)"<<G4endl
-	  <<"\t"<<energy<<"\t"<<theta<<"\t"<<mott<<"\t"<<theta/pi*180<<G4endl;
+    G4cout<<__LINE__<<":"<<__PRETTY_FUNCTION__<<G4endl
+	  <<"\tenergy\ttheta(rad)\tmott\ttheta(deg)\tfactor"<<G4endl
+	  <<"\t"<<energy<<"\t"<<theta<<"\t"<<mott<<"\t"<<theta/pi*180<<"\t"<<factor<<G4endl;
 
   if(factor<0)
     return twoPhoton;
