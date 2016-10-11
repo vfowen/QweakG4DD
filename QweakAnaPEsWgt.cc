@@ -145,7 +145,7 @@ int main(int argc, char** argv){
   double AvgPE[2][2][2]={{{0,0},{0,0}},{{0,0},{0,0}}};
 
   //double pmVal[2]={0,0};
-  float startProc=50,stopProc=101,currentProc=1,procStep=10;
+  float startProc=0,stopProc=21,currentProc=1,procStep=10;
   int nev=t->GetEntries();
   for(int i=0;i<nev;i++){
     if( float(i+1)/nev*100 > currentProc ){
@@ -198,7 +198,7 @@ int main(int argc, char** argv){
 	hpe[j][primary][ipm]->Fill(pes[j]*wght[ipm]);
 	posPE[j][primary][ipm]->Fill(x,pes[j]*wght[ipm]);
 	angPE[j][primary][ipm]->Fill(angX-angXi,pes[j]*wght[ipm]);
-      
+
 	hpe[j][2][ipm]->Fill(pes[j]*wght[ipm]);
 	posPE[j][2][ipm]->Fill(x,pes[j]*wght[ipm]);
 	angPE[j][2][ipm]->Fill(angX-angXi,pes[j]*wght[ipm]);
@@ -206,7 +206,7 @@ int main(int argc, char** argv){
 	if(fillPhi){
 	  double tmpPhi= phi < 0 ? 360 + phi : phi;
 	  phiPE[j][primary][ipm]->Fill(tmpPhi,pes[j]*wght[ipm]);
-	  phiPE[2][primary][ipm]->Fill(tmpPhi,pes[j]*wght[ipm]);
+	  phiPE[j][2][ipm]->Fill(tmpPhi,pes[j]*wght[ipm]);
 	}      
       }
     
