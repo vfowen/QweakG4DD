@@ -206,7 +206,7 @@ int main(int argc, char** argv){
 	if(fillPhi){
 	  double tmpPhi= phi < 0 ? 360 + phi : phi;
 	  phiPE[j][primary][ipm]->Fill(tmpPhi,pes[j]*wght[ipm]);
-	  phiPE[2][primary][ipm]->Fill(tmpPhi,pes[j]*wght[ipm]);
+	  phiPE[j][2][ipm]->Fill(tmpPhi,pes[j]*wght[ipm]);
 	}      
       }
     
