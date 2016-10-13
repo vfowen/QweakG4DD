@@ -22,6 +22,7 @@
 #include "QweakSimCerenkovDetector_PMTSD.hh"
 #include "QweakSimPMTOnly_PMTSD.hh"
 
+#include "QweakSimMScAnalyzingPower.hh"
 /*
   Brem depolarization: PhysRev.114.887
   implemented only for transverse polarization
@@ -132,8 +133,15 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
   G4Material *_material=thePostPoint->GetMaterial();
   G4double depol(0),eLossPercent(0);
 
-  G4ThreeVector _polarization=G4ThreeVector(asymInfo->at(5),asymInfo->at(6),asymInfo->at(7));
-  theStep->GetTrack()->SetPolarization(_polarization); // set to transported polarization
+  // G4ThreeVector _polarization=G4ThreeVector(asymInfo->at(5),asymInfo->at(6),asymInfo->at(7));
+  // theStep->GetTrack()->SetPolarization(_polarization); // set to transported polarization
+  G4ThreeVector _polarization = theStep->GetTrack()->GetPolarization();
+  G4ThreeVector pInitial = thePrePoint->GetMomentum();
+  G4ThreeVector pFinal   = thePostPoint->GetMomentum();
+  G4ThreeVector newBeamPol(0,1,0);
+  PolarizationTransfer(pInitial,pFinal,
+		       _polarization,newBeamPol,debugPrint);
+  theStep->GetTrack()->SetPolarization(newBeamPol);
   
   if(debugPrint){
     G4cout<<_polarization.getX()<<" "

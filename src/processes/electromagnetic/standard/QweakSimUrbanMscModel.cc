@@ -1015,12 +1015,12 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
   }
   //FIXME
         
-  G4ThreeVector newBeamPol(0,1,0);
-  PolarizationTransfer(G4ThreeVector(0,0,1),newDirection,
-		       polarization,newBeamPol,debugPrint);
-  asymInfo->at(5) = newBeamPol.getX();
-  asymInfo->at(6) = newBeamPol.getY();
-  asymInfo->at(7) = newBeamPol.getZ();
+  // G4ThreeVector newBeamPol(0,1,0);
+  // PolarizationTransfer(G4ThreeVector(0,0,1),newDirection,
+  // 		       polarization,newBeamPol,debugPrint);
+  // asymInfo->at(5) = newBeamPol.getX();
+  // asymInfo->at(6) = newBeamPol.getY();
+  // asymInfo->at(7) = newBeamPol.getZ();
   
   newDirection.rotateUz(oldDirection);
   fParticleChange->ProposeMomentumDirection(newDirection);
