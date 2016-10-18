@@ -157,9 +157,11 @@ int main(int argc, char** argv){
     //if( float(i+1)/nev*100<startProc || float(i+1)/nev*100>stopProc ) continue;
     t->GetEntry(i);
     double wght[2]={2*asymInfo[0]/(asymInfo[0]+asymInfo[1]),2*asymInfo[1]/(asymInfo[0]+asymInfo[1])};
-    
+    if(!primary){
+      wght[0]=1;
+      wght[1]=1;
+    }
     //if(recordNr == incrementNr ) recordNr=evNr;
-
     //if(abs(angX)>30) continue;
     
     if(evNr>recordNr){
@@ -181,7 +183,7 @@ int main(int argc, char** argv){
     float flip(1.);
     if(distModel == "mirror")
       flip=-1.;
-
+    
     double pes[2]={0,0};
     if(barModel == "tracks"){
       if(x>0) pes[0]=1;
