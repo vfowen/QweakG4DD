@@ -119,6 +119,8 @@ private:
   QweakSimUrbanMscModel & operator=(const  QweakSimUrbanMscModel &right);
   QweakSimUrbanMscModel(const  QweakSimUrbanMscModel&);
 
+  CLHEP::HepRandomEngine*     rndmEngineMod;
+
   const G4ParticleDefinition* particle;
   G4ParticleChangeForMSC*     fParticleChange;
 

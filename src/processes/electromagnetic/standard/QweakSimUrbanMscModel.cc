@@ -433,6 +433,7 @@ void QweakSimUrbanMscModel::StartTracking(G4Track* track)
   stepmin = tlimitminfix ;
   tlimitmin = 10.*stepmin ;
   G4VEmModel::StartTracking(track);
+  rndmEngineMod = G4Random::getTheEngine();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
