@@ -1023,7 +1023,7 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
     }    
   }
   //FIXME
-          
+
   newDirection.rotateUz(oldDirection);
   fParticleChange->ProposeMomentumDirection(newDirection);
   
