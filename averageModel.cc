@@ -91,7 +91,10 @@ int main(int argc, char** argv)
          << "md1config10_23, md3config4_23, md4config4_23, md5config4_23, md6config3_23, "
          << "md7config2_23, md8config16_0 or md8config16_23"
          << endl
-         << " --distmodel mirror (omit for as is)" << endl;
+         << " --distmodel mirror (omit for as is)"
+         << endl
+         << " --scan (omit --rootfile since it will scan all 8 octant hit maps)"
+         << endl;
     return 1;
   }
   
@@ -154,7 +157,7 @@ int main(int argc, char** argv)
       pad2->SetFillColor(0);
       pad1->cd();
       TPaveText *text = new TPaveText(.05,.1,.95,.8);
-      text->AddText(Form("A_{bias}/DD for all 4 models, %s vs octant",barModel));
+      text->AddText(Form("A_{bias}/DD for all 4 models, %s vs octant",barModel.Data()));
       text->Draw();
       pad2->cd();
 
