@@ -108,12 +108,16 @@ inline void PolarizationTransfer(G4ThreeVector ki, G4ThreeVector kf,
 	  <<ki.getY()<<"\t"<<ki.getZ()<<G4endl;
     G4cout<<"\t\t  Final mom(X,Y,Z): "<<kf.getX()<<"\t"
 	  <<kf.getY()<<"\t"<<kf.getZ()<<G4endl;
+    G4cout<<"\t\tInitial mom(RTP): "<<ki.getR()<<"\t"
+	  <<ki.getTheta()<<"\t"<<ki.getPhi()<<G4endl;
+    G4cout<<"\t\t  Final mom(RTP): "<<kf.getR()<<"\t"
+	  <<kf.getTheta()<<"\t"<<kf.getPhi()<<G4endl;
     G4cout<<"\t\t cos between mom: "<<std::setprecision(12)<<cosAng<<G4endl;
   }
-  if(cosAng>0.99999){
-    polF = (G4ThreeVector)beamPol;
-    return;
-  }
+  // if(cosAng>0.99999){
+  //   polF = (G4ThreeVector)beamPol;
+  //   return;
+  // }
 
   G4ThreeVector  nInteractionFrame = (ki.cross(kf)).unit();
   if(debugPrint){
@@ -139,7 +143,9 @@ inline void PolarizationTransfer(G4ThreeVector ki, G4ThreeVector kf,
   if(debugPrint){
     G4cout<<"\t"<<__LINE__<<":"<<__PRETTY_FUNCTION__<<G4endl
 	  <<"\t\tkf beam pol(X,Y,Z): "<<beamPol.getX()<<"\t"
-	  <<beamPol.getY()<<"\t"<<beamPol.getZ()<<G4endl;
+	  <<beamPol.getY()<<"\t"<<beamPol.getZ()<<G4endl
+	  <<"\t\tkf beam pol(R,T,P): "<<beamPol.getR()<<"\t"
+	  <<beamPol.getTheta()<<"\t"<<beamPol.getPhi()<<G4endl;
   }
 
   polF = (G4ThreeVector)beamPol;
