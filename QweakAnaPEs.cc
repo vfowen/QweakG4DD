@@ -93,10 +93,11 @@ int main(int argc, char** argv){
       hpe[i][j]=new TH1D(Form("hpe_%s_%s",lr[i].c_str(),species[j].c_str()),
 			 Form("%s %s;number of PEs",lr[i].c_str(),species[j].c_str()),
 			 300,0,300);
-
+      double showerFactor(1);
+      if(j!=1) showerFactor=20;
       hpeAvg[i][j]=new TH1D(Form("hpeAvg_%s_%s",lr[i].c_str(),species[j].c_str()),
 			    Form("1k ev Avg %s %s;number of PEs",lr[i].c_str(),species[j].c_str()),
-			    600,0,maxAvg);
+			    600,0,maxAvg*showerFactor);
 
       posPE[i][j]=new TH1D(Form("posPE_%s_%s",lr[i].c_str(),species[j].c_str()),
 			   Form("%s %s;position along bar[cm]",lr[i].c_str(),species[j].c_str()),
@@ -114,7 +115,7 @@ int main(int argc, char** argv){
   double TotPE[2][2]={{0,0},{0,0}};
   double AvgPE[2][2]={{0,0},{0,0}};
 
-  int prevEvNr(0),currEvNr(0),realEvNr(0),nrFiles(0),recordNr(1000);
+  int stepEvNr(0),prevEvNr(0),currEvNr(0),realEvNr(0),nrFiles(0),recordNr(1000);
   float startProc=0,stopProc=15,currentProc=0,procStep=10;
   int nev=t->GetEntries();
   for(int i=0;i<nev;i++){
@@ -122,7 +123,7 @@ int main(int argc, char** argv){
       cout<<" at event: "<<i<<"\t"<<float(i+1)/nev*100<<"%"<<endl;
       currentProc+=procStep;
     }
-    //if( i>5000000) break;
+    //if( i>500000) break;
     //if( float(i+1)/nev*100<startProc || float(i+1)/nev*100>stopProc ) continue;
 
     t->GetEntry(i);
@@ -131,16 +132,21 @@ int main(int argc, char** argv){
       prevEvNr=currEvNr;
     currEvNr=evNr;
     if( evNr<prevEvNr )
-      nrFiles++;
-    realEvNr=evNr+100000*nrFiles;
+      stepEvNr += std::ceil(prevEvNr/100.)*100;
+    realEvNr=evNr+stepEvNr;
 
     if(realEvNr>recordNr){
       recordNr+=1000;
-      for(int j=0;j<2;j++)
+      for(int j=0;j<2;j++){
 	for(int k=0;k<2;k++){
-	  hpeAvg[k][j]->Fill(AvgPE[j][k]/1000.);
-	  AvgPE[j][k]=0;
+	  hpeAvg[j][k]->Fill(AvgPE[k][j]/1000.);	  
 	}
+	hpeAvg[j][2]->Fill((AvgPE[0][j]+AvgPE[1][j])/1000.);
+      }
+
+      for(int j=0;j<2;j++)
+	for(int k=0;k<2;k++)
+	  AvgPE[j][k]=0;
     }
     
     float flip(1.);
@@ -170,7 +176,7 @@ int main(int argc, char** argv){
       if(fillPhi){
 	double tmpPhi= phi < 0 ? 360 + phi : phi;
 	phiPE[j][primary]->Fill(tmpPhi,pes[j]);
-	phiPE[2][primary]->Fill(tmpPhi,pes[j]);
+	phiPE[j][2]->Fill(tmpPhi,pes[j]);
       }      
     }
     
