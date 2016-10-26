@@ -22,6 +22,8 @@
 #include "QweakSimCerenkovDetector_PMTSD.hh"
 #include "QweakSimPMTOnly_PMTSD.hh"
 
+#include "QweakSimMScAnalyzingPower.hh"
+
 /*
   Brem depolarization: PhysRev.114.887
   implemented only for transverse polarization
@@ -132,15 +134,22 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
   G4Material *_material=thePostPoint->GetMaterial();
   G4double depol(0),eLossPercent(0);
 
-  G4ThreeVector _polarization=G4ThreeVector(asymInfo->at(5),asymInfo->at(6),asymInfo->at(7));
+  //G4ThreeVector _polarization=G4ThreeVector(asymInfo->at(5),asymInfo->at(6),asymInfo->at(7));
+  G4ThreeVector _polarization = theStep->GetTrack()->GetPolarization();
+  G4ThreeVector initialMom = thePrePoint->GetMomentum().unit();
+  G4ThreeVector finalMom  = thePostPoint->GetMomentum().unit();
+  G4ThreeVector newBeamPol(0,1,0);
+  PolarizationTransfer(initialMom,finalMom,_polarization,newBeamPol,debugPrint);
+  if(debugPrint){
+    G4cout<<__PRETTY_FUNCTION__<<G4endl;
+    G4cout<<"\tinitial Mom (RTP) "<<initialMom.getR()<<"\t"<<initialMom.getTheta()<<"\t"<<initialMom.getPhi()<<G4endl;
+    G4cout<<"\tfinal   Mom (RTP) "<<finalMom.getR()<<"\t"<<finalMom.getTheta()<<"\t"<<finalMom.getPhi()<<G4endl;
+    G4cout<<"\ti polarization(XYZ) "<<_polarization.getX()<<"\t"<<_polarization.getY()<<"\t"<<_polarization.getZ()<<G4endl;
+    G4cout<<"\tf polarization(XYZ) "<<newBeamPol.getX()<<"\t"<<newBeamPol.getY()<<"\t"<<newBeamPol.getZ()<<G4endl;   
+  }
+  _polarization = newBeamPol;
   theStep->GetTrack()->SetPolarization(_polarization); // set to transported polarization
   
-  if(debugPrint){
-    G4cout<<_polarization.getX()<<" "
-	  <<_polarization.getY()<<" "
-	  <<_polarization.getZ()<<G4endl
-	  <<"\tDefining process "<<_pn<<G4endl;
-  }
   //this gets used in the physics process to stop the asymmetry calculation
   if( theStep->GetTrack()->GetVolume()->GetName().compare("QuartzBar_PhysicalRight") == 0 ||
       theStep->GetTrack()->GetVolume()->GetName().compare("QuartzBar_PhysicalLeft") == 0 )

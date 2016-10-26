@@ -655,9 +655,17 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	  G4cout<<"\tpol (X,Y,Z) "<<polarization.getX()<<"\t"<<polarization.getY()<<"\t"<<polarization.getZ()<<G4endl;
 	}
 	G4double amplitude = AnalyzingPower(eEnergy, cost,asymInfo->at(4),debugPrint);
-	G4ThreeVector orgLocal(0,0,1);
-	G4ThreeVector normal = (orgLocal.cross(temp)).unit();
+	G4ThreeVector dummyNewDirection(cos(phi)*sint, sin(phi)*sint, cost);
+	dummyNewDirection.rotateUz(oldDirection);
+	G4ThreeVector normal = (oldDirection.cross(dummyNewDirection)).unit();
 	amplitude *= (polarization * normal);
+	if(debugPrint){	
+	  G4cout<<"\tnormal lab (RTP) "<<normal.getR()<<"\t"<<normal.getTheta()<<"\t"<<normal.getPhi()<<G4endl;
+	  G4cout<<"\tnormal lab (XYZ) "<<normal.getX()<<"\t"<<normal.getY()<<"\t"<<normal.getZ()<<G4endl;
+	  G4cout<<"\tpolari lab (XYZ) "<<polarization.getX()<<"\t"<<polarization.getY()<<"\t"<<polarization.getZ()<<G4endl;
+	  G4cout<<"\tfactor to AN "<<(polarization * normal)<<G4endl;
+	  G4cout<<"\tamplitude "<<amplitude<<G4endl;
+	}
 
 	if(modifyTrajectory){
 	  G4double _prob=G4UniformRand();
@@ -737,11 +745,18 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	  G4cout<<"\tpol (X,Y,Z) "<<polarization.getX()<<"\t"<<polarization.getY()<<"\t"<<polarization.getZ()<<G4endl;
 	}
 	G4double amplitude = AnalyzingPower(eEnergy, cost,asymInfo->at(4),debugPrint);
-	G4ThreeVector orgLocal(0,0,1);
-	G4ThreeVector newDirection(sint*cos(phi),sint*sin(phi),cost);
-	G4ThreeVector normal = (orgLocal.cross(newDirection)).unit();
+	G4ThreeVector dummyNewDirection(cos(phi)*sint, sin(phi)*sint, cost);
+	dummyNewDirection.rotateUz(oldDirection);
+	G4ThreeVector normal = (oldDirection.cross(dummyNewDirection)).unit();//normal in Lab
 	amplitude *= (polarization * normal);
-
+	if(debugPrint){	
+	  G4cout<<"\tnormal lab (RTP) "<<normal.getR()<<"\t"<<normal.getTheta()<<"\t"<<normal.getPhi()<<G4endl;
+	  G4cout<<"\tnormal lab (XYZ) "<<normal.getX()<<"\t"<<normal.getY()<<"\t"<<normal.getZ()<<G4endl;
+	  G4cout<<"\tpolari lab (XYZ) "<<polarization.getX()<<"\t"<<polarization.getY()<<"\t"<<polarization.getZ()<<G4endl;
+	  G4cout<<"\tfactor to AN "<<(polarization * normal)<<G4endl;
+	  G4cout<<"\tamplitude "<<amplitude<<G4endl;
+	}
+	
 	if(modifyTrajectory){
 	  G4double _prob=G4UniformRand();
 	  if( _prob < amplitude ){
@@ -749,8 +764,8 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	    if(phi<0) phi+=twopi;
 	    else if(phi>twopi) phi=fmod(phi,twopi);
 
-	    newDirection.setX(sint * cos(phi));
-	    newDirection.setY(sint * sin(phi));
+	    temp.setX(sint * cos(phi));
+	    temp.setY(sint * sin(phi));
 	  }
 	  if(debugPrint)
 	    G4cout<<__LINE__<<"\t"<<__PRETTY_FUNCTION__<<" Wm: Just modified trajectory"<<G4endl;
@@ -806,15 +821,6 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
       dir = temp;
     }
   } while (0 < nMscSteps);
-
-  //FIXME
-  G4ThreeVector newBeamPol(0,1,0);
-  PolarizationTransfer(G4ThreeVector(0,0,1),dir,
-		       polarization,newBeamPol,debugPrint);
-  asymInfo->at(5) = newBeamPol.getX();
-  asymInfo->at(6) = newBeamPol.getY();
-  asymInfo->at(7) = newBeamPol.getZ();
-  //FIXME
 
   dir.rotateUz(oldDirection);
 
