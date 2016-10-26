@@ -8,11 +8,49 @@
 #include "interpolatePEs.hh"
 #include "TFile.h"
 #include "TTree.h"
-#include "TH1D.h"
-
+#include "TH1D.h" 
+#include <TApplication.h>
+#include <TMath.h>
+#include <TCanvas.h>
+#include <TGraphErrors.h>
+#include <TMultiGraph.h>
+#include <TAxis.h>
+#include <TStyle.h>
+#include <TLine.h>
+#include <TLegend.h>
+#include <TF1.h>
+#include <TChain.h>
+#include <TH1D.h>
+#include <TH2D.h>
+#include <TColor.h>
+#include <TLegend.h>
+#include <TPaveText.h>
 using namespace std;
 
-void printInfo(TH1D *hl,TH1D *hr);
+struct pmtdd_data {
+    double al;
+    double dal;
+    double ar;
+    double dar;
+    double dd;
+    double ddd;
+    double abias;
+    double dabias;
+    double fom;
+    double dfom;
+
+    void print(void);
+};
+
+void pmtdd_data::print(void) {
+    cout << this->al << "\t" << this->dal << "\t" << this->ar << "\t" << this->dar << "\t"
+    << this->dd << "\t" << this->ddd << "\t"
+    << this->abias << "\t" << this->dabias <<"\t"
+    << this->fom << "\t"
+    << this->dfom << endl;
+}
+
+pmtdd_data* printInfo(TH1D *hl,TH1D *hr);
 
 const int nModels = 8;
 //0=                                     
@@ -39,10 +77,12 @@ double asymLimits[nModels][2][2]={
 
 float model(float val,int type);
 
+std::vector<pmtdd_data*> avgValue(TString, TString, TString, Int_t);
 
 int main(int argc, char** argv)
 {
 
+  TApplication *app = new TApplication("slopes", &argc, argv);
   // Print help
   if( argc == 1 || (0 == strcmp("--help", argv[1]))) {
     cout << " usage: build/avgModel [options]" << endl
@@ -51,7 +91,10 @@ int main(int argc, char** argv)
          << "md1config10_23, md3config4_23, md4config4_23, md5config4_23, md6config3_23, "
          << "md7config2_23, md8config16_0 or md8config16_23"
          << endl
-         << " --distmodel mirror (omit for as is)" << endl;
+         << " --distmodel mirror (omit for as is)"
+         << endl
+         << " --scan (omit --rootfile since it will scan all 8 octant hit maps)"
+         << endl;
     return 1;
   }
   
@@ -59,18 +102,107 @@ int main(int argc, char** argv)
   TString barModel = "md8config16_23";
   TString distModel = "asIs";
   TString rootfile = "";
+  Bool_t scan = kFALSE;
   Int_t offset = 0;
   for(Int_t i = 1; i < argc; i++) {
     if(0 == strcmp("--barmodel", argv[i])) {
       barModel = argv[i+1];
-    }else if(0 == strcmp("--distmodel", argv[i])) {
+    } else if(0 == strcmp("--distmodel", argv[i])) {
       distModel = argv[i+1];
-    }else if(0 == strcmp("--rootfile", argv[i])) {
+    } else if(0 == strcmp("--rootfile", argv[i])) {
       rootfile = argv[i+1];
-    }else if(0 == strcmp("--offset", argv[i])) {
+    } else if(0 == strcmp("--offset", argv[i])) {
       offset = atoi(argv[i+1]);
+    } else if(0 == strcmp("--scan", argv[i])) {
+      scan = kTRUE;
     }
   }
+  if(scan) {
+      // List of all hitmaps to scan
+      std::vector<TString> hitMaps = 
+      {"hitmap/o_hits_sampled_MCoct1fixed_38e6Hits.root",
+       "hitmap/o_hits_sampled_MCoct2fixed_38e6Hits.root",
+       "hitmap/o_hits_sampled_MCoct3fixed_38e6Hits.root",
+       "hitmap/o_hits_sampled_MCoct4fixed_38e6Hits.root",
+       "hitmap/o_hits_sampled_MCoct5fixed_38e6Hits.root",
+       "hitmap/o_hits_sampled_MCoct6fixed_38e6Hits.root",
+       "hitmap/o_hits_sampled_MCoct7fixed_38e6Hits.root",
+       "hitmap/o_hits_sampled_MCoct8fixed_38e6Hits.root"
+      };
+      // Vectors for plotting
+      std::vector<std::vector<double>> fom(4);
+      std::vector<std::vector<double>> dfom(4);
+      std::vector<double> octant = {1, 2, 3, 4, 5, 6, 7, 8};
+      for(unsigned int i = 0; i < hitMaps.size(); i++) {
+          std::vector<pmtdd_data*> pmtdd;
+          pmtdd = avgValue(barModel, distModel, hitMaps[i], offset);
+          for(int j = 0; j < 4; j++) {
+              fom[j].push_back(pmtdd[j]->fom);
+              dfom[j].push_back(pmtdd[j]->dfom);
+          }
+          pmtdd.clear();
+      }
+
+      gStyle->SetPadGridX(kTRUE);
+      gStyle->SetPadGridY(kTRUE);
+
+      TCanvas* tc;
+      tc = new TCanvas("tc");
+      tc->Draw();
+      TPad*pad1 = new TPad("pad1","pad1",0.005,0.900,0.990,0.990);
+      TPad*pad2 = new TPad("pad2","pad2",0.005,0.005,0.990,0.900);
+      pad1->SetFillColor(0);
+      pad1->Draw();
+      pad2->Draw();
+      pad2->SetFillColor(0);
+      pad1->cd();
+      TPaveText *text = new TPaveText(.05,.1,.95,.8);
+      text->AddText(Form("A_{bias}/DD for all 4 models, %s vs octant",barModel.Data()));
+      text->Draw();
+      pad2->cd();
+
+      TGraphErrors *tg1 = new TGraphErrors(octant.size(), &(octant[0]), &(fom[0][0]), 0, &(dfom[0][0]));
+      tg1->SetMarkerColor(kBlack);     
+      tg1->SetMarkerStyle(kFullSquare);
+      TGraphErrors *tg2 = new TGraphErrors(octant.size(), &(octant[0]), &(fom[1][0]), 0, &(dfom[1][0]));
+      tg2->SetMarkerColor(kRed);     
+      tg2->SetMarkerStyle(kFullSquare);
+      TGraphErrors *tg3 = new TGraphErrors(octant.size(), &(octant[0]), &(fom[2][0]), 0, &(dfom[2][0]));
+      tg3->SetMarkerColor(kBlue);     
+      tg3->SetMarkerStyle(kFullSquare);
+      TGraphErrors *tg4 = new TGraphErrors(octant.size(), &(octant[0]), &(fom[3][0]), 0, &(dfom[3][0]));
+      tg4->SetMarkerColor(kOrange);     
+      tg4->SetMarkerStyle(kFullSquare);
+
+      TMultiGraph *mg = new TMultiGraph();
+      mg->Add(tg1);
+      mg->Add(tg2);
+      mg->Add(tg3);
+      mg->Add(tg4);
+      mg->Draw("AP");
+      //tg->Fit("pol1");
+      mg->SetTitle("");
+      mg->GetXaxis()->SetTitle("octant");
+      mg->GetYaxis()->SetTitle("A_{bias}/DD (%)");
+
+      TLegend *leg;                         
+      leg = new TLegend(0.6,0.7,0.9,0.9);
+      leg->AddEntry(tg1,"model 1","p");
+      leg->AddEntry(tg2,"model 2","p");
+      leg->AddEntry(tg3,"model 3","p");
+      leg->AddEntry(tg4,"model 4","p");
+      leg->Draw();
+
+  } else {
+      std::vector<pmtdd_data*> pmtdd;
+      pmtdd = avgValue(barModel, distModel, rootfile, offset);
+  }
+    /* TApplication crap. */
+    app->Run();
+    return 0;
+}
+
+std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString rootfile, Int_t offset) {
   interpolatePEs interpolator(barModel.Data());
   //interpolator.verbosity=1;
   
@@ -281,6 +413,7 @@ int main(int argc, char** argv)
   tn3->Write();
 
   cout<<endl<<" average asymmetry histogram results: A_L dA_L A_R dA_R DD dDD A_bias dA_bia A_bias/DD*100"<<endl;
+  vector< pmtdd_data* > pmtdd;
   for(int j=0;j<nModels;j++){      
     for(int i=0;i<2;i++){
       hpe[i][j]->Write();
@@ -291,7 +424,7 @@ int main(int argc, char** argv)
 
     if(j>0){
       cout<<j<<"\t";
-      printInfo(as[1][j],as[0][j]);
+      pmtdd.push_back(printInfo(as[1][j],as[0][j]));
       if(as[0][j]->GetBinContent(0)>0 || as[0][j]->GetBinContent(as[0][j]->GetXaxis()->GetNbins()+1)>0 ||
 	 as[1][j]->GetBinContent(0)>0 || as[1][j]->GetBinContent(as[1][j]->GetXaxis()->GetNbins()+1)>0){
 	cout<<"!!!!! overUnder flow: R L: "<<endl;
@@ -303,8 +436,12 @@ int main(int argc, char** argv)
     }
   }
 
+  for(unsigned int i = 0; i < pmtdd.size(); i++) {
+
+  }
+
   fout->Close();
-  return 0;
+  return pmtdd;
 }
 
 //models go here
@@ -326,25 +463,22 @@ float model(float val,int type){
   return 0;
 }
 
-void printInfo(TH1D *hl,TH1D *hr){
-    double al=hl->GetMean();
-    double dal=hl->GetMeanError();
-    double ar=hr->GetMean();
-    double dar=hr->GetMeanError();
+pmtdd_data* printInfo(TH1D *hl,TH1D *hr){
+    pmtdd_data* pmtdd = new pmtdd_data();
+    pmtdd->al = hl->GetMean();
+    pmtdd->dal = hl->GetMeanError();
+    pmtdd->ar = hr->GetMean();
+    pmtdd->dar = hr->GetMeanError();
     // Double difference and error
-    double dd = al-ar;
-    double ddd = sqrt(dar*dar+dal*dal);
+    pmtdd->dd = pmtdd->al-pmtdd->ar;
+    pmtdd->ddd = sqrt(pmtdd->dar*pmtdd->dar+pmtdd->dal*pmtdd->dal);
     // a_bias and error
-    double abias = (al+ar)/2;
-    double dabias = sqrt(dar*dar+dal*dal)/2;
+    pmtdd->abias = (pmtdd->al+pmtdd->ar)/2;
+    pmtdd->dabias = sqrt(pmtdd->dar*pmtdd->dar+pmtdd->dal*pmtdd->dal)/2;
     // figure of merit (a_bias/dd*100) and error
-    double fom = ((al+ar)/2)/(al-ar)*100;
-    double dfom = sqrt(pow(fom,2)*(pow(ddd/dd,2)+pow(dabias/abias,2)));
+    pmtdd->fom = ((pmtdd->al+pmtdd->ar)/2)/(pmtdd->al-pmtdd->ar)*100;
+    pmtdd->dfom = sqrt(pow(pmtdd->fom,2)*(pow(pmtdd->ddd/pmtdd->dd,2)+pow(pmtdd->dabias/pmtdd->abias,2)));
+    pmtdd->print();
 
-        cout << al << "\t" << dal << "\t" << ar << "\t" << dar << "\t"
-        << dd << "\t" << ddd << "\t"
-        << abias << "\t" << dabias <<"\t"
-        << fom << "\t"
-        << dfom << endl;
-
+    return pmtdd;
 }
