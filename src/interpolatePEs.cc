@@ -72,21 +72,16 @@ void interpolatePEs::readScan(){
   energyLowLimit  = 3;
   energyHighLimit = 100;
 
-  if("ideal23_bevel" == barModel || "ideal23_polish" == barModel ||
-     "md1config10_23" == barModel ||
-     "md3config4_23" == barModel || "md5config4_23" == barModel || 
-     "md4config4_23" == barModel || "md6config3_23" == barModel ||
-     "md7config2_23" == barModel || "md8config16_23" == barModel || 
-     "ideal23" == barModel ) {
-    xPosLowLimit  = -100;
-    xPosHighLimit =  100;
-    xAngLowLimit  = -89;
-    xAngHighLimit =  89;
-  } else {
+  if("md8config16_0" == barModel) {
     xPosLowLimit  = -90;
     xPosHighLimit =  90;
     xAngLowLimit  = -80;
     xAngHighLimit =  80;
+  } else {
+    xPosLowLimit  = -100;
+    xPosHighLimit =  100;
+    xAngLowLimit  = -89;
+    xAngHighLimit =  89;
   }
         
   
@@ -138,8 +133,8 @@ int interpolatePEs::getPEs(double E, double x, double angX ,double &outL,double 
   getPEs(pts,pt,lpe,rpe);
 
   if(lpe<0 || rpe<0 ||
-     isnan(lpe) || isnan(rpe) ||
-     isinf(lpe) || isinf(rpe)){
+     std::isnan(lpe) || std::isnan(rpe) ||
+     std::isinf(lpe) || std::isinf(rpe)){
     cout<<"Problem with interpolator! "<<endl;
     cout<<" "<<lpe<<" "<<rpe<<endl;
     exit(1);

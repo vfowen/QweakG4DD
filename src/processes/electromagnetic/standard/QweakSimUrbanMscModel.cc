@@ -433,6 +433,7 @@ void QweakSimUrbanMscModel::StartTracking(G4Track* track)
   stepmin = tlimitminfix ;
   tlimitmin = 10.*stepmin ;
   G4VEmModel::StartTracking(track);
+  rndmEngineMod = G4Random::getTheEngine();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -971,10 +972,18 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
       G4cout<<"\tpol (X,Y,Z) "<<polarization.getX()<<"\t"<<polarization.getY()<<"\t"<<polarization.getZ()<<G4endl;
     }
     G4double amplitude = AnalyzingPower(eEnergy, cth,asymInfo->at(4),debugPrint);
-    G4ThreeVector orgLocal(0,0,1);
-    G4ThreeVector normal = (orgLocal.cross(newDirection)).unit();
+    G4ThreeVector dummyNewDirection = newDirection;
+    dummyNewDirection.rotateUz(oldDirection);
+    G4ThreeVector normal = (oldDirection.cross(newDirection)).unit();
     amplitude *= (polarization * normal);
-    
+    if(debugPrint){	
+      G4cout<<"\tnormal lab (RTP) "<<normal.getR()<<"\t"<<normal.getTheta()<<"\t"<<normal.getPhi()<<G4endl;
+      G4cout<<"\tnormal lab (XYZ) "<<normal.getX()<<"\t"<<normal.getY()<<"\t"<<normal.getZ()<<G4endl;
+      G4cout<<"\tpolari lab (XYZ) "<<polarization.getX()<<"\t"<<polarization.getY()<<"\t"<<polarization.getZ()<<G4endl;
+      G4cout<<"\tfactor to AN "<<(polarization * normal)<<G4endl;
+      G4cout<<"\tamplitude "<<amplitude<<G4endl;
+    }
+
     if(modifyTrajectory){      
       G4double _prob=rndmEngineMod->flat();
       if( _prob < amplitude ){
@@ -1014,14 +1023,7 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
     }    
   }
   //FIXME
-        
-  // G4ThreeVector newBeamPol(0,1,0);
-  // PolarizationTransfer(G4ThreeVector(0,0,1),newDirection,
-  // 		       polarization,newBeamPol,debugPrint);
-  // asymInfo->at(5) = newBeamPol.getX();
-  // asymInfo->at(6) = newBeamPol.getY();
-  // asymInfo->at(7) = newBeamPol.getZ();
-  
+
   newDirection.rotateUz(oldDirection);
   fParticleChange->ProposeMomentumDirection(newDirection);
   
