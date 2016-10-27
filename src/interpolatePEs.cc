@@ -133,8 +133,8 @@ int interpolatePEs::getPEs(double E, double x, double angX ,double &outL,double 
   getPEs(pts,pt,lpe,rpe);
 
   if(lpe<0 || rpe<0 ||
-     std::isnan(lpe) || std::isnan(rpe) ||
-     std::isinf(lpe) || std::isinf(rpe)){
+     isnan(lpe) || isnan(rpe) ||
+     isinf(lpe) || isinf(rpe)){
     cout<<"Problem with interpolator! "<<endl;
     cout<<" "<<lpe<<" "<<rpe<<endl;
     exit(1);
