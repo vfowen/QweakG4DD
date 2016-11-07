@@ -118,6 +118,7 @@ target_link_libraries(DrawMSAn ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
 add_executable(effModel effectiveModel.cc)
 target_link_libraries(effModel ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
 # - average Model
+add_definitions(-std=c++11)
 add_executable(avgModel averageModel.cc)
 target_link_libraries(avgModel ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
 
