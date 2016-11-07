@@ -141,10 +141,11 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
 
   if(debugPrint){
     G4cout<<__PRETTY_FUNCTION__<<G4endl;
-    G4cout<<"\tinitial Mom (RTP) "<<initialMom.getR()<<"\t"<<initialMom.getTheta()<<"\t"<<initialMom.getPhi()<<G4endl;
-    G4cout<<"\tfinal   Mom (RTP) "<<finalMom.getR()<<"\t"<<finalMom.getTheta()<<"\t"<<finalMom.getPhi()<<G4endl;
+    G4cout<<"\tinitial Mom (RTP) "<<initialMom.getR()<<"\t"<<initialMom.getTheta()/CLHEP::deg<<"\t"<<initialMom.getPhi()/CLHEP::deg<<G4endl;
+    G4cout<<"\tfinal   Mom (RTP) "<<finalMom.getR()<<"\t"<<finalMom.getTheta()/CLHEP::deg<<"\t"<<finalMom.getPhi()/CLHEP::deg<<G4endl;
     G4cout<<"\ti polarization(XYZ) "<<_polarization.getX()<<"\t"<<_polarization.getY()<<"\t"<<_polarization.getZ()<<G4endl;
-    G4cout<<"\tf polarization(XYZ) "<<newBeamPol.getX()<<"\t"<<newBeamPol.getY()<<"\t"<<newBeamPol.getZ()<<G4endl;   
+    G4cout<<"\tf polarization(XYZ) "<<newBeamPol.getX()<<"\t"<<newBeamPol.getY()<<"\t"<<newBeamPol.getZ()<<G4endl;
+    std::cin.ignore();
   }
   _polarization = newBeamPol;
   theStep->GetTrack()->SetPolarization(_polarization); // set to transported polarization
@@ -440,7 +441,7 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
     G4cout<<"\tFinished step"<<G4endl<<G4endl<<G4endl;
     if(_material)
       if(_material->GetName().compare("PBA")==0)
-	std::cin.ignore();
+    	std::cin.ignore();
   }
   return;
 }       // end of QweakSimSteppingAction::UserSteppingAction
