@@ -79,7 +79,6 @@ std::vector<pmtdd_data*> avgValue(TString, TString, TString, Int_t);
 
 int main(int argc, char** argv)
 {
-  TApplication *app = new TApplication("slopes", &argc, argv);
   // Print help
   if( argc == 1 || (0 == strcmp("--help", argv[1]))) {
     cout << " usage: build/avgModel [options]" << endl
@@ -127,7 +126,9 @@ int main(int argc, char** argv)
     cout<<"No rootfile given! Quitting"<<endl;
     return 3;
   }
-  
+
+  TApplication *app = new TApplication("slopes", &argc, argv);
+
   if(scan) {
       // List of all hitmaps to scan
       std::vector<TString> hitMaps = 
