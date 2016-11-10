@@ -52,27 +52,25 @@ void pmtdd_data::print(void) {
 
 pmtdd_data* printInfo(TH1D *hl,TH1D *hr);
 
-const int nModels = 8;
+const int nModels = 7;
 //0=                                     
 //1= cnst*sgn(angX) for abs(angX)=[20,40]
 //2= cnst*angX                           
 //3= cnst*sgn(angX)*angX^2               
 //4= cnst*angX^3                         
-//5= distribution weighted with P
-//6= distribution weighted with M
-//7= [5]/[6] microscopic distribution
+//5= -3.9  (M2)  + 5.8 (M3) -0.9 (M4)
+//6= -0.9  (M2)  + 2.8 (M3) -0.9 (M4) 
 
 //model,R/L,Upper/Lower
 const int rangeTst=0;
 double asymLimits[nModels][2][2]={
-  {{-0.350,-0.100},{ 0.100, 0.350}},
-  {{-0.350,-0.100},{ 0.100, 0.350}},
-  {{-0.350,-0.100},{ 0.100, 0.350}},
-  {{-0.350,-0.100},{ 0.100, 0.350}},
-  {{-0.350,-0.100},{ 0.100, 0.350}},
-  {{-9.000, 9.000},{-9.000, 9.000}},
-  {{-9.000, 9.000},{-9.000, 9.000}},
-  {{-9.000, 9.000},{-9.000, 9.000}}
+  {{-0.250,-0.050},{ 0.050, 0.250}},
+  {{-0.250,-0.050},{ 0.050, 0.250}},
+  {{-0.250,-0.050},{ 0.050, 0.250}},
+  {{-0.250,-0.050},{ 0.050, 0.250}},
+  {{-0.250,-0.050},{ 0.050, 0.250}},
+  {{-0.250,-0.050},{ 0.050, 0.250}},
+  {{-0.250,-0.050},{ 0.050, 0.250}}
 };
 
 float model(float val,int type);
@@ -81,7 +79,6 @@ std::vector<pmtdd_data*> avgValue(TString, TString, TString, Int_t);
 
 int main(int argc, char** argv)
 {
-
   TApplication *app = new TApplication("slopes", &argc, argv);
   // Print help
   if( argc == 1 || (0 == strcmp("--help", argv[1]))) {
@@ -104,19 +101,33 @@ int main(int argc, char** argv)
   TString rootfile = "";
   Bool_t scan = kFALSE;
   Int_t offset = 0;
+
   for(Int_t i = 1; i < argc; i++) {
+    cout<<argv[i]<<endl;
+    
     if(0 == strcmp("--barmodel", argv[i])) {
+      cout<<"barmodel "<<argv[i+1]<<endl;
       barModel = argv[i+1];
     } else if(0 == strcmp("--distmodel", argv[i])) {
+      cout<<"distmodel "<<argv[i+1]<<endl;
       distModel = argv[i+1];
     } else if(0 == strcmp("--rootfile", argv[i])) {
+      cout<<"rootfile "<<argv[i+1]<<endl;
       rootfile = argv[i+1];
     } else if(0 == strcmp("--offset", argv[i])) {
+      cout<<"offset "<<argv[i+1]<<endl;
       offset = atoi(argv[i+1]);
     } else if(0 == strcmp("--scan", argv[i])) {
+      cout<<"scan"<<endl;
       scan = kTRUE;
     }
   }
+
+  if(rootfile == "") {
+    cout<<"No rootfile given! Quitting"<<endl;
+    return 3;
+  }
+  
   if(scan) {
       // List of all hitmaps to scan
       std::vector<TString> hitMaps = 
@@ -271,7 +282,7 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
   for(int i=0;i<nev;i++){
     t->GetEntry(i);
     if(i%1000000==1) cout<<" at event: "<<i<<" "<<float(i+1)/nev*100<<"%"<<endl;
-
+    if(i==500000) break;
     if(float(i+1)/nev*100>currentStep){
       for(int imod=1;imod<nModels;imod++){
 	if(avgStepR[0]>0 && avgStepL[0]>0){
@@ -302,20 +313,8 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
     // cout<<" asdf L R "<<lpe<<" "<<rpe<<endl;
     // std::cin.ignore();
     
-    //nModels-1 because microscopic is special and done at the end
-    for(int imod=0;imod<nModels-1;imod++){
-
+    for(int imod=0;imod<nModels;imod++){
       double asym=model(angX-angXi,imod);
-      if(imod>4){
-	double P=(asymPpM+asymPmM)/2;
-	double M=(asymPpM-asymPmM)/2;
-	if(imod==5){
-	  asym=P;
-	}else if(imod==6)
-	  asym=M;
-
-	if(distModel == "mirror" ) asym=-asym;
-      }
 
       avgStepL[imod]+=asym*lpe;
       avgStepR[imod]+=asym*rpe;
@@ -325,28 +324,12 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
       hpe[0][imod]->Fill((1.+asym)*rpe);
       posPE[0][imod]->Fill(x,asym*rpe);
       angPE[0][imod]->Fill(angX-angXi,asym*rpe);
+
       hpe[1][imod]->Fill((1.+asym)*lpe);
       posPE[1][imod]->Fill(x,asym*lpe);
       angPE[1][imod]->Fill(angX-angXi,asym*lpe);
       
     }        
-  }
-
-  int posBin=posPE[0][7]->GetXaxis()->GetNbins();
-  int angBin=angPE[0][7]->GetXaxis()->GetNbins();
-  for(int j=0;j<2;j++){
-    for(int i=1;i<=posBin;i++){
-      double a=posPE[j][5]->GetBinContent(i);
-      double b=posPE[j][6]->GetBinContent(i);
-      if(a+b>0)
-	posPE[j][7]->SetBinContent(i, (a-b)/(a+b) );
-    }
-    for(int i=1;i<=angBin;i++){
-      double a=angPE[j][5]->GetBinContent(i);
-      double b=angPE[j][6]->GetBinContent(i);
-      if(a+b>0)
-	angPE[j][7]->SetBinContent(i, (a-b)/(a+b) );
-    }
   }
   
   cout<<endl<<"total PE average: A_L A_R DD A_ave A_ave/DD"<<endl;
@@ -446,19 +429,37 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
 
 //models go here
 float model(float val,int type){
+  //0=                                     
+  //1= cnst*sgn(angX) for abs(angX)=[20,40]
+  //2= cnst*angX                           
+  //3= cnst*sgn(angX)*angX^2               
+  //4= cnst*angX^3                         
+  //5= -3.9  (M2)  + 5.8 (M3) -0.9 (M4)
+  //6= -0.9  (M2)  + 2.8 (M3) -0.9 (M4) 
 
   if(type==0)
     return 1;  
   else if(type==1 && (abs(val)>=20 && abs(val)<40) )
-    return 4e-6*val/abs(val);
+    return 0.759 * 4e-6 * val/abs(val);
   else if(type==2)
-    return 4e-8*val;
+    return 0.713 * 4e-8 * val;
   else if(type==3)
-    return 1.5e-9*val/abs(val)*pow(val,2);
+    return 0.685 * 1.5e-9 * pow(val,3)/val;
   else if(type==4)
-    return 4e-11*pow(val,3);
-  else if(type==5)
-    return 0; //reserved for microscopic model
+    return 0.610 * 4e-11 * pow(val,3);
+  else if(type==5) 
+    return
+      -3.9 * 0.713 * 4e-8 * val
+      +5.8 * 0.685 * 1.5e-9 * pow(val,3)/val
+      -0.9 * 0.610 * 4e-11 * pow(val,3);
+  else if(type==6)
+    return
+      -0.9 * 0.713 * 4e-8 * val
+      +2.8 * 0.685 * 1.5e-9 * pow(val,3)/val
+      -0.9 * 0.610 * 4e-11 * pow(val,3);
+  else
+    return 0;
+      
 
   return 0;
 }
