@@ -82,7 +82,6 @@ std::vector<pmtdd_data*> avgValue(TString, TString, TString, Int_t);
 int main(int argc, char** argv)
 {
 
-  TApplication *app = new TApplication("slopes", &argc, argv);
   // Print help
   if( argc == 1 || (0 == strcmp("--help", argv[1]))) {
     cout << " usage: build/avgModel [options]" << endl
@@ -117,6 +116,7 @@ int main(int argc, char** argv)
       scan = kTRUE;
     }
   }
+  TApplication *app = new TApplication("slopes", &argc, argv);
   if(scan) {
       // List of all hitmaps to scan
       std::vector<TString> hitMaps = 
@@ -363,6 +363,9 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
   TNamed* tn3;                              
   if("md1config10_23" == barModel) {
       tn1 = new TNamed("bar","md1config10");
+      tn2 = new TNamed("angle","angle 23");
+  }else if("md2config5_23" == barModel) {
+      tn1 = new TNamed("bar","md2config5");
       tn2 = new TNamed("angle","angle 23");
   }else if("md3config4_23" == barModel) {
       tn1 = new TNamed("bar","md3config4");
