@@ -20,6 +20,9 @@ void interpolatePEs::readScan(){
   if("md1config10_23" == barModel) {
     cout << "Using input/md1Config10_alongDir_acrossAng23_lightPara.txt" << endl;
     path = "input/md1Config10_alongDir_acrossAng23_lightPara.txt";
+  }else if("md2config5_23" == barModel) {
+    cout << "Using input/md2Config5_alongDir_acrossAng23_lightPara.txt" << endl;
+    path = "input/md2Config5_alongDir_acrossAng23_lightPara.txt";
   }else if("md3config4_23" == barModel) {
     cout << "Using input/md3Config4_alongDir_acrossAng23_lightPara.txt" << endl;
     path = "input/md3Config4_alongDir_acrossAng23_lightPara.txt";
@@ -133,8 +136,8 @@ int interpolatePEs::getPEs(double E, double x, double angX ,double &outL,double 
   getPEs(pts,pt,lpe,rpe);
 
   if(lpe<0 || rpe<0 ||
-     std::isnan(lpe) || std::isnan(rpe) ||
-     std::isinf(lpe) || std::isinf(rpe)){
+     isnan(lpe) || isnan(rpe) ||
+     isinf(lpe) || isinf(rpe)){
     cout<<"Problem with interpolator! "<<endl;
     cout<<" "<<lpe<<" "<<rpe<<endl;
     exit(1);

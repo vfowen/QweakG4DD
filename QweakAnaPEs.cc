@@ -20,7 +20,8 @@ int main(int argc, char** argv){
          << " --barmodel tracks, ideal0, ideal23, ideal23_polish, ideal23_bevel, "
          << "md6config3_23, md7config2_23, md8config16_0 or md8config16_23"<<endl
          << "\t <tracks> is default and does not calculate PEs" << endl
-         << " --distmodel mirror (omit for as is)" << endl;
+         << " --distmodel mirror (omit for as is)" << endl
+	 << " --suffix <name to append to outFile> (omit for default)" << endl;
     return 1;
   }
   
@@ -28,6 +29,7 @@ int main(int argc, char** argv){
   string barModel = "tracks";
   string distModel = "asIs";
   string rootfile = "";
+  string suffix="";
   int offset = 0;
   for(Int_t i = 1; i < argc; i++) {
     if(0 == strcmp("--barmodel", argv[i])) {
@@ -38,6 +40,8 @@ int main(int argc, char** argv){
       rootfile = argv[i+1];
     }else if(0 == strcmp("--offset", argv[i])) {
       offset = atoi(argv[i+1]);
+    }else if(0 == strcmp("--suffix", argv[i])) {
+      suffix = argv[i+1];
     }
   }
   cout<<"Bar Model: "<<barModel<<endl;
@@ -77,7 +81,12 @@ int main(int argc, char** argv){
     t->SetBranchAddress("asymPmM",&asymPmM);
   }
 
-  TFile *fout=new TFile(Form("o_anaPE_%s_%s.root",barModel.c_str(),distModel.c_str()),"RECREATE");
+  string outNm;
+  if(suffix=="")
+    outNm = Form("o_anaPE_%s_%s.root",barModel.c_str(),distModel.c_str());
+  else
+    outNm = Form("o_anaPE_%s_%s_%s.root",barModel.c_str(),distModel.c_str(),suffix.c_str());
+  TFile *fout=new TFile(outNm.c_str(),"RECREATE");
   string lr[2]={"R","L"};
   string species[3]={"N","P","A"};
 
