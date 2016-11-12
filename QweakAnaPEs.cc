@@ -109,7 +109,7 @@ int main(int argc, char** argv){
 			    Form("1k ev Avg %s %s;number of PEs",lr[i].c_str(),species[j].c_str()),
 			    600,0,maxAvg*showerFactor);
       for(int k=0;k<nProcBins;k++)
-	hpeAvgProc[i][j][k]=new TH1D(Form("hpeAvgProc_%s_%s",lr[i].c_str(),species[j].c_str()),
+	hpeAvgProc[i][j][k]=new TH1D(Form("hpeAvgProc_%s_%s_%d",lr[i].c_str(),species[j].c_str(),k),
 				     Form("1k ev Avg %s %s;number of PEs",lr[i].c_str(),species[j].c_str()),
 				     600,0,maxAvg*showerFactor);
       
