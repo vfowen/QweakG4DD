@@ -96,7 +96,8 @@ int main(int argc, char** argv){
   hTotPE->GetXaxis()->SetBinLabel(3,"P left  Total number of PEs");
   hTotPE->GetXaxis()->SetBinLabel(4,"P right Total number of PEs");
   //[L/R][Primary/NonPrimary/All]
-  TH1D *hpe[2][3],*posPE[2][3],*angPE[2][3],*phiPE[2][3],*hpeAvg[2][3];
+  const int nProcBins=20;
+  TH1D *hpe[2][3],*posPE[2][3],*angPE[2][3],*phiPE[2][3],*hpeAvg[2][3],*hpeAvgProc[2][3][nProcBins];
   for(int i=0;i<2;i++)
     for(int j=0;j<3;j++){
       hpe[i][j]=new TH1D(Form("hpe_%s_%s",lr[i].c_str(),species[j].c_str()),
@@ -107,7 +108,12 @@ int main(int argc, char** argv){
       hpeAvg[i][j]=new TH1D(Form("hpeAvg_%s_%s",lr[i].c_str(),species[j].c_str()),
 			    Form("1k ev Avg %s %s;number of PEs",lr[i].c_str(),species[j].c_str()),
 			    600,0,maxAvg*showerFactor);
-
+      for(int k=0;k<nProcBins;k++)
+	hpeAvgProc[i][j][k]=new TH1D(Form("hpeAvgProc_%s_%s",lr[i].c_str(),species[j].c_str()),
+				     Form("1k ev Avg %s %s;number of PEs",lr[i].c_str(),species[j].c_str()),
+				     600,0,maxAvg*showerFactor);
+      
+      
       posPE[i][j]=new TH1D(Form("posPE_%s_%s",lr[i].c_str(),species[j].c_str()),
 			   Form("%s %s;position along bar[cm]",lr[i].c_str(),species[j].c_str()),
 			   400,-100,100);
@@ -144,13 +150,16 @@ int main(int argc, char** argv){
       stepEvNr += std::ceil(prevEvNr/100.)*100;
     realEvNr=evNr+stepEvNr;
 
+    int iProc =  int( float(i+1)/nev*100 ) % nProcBins;
     if(realEvNr>recordNr){
       recordNr+=1000;
       for(int j=0;j<2;j++){
 	for(int k=0;k<2;k++){
-	  hpeAvg[j][k]->Fill(AvgPE[k][j]/1000.);	  
+	  hpeAvg[j][k]->Fill(AvgPE[k][j]/1000.);
+	  hpeAvgProc[j][k][iProc]->Fill(AvgPE[k][j]/1000.);
 	}
 	hpeAvg[j][2]->Fill((AvgPE[0][j]+AvgPE[1][j])/1000.);
+	hpeAvgProc[j][2][iProc]->Fill((AvgPE[0][j]+AvgPE[1][j])/1000.);
       }
 
       for(int j=0;j<2;j++)
@@ -203,6 +212,8 @@ int main(int argc, char** argv){
     for(int j=0;j<3;j++){
       hpe[i][j]->Write();
       hpeAvg[i][j]->Write();
+      for(int k=0;k<nProcBins;k++)
+	hpeAvgProc[i][j][k]->Write();	
       posPE[i][j]->Write();
       angPE[i][j]->Write();
       phiPE[i][j]->Write();
