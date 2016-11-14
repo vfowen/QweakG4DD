@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <math.h>
 #include <algorithm>
+#include <ctime>
 
 #include "interpolatePEs.hh"
 #include "TFile.h"
@@ -14,6 +15,8 @@ using namespace std;
 
 int main(int argc, char** argv){
 
+  clock_t tStart=clock();
+  
   if( argc == 1 || (0 == strcmp("--help", argv[1]))) {
     cout << " usage: build/anaPEs [options]" << endl
          << " --rootfile <path to rootfile>" << endl
@@ -135,7 +138,7 @@ int main(int argc, char** argv){
   int nev=t->GetEntries();
   for(int i=0;i<nev;i++){
     if( float(i+1)/nev*100 > currentProc ){
-      cout<<" at event: "<<i<<"\t"<<float(i+1)/nev*100<<"%"<<endl;
+      cout<<" at event: "<<i<<"\t"<<float(i+1)/nev*100<<"% | time passed: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<" s"<<endl;
       currentProc+=procStep;
     }
     //if( i>500000) break;
