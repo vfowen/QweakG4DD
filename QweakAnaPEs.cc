@@ -150,7 +150,7 @@ int main(int argc, char** argv){
       stepEvNr += std::ceil(prevEvNr/100.)*100;
     realEvNr=evNr+stepEvNr;
 
-    int iProc =  int( float(i+1)/nev*100 ) % nProcBins;
+    int iProc =  int( float(i+1)/nev*100 ) * nProcBins/100;
     if(realEvNr>recordNr){
       recordNr+=1000;
       for(int j=0;j<2;j++){
