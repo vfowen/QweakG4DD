@@ -51,15 +51,15 @@ int main(Int_t argc, Char_t* argv[]) {
     TApplication *app = new TApplication("slopes", &argc, argv);
 
     // Histograms to fill from rootfile
-    std::vector < TH1D* > peL_pos(6);
-    std::vector < TH1D* > peR_pos(6);
-    std::vector < TH1D* > peL_ang(6);
-    std::vector < TH1D* > peR_ang(6);
+    std::vector < TH1D* > peL_pos(7);
+    std::vector < TH1D* > peR_pos(7);
+    std::vector < TH1D* > peL_ang(7);
+    std::vector < TH1D* > peR_ang(7);
     // Histogram results
-    std::vector < TH1D* > pe_pos_diff(5);
-    std::vector < TH1D* > pe_ang_diff(5);
-    std::vector < TH1D* > pe_pos_sum(5);
-    std::vector < TH1D* > pe_ang_sum(5);
+    std::vector < TH1D* > pe_pos_diff(6);
+    std::vector < TH1D* > pe_ang_diff(6);
+    std::vector < TH1D* > pe_pos_sum(6);
+    std::vector < TH1D* > pe_ang_sum(6);
 
     TString bar;
     TString angle;
@@ -68,8 +68,8 @@ int main(Int_t argc, Char_t* argv[]) {
     angle = rootfile->Get("angle")->GetTitle();
     dist = rootfile->Get("distribution")->GetTitle();
 
-    // Read out the histograms for models 0-4 into vectors
-    for(int i = 0; i < 6; i++) {
+    // Read out the histograms for models 0-6 into vectors
+    for(int i = 0; i < 7; i++) {
         peL_pos[i] = (TH1D*)rootfile->Get(Form("peL_pos_%d",i));
         peR_pos[i] = (TH1D*)rootfile->Get(Form("peR_pos_%d",i));
         peL_ang[i] = (TH1D*)rootfile->Get(Form("peL_ang_%d",i));
@@ -77,7 +77,7 @@ int main(Int_t argc, Char_t* argv[]) {
     }
 
     // Scale histograms for models 1-4 by integral
-    for(int i = 0; i < 5; i++) {
+    for(int i = 0; i < 6; i++) {
         peL_pos[i+1]->Scale(2/peL_pos[0]->Integral());
         peR_pos[i+1]->Scale(2/peR_pos[0]->Integral());
         peL_ang[i+1]->Scale(2/peL_ang[0]->Integral());
@@ -101,26 +101,26 @@ int main(Int_t argc, Char_t* argv[]) {
     }
 
     // Take the sum of + and - bids and plot vs + bin number
-    std::vector<int> pe_pos_sum_nbin(4);
-    std::vector<int> pe_ang_sum_nbin(4);
-    std::vector<int> pe_pos_sum_midbin(4);
-    std::vector<int> pe_ang_sum_midbin(4);
-    std::vector<int> pe_pos_diff_nbin(4);
-    std::vector<int> pe_ang_diff_nbin(4);
-    std::vector<int> pe_pos_diff_midbin(4);
-    std::vector<int> pe_ang_diff_midbin(4);
+    std::vector<int> pe_pos_sum_nbin(6);
+    std::vector<int> pe_ang_sum_nbin(6);
+    std::vector<int> pe_pos_sum_midbin(6);
+    std::vector<int> pe_ang_sum_midbin(6);
+    std::vector<int> pe_pos_diff_nbin(6);
+    std::vector<int> pe_ang_diff_nbin(6);
+    std::vector<int> pe_pos_diff_midbin(6);
+    std::vector<int> pe_ang_diff_midbin(6);
     // Offset in case there are an even number of bins
-    std::vector<int> pe_pos_sum_offset(4,0);
-    std::vector<int> pe_ang_sum_offset(4,0);
-    std::vector<int> pe_pos_diff_offset(4,0);
-    std::vector<int> pe_ang_diff_offset(4,0);
+    std::vector<int> pe_pos_sum_offset(6,0);
+    std::vector<int> pe_ang_sum_offset(6,0);
+    std::vector<int> pe_pos_diff_offset(6,0);
+    std::vector<int> pe_ang_diff_offset(6,0);
     // Output summed histograms
-    std::vector < TH1D* > pe_pos_sum_wrap(4);
-    std::vector < TH1D* > pe_ang_sum_wrap(4);
-    std::vector < TH1D* > pe_pos_diff_wrap(4);
-    std::vector < TH1D* > pe_ang_diff_wrap(4);
+    std::vector < TH1D* > pe_pos_sum_wrap(6);
+    std::vector < TH1D* > pe_ang_sum_wrap(6);
+    std::vector < TH1D* > pe_pos_diff_wrap(6);
+    std::vector < TH1D* > pe_ang_diff_wrap(6);
 
-    for(int i = 0; i < 5; i++) {
+    for(int i = 0; i < 6; i++) {
         // Store the number of bins in a vector
         pe_pos_sum_nbin[i] = pe_pos_sum[1]->GetNbinsX();
         pe_ang_sum_nbin[i] = pe_ang_sum[1]->GetNbinsX();
@@ -203,7 +203,7 @@ int main(Int_t argc, Char_t* argv[]) {
     std::vector < TH1D* > pe_ang_wrap_div(4);
 
     // Clone wrapped sum histograms and divide by diff histograms
-    for(int i = 0; i < 5; i++) {
+    for(int i = 0; i < 6; i++) {
         pe_pos_wrap_div[i] = (TH1D*)pe_pos_sum_wrap[i]->Clone();
         pe_ang_wrap_div[i] = (TH1D*)pe_ang_sum_wrap[i]->Clone();
 
@@ -259,7 +259,7 @@ int main(Int_t argc, Char_t* argv[]) {
         pad2[i]->Divide(3,2);
     }
 
-    for(int i = 0; i < 5; i++) {
+    for(int i = 0; i < 6; i++) {
         pad2[0]->cd(i+1);
         gPad->SetGridx(1);
         gPad->SetGridy(1);
