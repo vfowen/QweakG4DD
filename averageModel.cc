@@ -287,7 +287,7 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
   for(int i=0;i<nev;i++){
     t->GetEntry(i);
     if(i%1000000==1) cout<<" at event: "<<i<<" "<<float(i+1)/nev*100<<"%"<<endl;
-
+    
     if(float(i+1)/nev*100>currentStep){
       for(int imod=1;imod<nModels;imod++){
 	if(avgStepR[0]>0 && avgStepL[0]>0){
@@ -315,8 +315,6 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
 
     double lpe(-1),rpe(-1);
     if(!interpolator.getPEs(E,flip*x+offset,flip*angX,lpe,rpe)) continue;
-    // cout<<" asdf L R "<<lpe<<" "<<rpe<<endl;
-    // std::cin.ignore();
     
     for(int imod=0;imod<nModels;imod++){
       double asym=model(angX-angXi,imod);
@@ -418,7 +416,7 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
       pmtdd.push_back(printInfo(as[1][j],as[0][j]));
       if(as[0][j]->GetBinContent(0)>0 || as[0][j]->GetBinContent(as[0][j]->GetXaxis()->GetNbins()+1)>0 ||
 	 as[1][j]->GetBinContent(0)>0 || as[1][j]->GetBinContent(as[1][j]->GetXaxis()->GetNbins()+1)>0){
-	cout<<"!!!!! overUnder flow: R L: "<<endl;
+	cout<<"!!!!! underOver flow: R L: "<<endl;
 	cout<<as[0][j]->GetBinContent(0)<<"\t"
 	    <<as[0][j]->GetBinContent(as[0][j]->GetXaxis()->GetNbins()+1)<<"\t"
 	    <<as[1][j]->GetBinContent(0)<<"\t"
@@ -440,7 +438,8 @@ float model(float val,int type){
   //4= cnst*angX^3                         
   //5= -3.9  (M2)  + 5.8 (M3) -0.9 (M4)
   //6= -0.9  (M2)  + 2.8 (M3) -0.9 (M4) 
-
+  if(val==0) return 0;
+  
   if(type==0)
     return 1;  
   else if(type==1 && (abs(val)>=20 && abs(val)<40) )
