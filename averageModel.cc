@@ -116,11 +116,6 @@ int main(int argc, char** argv)
     }
   }
 
-  if(rootfile == "") {
-    cout<<"No rootfile given! Quitting"<<endl;
-    return 3;
-  }
-
   TApplication *app = new TApplication("slopes", &argc, argv);
 
   if(scan) {
@@ -136,17 +131,22 @@ int main(int argc, char** argv)
        "hitmap/o_hits_sampled_MCoct8fixed_38e6Hits.root"
       };
     // Vectors for plotting
-    std::vector<std::vector<double>> fom(4);
-    std::vector<std::vector<double>> dfom(4);
+    std::vector<std::vector<double>> fom(6);
+    std::vector<std::vector<double>> dfom(6);
     std::vector<double> octant = {1, 2, 3, 4, 5, 6, 7, 8};
     for(unsigned int i = 0; i < hitMaps.size(); i++) {
       std::vector<pmtdd_data*> pmtdd;
       pmtdd = avgValue(barModel, distModel, hitMaps[i], offset);
-      for(int j = 0; j < 4; j++) {
-	fom[j].push_back(pmtdd[j]->fom);
-	dfom[j].push_back(pmtdd[j]->dfom);
+      for(int j = 0; j < 6; j++) {
+	    fom[j].push_back(pmtdd[j]->fom);
+	    dfom[j].push_back(pmtdd[j]->dfom);
       }
       pmtdd.clear();
+    }
+    for(int j = 0; j < 6; j++) {
+      std::cout << "The smallest element in model " << j+1 << " is " << *std::min_element(fom[j].begin(),fom[j].end()) << std::endl;
+      std::cout << "The largest element in model " << j+1 << " is " << *std::max_element(fom[j].begin(),fom[j].end()) << std::endl;
+      std::cout << "(max-min)/2 for model " << j+1 << " is " << (*std::max_element(fom[j].begin(),fom[j].end())-*std::min_element(fom[j].begin(),fom[j].end()))/2 << endl;
     }
 
     gStyle->SetPadGridX(kTRUE);
@@ -179,12 +179,20 @@ int main(int argc, char** argv)
     TGraphErrors *tg4 = new TGraphErrors(octant.size(), &(octant[0]), &(fom[3][0]), 0, &(dfom[3][0]));
     tg4->SetMarkerColor(kOrange);     
     tg4->SetMarkerStyle(kFullSquare);
+    TGraphErrors *tg5 = new TGraphErrors(octant.size(), &(octant[0]), &(fom[4][0]), 0, &(dfom[4][0]));
+    tg5->SetMarkerColor(kGray);     
+    tg5->SetMarkerStyle(kFullSquare);
+    TGraphErrors *tg6 = new TGraphErrors(octant.size(), &(octant[0]), &(fom[5][0]), 0, &(dfom[5][0]));
+    tg6->SetMarkerColor(kBlack);     
+    tg6->SetMarkerStyle(kFullSquare);
 
     TMultiGraph *mg = new TMultiGraph();
-    mg->Add(tg1);
+    //mg->Add(tg1);
     mg->Add(tg2);
     mg->Add(tg3);
     mg->Add(tg4);
+    mg->Add(tg5);
+    mg->Add(tg6);
     mg->Draw("AP");
     //tg->Fit("pol1");
     mg->SetTitle("");
@@ -193,10 +201,12 @@ int main(int argc, char** argv)
 
     TLegend *leg;                         
     leg = new TLegend(0.6,0.7,0.9,0.9);
-    leg->AddEntry(tg1,"model 1","p");
+    //leg->AddEntry(tg1,"model 1","p");
     leg->AddEntry(tg2,"model 2","p");
     leg->AddEntry(tg3,"model 3","p");
     leg->AddEntry(tg4,"model 4","p");
+    leg->AddEntry(tg5,"model 5 (hybrid)","p");
+    leg->AddEntry(tg6,"model 6 (hybrid)","p");
     leg->Draw();
     /* TApplication crap. */
     app->Run();
@@ -277,7 +287,7 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
   for(int i=0;i<nev;i++){
     t->GetEntry(i);
     if(i%1000000==1) cout<<" at event: "<<i<<" "<<float(i+1)/nev*100<<"%"<<endl;
-
+    
     if(float(i+1)/nev*100>currentStep){
       for(int imod=1;imod<nModels;imod++){
 	if(avgStepR[0]>0 && avgStepL[0]>0){
@@ -305,8 +315,6 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
 
     double lpe(-1),rpe(-1);
     if(!interpolator.getPEs(E,flip*x+offset,flip*angX,lpe,rpe)) continue;
-    // cout<<" asdf L R "<<lpe<<" "<<rpe<<endl;
-    // std::cin.ignore();
     
     for(int imod=0;imod<nModels;imod++){
       double asym=model(angX-angXi,imod);
@@ -408,7 +416,7 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
       pmtdd.push_back(printInfo(as[1][j],as[0][j]));
       if(as[0][j]->GetBinContent(0)>0 || as[0][j]->GetBinContent(as[0][j]->GetXaxis()->GetNbins()+1)>0 ||
 	 as[1][j]->GetBinContent(0)>0 || as[1][j]->GetBinContent(as[1][j]->GetXaxis()->GetNbins()+1)>0){
-	cout<<"!!!!! overUnder flow: R L: "<<endl;
+	cout<<"!!!!! underOver flow: R L: "<<endl;
 	cout<<as[0][j]->GetBinContent(0)<<"\t"
 	    <<as[0][j]->GetBinContent(as[0][j]->GetXaxis()->GetNbins()+1)<<"\t"
 	    <<as[1][j]->GetBinContent(0)<<"\t"
@@ -430,7 +438,8 @@ float model(float val,int type){
   //4= cnst*angX^3                         
   //5= -3.9  (M2)  + 5.8 (M3) -0.9 (M4)
   //6= -0.9  (M2)  + 2.8 (M3) -0.9 (M4) 
-
+  if(val==0) return 0;
+  
   if(type==0)
     return 1;  
   else if(type==1 && (abs(val)>=20 && abs(val)<40) )
