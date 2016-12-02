@@ -1517,20 +1517,30 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 //*********************************************************
 //******************************Radiator*******************
     
-  G4double Radiator_FullWidth = 8.62*inch;
+  G4double RadiatorFullWidth = 8.62*inch;
 
-  G4Box* RadiatorSolid = new G4Box("Radiator_Sol",
+  G4Box* RadiatorStdSolid = new G4Box("RadiatorStdSol",
 				   QuartzBar_FullLength,   // half X length required by Geant4
-				   0.5*Radiator_FullWidth, // 0.5*Frame_FullLength_Y // half Y length required by Geant4
-				   1.0*cm );  // half Z length required by Geant4
+				   0.5*RadiatorFullWidth, // 0.5*Frame_FullLength_Y // half Y length required by Geant4
+				   7.5*mm );  // half Z length required by Geant4
 
-  Radiator_Logical  = new G4LogicalVolume(RadiatorSolid,
-					  Radiator_Material,
-					  "Radiator_Log",
-					  0,0,0);
+  G4Box* RadiatorStpSolid = new G4Box("RadiatorStpSol",
+				   QuartzBar_FullLength,   // half X length required by Geant4
+				   0.5*RadiatorFullWidth, // 0.5*Frame_FullLength_Y // half Y length required by Geant4
+				   2.5*mm );  // half Z length required by Geant4
+
+  RadiatorStdLogical  = new G4LogicalVolume(RadiatorStdSolid,
+					    Radiator_Material,
+					    "RadiatorStdLog",
+					    0,0,0);
+
+  RadiatorStpLogical  = new G4LogicalVolume(RadiatorStpSolid,
+					    Radiator_Material,
+					    "RadiatorStpLog",
+					    0,0,0);
 
   if(maxStepInPbRadiator>0){
-    Radiator_Logical->SetUserLimits(new G4UserLimits(maxStepInPbRadiator));
+    RadiatorStpLogical->SetUserLimits(new G4UserLimits(maxStepInPbRadiator));
     G4cout<<G4endl<<G4endl<<" !!!!!!! "<<G4endl<<"Max step in Pb radiator "
 	  <<maxStepInPbRadiator<<G4endl<<G4endl;
   }
@@ -1539,13 +1549,21 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 
   G4ThreeVector Position_Radiator  = G4ThreeVector(0, 0,-5.0*cm);//-2.0*cm);
 
-  Radiator_Physical   = new G4PVPlacement(0,Position_Radiator + Container_Center,
-					  Radiator_Logical,
-					  "Radiator_Physical",
-					  CerenkovContainer_Logical,
-					  false,
-					  0,
-					  pSurfChk);
+  new G4PVPlacement(0,Container_Center + G4ThreeVector(0,0,-5.25*cm),
+		    RadiatorStdLogical,
+		    "RadiatorStdPhysical",
+		    CerenkovContainer_Logical,
+		    false,
+		    0,
+		    pSurfChk);
+
+  new G4PVPlacement(0,Container_Center + G4ThreeVector(0,0,-4.25*cm),
+		    RadiatorStpLogical,
+		    "RadiatorStpPhysical",
+		    CerenkovContainer_Logical,
+		    false,
+		    0,
+		    pSurfChk);
 
 //******************************Radiator****************************
 //******************************************************************
@@ -2181,13 +2199,19 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
     G4Colour  khaki3    ( 205/255., 198/255., 115/255.);
     G4Colour  brown     (178/255., 102/255., 26/255.);
     G4Colour  darkbrown     (100/255., 50/255., 10/255.);
+    G4Colour  red       (255/255., 0/255., 0/255.);
 
 //------------------------------------------
 // Visual Attributes for:  Radiator
 //------------------------------------------
     G4VisAttributes* RadiatorVisAtt = new G4VisAttributes(lightblue);
     RadiatorVisAtt->SetVisibility(true);
-    Radiator_Logical->SetVisAttributes(RadiatorVisAtt);
+    RadiatorVisAtt->SetForceSolid(true);
+    RadiatorStdLogical->SetVisAttributes(RadiatorVisAtt);
+    G4VisAttributes* RadiatorStpVisAtt = new G4VisAttributes(red);
+    RadiatorStpVisAtt->SetVisibility(true);
+    RadiatorStpVisAtt->SetForceSolid(true);
+    RadiatorStpLogical->SetVisAttributes(RadiatorStpVisAtt); // to differenciate where it is
     
     G4VisAttributes* PMT_PbShieldVisAtt = new G4VisAttributes(blue);
     PMT_PbShieldVisAtt->SetVisibility(true);
@@ -2206,7 +2230,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 //Visual Attributes for:  Exo-Skelton
     G4VisAttributes* ExoSkeltonFrameVisAtt = new G4VisAttributes(darkbrown);
     ExoSkeltonFrameVisAtt->SetVisibility(true);
-//FrameVisAtt->SetForceWireframe(true);
+    ExoSkeltonFrameVisAtt->SetForceWireframe(true);
 //FrameVisAtt->SetForceSolid(true);
     ExoSkeltonFrame_Logical->SetVisAttributes(ExoSkeltonFrameVisAtt);
     
@@ -2215,7 +2239,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 //------------------------------------------
     G4VisAttributes* FrameVisAtt = new G4VisAttributes(grey);
     FrameVisAtt->SetVisibility(true);
-//FrameVisAtt->SetForceWireframe(true);
+    FrameVisAtt->SetForceWireframe(true);
 //FrameVisAtt->SetForceSolid(true);
     Frame_Logical->SetVisAttributes(FrameVisAtt);
 
@@ -2224,7 +2248,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 //------------------------------------------
     G4VisAttributes* SideBracketVisAtt = new G4VisAttributes(blue);
     SideBracketVisAtt->SetVisibility(true);
-//SideBracketVisAtt->SetForceWireframe(true);
+    SideBracketVisAtt->SetForceWireframe(true);
 //SideBracketVisAtt->SetForceSolid(true);
     SideBracket_Logical->SetVisAttributes(SideBracketVisAtt);
 
@@ -2233,7 +2257,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 //------------------------------------------
     G4VisAttributes* EndBracketVisAtt = new G4VisAttributes(blue);
     EndBracketVisAtt->SetVisibility(true);
-//EndBracketVisAtt->SetForceWireframe(true);
+    EndBracketVisAtt->SetForceWireframe(true);
 //EndBracketVisAtt->SetForceSolid(true);
     EndBracket_Logical->SetVisAttributes(EndBracketVisAtt);
 
@@ -2242,8 +2266,8 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 //------------------------------------------
     G4VisAttributes* SideBracketPadVisAtt = new G4VisAttributes(brown);
     SideBracketPadVisAtt->SetVisibility(true);
-//SideBracketPadVisAtt->SetForceWireframe(true);
-    SideBracketPadVisAtt->SetForceSolid(true);
+    SideBracketPadVisAtt->SetForceWireframe(true);
+    //SideBracketPadVisAtt->SetForceSolid(true);
     SideBracketPad_Logical->SetVisAttributes(SideBracketPadVisAtt);
 
 //------------------------------------------
@@ -2251,8 +2275,8 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 //------------------------------------------
     G4VisAttributes* EndBracketPadVisAtt = new G4VisAttributes(brown);
     EndBracketPadVisAtt->SetVisibility(true);
-//EndBracketPadVisAtt->SetForceWireframe(true);
-EndBracketPadVisAtt->SetForceSolid(true);
+    EndBracketPadVisAtt->SetForceWireframe(true);
+    //EndBracketPadVisAtt->SetForceSolid(true);
     EndBracketPad_Logical->SetVisAttributes(EndBracketPadVisAtt);
 
 
@@ -2261,8 +2285,8 @@ EndBracketPadVisAtt->SetForceSolid(true);
 //------------------------------------------
     G4VisAttributes* ClipVisAtt = new G4VisAttributes(lightorange);
     ClipVisAtt->SetVisibility(true);
-//ClipVisAtt->SetForceWireframe(true);
-//ClipVisAtt->SetForceSolid(true);
+    ClipVisAtt->SetForceWireframe(true);
+    //ClipVisAtt->SetForceSolid(true);
     FrontClip_Logical->SetVisAttributes(ClipVisAtt);
     BackClip_Logical->SetVisAttributes(ClipVisAtt);
 
@@ -2295,8 +2319,8 @@ EndBracketPadVisAtt->SetForceSolid(true);
 //-----------------------------------------------------
     G4VisAttributes* PMTEntranceWindowVisAtt = new G4VisAttributes(grey);
     PMTEntranceWindowVisAtt->SetVisibility(true);
-//PMTEntranceWindowVisAtt->SetForceWireframe(true);
-    PMTEntranceWindowVisAtt->SetForceSolid(true);
+    PMTEntranceWindowVisAtt->SetForceWireframe(true);
+    //PMTEntranceWindowVisAtt->SetForceSolid(true);
     PMTEntranceWindow_Logical->SetVisAttributes(PMTEntranceWindowVisAtt);
 
 //---------------------------------------
@@ -2304,8 +2328,8 @@ EndBracketPadVisAtt->SetForceSolid(true);
 //---------------------------------------
     G4VisAttributes* PMTVisAtt = new G4VisAttributes(magenta);
     PMTVisAtt->SetVisibility(true);
-//PMTVisAtt->SetForceWireframe(true);
-    PMTVisAtt->SetForceSolid(true);
+    PMTVisAtt->SetForceWireframe(true);
+    //PMTVisAtt->SetForceSolid(true);
     Cathode_Logical->SetVisAttributes(PMTVisAtt);
 
     G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::ConstructComponent() " << G4endl << G4endl;
@@ -2372,7 +2396,8 @@ void QweakSimCerenkovDetector::SetPreradiatorMaterial(G4String materialName) {
 
     G4Material* pttoMaterial = G4Material::GetMaterial(materialName);
     if (pttoMaterial) {
-        Radiator_Logical->SetMaterial(pttoMaterial);
+        RadiatorStdLogical->SetMaterial(pttoMaterial);
+        RadiatorStpLogical->SetMaterial(pttoMaterial);
     } else {
         G4cerr << "==== ERROR: Changing Preradiator Material failed" << G4endl;
     }

@@ -111,8 +111,9 @@ private:
   G4VPhysicalVolume* QuartzGlue_PhysicalRight; 
   G4Material*        QuartzGlue_Material;      
 
-  G4LogicalVolume*   Radiator_Logical; 
-  G4VPhysicalVolume* Radiator_Physical; 
+  G4LogicalVolume*   RadiatorStpLogical; 
+  G4LogicalVolume*   RadiatorStdLogical; 
+  //G4VPhysicalVolume* Radiator_Physical; 
   G4Material*        Radiator_Material;
   
   G4LogicalVolume*   PMT_PbShield_Logical; 
