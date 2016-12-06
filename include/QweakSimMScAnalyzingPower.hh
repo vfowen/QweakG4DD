@@ -114,10 +114,6 @@ inline void PolarizationTransfer(G4ThreeVector ki, G4ThreeVector kf,
 	  <<kf.getTheta()<<"\t"<<kf.getPhi()<<G4endl;
     G4cout<<"\t\t cos between mom: "<<std::setprecision(12)<<cosAng<<G4endl;
   }
-  // if(cosAng>0.99999){
-  //   polF = (G4ThreeVector)beamPol;
-  //   return;
-  // }
 
   G4ThreeVector  nInteractionFrame = (ki.cross(kf)).unit();
   if(debugPrint){
@@ -149,6 +145,32 @@ inline void PolarizationTransfer(G4ThreeVector ki, G4ThreeVector kf,
   }
 
   polF = (G4ThreeVector)beamPol;
+}
+
+
+inline G4ThreeVector inverseRotateUz(G4ThreeVector v,G4ThreeVector dir){
+  G4double nx(0),ny(0),nz(0);
+  G4double ux= dir.getX();
+  G4double uy= dir.getY();
+  G4double uz= dir.getZ();
+  G4double up= ux*ux + uy*uy;
+
+  if (up > 0){
+    up = sqrt(up);
+    double px= v.getX();
+    double py= v.getY();
+    double pz= v.getZ();
+    nx =  px * ux * uz / up + py * uy * uz / up - pz * up;
+    ny = -px * uy / up      + py * ux / up               ;
+    nz =  px * ux           + py * uy           + pz * uz;
+  }else if ( uz < 0 ){
+    nx = - v.getX();
+    ny =   v.getY();
+    nz = - v.getZ();
+  }
+
+  G4ThreeVector finalV(nx,ny,nz);
+  return finalV;
 }
 
 #endif
