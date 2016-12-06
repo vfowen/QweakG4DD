@@ -972,17 +972,30 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
       G4cout<<"\tpol (X,Y,Z) "<<polarization.getX()<<"\t"<<polarization.getY()<<"\t"<<polarization.getZ()<<G4endl;
     }
     G4double amplitude = AnalyzingPower(eEnergy, cth,asymInfo->at(4),debugPrint);
+
+    //this assumes global polarization
     G4ThreeVector dummyNewDirection = newDirection;
     dummyNewDirection.rotateUz(oldDirection);
-    G4ThreeVector normal = (oldDirection.cross(newDirection)).unit();
+    G4ThreeVector normal = (oldDirection.cross(dummyNewDirection)).unit();
     amplitude *= (polarization * normal);
-    if(debugPrint){	
+    if(debugPrint){
       G4cout<<"\tnormal lab (RTP) "<<normal.getR()<<"\t"<<normal.getTheta()<<"\t"<<normal.getPhi()<<G4endl;
       G4cout<<"\tnormal lab (XYZ) "<<normal.getX()<<"\t"<<normal.getY()<<"\t"<<normal.getZ()<<G4endl;
       G4cout<<"\tpolari lab (XYZ) "<<polarization.getX()<<"\t"<<polarization.getY()<<"\t"<<polarization.getZ()<<G4endl;
       G4cout<<"\tfactor to AN "<<(polarization * normal)<<G4endl;
       G4cout<<"\tamplitude "<<amplitude<<G4endl;
     }
+    // //this assumes local polarization
+    // G4ThreeVector dummyOldDirection(0,0,1);
+    // G4ThreeVector normal = (dummyOldDirection.cross(newDirection)).unit();
+    // amplitude *= (polarization * normal);
+    // if(debugPrint){
+    //   G4cout<<"\tnormal lab (RTP) "<<normal.getR()<<"\t"<<normal.getTheta()<<"\t"<<normal.getPhi()<<G4endl;
+    //   G4cout<<"\tnormal lab (XYZ) "<<normal.getX()<<"\t"<<normal.getY()<<"\t"<<normal.getZ()<<G4endl;
+    //   G4cout<<"\tpolari lab (XYZ) "<<polarization.getX()<<"\t"<<polarization.getY()<<"\t"<<polarization.getZ()<<G4endl;
+    //   G4cout<<"\tfactor to AN "<<(polarization * normal)<<G4endl;
+    //   G4cout<<"\tamplitude "<<amplitude<<G4endl;
+    // }
 
     if(modifyTrajectory){      
       G4double _prob=rndmEngineMod->flat();
