@@ -23,6 +23,7 @@
 #include "QweakSimPMTOnly_PMTSD.hh"
 
 #include "QweakSimMScAnalyzingPower.hh"
+#include "G4PolarizationHelper.hh"
 /*
   Brem depolarization: PhysRev.114.887
   implemented only for transverse polarization
@@ -134,19 +135,28 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
   G4double depol(0),eLossPercent(0);
 
   G4ThreeVector _polarization = theStep->GetTrack()->GetPolarization();
-  G4ThreeVector initialMom = thePrePoint->GetMomentum().unit();
-  G4ThreeVector finalMom  = thePostPoint->GetMomentum().unit();
   G4ThreeVector newBeamPol(0,1,0);
-  PolarizationTransfer(initialMom,finalMom,_polarization,newBeamPol,debugPrint);
+
+  //Local polarization store and transfer
+  G4ThreeVector initialLocalMom = G4ThreeVector(0,0,1);
+  G4ThreeVector initialGlobalMom = thePrePoint->GetMomentum().unit();
+  G4ThreeVector finalGlobalMom  = thePostPoint->GetMomentum().unit();
+  G4ThreeVector finalLocalMom = inverseRotateUz(finalGlobalMom, initialGlobalMom); //this gives the local final momentum
+  PolarizationTransfer(initialLocalMom,finalLocalMom,_polarization,newBeamPol,debugPrint);
 
   if(debugPrint){
     G4cout<<__PRETTY_FUNCTION__<<G4endl;
-    G4cout<<"\tinitial Mom (RTP) "<<initialMom.getR()<<"\t"<<initialMom.getTheta()/CLHEP::deg<<"\t"<<initialMom.getPhi()/CLHEP::deg<<G4endl;
-    G4cout<<"\tfinal   Mom (RTP) "<<finalMom.getR()<<"\t"<<finalMom.getTheta()/CLHEP::deg<<"\t"<<finalMom.getPhi()/CLHEP::deg<<G4endl;
+    G4cout<<"\tStep in "<<_material->GetName()<<" :::"<<G4endl;
+    G4cout<<"\tinitial GlobalMom (RTP) "<<initialGlobalMom.getR()<<"\t"<<initialGlobalMom.getTheta() / CLHEP::deg<<"\t"<<initialGlobalMom.getPhi() / CLHEP::deg<<G4endl;
+    G4cout<<"\tfinal   GlobalMom (RTP) "<<finalGlobalMom.getR()<<"\t"<<finalGlobalMom.getTheta() / CLHEP::deg<<"\t"<<finalGlobalMom.getPhi() / CLHEP::deg<<G4endl;
+    G4cout<<"\tinitial LocalMom (RTP) "<<initialLocalMom.getR()<<"\t"<<initialLocalMom.getTheta() / CLHEP::deg<<"\t"<<initialLocalMom.getPhi() / CLHEP::deg<<G4endl;
+    G4cout<<"\tfinal   LocalMom (RTP) "<<finalLocalMom.getR()<<"\t"<<finalLocalMom.getTheta() / CLHEP::deg<<"\t"<<finalLocalMom.getPhi() / CLHEP::deg<<G4endl;
     G4cout<<"\ti polarization(XYZ) "<<_polarization.getX()<<"\t"<<_polarization.getY()<<"\t"<<_polarization.getZ()<<G4endl;
     G4cout<<"\tf polarization(XYZ) "<<newBeamPol.getX()<<"\t"<<newBeamPol.getY()<<"\t"<<newBeamPol.getZ()<<G4endl;
-    std::cin.ignore();
+    G4cout<<"\ti polarization(RTP) "<<_polarization.getR()<<"\t"<<_polarization.getTheta()/CLHEP::deg<<"\t"<<_polarization.getPhi()/CLHEP::deg<<G4endl;
+    G4cout<<"\tf polarization(RTP) "<<newBeamPol.getR()<<"\t"<<newBeamPol.getTheta()/CLHEP::deg<<"\t"<<newBeamPol.getPhi()/CLHEP::deg<<G4endl;
   }
+  
   _polarization = newBeamPol;
   theStep->GetTrack()->SetPolarization(_polarization); // set to transported polarization
   
@@ -154,8 +164,7 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
   if( theStep->GetTrack()->GetVolume()->GetName().compare("QuartzBar_PhysicalRight") == 0 ||
       theStep->GetTrack()->GetVolume()->GetName().compare("QuartzBar_PhysicalLeft") == 0 )
     asymInfo->at(2)=0;
-
-  
+    
   if(_material){    
     if(debugPrint){
       G4cout<<__PRETTY_FUNCTION__<<G4endl;
