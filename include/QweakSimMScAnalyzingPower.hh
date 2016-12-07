@@ -167,8 +167,12 @@ inline G4ThreeVector inverseRotateUz(G4ThreeVector v,G4ThreeVector dir){
     nx = - v.getX();
     ny =   v.getY();
     nz = - v.getZ();
+  }else{
+    nx = v.getX();
+    ny = v.getY();
+    nz = v.getZ();
   }
-
+  
   G4ThreeVector finalV(nx,ny,nz);
   return finalV;
 }
