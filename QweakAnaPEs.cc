@@ -133,12 +133,12 @@ int main(int argc, char** argv){
   double TotPE[2][2]={{0,0},{0,0}};
   double AvgPE[2][2]={{0,0},{0,0}};
 
-  int stepEvNr(0),prevEvNr(0),currEvNr(0),realEvNr(0),nrFiles(0),recordNr(1000);
-  float startProc=0,stopProc=15,currentProc=0,procStep=10;
-  int nev=t->GetEntries();
-  for(int i=0;i<nev;i++){
+  long int stepEvNr(0),prevEvNr(0),currEvNr(0),realEvNr(0),nrFiles(0),recordNr(1000);
+  float startProc=56,stopProc=90,currentProc=0,procStep=5;
+  long int nev=t->GetEntries();
+  for(long int i=0;i<nev;i++){
     if( float(i+1)/nev*100 > currentProc ){
-      cout<<" at event: "<<i<<"\t"<<float(i+1)/nev*100<<"% | time passed: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<" s"<<endl;
+      cout<<" at event: "<<i<<"\t"<<float(i+1)/nev*100<<"% | time passed: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<" s | iProc: "<<int(int( float(i+1)/nev*100 ) * nProcBins/100)<<endl;
       currentProc+=procStep;
     }
     //if( i>500000) break;
@@ -154,6 +154,7 @@ int main(int argc, char** argv){
     realEvNr=evNr+stepEvNr;
 
     int iProc =  int( float(i+1)/nev*100 ) * nProcBins/100;
+    
     if(realEvNr>recordNr){
       recordNr+=1000;
       for(int j=0;j<2;j++){
