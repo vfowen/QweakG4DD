@@ -20,9 +20,15 @@ void interpolatePEs::readScan(){
   if("md1config10_23" == barModel) {
     cout << "Using input/md1Config10_alongDir_acrossAng23_lightPara.txt" << endl;
     path = "input/md1Config10_alongDir_acrossAng23_lightPara.txt";
+  }else if("md1config16_model2_23" == barModel) {
+    cout << "Using input/md1Config16_model2_alongDir_acrossAng23_lightPara.txt" << endl;
+    path = "input/md1Config16_model2_alongDir_acrossAng23_lightPara.txt";
   }else if("md2config5_23" == barModel) {
     cout << "Using input/md2Config5_alongDir_acrossAng23_lightPara.txt" << endl;
     path = "input/md2Config5_alongDir_acrossAng23_lightPara.txt";
+  }else if("md2config5_model2_23" == barModel) {
+    cout << "Using input/md2Config5_model2_alongDir_acrossAng23_lightPara.txt" << endl;
+    path = "input/md2Config5_model2_alongDir_acrossAng23_lightPara.txt";
   }else if("md3config4_23" == barModel) {
     cout << "Using input/md3Config4_alongDir_acrossAng23_lightPara.txt" << endl;
     path = "input/md3Config4_alongDir_acrossAng23_lightPara.txt";
@@ -56,6 +62,12 @@ void interpolatePEs::readScan(){
   }else if("ideal23_bevel" == barModel) {
     cout << "input/idealBar_alongDir_acrossAng23_Bevel1mmRightBar05mmLeftBar.txt" << endl;
     path = "input/idealBar_alongDir_acrossAng23_Bevel1mmRightBar05mmLeftBar.txt";
+  }else if("ideal23_glue" == barModel) {
+    cout << "input/idealBar_alongDir_acrossAng23_GlueFilm040.txt" << endl;
+    path = "input/idealBar_alongDir_acrossAng23_GlueFilm040.txt";
+  }else if("ideal23_thickdiff" == barModel) {
+    cout << "input/idealBar_alongDir_acrossAng23_ThickDiff1.5mm.txt" << endl;
+    path = "input/idealBar_alongDir_acrossAng23_ThickDiff1.5mm.txt";
   }else{
     cout << "Cannot match your barModel to available list: update list or check name"<<endl;
     exit(2);
