@@ -124,7 +124,7 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
   // toggle to write out e\pm/gammas on top of primary electrons !! really big files
   G4bool writeOutAll=false;
   // toggle for filling the Pb ntuple
-  G4bool fillNtuple=false; 
+  G4bool fillNtuple=false;
   
   int _trackID=theStep->GetTrack()->GetTrackID(); 
   int _parentID = theStep->GetTrack()->GetParentID();
@@ -287,6 +287,7 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
 	_var[24]=_trackID;
 	_var[25]=_parentID;
 	_var[26]=particleType->GetPDGEncoding();	
+	_polarization.rotateUz(thePostPoint->GetMomentumDirection());
 	_var[27]=_polarization.getX();
 	_var[28]=_polarization.getY();
 	_var[29]=_polarization.getZ();
