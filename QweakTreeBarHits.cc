@@ -29,15 +29,16 @@ void readInitial(string fnm);
 int main(int argc, char** argv){
 
   if( argc < 2 ) {
-    cout<<" usage: build/QweakAna [path to infile with list of output QweakSimG4 trees] [optional: 1 for fixed position]"<<endl;
+    cout<<" usage: build/QweakAna [path to infile with list of output QweakSimG4 trees] [suffix for outfile] [optional: 1 for fixed position]"<<endl;
     return 1;
   }
 
   string files(argv[1]);
-  if(argc==3)
-    fixedPos=atoi(argv[2]);
+  string suffix(argv[2]);
+  if(argc==4)
+    fixedPos=atoi(argv[3]);
 
-  TFile *fout=new TFile("o_hits.root","RECREATE");
+  TFile *fout=new TFile(Form("o_hits_%s.root",suffix.c_str()),"RECREATE");
   TH1I *hEntries=new TH1I("hEntries","number of processed events",2,0,2);
   TTree *tout=new TTree("t","Stripped QweakSimG4 tree for hits");
   tout->Branch("evNr",&evNr,"evNr/I");
