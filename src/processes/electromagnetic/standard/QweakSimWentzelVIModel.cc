@@ -830,7 +830,7 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
   //FIXME
   if(debugPrint){
     G4cout<<__PRETTY_FUNCTION__<<G4endl;
-    G4cout<<"\tlocal new dir RTP : "<<dir.getR()<<" "<<dir.getTheta()<<" "<<dir.getPhi()<<G4endl;
+    G4cout<<"\tlocal new dir RTP : "<<dir.getR()<<" "<<dir.getTheta()/ CLHEP::deg<<" "<<dir.getPhi()/ CLHEP::deg<<G4endl;
   }
   //FIXME
   
@@ -838,9 +838,9 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 
   //FIXME
   if(debugPrint){
-    G4cout<<"\tcth, th, phi old.angle(new):" << cost << " " << acos(cost) << " " << phi << " " <<oldDirection.angle(dir) << G4endl;
-    G4cout<<"\told dir: R th phi "<<oldDirection.getR()<<" "<<oldDirection.getTheta()<<" "<<oldDirection.getPhi()<<G4endl;
-    G4cout<<"\tnew dir: R th phi "<<dir.getR()<<" "<<dir.getTheta()<<" "<<dir.getPhi()<<G4endl;
+    G4cout<<"\tcth, th, phi old.angle(new):" << cost << " " << acos(cost)/ CLHEP::deg << " " << phi/ CLHEP::deg << " " <<oldDirection.angle(dir)/ CLHEP::deg << G4endl;
+    G4cout<<"\told dir: R th phi "<<oldDirection.getR()<<" "<<oldDirection.getTheta()/ CLHEP::deg<<" "<<oldDirection.getPhi()/ CLHEP::deg<<G4endl;
+    G4cout<<"\tnew dir: R th phi "<<dir.getR()<<" "<<dir.getTheta()/ CLHEP::deg<<" "<<dir.getPhi()/ CLHEP::deg<<G4endl;
   }
   //FIXME
   
