@@ -135,30 +135,45 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
   G4double depol(0),eLossPercent(0);
 
   G4ThreeVector _polarization = theStep->GetTrack()->GetPolarization();
-  G4ThreeVector newBeamPol(0,1,0);
 
-  //Local polarization store and transfer
-  G4ThreeVector initialLocalMom = G4ThreeVector(0,0,1);
-  G4ThreeVector initialGlobalMom = thePrePoint->GetMomentum().unit();
-  G4ThreeVector finalGlobalMom  = thePostPoint->GetMomentum().unit();
-  G4ThreeVector finalLocalMom = inverseRotateUz(finalGlobalMom, initialGlobalMom); //this gives the local final momentum
-  PolarizationTransfer(initialLocalMom,finalLocalMom,_polarization,newBeamPol,debugPrint);
+  G4double scatAng = thePostPoint->GetMomentum().angle(thePrePoint->GetMomentum());
+  if(scatAng > 1e-12){
+    G4ThreeVector newBeamPol(0,1,0);
 
-  if(debugPrint){
-    G4cout<<__PRETTY_FUNCTION__<<G4endl;
-    G4cout<<"\tStep in "<<_material->GetName()<<" :::"<<G4endl;
-    G4cout<<"\tinitial GlobalMom (RTP) "<<initialGlobalMom.getR()<<"\t"<<initialGlobalMom.getTheta() / CLHEP::deg<<"\t"<<initialGlobalMom.getPhi() / CLHEP::deg<<G4endl;
-    G4cout<<"\tfinal   GlobalMom (RTP) "<<finalGlobalMom.getR()<<"\t"<<finalGlobalMom.getTheta() / CLHEP::deg<<"\t"<<finalGlobalMom.getPhi() / CLHEP::deg<<G4endl;
-    G4cout<<"\tinitial LocalMom (RTP) "<<initialLocalMom.getR()<<"\t"<<initialLocalMom.getTheta() / CLHEP::deg<<"\t"<<initialLocalMom.getPhi() / CLHEP::deg<<G4endl;
-    G4cout<<"\tfinal   LocalMom (RTP) "<<finalLocalMom.getR()<<"\t"<<finalLocalMom.getTheta() / CLHEP::deg<<"\t"<<finalLocalMom.getPhi() / CLHEP::deg<<G4endl;
-    G4cout<<"\ti polarization(XYZ) "<<_polarization.getX()<<"\t"<<_polarization.getY()<<"\t"<<_polarization.getZ()<<G4endl;
-    G4cout<<"\tf polarization(XYZ) "<<newBeamPol.getX()<<"\t"<<newBeamPol.getY()<<"\t"<<newBeamPol.getZ()<<G4endl;
-    G4cout<<"\ti polarization(RTP) "<<_polarization.getR()<<"\t"<<_polarization.getTheta()/CLHEP::deg<<"\t"<<_polarization.getPhi()/CLHEP::deg<<G4endl;
-    G4cout<<"\tf polarization(RTP) "<<newBeamPol.getR()<<"\t"<<newBeamPol.getTheta()/CLHEP::deg<<"\t"<<newBeamPol.getPhi()/CLHEP::deg<<G4endl;
+    //Local polarization store and transfer
+    G4ThreeVector initialLocalMom = G4ThreeVector(0,0,1);
+    G4ThreeVector initialGlobalMom = thePrePoint->GetMomentum().unit();
+    G4ThreeVector finalGlobalMom  = thePostPoint->GetMomentum().unit();
+    G4ThreeVector finalLocalMom = inverseRotateUz(finalGlobalMom, initialGlobalMom); //this gives the local final momentum
+    PolarizationTransfer(initialLocalMom,finalLocalMom,_polarization,newBeamPol,debugPrint);
+    
+    G4ThreeVector checkZaxis = inverseRotateUz(initialGlobalMom, initialGlobalMom);
+    if(checkZaxis.getPhi()>0 && 0){//FIXME -- not sure this is a real problem
+      G4cerr<<__LINE__<<" "<<__PRETTY_FUNCTION__<<" scattering angle: "<<scatAng<<" and definting process: "<<_pn<<G4endl;
+      G4cerr<<"\tZ axis check (RTP): "<<checkZaxis.getR()<<"\t"<<checkZaxis.getTheta()<<"\t"<<checkZaxis.getPhi()<<G4endl;
+      G4cerr<<"\tZ axis check (XYZ): "<<checkZaxis.getX()<<"\t"<<checkZaxis.getY()<<"\t"<<checkZaxis.getZ()<<G4endl;
+      G4cerr<<"\tinitial GlobalMom (RTP) "<<initialGlobalMom.getR()<<"\t"<<initialGlobalMom.getTheta() / CLHEP::deg<<"\t"<<initialGlobalMom.getPhi() / CLHEP::deg<<G4endl;
+      G4cerr<<"\tfinal   GlobalMom (RTP) "<<finalGlobalMom.getR()<<"\t"<<finalGlobalMom.getTheta() / CLHEP::deg<<"\t"<<finalGlobalMom.getPhi() / CLHEP::deg<<G4endl;
+      G4cerr<<"\tinitial LocalMom (RTP) "<<initialLocalMom.getR()<<"\t"<<initialLocalMom.getTheta() / CLHEP::deg<<"\t"<<initialLocalMom.getPhi() / CLHEP::deg<<G4endl;
+      G4cerr<<"\tfinal   LocalMom (RTP) "<<finalLocalMom.getR()<<"\t"<<finalLocalMom.getTheta() / CLHEP::deg<<"\t"<<finalLocalMom.getPhi() / CLHEP::deg<<G4endl;
+      std::cin.ignore();
+    }
+    
+    if(debugPrint){
+      G4cout<<__PRETTY_FUNCTION__<<G4endl;
+      G4cout<<"\tStep in "<<_material->GetName()<<" :::"<<G4endl;
+      G4cout<<"\tinitial GlobalMom (RTP) "<<initialGlobalMom.getR()<<"\t"<<initialGlobalMom.getTheta() / CLHEP::deg<<"\t"<<initialGlobalMom.getPhi() / CLHEP::deg<<G4endl;
+      G4cout<<"\tfinal   GlobalMom (RTP) "<<finalGlobalMom.getR()<<"\t"<<finalGlobalMom.getTheta() / CLHEP::deg<<"\t"<<finalGlobalMom.getPhi() / CLHEP::deg<<G4endl;
+      G4cout<<"\tinitial LocalMom (RTP) "<<initialLocalMom.getR()<<"\t"<<initialLocalMom.getTheta() / CLHEP::deg<<"\t"<<initialLocalMom.getPhi() / CLHEP::deg<<G4endl;
+      G4cout<<"\tfinal   LocalMom (RTP) "<<finalLocalMom.getR()<<"\t"<<finalLocalMom.getTheta() / CLHEP::deg<<"\t"<<finalLocalMom.getPhi() / CLHEP::deg<<G4endl;
+      G4cout<<"\ti polarization(XYZ) "<<_polarization.getX()<<"\t"<<_polarization.getY()<<"\t"<<_polarization.getZ()<<G4endl;
+      G4cout<<"\tf polarization(XYZ) "<<newBeamPol.getX()<<"\t"<<newBeamPol.getY()<<"\t"<<newBeamPol.getZ()<<G4endl;
+      G4cout<<"\ti polarization(RTP) "<<_polarization.getR()<<"\t"<<_polarization.getTheta()/CLHEP::deg<<"\t"<<_polarization.getPhi()/CLHEP::deg<<G4endl;
+      G4cout<<"\tf polarization(RTP) "<<newBeamPol.getR()<<"\t"<<newBeamPol.getTheta()/CLHEP::deg<<"\t"<<newBeamPol.getPhi()/CLHEP::deg<<G4endl;
+    }
+    _polarization = newBeamPol;
+    theStep->GetTrack()->SetPolarization(_polarization); // set to transported polarization
   }
-  
-  _polarization = newBeamPol;
-  theStep->GetTrack()->SetPolarization(_polarization); // set to transported polarization
   
   //this gets used in the physics process to stop the asymmetry calculation
   if( theStep->GetTrack()->GetVolume()->GetName().compare("QuartzBar_PhysicalRight") == 0 ||
@@ -266,7 +281,7 @@ void QweakSimSteppingAction::UserSteppingAction(const G4Step* theStep) {
 	
 	const G4ThreeVector _preP=thePrePoint->GetMomentumDirection();
 	const G4ThreeVector _postP=thePostPoint->GetMomentumDirection();
-	float scatAng=_postP.angle(_preP);
+
 	_var[20]=scatAng;
 	if(_pn.compare("msc")==0)
 	  _var[21]=1;
