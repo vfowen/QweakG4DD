@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <math.h>
 #include <algorithm>
+#include <ctime>
 
 #include "interpolatePEs.hh"
 #include "TFile.h"
@@ -73,12 +74,15 @@ double asymLimits[nModels][2][2]={
   {{-0.250,-0.050},{ 0.050, 0.250}}
 };
 
+clock_t tStart;
+
 float model(float val,int type);
 
 std::vector<pmtdd_data*> avgValue(TString, TString, TString, Int_t, Int_t);
 
 int main(int argc, char** argv)
 {
+  tStart=clock();
 
   // Print help
   if( argc == 1 || (0 == strcmp("--help", argv[1]))) {
@@ -221,7 +225,8 @@ int main(int argc, char** argv)
     std::vector<pmtdd_data*> pmtdd;
     pmtdd = avgValue(barModel, distModel, rootfile, offset,peUncert);
   }
-  
+
+  cout<<" Running time[s]: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<endl;
   return 0;
 }
 
@@ -294,11 +299,15 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
   double currentStep=stepSize;
 
   int nev=t->GetEntries();
-
+  float currentProc=0,procStep=10;
   for(int i=0;i<nev;i++){
     t->GetEntry(i);
-    if(i%1000000==1) cout<<" at event: "<<i<<" "<<float(i+1)/nev*100<<"%"<<endl;
-    
+
+    if( float(i+1)/nev*100 > currentProc ){
+      cout<<" at event: "<<i<<"\t"<<float(i+1)/nev*100<<"% | time passed: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<" s"<<endl;
+      currentProc+=procStep;
+    }
+        
     if(float(i+1)/nev*100>currentStep){
       for(int imod=1;imod<nModels;imod++){
 	if(avgStepR[0]>0 && avgStepL[0]>0){
