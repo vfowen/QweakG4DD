@@ -75,7 +75,7 @@ double asymLimits[nModels][2][2]={
 
 float model(float val,int type);
 
-std::vector<pmtdd_data*> avgValue(TString, TString, TString, Int_t);
+std::vector<pmtdd_data*> avgValue(TString, TString, TString, Int_t, Int_t);
 
 int main(int argc, char** argv)
 {
@@ -93,6 +93,8 @@ int main(int argc, char** argv)
          << " --distmodel mirror (omit for as is)"
          << endl
          << " --scan (omit --rootfile since it will scan all 8 octant hit maps)"
+         << endl
+         << " --lightParaUncert (optional; instead of taking the central value for the PE(x,x',E) it sampled from a gaussian)"
          << endl;
     return 1;
   }
@@ -103,7 +105,8 @@ int main(int argc, char** argv)
   TString rootfile = "";
   Bool_t scan = kFALSE;
   Int_t offset = 0;
-
+  Int_t peUncert(0);
+  
   for(Int_t i = 1; i < argc; i++) {    
     if(0 == strcmp("--barmodel", argv[i])) {
       barModel = argv[i+1];
@@ -115,6 +118,8 @@ int main(int argc, char** argv)
       offset = atoi(argv[i+1]);
     } else if(0 == strcmp("--scan", argv[i])) {
       scan = kTRUE;
+    } else if(0 == strcmp("--lightParaUncert", argv[i])) {
+      peUncert = 1;
     }
   }
 
@@ -138,7 +143,7 @@ int main(int argc, char** argv)
     std::vector<double> octant = {1, 2, 3, 4, 5, 6, 7, 8};
     for(unsigned int i = 0; i < hitMaps.size(); i++) {
       std::vector<pmtdd_data*> pmtdd;
-      pmtdd = avgValue(barModel, distModel, hitMaps[i], offset);
+      pmtdd = avgValue(barModel, distModel, hitMaps[i], offset,peUncert);
       for(int j = 0; j < 6; j++) {
 	    fom[j].push_back(pmtdd[j]->fom);
 	    dfom[j].push_back(pmtdd[j]->dfom);
@@ -214,21 +219,25 @@ int main(int argc, char** argv)
     app->Run();
   } else {
     std::vector<pmtdd_data*> pmtdd;
-    pmtdd = avgValue(barModel, distModel, rootfile, offset);
+    pmtdd = avgValue(barModel, distModel, rootfile, offset,peUncert);
   }
   
   return 0;
 }
 
-std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString rootfile, Int_t offset) {
-  interpolatePEs interpolator(barModel.Data());
+std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString rootfile, Int_t offset, Int_t peUncert) {
+  interpolatePEs interpolator(barModel.Data(),peUncert);
   //interpolator.verbosity=1;
-  
+
   // Print out command line paramaters
   cout << "bar model:  " << barModel << endl
        << "distribution model:  " << distModel << endl
        << "using rootfile:  " << rootfile << endl
        << "using offset:  " << offset << endl;
+  if(peUncert)
+    cout<< "sampling PE values from Gaussian"<<endl;
+  else
+    cout<< "central PE values"<<endl;
 
   TFile *fin=TFile::Open(rootfile.Data(),"READ");
   TTree *t=(TTree*)fin->Get("t");
