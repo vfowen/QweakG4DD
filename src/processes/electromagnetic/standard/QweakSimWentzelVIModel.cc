@@ -827,11 +827,17 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
     }
   } while (0 < nMscSteps);
 
-  dir.rotateUz(oldDirection);
-
-    //FIXME
+  //FIXME
   if(debugPrint){
     G4cout<<__PRETTY_FUNCTION__<<G4endl;
+    G4cout<<"\tlocal new dir RTP : "<<dir.getR()<<" "<<dir.getTheta()<<" "<<dir.getPhi()<<G4endl;
+  }
+  //FIXME
+  
+  dir.rotateUz(oldDirection);
+
+  //FIXME
+  if(debugPrint){
     G4cout<<"\tcth, th, phi old.angle(new):" << cost << " " << acos(cost) << " " << phi << " " <<oldDirection.angle(dir) << G4endl;
     G4cout<<"\told dir: R th phi "<<oldDirection.getR()<<" "<<oldDirection.getTheta()<<" "<<oldDirection.getPhi()<<G4endl;
     G4cout<<"\tnew dir: R th phi "<<dir.getR()<<" "<<dir.getTheta()<<" "<<dir.getPhi()<<G4endl;
