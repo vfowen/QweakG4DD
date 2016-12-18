@@ -1,9 +1,10 @@
 #include "interpolatePEs.hh"
+#include "TRandom3.h"
 
 using namespace std;
 
-interpolatePEs::interpolatePEs(string bar):
-  barModel(bar),verbosity(0)
+interpolatePEs::interpolatePEs(string bar,int PEuncert):
+  barModel(bar),verbosity(0),peUncert(PEuncert)
 {
   readScan();
 }
@@ -103,14 +104,22 @@ void interpolatePEs::readScan(){
   double x1,x2,x3,x4,x5,x6,x7,x8,x9;  
   string data;
   getline(fin, data);
+  TRandom3 gs(0);
+
   while(fin>>x1>>x2>>x3>>x4>>x5>>x6>>x7>>x8>>x9){
+    double lpe(x6),rpe(x8);
+    if(peUncert){
+      lpe = gs.Gaus(x6,x7);
+      rpe = gs.Gaus(x8,x9);
+    }
+    
     scanPoints[0].push_back(x1);//position
     scanPoints[1].push_back(x2);//energy
     scanPoints[2].push_back(x3);//angle
-    scanPoints[3].push_back(x6);//LPEs
-    scanPoints[4].push_back(x8);//RPEs
+    scanPoints[3].push_back(lpe);//LPEs
+    scanPoints[4].push_back(rpe);//RPEs
     if(verbosity)
-      cout<<x1<<" "<<x2<<" "<<x3<<" "<<x6<<" "<<x8<<endl;
+      cout<<x1<<" "<<x2<<" "<<x3<<" "<<lpe<<" "<<rpe<<endl;
   }
   
   fin.close();

@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <math.h>
 #include <algorithm>
+#include <ctime>
 
 #include "interpolatePEs.hh"
 #include "TFile.h"
@@ -73,12 +74,15 @@ double asymLimits[nModels][2][2]={
   {{-0.250,-0.050},{ 0.050, 0.250}}
 };
 
+clock_t tStart;
+
 float model(float val,int type);
 
-std::vector<pmtdd_data*> avgValue(TString, TString, TString, Int_t);
+std::vector<pmtdd_data*> avgValue(TString, TString, TString, Int_t, Int_t);
 
 int main(int argc, char** argv)
 {
+  tStart=clock();
 
   // Print help
   if( argc == 1 || (0 == strcmp("--help", argv[1]))) {
@@ -93,6 +97,8 @@ int main(int argc, char** argv)
          << " --distmodel mirror (omit for as is)"
          << endl
          << " --scan (omit --rootfile since it will scan all 8 octant hit maps)"
+         << endl
+         << " --lightParaUncert (optional; instead of taking the central value for the PE(x,x',E) it sampled from a gaussian)"
          << endl;
     return 1;
   }
@@ -103,7 +109,8 @@ int main(int argc, char** argv)
   TString rootfile = "";
   Bool_t scan = kFALSE;
   Int_t offset = 0;
-
+  Int_t peUncert(0);
+  
   for(Int_t i = 1; i < argc; i++) {    
     if(0 == strcmp("--barmodel", argv[i])) {
       barModel = argv[i+1];
@@ -115,6 +122,8 @@ int main(int argc, char** argv)
       offset = atoi(argv[i+1]);
     } else if(0 == strcmp("--scan", argv[i])) {
       scan = kTRUE;
+    } else if(0 == strcmp("--lightParaUncert", argv[i])) {
+      peUncert = 1;
     }
   }
 
@@ -138,7 +147,7 @@ int main(int argc, char** argv)
     std::vector<double> octant = {1, 2, 3, 4, 5, 6, 7, 8};
     for(unsigned int i = 0; i < hitMaps.size(); i++) {
       std::vector<pmtdd_data*> pmtdd;
-      pmtdd = avgValue(barModel, distModel, hitMaps[i], offset);
+      pmtdd = avgValue(barModel, distModel, hitMaps[i], offset,peUncert);
       for(int j = 0; j < 6; j++) {
 	    fom[j].push_back(pmtdd[j]->fom);
 	    dfom[j].push_back(pmtdd[j]->dfom);
@@ -214,21 +223,26 @@ int main(int argc, char** argv)
     app->Run();
   } else {
     std::vector<pmtdd_data*> pmtdd;
-    pmtdd = avgValue(barModel, distModel, rootfile, offset);
+    pmtdd = avgValue(barModel, distModel, rootfile, offset,peUncert);
   }
-  
+
+  cout<<" Running time[s]: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<endl;
   return 0;
 }
 
-std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString rootfile, Int_t offset) {
-  interpolatePEs interpolator(barModel.Data());
+std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString rootfile, Int_t offset, Int_t peUncert) {
+  interpolatePEs interpolator(barModel.Data(),peUncert);
   //interpolator.verbosity=1;
-  
+
   // Print out command line paramaters
   cout << "bar model:  " << barModel << endl
        << "distribution model:  " << distModel << endl
        << "using rootfile:  " << rootfile << endl
        << "using offset:  " << offset << endl;
+  if(peUncert)
+    cout<< "sampling PE values from Gaussian"<<endl;
+  else
+    cout<< "central PE values"<<endl;
 
   TFile *fin=TFile::Open(rootfile.Data(),"READ");
   TTree *t=(TTree*)fin->Get("t");
@@ -285,11 +299,15 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
   double currentStep=stepSize;
 
   int nev=t->GetEntries();
-
+  float currentProc=0,procStep=10;
   for(int i=0;i<nev;i++){
     t->GetEntry(i);
-    if(i%1000000==1) cout<<" at event: "<<i<<" "<<float(i+1)/nev*100<<"%"<<endl;
-    
+
+    if( float(i+1)/nev*100 > currentProc ){
+      cout<<" at event: "<<i<<"\t"<<float(i+1)/nev*100<<"% | time passed: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<" s"<<endl;
+      currentProc+=procStep;
+    }
+        
     if(float(i+1)/nev*100>currentStep){
       for(int imod=1;imod<nModels;imod++){
 	if(avgStepR[0]>0 && avgStepL[0]>0){
