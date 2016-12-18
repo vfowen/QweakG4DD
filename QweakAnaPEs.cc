@@ -101,6 +101,7 @@ int main(int argc, char** argv){
   //[L/R][Primary/NonPrimary/All]
   const int nProcBins=20;
   TH1D *hpe[2][3],*posPE[2][3],*angPE[2][3],*phiPE[2][3],*hpeAvg[2][3],*hpeAvgProc[2][3][nProcBins];
+  TH1D *angPEProc[2][3][nProcBins];
   for(int i=0;i<2;i++)
     for(int j=0;j<3;j++){
       hpe[i][j]=new TH1D(Form("hpe_%s_%s",lr[i].c_str(),species[j].c_str()),
@@ -111,10 +112,14 @@ int main(int argc, char** argv){
       hpeAvg[i][j]=new TH1D(Form("hpeAvg_%s_%s",lr[i].c_str(),species[j].c_str()),
 			    Form("1k ev Avg %s %s;number of PEs",lr[i].c_str(),species[j].c_str()),
 			    600,0,maxAvg*showerFactor);
-      for(int k=0;k<nProcBins;k++)
+      for(int k=0;k<nProcBins;k++){
 	hpeAvgProc[i][j][k]=new TH1D(Form("hpeAvgProc_%s_%s_%d",lr[i].c_str(),species[j].c_str(),k),
 				     Form("1k ev Avg %s %s;number of PEs",lr[i].c_str(),species[j].c_str()),
 				     600,0,maxAvg*showerFactor);
+	angPEProc[i][j][k]=new TH1D(Form("angPE_%s_%s_%d",lr[i].c_str(),species[j].c_str(),k),
+				    Form("%s %s %d;angle in shower [deg]",lr[i].c_str(),species[j].c_str(),k),
+				    400,-100,100);      
+      }
       
       
       posPE[i][j]=new TH1D(Form("posPE_%s_%s",lr[i].c_str(),species[j].c_str()),
@@ -133,7 +138,7 @@ int main(int argc, char** argv){
   double TotPE[2][2]={{0,0},{0,0}};
   double AvgPE[2][2]={{0,0},{0,0}};
 
-  int stepEvNr(0),prevEvNr(0),currEvNr(0),realEvNr(0),nrFiles(0),recordNr(1000);
+  int stepEvNr(0),prevEvNr(0),currEvNr(0),realEvNr(0),recordNr(1000);
   float startProc=0,stopProc=15,currentProc=0,procStep=10;
   int nev=t->GetEntries();
   for(int i=0;i<nev;i++){
@@ -189,10 +194,12 @@ int main(int argc, char** argv){
       hpe[j][primary]->Fill(pes[j]);
       posPE[j][primary]->Fill(x,pes[j]);
       angPE[j][primary]->Fill(angX-angXi,pes[j]);
+      angPEProc[j][primary][iProc]->Fill(angX-angXi,pes[j]);
       
       hpe[j][2]->Fill(pes[j]);
       posPE[j][2]->Fill(x,pes[j]);
       angPE[j][2]->Fill(angX-angXi,pes[j]);
+      angPEProc[j][2][iProc]->Fill(angX-angXi,pes[j]);
 
       if(fillPhi){
 	double tmpPhi= phi < 0 ? 360 + phi : phi;
@@ -215,8 +222,10 @@ int main(int argc, char** argv){
     for(int j=0;j<3;j++){
       hpe[i][j]->Write();
       hpeAvg[i][j]->Write();
-      for(int k=0;k<nProcBins;k++)
+      for(int k=0;k<nProcBins;k++){
 	hpeAvgProc[i][j][k]->Write();	
+	angPEProc[i][j][k]->Write();
+      }
       posPE[i][j]->Write();
       angPE[i][j]->Write();
       phiPE[i][j]->Write();
