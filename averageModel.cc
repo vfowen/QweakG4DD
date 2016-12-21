@@ -166,11 +166,19 @@ int main(int argc, char** argv)
     vector<TPad*> pad1(3);
     vector<TPad*> pad2(3);
     vector<TPaveText*> text(3);
+    vector<TGraphErrors*> tg1(3);
+    vector<TGraphErrors*> tg2(3);
+    vector<TGraphErrors*> tg3(3);
+    vector<TGraphErrors*> tg4(3);
+    vector<TGraphErrors*> tg5(3);
+    vector<TGraphErrors*> tg6(3);
+    vector<TMultiGraph*> mg(3);
+    vector<TLegend*> leg(3);
     for(int i = 0; i < 3; i++) {
-        tc[i] = new TCanvas("tc");
+        tc[i] = new TCanvas(Form("tc%d",i));
         tc[i]->Draw();
-        pad1[i] = new TPad("pad1","pad1",0.005,0.900,0.990,0.990);
-        pad2[i] = new TPad("pad2","pad2",0.005,0.005,0.990,0.900);
+        pad1[i] = new TPad(Form("pad1%d",i),Form("pad1%d",i),0.005,0.900,0.990,0.990);
+        pad2[i] = new TPad(Form("pad2%d",i),Form("pad2%d",i),0.005,0.005,0.990,0.900);
         pad1[i]->SetFillColor(0);
         pad1[i]->Draw();
         pad2[i]->Draw();
@@ -179,16 +187,8 @@ int main(int argc, char** argv)
         text[i] = new TPaveText(.05,.1,.95,.8);
         text[i]->AddText(Form("A_{bias}/DD for all 4 models, %s vs octant",barModel.Data()));
         text[i]->Draw();
-    }
+        pad2[i]->cd();
 
-    vector<TGraphErrors*> tg1(3);
-    vector<TGraphErrors*> tg2(3);
-    vector<TGraphErrors*> tg3(3);
-    vector<TGraphErrors*> tg4(3);
-    vector<TGraphErrors*> tg5(3);
-    vector<TGraphErrors*> tg6(3);
-
-    for(int i = 0; i < 3; i++) {
         if(i = 0) {
             tg1[i] = new TGraphErrors(octant.size(), &(octant[0]), &(fom[0][0]), 0, &(dfom[0][0]));
             tg2[i] = new TGraphErrors(octant.size(), &(octant[0]), &(fom[1][0]), 0, &(dfom[1][0]));
@@ -226,12 +226,7 @@ int main(int argc, char** argv)
         tg5[i]->SetMarkerStyle(kFullSquare);
         tg6[i]->SetMarkerColor(kBlack);     
         tg6[i]->SetMarkerStyle(kFullSquare);
-    }
 
-    vector<TMultiGraph*> mg(3);
-    vector<TLegend*> leg;                         
-    for(int i = 0; i < 3; i++) {
-        pad2[i]->cd();
         mg[i] = new TMultiGraph();
         // disable model 1
         //mg[i]->Add(tg1[i]);
@@ -262,6 +257,7 @@ int main(int argc, char** argv)
         leg[i]->AddEntry(tg5[i],"model 5 (hybrid)","p");
         leg[i]->AddEntry(tg6[i],"model 6 (hybrid)","p");
         leg[i]->Draw();
+        mg[i]->Print(Form("plot%d.png",i));
     }
     /* TApplication crap. */
     app->Run();
