@@ -69,6 +69,15 @@ void interpolatePEs::readScan(){
   }else if("ideal23_thickdiff" == barModel) {
     cout << "input/idealBar_alongDir_acrossAng23_ThickDiff1.5mm.txt" << endl;
     path = "input/idealBar_alongDir_acrossAng23_ThickDiff1.5mm.txt";
+  }else if("ideal23_RBevelEndcapCentralGlueSideOnly" == barModel) {
+    path = "input/idealBar_alongDir_acrossAng23_RBevelEndcapCentralGlueSideOnly.txt";
+    cout << "Using: "<< path << endl;
+  }else if("ideal23_RBevelEndcapPMTSideOnly" == barModel) {
+    path = "input/idealBar_alongDir_acrossAng23_RBevelEndcapPMTSideOnly.txt";
+    cout << "Using: "<< path << endl;
+  }else if("ideal23_RBevelLongAxisOnly" == barModel) {
+    path = "input/idealBar_alongDir_acrossAng23_RBevelLongAxisOnly.txt";
+    cout << "Using: "<< path << endl;
   }else{
     cout << "Cannot match your barModel to available list: update list or check name"<<endl;
     exit(2);

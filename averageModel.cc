@@ -89,7 +89,7 @@ int main(int argc, char** argv)
     cout << " usage: build/avgModel [options]" << endl
          << " --rootfile <path to rootfile>" << endl
          << " --barmodel ideal0, ideal23, ideal23_polish, ideal23_bevel, "
-         << "ideal23_glue, ideal23_thickdiff, "
+         << "ideal23_glue, ideal23_thickdiff, ideal23_RBevelEndcapCentralGlueSideOnly, ideal23_RBevelEndcapPMTSideOnly, ideal23_RBevelLongAxisOnly"
          << "md1config10_23, md1config16_model2_23, md2config5_23, "
          << "md2config5_model2_23, md3config4_23, md4config4_23, md5config4_23, "
          << "md6config3_23, md7config2_23, md8config16_0 or md8config16_23"
