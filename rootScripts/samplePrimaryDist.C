@@ -12,7 +12,7 @@ int nDist=203;
 double getAngYa, getAngYb;
 int draw=0;
 
-void samplePrimaryDist(int nevents,int vPol, int chooseDist=0){
+void samplePrimaryDist(int nevents,int vPol, int nSim=0, int chooseDist=0){
 
   if(chooseDist!=0)
     nDist=chooseDist;
@@ -32,7 +32,7 @@ void samplePrimaryDist(int nevents,int vPol, int chooseDist=0){
   if(draw)
     drawDist();
   else
-    sampleDist(nevents,vPol);
+    sampleDist(nevents,nSim,vPol);
 }
 
 void readDist(){
@@ -70,9 +70,9 @@ void readDist(){
   }
 }
 
-void sampleDist(int nevents,int vPol){
-  ofstream fout("positionMomentum.in",std::ofstream::out);
-  ofstream fpol("polarization.in",std::ofstream::out);
+void sampleDist(int nevents,int nSim,int vPol){
+  ofstream fout(Form("positionMomentum_%d.in",nSim),std::ofstream::out);
+  ofstream fpol(Form("polarization_%d.in",nSim),std::ofstream::out);
   int nv=0;
   do{
     double x(-1);//x position (across bar) 
