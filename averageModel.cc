@@ -424,7 +424,7 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
   }else if("ideal23_RBevelEndcapPMTSideOnly" == barModel) {
     tn1 = new TNamed("bar","ideal bar with bevel PMT side");
     tn2 = new TNamed("angle","angle 23");
-  }else if("ideal23_RBevelLongAxisOnly3" == barModel) {
+  }else if("ideal23_RBevelLongAxisOnly" == barModel) {
     tn1 = new TNamed("bar","ideal bar with bevel long axis only");
     tn2 = new TNamed("angle","angle 23");
   }else{
