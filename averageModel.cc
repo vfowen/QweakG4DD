@@ -144,6 +144,10 @@ int main(int argc, char** argv)
     // Vectors for plotting
     std::vector<std::vector<double>> fom(6);
     std::vector<std::vector<double>> dfom(6);
+    std::vector<std::vector<double>> dd(6);
+    std::vector<std::vector<double>> ddd(6);
+    std::vector<std::vector<double>> abias(6);
+    std::vector<std::vector<double>> dabias(6);
     std::vector<double> octant = {1, 2, 3, 4, 5, 6, 7, 8};
     for(unsigned int i = 0; i < hitMaps.size(); i++) {
       std::vector<pmtdd_data*> pmtdd;
@@ -151,6 +155,10 @@ int main(int argc, char** argv)
       for(int j = 0; j < 6; j++) {
 	    fom[j].push_back(pmtdd[j]->fom);
 	    dfom[j].push_back(pmtdd[j]->dfom);
+	    dd[j].push_back(pmtdd[j]->dd);
+	    ddd[j].push_back(pmtdd[j]->ddd);
+	    abias[j].push_back(pmtdd[j]->abias);
+	    dabias[j].push_back(pmtdd[j]->dabias);
       }
       pmtdd.clear();
     }
@@ -163,62 +171,110 @@ int main(int argc, char** argv)
     gStyle->SetPadGridX(kTRUE);
     gStyle->SetPadGridY(kTRUE);
 
-    TCanvas* tc;
-    tc = new TCanvas("tc");
-    tc->Draw();
-    TPad*pad1 = new TPad("pad1","pad1",0.005,0.900,0.990,0.990);
-    TPad*pad2 = new TPad("pad2","pad2",0.005,0.005,0.990,0.900);
-    pad1->SetFillColor(0);
-    pad1->Draw();
-    pad2->Draw();
-    pad2->SetFillColor(0);
-    pad1->cd();
-    TPaveText *text = new TPaveText(.05,.1,.95,.8);
-    text->AddText(Form("A_{bias}/DD for all 4 models, %s vs octant",barModel.Data()));
-    text->Draw();
-    pad2->cd();
+    vector<TCanvas*> tc(3);
+    vector<TPad*> pad1(3);
+    vector<TPad*> pad2(3);
+    vector<TPaveText*> text(3);
+    vector<TGraphErrors*> tg1(3);
+    vector<TGraphErrors*> tg2(3);
+    vector<TGraphErrors*> tg3(3);
+    vector<TGraphErrors*> tg4(3);
+    vector<TGraphErrors*> tg5(3);
+    vector<TGraphErrors*> tg6(3);
+    vector<TMultiGraph*> mg(3);
+    vector<TLegend*> leg(3);
+    for(int i = 0; i < 3; i++) {
+        tc[i] = new TCanvas(Form("tc%d",i));
+        tc[i]->Draw();
+        pad1[i] = new TPad(Form("pad1%d",i),Form("pad1%d",i),0.005,0.900,0.990,0.990);
+        pad2[i] = new TPad(Form("pad2%d",i),Form("pad2%d",i),0.005,0.005,0.990,0.900);
+        pad1[i]->SetFillColor(0);
+        pad1[i]->Draw();
+        pad2[i]->Draw();
+        pad2[i]->SetFillColor(0);
+        pad1[i]->cd();
+        text[i] = new TPaveText(.05,.1,.95,.8);
+        if(i == 0) {
+            text[i]->AddText(Form("A_{bias}/DD for all 6 models, %s vs octant",barModel.Data()));
+        }
+        else if(i == 1) {
+            text[i]->AddText(Form("DD for all 6 models, %s vs octant",barModel.Data()));
+        }
+        else if(i == 2) {
+            text[i]->AddText(Form("A_{bias} for all 6 models, %s vs octant",barModel.Data()));
+        }
+        text[i]->Draw();
+        pad2[i]->cd();
 
-    TGraphErrors *tg1 = new TGraphErrors(octant.size(), &(octant[0]), &(fom[0][0]), 0, &(dfom[0][0]));
-    tg1->SetMarkerColor(kBlack);     
-    tg1->SetMarkerStyle(kFullSquare);
-    TGraphErrors *tg2 = new TGraphErrors(octant.size(), &(octant[0]), &(fom[1][0]), 0, &(dfom[1][0]));
-    tg2->SetMarkerColor(kRed);     
-    tg2->SetMarkerStyle(kFullSquare);
-    TGraphErrors *tg3 = new TGraphErrors(octant.size(), &(octant[0]), &(fom[2][0]), 0, &(dfom[2][0]));
-    tg3->SetMarkerColor(kBlue);     
-    tg3->SetMarkerStyle(kFullSquare);
-    TGraphErrors *tg4 = new TGraphErrors(octant.size(), &(octant[0]), &(fom[3][0]), 0, &(dfom[3][0]));
-    tg4->SetMarkerColor(kOrange);     
-    tg4->SetMarkerStyle(kFullSquare);
-    TGraphErrors *tg5 = new TGraphErrors(octant.size(), &(octant[0]), &(fom[4][0]), 0, &(dfom[4][0]));
-    tg5->SetMarkerColor(kGray);     
-    tg5->SetMarkerStyle(kFullSquare);
-    TGraphErrors *tg6 = new TGraphErrors(octant.size(), &(octant[0]), &(fom[5][0]), 0, &(dfom[5][0]));
-    tg6->SetMarkerColor(kBlack);     
-    tg6->SetMarkerStyle(kFullSquare);
+        if(i == 0) {
+            tg1[i] = new TGraphErrors(octant.size(), &(octant[0]), &(fom[0][0]), 0, &(dfom[0][0]));
+            tg2[i] = new TGraphErrors(octant.size(), &(octant[0]), &(fom[1][0]), 0, &(dfom[1][0]));
+            tg3[i] = new TGraphErrors(octant.size(), &(octant[0]), &(fom[2][0]), 0, &(dfom[2][0]));
+            tg4[i] = new TGraphErrors(octant.size(), &(octant[0]), &(fom[3][0]), 0, &(dfom[3][0]));
+            tg5[i] = new TGraphErrors(octant.size(), &(octant[0]), &(fom[4][0]), 0, &(dfom[4][0]));
+            tg6[i] = new TGraphErrors(octant.size(), &(octant[0]), &(fom[5][0]), 0, &(dfom[5][0]));
+        }
+        else if(i == 1) {
+            tg1[i] = new TGraphErrors(octant.size(), &(octant[0]), &(dd[0][0]), 0, &(ddd[0][0]));
+            tg2[i] = new TGraphErrors(octant.size(), &(octant[0]), &(dd[1][0]), 0, &(ddd[1][0]));
+            tg3[i] = new TGraphErrors(octant.size(), &(octant[0]), &(dd[2][0]), 0, &(ddd[2][0]));
+            tg4[i] = new TGraphErrors(octant.size(), &(octant[0]), &(dd[3][0]), 0, &(ddd[3][0]));
+            tg5[i] = new TGraphErrors(octant.size(), &(octant[0]), &(dd[4][0]), 0, &(ddd[4][0]));
+            tg6[i] = new TGraphErrors(octant.size(), &(octant[0]), &(dd[5][0]), 0, &(ddd[5][0]));
+        }
+        else if(i == 2) {
+            tg1[i] = new TGraphErrors(octant.size(), &(octant[0]), &(abias[0][0]), 0, &(dabias[0][0]));
+            tg2[i] = new TGraphErrors(octant.size(), &(octant[0]), &(abias[1][0]), 0, &(dabias[1][0]));
+            tg3[i] = new TGraphErrors(octant.size(), &(octant[0]), &(abias[2][0]), 0, &(dabias[2][0]));
+            tg4[i] = new TGraphErrors(octant.size(), &(octant[0]), &(abias[3][0]), 0, &(dabias[3][0]));
+            tg5[i] = new TGraphErrors(octant.size(), &(octant[0]), &(abias[4][0]), 0, &(dabias[4][0]));
+            tg6[i] = new TGraphErrors(octant.size(), &(octant[0]), &(abias[5][0]), 0, &(dabias[5][0]));
+        }
 
-    TMultiGraph *mg = new TMultiGraph();
-    //mg->Add(tg1);
-    mg->Add(tg2);
-    mg->Add(tg3);
-    mg->Add(tg4);
-    mg->Add(tg5);
-    mg->Add(tg6);
-    mg->Draw("AP");
-    //tg->Fit("pol1");
-    mg->SetTitle("");
-    mg->GetXaxis()->SetTitle("octant");
-    mg->GetYaxis()->SetTitle("A_{bias}/DD (%)");
+        tg1[i]->SetMarkerColor(kBlack);     
+        tg1[i]->SetMarkerStyle(kFullSquare);
+        tg2[i]->SetMarkerColor(kRed);     
+        tg2[i]->SetMarkerStyle(kFullSquare);
+        tg3[i]->SetMarkerColor(kBlue);     
+        tg3[i]->SetMarkerStyle(kFullSquare);
+        tg4[i]->SetMarkerColor(kOrange);     
+        tg4[i]->SetMarkerStyle(kFullSquare);
+        tg5[i]->SetMarkerColor(kGray);     
+        tg5[i]->SetMarkerStyle(kFullSquare);
+        tg6[i]->SetMarkerColor(kBlack);     
+        tg6[i]->SetMarkerStyle(kFullSquare);
 
-    TLegend *leg;                         
-    leg = new TLegend(0.6,0.7,0.9,0.9);
-    //leg->AddEntry(tg1,"model 1","p");
-    leg->AddEntry(tg2,"model 2","p");
-    leg->AddEntry(tg3,"model 3","p");
-    leg->AddEntry(tg4,"model 4","p");
-    leg->AddEntry(tg5,"model 5 (hybrid)","p");
-    leg->AddEntry(tg6,"model 6 (hybrid)","p");
-    leg->Draw();
+        mg[i] = new TMultiGraph();
+        // disable model 1
+        //mg[i]->Add(tg1[i]);
+        mg[i]->Add(tg2[i]);
+        mg[i]->Add(tg3[i]);
+        mg[i]->Add(tg4[i]);
+        mg[i]->Add(tg5[i]);
+        mg[i]->Add(tg6[i]);
+        mg[i]->Draw("AP");
+        //tg[i]->Fit("pol1");
+        mg[i]->SetTitle("");
+        mg[i]->GetXaxis()->SetTitle("octant (hit map)");
+        if(i == 0) {
+            mg[i]->GetYaxis()->SetTitle("A_{bias}/DD (%)");
+        }
+        else if(i == 1) {
+            mg[i]->GetYaxis()->SetTitle("DD (ppm)");
+        }
+        else if(i == 2) {
+            mg[i]->GetYaxis()->SetTitle("A_{bias} (ppm)");
+        }
+
+        leg[i] = new TLegend(0.6,0.7,0.9,0.9);
+        //leg[i]->AddEntry(tg1[i],"model 1","p");
+        leg[i]->AddEntry(tg2[i],"model 2","p");
+        leg[i]->AddEntry(tg3[i],"model 3","p");
+        leg[i]->AddEntry(tg4[i],"model 4","p");
+        leg[i]->AddEntry(tg5[i],"model 5 (hybrid)","p");
+        leg[i]->AddEntry(tg6[i],"model 6 (hybrid)","p");
+        leg[i]->Draw();
+    }
     /* TApplication crap. */
     app->Run();
   } else {
