@@ -185,11 +185,19 @@ int main(int argc, char** argv)
         pad2[i]->SetFillColor(0);
         pad1[i]->cd();
         text[i] = new TPaveText(.05,.1,.95,.8);
-        text[i]->AddText(Form("A_{bias}/DD for all 4 models, %s vs octant",barModel.Data()));
+        if(i == 0) {
+            text[i]->AddText(Form("A_{bias}/DD for all 6 models, %s vs octant",barModel.Data()));
+        }
+        else if(i == 1) {
+            text[i]->AddText(Form("DD for all 6 models, %s vs octant",barModel.Data()));
+        }
+        else if(i == 2) {
+            text[i]->AddText(Form("A_{bias} for all 6 models, %s vs octant",barModel.Data()));
+        }
         text[i]->Draw();
         pad2[i]->cd();
 
-        if(i = 0) {
+        if(i == 0) {
             tg1[i] = new TGraphErrors(octant.size(), &(octant[0]), &(fom[0][0]), 0, &(dfom[0][0]));
             tg2[i] = new TGraphErrors(octant.size(), &(octant[0]), &(fom[1][0]), 0, &(dfom[1][0]));
             tg3[i] = new TGraphErrors(octant.size(), &(octant[0]), &(fom[2][0]), 0, &(dfom[2][0]));
@@ -197,7 +205,7 @@ int main(int argc, char** argv)
             tg5[i] = new TGraphErrors(octant.size(), &(octant[0]), &(fom[4][0]), 0, &(dfom[4][0]));
             tg6[i] = new TGraphErrors(octant.size(), &(octant[0]), &(fom[5][0]), 0, &(dfom[5][0]));
         }
-        else if(i = 1) {
+        else if(i == 1) {
             tg1[i] = new TGraphErrors(octant.size(), &(octant[0]), &(dd[0][0]), 0, &(ddd[0][0]));
             tg2[i] = new TGraphErrors(octant.size(), &(octant[0]), &(dd[1][0]), 0, &(ddd[1][0]));
             tg3[i] = new TGraphErrors(octant.size(), &(octant[0]), &(dd[2][0]), 0, &(ddd[2][0]));
@@ -205,7 +213,7 @@ int main(int argc, char** argv)
             tg5[i] = new TGraphErrors(octant.size(), &(octant[0]), &(dd[4][0]), 0, &(ddd[4][0]));
             tg6[i] = new TGraphErrors(octant.size(), &(octant[0]), &(dd[5][0]), 0, &(ddd[5][0]));
         }
-        else if(i = 2) {
+        else if(i == 2) {
             tg1[i] = new TGraphErrors(octant.size(), &(octant[0]), &(abias[0][0]), 0, &(dabias[0][0]));
             tg2[i] = new TGraphErrors(octant.size(), &(octant[0]), &(abias[1][0]), 0, &(dabias[1][0]));
             tg3[i] = new TGraphErrors(octant.size(), &(octant[0]), &(abias[2][0]), 0, &(dabias[2][0]));
@@ -239,13 +247,13 @@ int main(int argc, char** argv)
         //tg[i]->Fit("pol1");
         mg[i]->SetTitle("");
         mg[i]->GetXaxis()->SetTitle("octant (hit map)");
-        if(i = 0) {
+        if(i == 0) {
             mg[i]->GetYaxis()->SetTitle("A_{bias}/DD (%)");
         }
-        else if(i = 1) {
+        else if(i == 1) {
             mg[i]->GetYaxis()->SetTitle("DD (ppm)");
         }
-        else if(i = 2) {
+        else if(i == 2) {
             mg[i]->GetYaxis()->SetTitle("A_{bias} (ppm)");
         }
 
@@ -257,7 +265,6 @@ int main(int argc, char** argv)
         leg[i]->AddEntry(tg5[i],"model 5 (hybrid)","p");
         leg[i]->AddEntry(tg6[i],"model 6 (hybrid)","p");
         leg[i]->Draw();
-        mg[i]->Print(Form("plot%d.png",i));
     }
     /* TApplication crap. */
     app->Run();
