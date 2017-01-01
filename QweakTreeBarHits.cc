@@ -8,6 +8,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TH1I.h"
+#include "G4ThreeVector.hh"
 
 using namespace std;
 
@@ -61,8 +62,8 @@ int main(int argc, char** argv){
   tout->Branch("asymPM",&asymPM,"asymPM/D");
   tout->Branch("asymPP",&asymPP,"asymPP/D");
   
-  int totEv=0;
-  int simEvts(0);
+  long totEv=0;
+  long simEvts(0);
   if ( files.find(".root") < files.size() ){
     if(!fixedPos) readInitial(files);
     TFile *fin=new TFile(files.c_str(),"READ");
@@ -75,7 +76,7 @@ int main(int argc, char** argv){
     TTree *QweakSimG4_Tree=(TTree*)fin->Get("QweakSimG4_Tree");
     cout<<"processing only one file: "<<files.c_str()<<endl;    
     
-    int evts=QweakSimG4_Tree->GetEntries();
+    long evts=QweakSimG4_Tree->GetEntries();
     totEv+=evts;
     cout<<" total nr ev: "<<evts<<" "<<totEv<<endl;
     
@@ -97,7 +98,7 @@ int main(int argc, char** argv){
       }
       TTree *QweakSimG4_Tree=(TTree*)fin->Get("QweakSimG4_Tree");
       cout<<"processing : "<<data.c_str()<<endl;          
-      int evts=QweakSimG4_Tree->GetEntries();
+      long evts=QweakSimG4_Tree->GetEntries();
       totEv+=evts;
       cout<<" total nr ev: "<<evts<<" "<<totEv<<endl;      
       processOne(QweakSimG4_Tree,tout,simEvts);      
@@ -174,8 +175,14 @@ void processOne(TTree *QweakSimG4_Tree, TTree *tout, int &nrEvts){
       primary=0;
       if(tID==1 && parentID==0) primary=1;
       double polX=event->Cerenkov.Detector.GetPolarizationX()[hit];
-      double polY=event->Cerenkov.Detector.GetPolarizationY()[hit];
-      polT=sqrt(pow(polX,2)+pow(polY,2));
+      double polY=event->Cerenkov.Detector.GetPolarizationY()[hit];      
+      double polZ=event->Cerenkov.Detector.GetPolarizationZ()[hit];
+      G4ThreeVector pol(polX,polY,polZ);
+      G4ThreeVector mom(event->Cerenkov.Detector.GetLocalMomentumX()[hit],
+			event->Cerenkov.Detector.GetLocalMomentumY()[hit],
+			event->Cerenkov.Detector.GetLocalMomentumZ()[hit]);
+      //pol.rotateUz(mom.unit());
+      polT = pol.unit() * mom.unit();
 
       x=event->Cerenkov.Detector.GetDetectorLocalPositionX()[hit];
       y=event->Cerenkov.Detector.GetDetectorLocalPositionY()[hit];
