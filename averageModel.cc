@@ -14,6 +14,7 @@
 #include <TMath.h>
 #include <TCanvas.h>
 #include <TGraphErrors.h>
+#include <TGraph.h>
 #include <TMultiGraph.h>
 #include <TAxis.h>
 #include <TStyle.h>
@@ -52,31 +53,19 @@ void pmtdd_data::print(void) {
 }
 
 pmtdd_data* printInfo(TH1D *hl,TH1D *hr);
-
-const int nModels = 7;
-//0=                                     
-//1= cnst*sgn(angX) for abs(angX)=[20,40]
-//2= cnst*angX                           
-//3= cnst*sgn(angX)*angX^2               
-//4= cnst*angX^3                         
-//5= -3.9  (M2)  + 5.8 (M3) -0.9 (M4)
-//6= -0.9  (M2)  + 2.8 (M3) -0.9 (M4) 
-
-//model,R/L,Upper/Lower
-const int rangeTst=0;
-double asymLimits[nModels][2][2]={
-  {{-0.250,-0.050},{ 0.050, 0.250}},
-  {{-0.250,-0.050},{ 0.050, 0.250}},
-  {{-0.250,-0.050},{ 0.050, 0.250}},
-  {{-0.250,-0.050},{ 0.050, 0.250}},
-  {{-0.250,-0.050},{ 0.050, 0.250}},
-  {{-0.250,-0.050},{ 0.050, 0.250}},
-  {{-0.250,-0.050},{ 0.050, 0.250}}
-};
-
+void drawFunctions();
 clock_t tStart;
+double model(float val,int type);
 
-float model(float val,int type);
+const int nModels = 308;
+const int rangeTst=0;
+int nModelsEff(nModels-301);//default is only [0,6]
+std::vector<std::vector<std::vector<double>>> asymLimits;
+
+//gpr Cnt value and phase space functions 
+TGraph *gprCnt,*gprFct[300];//gpr phase space functions
+void readGpr(string fnm);
+
 
 std::vector<pmtdd_data*> avgValue(TString, TString, TString, Int_t, Int_t);
 
@@ -99,6 +88,11 @@ int main(int argc, char** argv)
          << " --scan (omit --rootfile since it will scan all 8 octant hit maps)"
          << endl
          << " --lightParaUncert (optional; instead of taking the central value for the PE(x,x',E) it sampled from a gaussian)"
+         << endl
+         << " --drawFctions <#> (optional; make output file with the effective model functions."
+	 <<"\t if val==0 just draw and ignore the rest of the program. other values proceed as normal"
+         << endl
+         << " --scan1fct <fnm> <0/1> (optional; arg2==0 look in file \"fnm\" for the gprCentralValue as model 7. arg2==1 in addition to central value look for 300 TGraphs giving the phase space functions)"
          << endl;
     return 1;
   }
@@ -112,7 +106,16 @@ int main(int argc, char** argv)
   Int_t peUncert(0);
   
   for(Int_t i = 1; i < argc; i++) {    
-    if(0 == strcmp("--barmodel", argv[i])) {
+    if(0 == strcmp("--drawFctions", argv[i])) {
+      drawFunctions();
+      if(atoi(argv[i+1])==0)
+	return 0;
+    }else if(0 == strcmp("--scan1fct", argv[i])) {
+      int fctBool=atoi(argv[i+2]);
+      nModelsEff += 1 + fctBool*300;
+      cout<<"start reading GPR. Number of effective models: "<<nModelsEff<<endl;
+      readGpr(argv[i+1]);
+    }else if(0 == strcmp("--barmodel", argv[i])) {
       barModel = argv[i+1];
     } else if(0 == strcmp("--distmodel", argv[i])) {
       distModel = argv[i+1];
@@ -126,6 +129,14 @@ int main(int argc, char** argv)
       peUncert = 1;
     }
   }
+
+  //set Limits
+  //model,R/L,Upper/Lower
+  std::vector<double> dummyR={-0.250,-0.050};
+  std::vector<double> dummyL={ 0.050, 0.250};
+  std::vector<std::vector<double>> dummyLimit={dummyR,dummyL};
+  for(int i=0;i<nModelsEff;i++)
+    asymLimits.push_back(dummyLimit);
 
   TApplication *app = new TApplication("slopes", &argc, argv);
 
@@ -269,14 +280,14 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
     t->SetBranchAddress("asymPmM",&asymPmM);
   }
   
-  TFile *fout=new TFile(Form("o_avgModel_%s_%s_offset_%d.root", barModel.Data(),
-                             distModel.Data(),offset),"RECREATE");
+  TFile *fout=new TFile(Form("o_avgModel_%s_%s_offset_%d_Nmodels_%d.root", barModel.Data(),
+                             distModel.Data(),offset,nModelsEff),"RECREATE");
 
   string lr[2]={"R","L"};
   TH1D *hpe[2][nModels],*posPE[2][nModels],*angPE[2][nModels];
   TH1D *as[2][nModels];
   
-  for(int i=0;i<nModels;i++)
+  for(int i=0;i<nModelsEff;i++)
     for(int j=0;j<2;j++){
       as[j][i]=new TH1D(Form("as%s_%d",lr[j].c_str(),i),Form("model %d %s PMT;asymmetry [ppm]",i,lr[j].c_str()),
 			400,asymLimits[i][j][0],asymLimits[i][j][1]);      
@@ -299,17 +310,17 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
   double currentStep=stepSize;
 
   int nev=t->GetEntries();
-  float currentProc=0,procStep=10;
+  float currentProc=0,procStep=1;
   for(int i=0;i<nev;i++){
     t->GetEntry(i);
 
     if( float(i+1)/nev*100 > currentProc ){
-      cout<<" at event: "<<i<<"\t"<<float(i+1)/nev*100<<"% | time passed: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<" s"<<endl;
+      cout<<" at event: "<<i<<"\t"<<int(float(i+1)/nev*100)<<"% | time passed: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<" s"<<endl;
       currentProc+=procStep;
     }
         
     if(float(i+1)/nev*100>currentStep){
-      for(int imod=1;imod<nModels;imod++){
+      for(int imod=1;imod<nModelsEff;imod++){
 	if(avgStepR[0]>0 && avgStepL[0]>0){
 	  as[0][imod]->Fill( avgStepR[imod]/avgStepR[0]*1e6 );
 	  as[1][imod]->Fill( avgStepL[imod]/avgStepL[0]*1e6 );
@@ -336,7 +347,7 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
     double lpe(-1),rpe(-1);
     if(!interpolator.getPEs(E,flip*x+offset,flip*angX,lpe,rpe)) continue;
     
-    for(int imod=0;imod<nModels;imod++){
+    for(int imod=0;imod<nModelsEff;imod++){
       double asym=model(angX-angXi,imod);
 
       avgStepL[imod]+=asym*lpe;
@@ -356,7 +367,7 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
   }
   
   cout<<endl<<"total PE average: A_L A_R DD A_ave A_ave/DD"<<endl;
-  for(int imod=1;imod<nModels;imod++)
+  for(int imod=1;imod<nModelsEff;imod++)
     cout<<imod<<"\t"<<lAvgTotPE[imod]/lAvgTotPE[0]<<"\t"<<rAvgTotPE[imod]/rAvgTotPE[0]
 	<<"\t"<<lAvgTotPE[imod]/lAvgTotPE[0]-rAvgTotPE[imod]/rAvgTotPE[0]
 	<<"\t"<<(lAvgTotPE[imod]/lAvgTotPE[0]+rAvgTotPE[imod]/rAvgTotPE[0])/2
@@ -444,7 +455,7 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
 
   cout<<endl<<" average asymmetry histogram results: A_L dA_L A_R dA_R DD dDD A_bias dA_bia A_bias/DD*100"<<endl;
   vector< pmtdd_data* > pmtdd;
-  for(int j=0;j<nModels;j++){      
+  for(int j=0;j<nModelsEff;j++){      
     for(int i=0;i<2;i++){
       hpe[i][j]->Write();
       posPE[i][j]->Write();
@@ -471,21 +482,29 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
 }
 
 //models go here
-float model(float val,int type){
+double model(float val,int type){
   //0=                                     
   //1= cnst*sgn(angX) for abs(angX)=[20,40]
   //2= cnst*angX                           
   //3= cnst*sgn(angX)*angX^2               
   //4= cnst*angX^3                         
   //5= -3.9  (M2)  + 5.8 (M3) -0.9 (M4)
-  //6= -0.9  (M2)  + 2.8 (M3) -0.9 (M4) 
-  if(val==0) return 0;
-  
+  //6= -0.9  (M2)  + 2.8 (M3) -0.9 (M4)
+  //7= microscopic model
+  //8-308= GPR functions
+
+  if(val==0 && type!=0) return 0;
+
+  if(type>=nModelsEff) return 0;//set asymmetry to 0 if not using microscopic or GPR
+
   if(type==0)
     return 1;  
-  else if(type==1 && (abs(val)>=20 && abs(val)<40) )
-    return 0.759 * 4e-6 * val/abs(val);
-  else if(type==2)
+  else if(type==1){
+    if( (abs(val)>=20 && abs(val)<40) )
+      return 0.759 * 4e-6 * val/abs(val);
+    else
+      return 0;
+  }else if(type==2)
     return 0.713 * 4e-8 * val;
   else if(type==3)
     return 0.685 * 1.5e-9 * abs(pow(val,3))/val;
@@ -501,11 +520,66 @@ float model(float val,int type){
       -0.9 * 0.713 * 4e-8 * val
       +2.8 * 0.685 * 1.5e-9 * abs(pow(val,3))/val
       -0.9 * 0.610 * 4e-11 * pow(val,3);
-  else
-    return 0;
-      
+  else if(type==7){
+    return gprCnt->Eval(val)/1e6;
+  }else if(type<308){
+    return gprFct[type-8]->Eval(val)/1e6;
+  }else
+    return 0;      
 
   return 0;
+}
+
+void readGpr(string fnm){
+  gprCnt=new TGraph();
+  int nBins(0);
+  double val75;
+  TFile *fin=TFile::Open(fnm.c_str(),"READ");
+
+  TH1D *hin=(TH1D*)fin->Get("ho");
+  nBins=hin->GetXaxis()->GetNbins();
+  val75 = hin->GetBinContent( hin->GetXaxis()->FindBin(75) );
+
+  int nPnt(0);
+  for(int i=0;i<nBins;i++){
+    double x,y;
+    x = hin->GetBinCenter(i);
+    y = hin->GetBinContent(i);
+    if(x<0) continue;
+    if(x>75)
+      y = val75;
+
+    y = y / (2*0.55);
+    gprCnt->SetPoint(nPnt,x,-y);
+    gprCnt->SetPoint(nPnt+1,-x,y);
+    nPnt+=2;
+  }
+  gprCnt->SetName("gprCnt");
+  
+  for(int j=8;j<nModelsEff;j++){
+    int nFct=j-8;
+    gprFct[nFct]=new TGraph();
+    nPnt=0;
+    TGraph *gin=(TGraph*)fin->Get(Form("oneFct_%d",nFct));
+    nBins=gin->GetN();
+    val75 = gin->Eval(75);
+    for(int i=0;i<nBins;i++){
+      double x,y;
+      gin->GetPoint(i,x,y);
+
+      if(x<0) continue;
+      if(x>75)
+	y = val75;
+
+      y = y / (2*0.55);
+      gprFct[nFct]->SetPoint(nPnt,x,-y);
+      gprFct[nFct]->SetPoint(nPnt+1,-x,y);
+      nPnt+=2;
+    }
+    gprFct[nFct]->SetName(Form("gprFct_%d",nFct));
+  }
+
+  fin->Close();  
 }
 
 pmtdd_data* printInfo(TH1D *hl,TH1D *hr){
@@ -526,4 +600,31 @@ pmtdd_data* printInfo(TH1D *hl,TH1D *hr){
   pmtdd->print();
 
   return pmtdd;
+}
+
+void drawFunctions(){
+  TFile *fout=new TFile("o_avgModelFction.root","RECREATE");
+  int colors[8]={1,2,3,4,28,6,7,8};
+  TGraph *gr[308];
+  for(int i=0;i<nModelsEff;i++){
+    gr[i]=new TGraph();
+    for(int j=0;j<178;j++){      
+      double val = -89 + j;
+      gr[i]->SetPoint(j,val,model(val,i));
+    }
+    gr[i]->SetName(Form("model_%d",i));
+    gr[i]->SetMarkerStyle(20);
+    if(i<7){
+      gr[i]->SetLineColor(colors[i]);
+      gr[i]->SetMarkerColor(colors[i]);
+    }else{
+      gr[i]->SetLineColor(1);
+      gr[i]->SetMarkerColor(1);
+    }
+    
+    fout->cd();
+    gr[i]->Write();
+  }
+
+  fout->Close();
 }
