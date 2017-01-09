@@ -220,12 +220,51 @@ int main(Int_t argc, Char_t* argv[]) {
     //        pe_ang_diff_wrap[1]->GetBinWidth(20) << "  " <<
     //        pe_ang_wrap_div[1]->GetBinWidth(20) << endl;
 
-    gStyle->SetOptStat("eiRM");
+    // Output summed CDF histograms
+    std::vector < TH1D* > pe_pos_sum_wrap_cdf(6);
+    std::vector < TH1D* > pe_ang_sum_wrap_cdf(6);
+    std::vector < TH1D* > pe_pos_diff_wrap_cdf(6);
+    std::vector < TH1D* > pe_ang_diff_wrap_cdf(6);
+
+    for(int i = 0; i < 6; i++) {
+        pe_pos_sum_wrap_cdf[i] = (TH1D*)pe_pos_sum_wrap[i]->Clone();
+        pe_ang_sum_wrap_cdf[i] = (TH1D*)pe_ang_sum_wrap[i]->Clone();
+        pe_pos_diff_wrap_cdf[i] = (TH1D*)pe_pos_diff_wrap[i]->Clone();
+        pe_ang_diff_wrap_cdf[i] = (TH1D*)pe_ang_diff_wrap[i]->Clone();
+
+        for(int j = 2; j <= pe_pos_sum_wrap_cdf[i]->GetNbinsX(); j++) {
+            int bin = pe_pos_sum_wrap_cdf[i]->GetBin(j);
+            pe_pos_sum_wrap_cdf[i]->SetBinContent(bin, pe_pos_sum_wrap_cdf[i]->GetBinContent(bin)
+                + pe_pos_sum_wrap_cdf[i]->GetBinContent(bin-1));
+        }
+        //pe_pos_sum_wrap_cdf[i]->Scale(1/pe_pos_sum_wrap_cdf[i]->Integral(),"nosw2");
+        for(int j = 2; j <= pe_ang_sum_wrap_cdf[i]->GetNbinsX(); j++) {
+            int bin = pe_ang_sum_wrap_cdf[i]->GetBin(j);
+            pe_ang_sum_wrap_cdf[i]->SetBinContent(bin, pe_ang_sum_wrap_cdf[i]->GetBinContent(bin)
+                + pe_ang_sum_wrap_cdf[i]->GetBinContent(bin-1));
+        }
+        //pe_ang_sum_wrap_cdf[i]->Scale(1/pe_ang_sum_wrap_cdf[i]->Integral(),"nosw2");
+        for(int j = 2; j <= pe_pos_diff_wrap_cdf[i]->GetNbinsX(); j++) {
+            int bin = pe_pos_diff_wrap_cdf[i]->GetBin(j);
+            pe_pos_diff_wrap_cdf[i]->SetBinContent(bin, pe_pos_diff_wrap_cdf[i]->GetBinContent(bin)
+                + pe_pos_diff_wrap_cdf[i]->GetBinContent(bin-1));
+        }
+        //pe_pos_diff_wrap_cdf[i]->Scale(1/pe_pos_diff_wrap_cdf[i]->Integral(),"nosw2");
+        for(int j = 2; j <= pe_ang_diff_wrap_cdf[i]->GetNbinsX(); j++) {
+            int bin = pe_ang_diff_wrap_cdf[i]->GetBin(j);
+            pe_ang_diff_wrap_cdf[i]->SetBinContent(j, pe_ang_diff_wrap_cdf[i]->GetBinContent(bin)
+                + pe_ang_diff_wrap_cdf[i]->GetBinContent(bin-1));
+        }
+        //pe_ang_diff_wrap_cdf[i]->Scale(1/pe_ang_diff_wrap[i]->Integral(),"nosw2");
+    }
+
+    gStyle->SetOptStat(0);
+    //gStyle->SetOptStat("eiRM");
 	gStyle->SetStatW(0.3);
 	gStyle->SetStatH(0.1);
 
     // Create all the canvases and such
-    int num_plots = 10;
+    int num_plots = 14;
     std::vector< TCanvas* > tc(num_plots);
     std::vector< TPad* > pad1(num_plots);
     std::vector< TPad* > pad2(num_plots);
@@ -240,7 +279,11 @@ int main(Int_t argc, Char_t* argv[]) {
         Form("Wrapped Asym*PE L-R vs position: %s, %s, %s",dist.Data(),bar.Data(),angle.Data()),
         Form("Wrapped Asym*PE L-R vs angle: %s, %s, %s",dist.Data(),bar.Data(),angle.Data()),
         Form("Wrapped Asym*PE L+R/L-R vs position: %s, %s, %s",dist.Data(),bar.Data(),angle.Data()),
-        Form("Wrapped Asym*PE L+R/L-R vs angle: %s, %s, %s",dist.Data(),bar.Data(),angle.Data())
+        Form("Wrapped Asym*PE L+R/L-R vs angle: %s, %s, %s",dist.Data(),bar.Data(),angle.Data()),
+        Form("Wrapped Asym*PE L+R vs position CDF: %s, %s, %s",dist.Data(),bar.Data(),angle.Data()),
+        Form("Wrapped Asym*PE L+R vs angle CDF: %s, %s, %s",dist.Data(),bar.Data(),angle.Data()),
+        Form("Wrapped Asym*PE L-R vs position CDF: %s, %s, %s",dist.Data(),bar.Data(),angle.Data()),
+        Form("Wrapped Asym*PE L-R vs angle CDF: %s, %s, %s",dist.Data(),bar.Data(),angle.Data())
     };
 
     for(int i = 0; i < num_plots; i++) {
@@ -300,6 +343,22 @@ int main(Int_t argc, Char_t* argv[]) {
         gPad->SetGridx(1);
         gPad->SetGridy(1);
         pe_ang_wrap_div[i]->Draw();
+        pad2[10]->cd(i+1);
+        gPad->SetGridx(1);
+        gPad->SetGridy(1);
+        pe_pos_sum_wrap_cdf[i]->Draw();
+        pad2[11]->cd(i+1);
+        gPad->SetGridx(1);
+        gPad->SetGridy(1);
+        pe_ang_sum_wrap_cdf[i]->Draw();
+        pad2[12]->cd(i+1);
+        gPad->SetGridx(1);
+        gPad->SetGridy(1);
+        pe_pos_diff_wrap_cdf[i]->Draw();
+        pad2[13]->cd(i+1);
+        gPad->SetGridx(1);
+        gPad->SetGridy(1);
+        pe_ang_diff_wrap_cdf[i]->Draw();
     }
 
     std::vector<TString> files = {
@@ -312,7 +371,11 @@ int main(Int_t argc, Char_t* argv[]) {
         "pe_pos_diff_wrapped.png",
         "pe_ang_diff_wrapped.png",
         "pe_pos_wrapped_div.png",
-        "pe_ang_wrapped_div.png"
+        "pe_ang_wrapped_div.png",
+        "pe_pos_sum_wrap_cdf.png",
+        "pe_ang_sum_wrap_cdf.png",
+        "pe_pos_diff_wrap_cdf.png",
+        "pe_ang_diff_wrap_cdf.png"
     };
 
     for(int i = 0; i < num_plots; i++) {
