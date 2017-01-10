@@ -24,6 +24,7 @@ int main(int argc, char** argv){
          << "md6config3_23, md7config2_23, md8config16_0 or md8config16_23"<<endl
          << "\t <tracks> is default and does not calculate PEs" << endl
          << " --distmodel mirror (omit for as is)" << endl
+         << " --Ecut <Lval> <Hval> (optional: make energy cuts on electrons in MeV)" << endl
 	 << " --suffix <name to append to outFile> (omit for default)" << endl;
     return 1;
   }
@@ -34,8 +35,12 @@ int main(int argc, char** argv){
   string rootfile = "";
   string suffix="";
   int offset = 0;
+  double eCutLow(-1),eCutHigh(-1);
   for(Int_t i = 1; i < argc; i++) {
-    if(0 == strcmp("--barmodel", argv[i])) {
+    if(0 == strcmp("--Ecut", argv[i])) {
+      eCutLow  = atof(argv[i+1]);
+      eCutHigh = atof(argv[i+2]);
+    }else if(0 == strcmp("--barmodel", argv[i])) {
       barModel = argv[i+1];
     }else if(0 == strcmp("--distmodel", argv[i])) {
       distModel = argv[i+1];
@@ -90,7 +95,7 @@ int main(int argc, char** argv){
   else
     outNm = Form("o_anaPE_%s_%s_%s.root",barModel.c_str(),distModel.c_str(),suffix.c_str());
   TFile *fout=new TFile(outNm.c_str(),"RECREATE");
-  string lr[2]={"R","L"};
+  string lr[2]={"L","R"};
   string species[3]={"N","P","A"};
 
   TH1D *hTotPE=new TH1D("hTotPE","",4,0,4);
@@ -139,8 +144,9 @@ int main(int argc, char** argv){
   double AvgPE[2][2]={{0,0},{0,0}};
 
   long int stepEvNr(0),prevEvNr(0),currEvNr(0),realEvNr(0),recordNr(1000);
-  float startProc=56,stopProc=90,currentProc=0,procStep=5;
+  float startProc=99.7,stopProc=101,currentProc=0,procStep=5;
   long int nev=t->GetEntries();
+  cout<<"Total number of events: "<<nev<<endl;
   for(long int i=0;i<nev;i++){
     if( float(i+1)/nev*100 > currentProc ){
       cout<<" at event: "<<i<<"\t"<<float(i+1)/nev*100<<"% | time passed: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<" s | iProc: "<<int(int( float(i+1)/nev*100 ) * nProcBins/100)<<endl;
@@ -179,10 +185,11 @@ int main(int argc, char** argv){
     float flip(1.);
     if(distModel == "mirror")
       flip=-1.;
-
-    double pes[2]={0,0};
+    if(eCutLow>-1 && (E<eCutLow || E>=eCutHigh)) continue;
+    
+    double pes[2]={1,0};
     if(barModel == "tracks"){
-      if(x>0) pes[0]=1;
+      if(x>=0) pes[0]=1;
       else if(x<0) pes[1]=1;
     }else{
       if(!interpolator.getPEs(E,flip*x,flip*angX,pes[0],pes[1])) continue;
@@ -195,12 +202,15 @@ int main(int argc, char** argv){
       hpe[j][primary]->Fill(pes[j]);
       posPE[j][primary]->Fill(x,pes[j]);
       angPE[j][primary]->Fill(angX-angXi,pes[j]);
-      angPEProc[j][primary][iProc]->Fill(angX-angXi,pes[j]);
       
       hpe[j][2]->Fill(pes[j]);
       posPE[j][2]->Fill(x,pes[j]);
       angPE[j][2]->Fill(angX-angXi,pes[j]);
-      angPEProc[j][2][iProc]->Fill(angX-angXi,pes[j]);
+
+      if(iProc<20){
+	angPEProc[j][primary][iProc]->Fill(angX-angXi,pes[j]);
+	angPEProc[j][2][iProc]->Fill(angX-angXi,pes[j]);
+      }
 
       if(fillPhi){
 	double tmpPhi= phi < 0 ? 360 + phi : phi;
@@ -211,12 +221,13 @@ int main(int argc, char** argv){
     
     
   }
-
+  cout<<" finished loop "<<endl;
   for(int j=0;j<2;j++)
     for(int k=0;k<2;k++){
       hTotPE->SetBinContent(j*2+k+1,TotPE[j][k]);
     }
-
+  cout<<" write out file "<<endl;
+  
   fout->cd();
   hTotPE->Write();
   for(int i=0;i<2;i++)
@@ -233,5 +244,7 @@ int main(int argc, char** argv){
     }
   
   fout->Close();
+  cout<<" Running time[s]: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<endl;
 
+  return 0;
 }
