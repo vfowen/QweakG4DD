@@ -23,7 +23,7 @@ int fixedPos(0);
 std::vector<double> xI,yI,zI,aXi,aYi,polI;
 
 void findInt(std::vector<int> &inter,std::vector<int> &val, int trackID,int parent, int &hasPar, int &nInt);
-void processOne(TTree *QweakSimG4_Tree,TTree *tout, int &nrEvts);
+void processOne(TTree *QweakSimG4_Tree,TTree *tout, long &nrEvts);
 void readInitial(string fnm);
 
 
@@ -40,7 +40,7 @@ int main(int argc, char** argv){
     fixedPos=atoi(argv[3]);
 
   TFile *fout=new TFile(Form("o_hits_%s.root",suffix.c_str()),"RECREATE");
-  TH1I *hEntries=new TH1I("hEntries","number of processed events",2,0,2);
+  TH1D *hEntries=new TH1D("hEntries","number of processed events",2,0,2);
   TTree *tout=new TTree("t","Stripped QweakSimG4 tree for hits");
   tout->Branch("evNr",&evNr,"evNr/I");
   tout->Branch("primary",&primary,"primary/I");
@@ -121,7 +121,7 @@ int main(int argc, char** argv){
   return 0;
 }
 
-void processOne(TTree *QweakSimG4_Tree, TTree *tout, int &nrEvts){
+void processOne(TTree *QweakSimG4_Tree, TTree *tout, long &nrEvts){
 
   std::vector<int> interaction;
   std::vector<int> trackID;
