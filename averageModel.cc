@@ -67,7 +67,7 @@ TGraph *gprCnt,*gprFct[300];//gpr phase space functions
 void readGpr(string fnm);
 
 
-std::vector<pmtdd_data*> avgValue(TString, TString, TString, Int_t, Int_t);
+std::vector<pmtdd_data*> avgValue(TString, TString, TString, float, Int_t);
 
 int main(int argc, char** argv)
 {
@@ -102,7 +102,7 @@ int main(int argc, char** argv)
   TString distModel = "asIs";
   TString rootfile = "";
   Bool_t scan = kFALSE;
-  Int_t offset = 0;
+  float offset = 0;
   Int_t peUncert(0);
   
   for(Int_t i = 1; i < argc; i++) {    
@@ -122,7 +122,7 @@ int main(int argc, char** argv)
     } else if(0 == strcmp("--rootfile", argv[i])) {
       rootfile = argv[i+1];
     } else if(0 == strcmp("--offset", argv[i])) {
-      offset = atoi(argv[i+1]);
+      offset = atof(argv[i+1]);
     } else if(0 == strcmp("--scan", argv[i])) {
       scan = kTRUE;
     } else if(0 == strcmp("--lightParaUncert", argv[i])) {
@@ -241,7 +241,7 @@ int main(int argc, char** argv)
   return 0;
 }
 
-std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString rootfile, Int_t offset, Int_t peUncert) {
+std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString rootfile, float offset, Int_t peUncert) {
   interpolatePEs interpolator(barModel.Data(),peUncert);
   //interpolator.verbosity=1;
 
@@ -280,7 +280,7 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
     t->SetBranchAddress("asymPmM",&asymPmM);
   }
   
-  TFile *fout=new TFile(Form("o_avgModel_%s_%s_offset_%d_Nmodels_%d.root", barModel.Data(),
+  TFile *fout=new TFile(Form("o_avgModel_%s_%s_offset_%4.2f_Nmodels_%d.root", barModel.Data(),
                              distModel.Data(),offset,nModelsEff),"RECREATE");
 
   string lr[2]={"R","L"};
@@ -315,7 +315,7 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
     t->GetEntry(i);
 
     if( float(i+1)/nev*100 > currentProc ){
-      cout<<" at event: "<<i<<"\t"<<int(float(i+1)/nev*100)<<"% | time passed: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<" s"<<endl;
+      cout<<" at event: "<<i<<"\t"<<float(i+1)/nev*100<<"% | time passed: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<" s"<<endl;
       currentProc+=procStep;
     }
         
@@ -533,12 +533,11 @@ double model(float val,int type){
 void readGpr(string fnm){
   gprCnt=new TGraph();
   int nBins(0);
-  double val75;
   TFile *fin=TFile::Open(fnm.c_str(),"READ");
 
   TH1D *hin=(TH1D*)fin->Get("ho");
   nBins=hin->GetXaxis()->GetNbins();
-  val75 = hin->GetBinContent( hin->GetXaxis()->FindBin(75) );
+  //val75 = hin->GetBinContent( hin->GetXaxis()->FindBin(75) );
 
   int nPnt(0);
   for(int i=0;i<nBins;i++){
@@ -546,10 +545,8 @@ void readGpr(string fnm){
     x = hin->GetBinCenter(i);
     y = hin->GetBinContent(i);
     if(x<0) continue;
-    if(x>75)
-      y = val75;
+    if(x>89) continue;
 
-    y = y / (2*0.55);
     gprCnt->SetPoint(nPnt,x,-y);
     gprCnt->SetPoint(nPnt+1,-x,y);
     nPnt+=2;
@@ -562,16 +559,13 @@ void readGpr(string fnm){
     nPnt=0;
     TGraph *gin=(TGraph*)fin->Get(Form("oneFct_%d",nFct));
     nBins=gin->GetN();
-    val75 = gin->Eval(75);
     for(int i=0;i<nBins;i++){
       double x,y;
       gin->GetPoint(i,x,y);
 
       if(x<0) continue;
-      if(x>75)
-	y = val75;
+      if(x>89) continue;
 
-      y = y / (2*0.55);
       gprFct[nFct]->SetPoint(nPnt,x,-y);
       gprFct[nFct]->SetPoint(nPnt+1,-x,y);
       nPnt+=2;
