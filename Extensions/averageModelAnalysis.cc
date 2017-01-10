@@ -266,6 +266,7 @@ int main(Int_t argc, Char_t* argv[]) {
     // Create all the canvases and such
     int num_plots = 14;
     std::vector< TCanvas* > tc(num_plots);
+    std::vector< TCanvas* > tc_individual(num_plots*6);
     std::vector< TPad* > pad1(num_plots);
     std::vector< TPad* > pad2(num_plots);
     std::vector< TPaveText* > text1(num_plots);
@@ -361,21 +362,66 @@ int main(Int_t argc, Char_t* argv[]) {
         pe_ang_diff_wrap_cdf[i]->Draw();
     }
 
+    for(int i = 0; i < 6; i++) {
+        tc_individual[i*14] = new TCanvas(Form("tc_individual%d",i*14),Form("tc_individual%d",i*14),1200,800);
+        pe_pos_diff[i]->Draw();
+        tc_individual[i*14]->Print(Form("pe_pos_diff_%d.pdf",i+1));
+        tc_individual[i*14+1] = new TCanvas(Form("tc_individual%d",i*14+1),Form("tc_individual%d",i*14+1),1200,800);
+        pe_ang_diff[i]->Draw();
+        tc_individual[i*14+1]->Print(Form("pe_ang_diff_%d.pdf",i+1));
+        tc_individual[i*14+2] = new TCanvas(Form("tc_individual%d",i*14+2),Form("tc_individual%d",i*14+2),1200,800);
+        pe_pos_sum[i]->Draw();
+        tc_individual[i*14+2]->Print(Form("pe_pos_sum_%d.pdf",i+1));
+        tc_individual[i*14+3] = new TCanvas(Form("tc_individual%d",i*14+3),Form("tc_individual%d",i*14+3),1200,800);
+        pe_ang_sum[i]->Draw();
+        tc_individual[i*14+3]->Print(Form("pe_ang_sum_%d.pdf",i+1));
+        tc_individual[i*14+4] = new TCanvas(Form("tc_individual%d",i*14+4),Form("tc_individual%d",i*14+4),1200,800);
+        pe_pos_sum_wrap[i]->Draw();
+        tc_individual[i*14+4]->Print(Form("pe_pos_sum_wrap_%d.pdf",i+1));
+        tc_individual[i*14+5] = new TCanvas(Form("tc_individual%d",i*14+5),Form("tc_individual%d",i*14+5),1200,800);
+        pe_ang_sum_wrap[i]->Draw();
+        tc_individual[i*14+5]->Print(Form("pe_ang_sum_wrap_%d.pdf",i+1));
+        tc_individual[i*14+6] = new TCanvas(Form("tc_individual%d",i*14+6),Form("tc_individual%d",i*14+6),1200,800);
+        pe_pos_diff_wrap[i]->Draw();
+        tc_individual[i*14+6]->Print(Form("pe_pos_diff_wrap_%d.pdf",i+1));
+        tc_individual[i*14+7] = new TCanvas(Form("tc_individual%d",i*14+7),Form("tc_individual%d",i*14+7),1200,800);
+        pe_ang_diff_wrap[i]->Draw();
+        tc_individual[i*14+7]->Print(Form("pe_ang_diff_wrap_%d.pdf",i+1));
+        tc_individual[i*14+8] = new TCanvas(Form("tc_individual%d",i*14+8),Form("tc_individual%d",i*14+8),1200,800);
+        pe_pos_wrap_div[i]->Draw();
+        tc_individual[i*14+8]->Print(Form("pe_pos_wrap_div_%d.pdf",i+1));
+        tc_individual[i*14+9] = new TCanvas(Form("tc_individual%d",i*14+9),Form("tc_individual%d",i*14+9),1200,800);
+        pe_ang_wrap_div[i]->Draw();
+        tc_individual[i*14+9]->Print(Form("pe_ang_wrap_div_%d.pdf",i+1));
+        tc_individual[i*14+10] = new TCanvas(Form("tc_individual%d",i*14+10),Form("tc_individual%d",i*14+10),1200,800);
+        pe_pos_sum_wrap_cdf[i]->Draw();
+        tc_individual[i*14+10]->Print(Form("pe_pos_sum_wrap_cdf_%d.pdf",i+1));
+        tc_individual[i*14+11] = new TCanvas(Form("tc_individual%d",i*14+11),Form("tc_individual%d",i*14+11),1200,800);
+        pe_ang_sum_wrap_cdf[i]->Draw();
+        tc_individual[i*14+11]->Print(Form("pe_ang_sum_wrap_cdf_%d.pdf",i+1));
+        tc_individual[i*14+12] = new TCanvas(Form("tc_individual%d",i*14+12),Form("tc_individual%d",i*14+12),1200,800);
+        pe_pos_diff_wrap_cdf[i]->Draw();
+        tc_individual[i*14+12]->Print(Form("pe_pos_diff_wrap_cdf_%d.pdf",i+1));
+        tc_individual[i*14+13] = new TCanvas(Form("tc_individual%d",i*14+13),Form("tc_individual%d",i*14+13),1200,800);
+        pe_ang_diff_wrap_cdf[i]->Draw();
+        tc_individual[i*14+13]->Print(Form("pe_ang_diff_wrap_cdf_%d.pdf",i+1));
+    }
+
     std::vector<TString> files = {
-        "pe_pos_diff.png",
-        "pe_ang_diff.png",
-        "pe_pos_sum.png",
-        "pe_ang_sum.png",
-        "pe_pos_sum_wrapped.png",
-        "pe_ang_sum_wrapped.png",
-        "pe_pos_diff_wrapped.png",
-        "pe_ang_diff_wrapped.png",
-        "pe_pos_wrapped_div.png",
-        "pe_ang_wrapped_div.png",
-        "pe_pos_sum_wrap_cdf.png",
-        "pe_ang_sum_wrap_cdf.png",
-        "pe_pos_diff_wrap_cdf.png",
-        "pe_ang_diff_wrap_cdf.png"
+        "pe_pos_diff.pdf",
+        "pe_ang_diff.pdf",
+        "pe_pos_sum.pdf",
+        "pe_ang_sum.pdf",
+        "pe_pos_sum_wrapped.pdf",
+        "pe_ang_sum_wrapped.pdf",
+        "pe_pos_diff_wrapped.pdf",
+        "pe_ang_diff_wrapped.pdf",
+        "pe_pos_wrapped_div.pdf",
+        "pe_ang_wrapped_div.pdf",
+        "pe_pos_sum_wrap_cdf.pdf",
+        "pe_ang_sum_wrap_cdf.pdf",
+        "pe_pos_diff_wrap_cdf.pdf",
+        "pe_ang_diff_wrap_cdf.pdf"
     };
 
     for(int i = 0; i < num_plots; i++) {
