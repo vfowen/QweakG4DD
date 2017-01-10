@@ -1,5 +1,5 @@
-CXXFLAGS = $(shell root-config --cflags) -I./include/ 
-LIBS = $(shell root-config --glibs) 
+CXXFLAGS = $(shell root-config --cflags) -I./include/ -ggdb -O0 -Wall
+LIBS = $(shell root-config --glibs)
 SRCS := \
 	averageModel.cc \
 	src/interpolatePEs.cc
@@ -9,10 +9,10 @@ OFILES := $(addsuffix .o,$(basename $(SRCS)))
 all: avgModel
 
 avgModel: $(OFILES)
-		g++ -Wall -ggdb -o $@ $^ $(LIBS)
+		g++ $(CXXFLAGS) -o $@ $^ $(LIBS)
 
 %.o: %.cpp
-		g++ -Wall -ggdb -c $(CXXFLAGS) -o $@ $^
+		g++ $(CXXFLAGS) -o $@ $^
 
 clean:
-	rm -f tree_fill *.o
+	rm -f avgModel *.o src/*.o
