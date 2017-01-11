@@ -77,11 +77,13 @@ int main(Int_t argc, Char_t* argv[]) {
     }
 
     // Scale histograms for models 1-4 by integral
+    // Why was there a factor of 2 here? Changed to 1 for now, reminder in case
+    // bad.
     for(int i = 0; i < 6; i++) {
-        peL_pos[i+1]->Scale(2/peL_pos[0]->Integral());
-        peR_pos[i+1]->Scale(2/peR_pos[0]->Integral());
-        peL_ang[i+1]->Scale(2/peL_ang[0]->Integral());
-        peR_ang[i+1]->Scale(2/peR_ang[0]->Integral());
+        peL_pos[i+1]->Scale(1/peL_pos[0]->Integral());
+        peR_pos[i+1]->Scale(1/peR_pos[0]->Integral());
+        peL_ang[i+1]->Scale(1/peL_ang[0]->Integral());
+        peR_ang[i+1]->Scale(1/peR_ang[0]->Integral());
 
         // Clone the left histograms and subtract the right histograms
         pe_pos_diff[i] = (TH1D*)peL_pos[i+1]->Clone();
