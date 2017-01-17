@@ -60,10 +60,11 @@ double model(float val,int type);
 const int nModels = 308;
 const int rangeTst=0;
 int nModelsEff(nModels-301);//default is only [0,6]
-std::vector<std::vector<std::vector<double>>> asymLimits;
+vector<vector<vector<double>>> asymLimits;
 
 //gpr Cnt value and phase space functions 
-TGraph *gprCnt,*gprFct[300];//gpr phase space functions
+vector<vector<double>> gprFcts;
+vector<double> gprXcent,gprX;
 void readGpr(string fnm);
 
 
@@ -132,8 +133,8 @@ int main(int argc, char** argv)
 
   //set Limits
   //model,R/L,Upper/Lower
-  std::vector<double> dummyR={-0.250,-0.050};
-  std::vector<double> dummyL={ 0.050, 0.250};
+  std::vector<double> dummyR={-0.500,-0.000};
+  std::vector<double> dummyL={ 0.000, 0.500};
   std::vector<std::vector<double>> dummyLimit={dummyR,dummyL};
   for(int i=0;i<nModelsEff;i++)
     asymLimits.push_back(dummyLimit);
@@ -366,7 +367,7 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
   double currentStep=stepSize;
 
   int nev=t->GetEntries();
-  float currentProc=0,procStep=1;
+  float currentProc=0,procStep=10;
   for(int i=0;i<nev;i++){
     t->GetEntry(i);
 
@@ -580,9 +581,21 @@ double model(float val,int type){
       +2.8 * 0.685 * 1.5e-9 * abs(pow(val,3))/val
       -0.9 * 0.610 * 4e-11 * pow(val,3);
   else if(type==7){
-    return gprCnt->Eval(val)/1e6;
+    int nFct=type-7;    
+    int bin = int(lower_bound(gprXcent.begin(),gprXcent.end(),abs(val)) - gprXcent.begin());
+    double xL = gprXcent[bin-1];
+    double xH = gprXcent[bin];
+    double yL = gprFcts[nFct][bin-1];
+    double yH = gprFcts[nFct][bin];
+    return -val/abs(val)*(yL + (yH - yL)*(abs(val) - xL)/(xH - xL))/1e6;
   }else if(type<308){
-    return gprFct[type-8]->Eval(val)/1e6;
+    int nFct=type-7;    
+    int bin = int(lower_bound(gprX.begin(),gprX.end(),abs(val)) - gprX.begin());
+    double xL = gprX[bin-1];
+    double xH = gprX[bin];
+    double yL = gprFcts[nFct][bin-1];
+    double yH = gprFcts[nFct][bin];
+    return -val/abs(val)*(yL + (yH - yL)*(abs(val) - xL)/(xH - xL))/1e6;
   }else
     return 0;      
 
@@ -590,48 +603,53 @@ double model(float val,int type){
 }
 
 void readGpr(string fnm){
-  gprCnt=new TGraph();
+
+  std::vector<double> tst;
+
   int nBins(0);
   TFile *fin=TFile::Open(fnm.c_str(),"READ");
-
   TH1D *hin=(TH1D*)fin->Get("ho");
   nBins=hin->GetXaxis()->GetNbins();
-  //val75 = hin->GetBinContent( hin->GetXaxis()->FindBin(75) );
 
-  int nPnt(0);
-  for(int i=0;i<nBins;i++){
+  for(int i=1;i<=nBins;i++){
     double x,y;
     x = hin->GetBinCenter(i);
     y = hin->GetBinContent(i);
     if(x<0) continue;
-    if(x>89) continue;
+    if(x>90) continue;
 
-    gprCnt->SetPoint(nPnt,x,-y);
-    gprCnt->SetPoint(nPnt+1,-x,y);
-    nPnt+=2;
+    gprXcent.push_back(x);
+    tst.push_back(y);
   }
-  gprCnt->SetName("gprCnt");
+
+  gprFcts.push_back(tst);
   
   for(int j=8;j<nModelsEff;j++){
+    tst.clear();
     int nFct=j-8;
-    gprFct[nFct]=new TGraph();
-    nPnt=0;
     TGraph *gin=(TGraph*)fin->Get(Form("oneFct_%d",nFct));
     nBins=gin->GetN();
     for(int i=0;i<nBins;i++){
       double x,y;
       gin->GetPoint(i,x,y);
-
       if(x<0) continue;
-      if(x>89) continue;
+      if(x>90) continue;
 
-      gprFct[nFct]->SetPoint(nPnt,x,-y);
-      gprFct[nFct]->SetPoint(nPnt+1,-x,y);
-      nPnt+=2;
+      if(j>8){
+	int currentPnt=tst.size();
+	if(gprX[currentPnt] != x){
+	  cerr<<__PRETTY_FUNCTION__<<" line: "<<__LINE__<<endl
+	      <<"\t x positions don't match for function "<<j<<" "<<currentPnt<<" <> "<<gprX[currentPnt]<<" "<<x<<endl;
+	}
+      }else
+	gprX.push_back(x);
+      
+      tst.push_back(y);
     }
-    gprFct[nFct]->SetName(Form("gprFct_%d",nFct));
+    gprFcts.push_back(tst);
   }
 
+  cout<<"read a total of: "<<gprFcts.size()<<" functions"<<endl;
   fin->Close();  
 }
 
