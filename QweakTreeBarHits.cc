@@ -134,19 +134,20 @@ void processOne(TTree *QweakSimG4_Tree, TTree *tout, long &nrEvts){
     QweakSimG4_Tree->GetEntry(i);
     if(i%10000==1) cout<<"   at event: "<<i<<endl;
 
-    evNr = nrEvts + event->Primary.GetPrimaryEventNumber();
+    int nThrown = event->Primary.GetPrimaryEventNumber()-1;
+    evNr = nrEvts + nThrown + 1;
     double asymPpM = event->Primary.GetAsymDeno();
     double asymPmM = event->Primary.GetAsymNomi();
     asymPP = (asymPpM + asymPmM)/2;
     asymPM = (asymPpM - asymPmM)/2;
 
     if(!fixedPos){
-      xi=xI[i];
-      yi=yI[i];
-      zi=zI[i];
-      angXi=aXi[i];
-      angYi=aYi[i];
-      polTi=polI[i];
+      xi=xI[nThrown];
+      yi=yI[nThrown];
+      zi=zI[nThrown];
+      angXi=aXi[nThrown];
+      angYi=aYi[nThrown];
+      polTi=polI[nThrown];
     }else{
       xi=0.;
       yi=335.0;
@@ -155,7 +156,7 @@ void processOne(TTree *QweakSimG4_Tree, TTree *tout, long &nrEvts){
       angYi=0.;
       polTi=1.;
     }
-
+    
     interaction.clear();
     trackID.clear();
     
@@ -184,9 +185,9 @@ void processOne(TTree *QweakSimG4_Tree, TTree *tout, long &nrEvts){
       //pol.rotateUz(mom.unit());
       polT = pol.unit() * mom.unit();
 
-      x=event->Cerenkov.Detector.GetDetectorLocalPositionX()[hit];
-      y=event->Cerenkov.Detector.GetDetectorLocalPositionY()[hit];
-      z=event->Cerenkov.Detector.GetDetectorLocalPositionZ()[hit];
+      x=event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit];
+      y=event->Cerenkov.Detector.GetDetectorGlobalPositionY()[hit];
+      z=event->Cerenkov.Detector.GetDetectorGlobalPositionZ()[hit];
       
       double Gphi   = event->Cerenkov.Detector.GetGlobalPhiAngle()[hit];
       double Gtheta = event->Cerenkov.Detector.GetGlobalThetaAngle()[hit];	
