@@ -189,6 +189,9 @@ int main(int argc, char** argv){
     
     double pes[2]={1,0};
     if(barModel == "tracks"){
+      if(E<3) continue; //3 MeV cut from light parametrizations
+      if(abs(angX) > 89) continue; //89 deg cut from light parametrizations
+      if(abs(x) > 100) continue; //100 cm cut from light parametrizations
       if(x>=0) pes[0]=1;
       else if(x<0) pes[1]=1;
     }else{
