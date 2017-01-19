@@ -11,19 +11,19 @@ def main():
     _Px=0.#deg
     _Py=0.
     _beamE=1160#MeV
-    _tracking=0#0=primary only | 1=prim + opt photon | 2=no optical ph and 10x faster than 3=full
     _email="ciprian@jlab.org"
     _source="/lustre/expphy/work/hallc/qweak/ciprian/simCodeG410/QweakG4DD"
-    _directory="/lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput/g41001p01/center/Mtx5e1_modTrj_glPhi_stp005mm"
-    _stpSize=0.05
-    _nEv=200000
-    _nrStop=1500
-    _nrStart=500
-    _pol="mV"
-    modTrj=2 ## 1:debug print == big NONO! 2: modifyTraj
-    submit=1
+    _directory="/lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput/g41001p01/sample/Mtx5e1_modTrj_glPhi_stp002mm"
+    _tracking=0 #0=primary only | 1=prim + opt photon | 2=no optical ph and 10x faster than 3=full
+    _stpSize=0.02
+    _nEv=150000
+    _nrStop=10000
+    _nrStart=5000
+    _pol="V"
+    modTrj=2 ## 0:standard G4 propagation(wght sims) 1:debug print == big NONO! 2: modifyTraj
+    submit=0
     nDist=203
-    sample=0
+    sample=1
 
     idRoot= _pol+'_sampled_%03dk'% (_nEv/1000) 
     for nr in range(_nrStart,_nrStop): # repeat for nr jobs
