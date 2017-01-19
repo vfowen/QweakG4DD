@@ -26,11 +26,12 @@ private:
 	      double &outL, double &outR);
 
 public:
-  interpolatePEs(std::string bar="ideal23");
+  interpolatePEs(std::string bar="ideal23",int PEuncert=0);
   ~interpolatePEs(){};
 
   void setLightMap(std::string bar);
   int verbosity;
+  int peUncert;
   int getPEs(double E, double x, double angX ,double &outL,double &outR);
   void readScan();
 

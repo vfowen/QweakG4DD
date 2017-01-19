@@ -2206,7 +2206,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 //Visual Attributes for:  Exo-Skelton
     G4VisAttributes* ExoSkeltonFrameVisAtt = new G4VisAttributes(darkbrown);
     ExoSkeltonFrameVisAtt->SetVisibility(true);
-//FrameVisAtt->SetForceWireframe(true);
+    ExoSkeltonFrameVisAtt->SetForceWireframe(true);
 //FrameVisAtt->SetForceSolid(true);
     ExoSkeltonFrame_Logical->SetVisAttributes(ExoSkeltonFrameVisAtt);
     
@@ -2215,7 +2215,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 //------------------------------------------
     G4VisAttributes* FrameVisAtt = new G4VisAttributes(grey);
     FrameVisAtt->SetVisibility(true);
-//FrameVisAtt->SetForceWireframe(true);
+    FrameVisAtt->SetForceWireframe(true);
 //FrameVisAtt->SetForceSolid(true);
     Frame_Logical->SetVisAttributes(FrameVisAtt);
 
@@ -2224,7 +2224,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 //------------------------------------------
     G4VisAttributes* SideBracketVisAtt = new G4VisAttributes(blue);
     SideBracketVisAtt->SetVisibility(true);
-//SideBracketVisAtt->SetForceWireframe(true);
+    SideBracketVisAtt->SetForceWireframe(true);
 //SideBracketVisAtt->SetForceSolid(true);
     SideBracket_Logical->SetVisAttributes(SideBracketVisAtt);
 
@@ -2233,7 +2233,7 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 //------------------------------------------
     G4VisAttributes* EndBracketVisAtt = new G4VisAttributes(blue);
     EndBracketVisAtt->SetVisibility(true);
-//EndBracketVisAtt->SetForceWireframe(true);
+    EndBracketVisAtt->SetForceWireframe(true);
 //EndBracketVisAtt->SetForceSolid(true);
     EndBracket_Logical->SetVisAttributes(EndBracketVisAtt);
 
@@ -2242,8 +2242,8 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 //------------------------------------------
     G4VisAttributes* SideBracketPadVisAtt = new G4VisAttributes(brown);
     SideBracketPadVisAtt->SetVisibility(true);
-//SideBracketPadVisAtt->SetForceWireframe(true);
-    SideBracketPadVisAtt->SetForceSolid(true);
+    SideBracketPadVisAtt->SetForceWireframe(true);
+    //SideBracketPadVisAtt->SetForceSolid(true);
     SideBracketPad_Logical->SetVisAttributes(SideBracketPadVisAtt);
 
 //------------------------------------------
@@ -2251,8 +2251,8 @@ void QweakSimCerenkovDetector::ConstructComponent(G4VPhysicalVolume* MotherVolum
 //------------------------------------------
     G4VisAttributes* EndBracketPadVisAtt = new G4VisAttributes(brown);
     EndBracketPadVisAtt->SetVisibility(true);
-//EndBracketPadVisAtt->SetForceWireframe(true);
-EndBracketPadVisAtt->SetForceSolid(true);
+    EndBracketPadVisAtt->SetForceWireframe(true);
+    //EndBracketPadVisAtt->SetForceSolid(true);
     EndBracketPad_Logical->SetVisAttributes(EndBracketPadVisAtt);
 
 
@@ -2261,8 +2261,8 @@ EndBracketPadVisAtt->SetForceSolid(true);
 //------------------------------------------
     G4VisAttributes* ClipVisAtt = new G4VisAttributes(lightorange);
     ClipVisAtt->SetVisibility(true);
-//ClipVisAtt->SetForceWireframe(true);
-//ClipVisAtt->SetForceSolid(true);
+    ClipVisAtt->SetForceWireframe(true);
+    //ClipVisAtt->SetForceSolid(true);
     FrontClip_Logical->SetVisAttributes(ClipVisAtt);
     BackClip_Logical->SetVisAttributes(ClipVisAtt);
 
@@ -2295,8 +2295,8 @@ EndBracketPadVisAtt->SetForceSolid(true);
 //-----------------------------------------------------
     G4VisAttributes* PMTEntranceWindowVisAtt = new G4VisAttributes(grey);
     PMTEntranceWindowVisAtt->SetVisibility(true);
-//PMTEntranceWindowVisAtt->SetForceWireframe(true);
-    PMTEntranceWindowVisAtt->SetForceSolid(true);
+    PMTEntranceWindowVisAtt->SetForceWireframe(true);
+    //PMTEntranceWindowVisAtt->SetForceSolid(true);
     PMTEntranceWindow_Logical->SetVisAttributes(PMTEntranceWindowVisAtt);
 
 //---------------------------------------
@@ -2304,8 +2304,8 @@ EndBracketPadVisAtt->SetForceSolid(true);
 //---------------------------------------
     G4VisAttributes* PMTVisAtt = new G4VisAttributes(magenta);
     PMTVisAtt->SetVisibility(true);
-//PMTVisAtt->SetForceWireframe(true);
-    PMTVisAtt->SetForceSolid(true);
+    PMTVisAtt->SetForceWireframe(true);
+    //PMTVisAtt->SetForceSolid(true);
     Cathode_Logical->SetVisAttributes(PMTVisAtt);
 
     G4cout << G4endl << "###### Leaving QweakSimCerenkovDetector::ConstructComponent() " << G4endl << G4endl;

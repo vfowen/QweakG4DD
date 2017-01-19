@@ -1,9 +1,10 @@
 #include "interpolatePEs.hh"
+#include "TRandom3.h"
 
 using namespace std;
 
-interpolatePEs::interpolatePEs(string bar):
-  barModel(bar),verbosity(0)
+interpolatePEs::interpolatePEs(string bar,int PEuncert):
+  barModel(bar),verbosity(0),peUncert(PEuncert)
 {
   readScan();
 }
@@ -17,7 +18,22 @@ void interpolatePEs::setLightMap(string bar){
 void interpolatePEs::readScan(){
 
   string path;
-  if("md3config4_23" == barModel) {
+  if("md1config10_23" == barModel) {
+    cout << "Using input/md1Config10_alongDir_acrossAng23_lightPara.txt" << endl;
+    path = "input/md1Config10_alongDir_acrossAng23_lightPara.txt";
+  }else if("md1config16_model2_23" == barModel) {
+    cout << "Using input/md1Config16_model2_alongDir_acrossAng23_lightPara.txt" << endl;
+    path = "input/md1Config16_model2_alongDir_acrossAng23_lightPara.txt";
+  }else if("md1_model2_lightGuideMod" == barModel) {
+    path = "input/md1_model2_LightGuideMod_alongDir_acrossAng23_lightPara.txt";
+    cout << "Using: "<< path << endl;
+  }else if("md2config5_23" == barModel) {
+    cout << "Using input/md2Config5_alongDir_acrossAng23_lightPara.txt" << endl;
+    path = "input/md2Config5_alongDir_acrossAng23_lightPara.txt";
+  }else if("md2config5_model2_23" == barModel) {
+    cout << "Using input/md2Config5_model2_alongDir_acrossAng23_lightPara.txt" << endl;
+    path = "input/md2Config5_model2_alongDir_acrossAng23_lightPara.txt";
+  }else if("md3config4_23" == barModel) {
     cout << "Using input/md3Config4_alongDir_acrossAng23_lightPara.txt" << endl;
     path = "input/md3Config4_alongDir_acrossAng23_lightPara.txt";
   }else if("md4config4_23" == barModel) {
@@ -50,6 +66,21 @@ void interpolatePEs::readScan(){
   }else if("ideal23_bevel" == barModel) {
     cout << "input/idealBar_alongDir_acrossAng23_Bevel1mmRightBar05mmLeftBar.txt" << endl;
     path = "input/idealBar_alongDir_acrossAng23_Bevel1mmRightBar05mmLeftBar.txt";
+  }else if("ideal23_glue" == barModel) {
+    cout << "input/idealBar_alongDir_acrossAng23_GlueFilm040.txt" << endl;
+    path = "input/idealBar_alongDir_acrossAng23_GlueFilm040.txt";
+  }else if("ideal23_thickdiff" == barModel) {
+    cout << "input/idealBar_alongDir_acrossAng23_ThickDiff1.5mm.txt" << endl;
+    path = "input/idealBar_alongDir_acrossAng23_ThickDiff1.5mm.txt";
+  }else if("ideal23_RBevelEndcapCentralGlueSideOnly" == barModel) {
+    path = "input/idealBar_alongDir_acrossAng23_RBevelEndcapCentralGlueSideOnly.txt";
+    cout << "Using: "<< path << endl;
+  }else if("ideal23_RBevelEndcapPMTSideOnly" == barModel) {
+    path = "input/idealBar_alongDir_acrossAng23_RBevelEndcapPMTSideOnly.txt";
+    cout << "Using: "<< path << endl;
+  }else if("ideal23_RBevelLongAxisOnly" == barModel) {
+    path = "input/idealBar_alongDir_acrossAng23_RBevelLongAxisOnly.txt";
+    cout << "Using: "<< path << endl;
   }else{
     cout << "Cannot match your barModel to available list: update list or check name"<<endl;
     exit(2);
@@ -69,33 +100,38 @@ void interpolatePEs::readScan(){
   energyLowLimit  = 3;
   energyHighLimit = 100;
 
-  if("ideal23_bevel" == barModel || "ideal23_polish" == barModel ||
-     "md4config4_23" == barModel || "md6config3_23" == barModel ||
-     "md7config2_23" == barModel || "md8config16_23" == barModel || 
-     "ideal23" == barModel ) {
-    xPosLowLimit  = -100;
-    xPosHighLimit =  100;
-    xAngLowLimit  = -89;
-    xAngHighLimit =  89;
-  } else {
+  if("md8config16_0" == barModel) {
     xPosLowLimit  = -90;
     xPosHighLimit =  90;
     xAngLowLimit  = -80;
     xAngHighLimit =  80;
+  } else {
+    xPosLowLimit  = -100;
+    xPosHighLimit =  100;
+    xAngLowLimit  = -89;
+    xAngHighLimit =  89;
   }
         
   
   double x1,x2,x3,x4,x5,x6,x7,x8,x9;  
   string data;
   getline(fin, data);
+  TRandom3 gs(0);
+
   while(fin>>x1>>x2>>x3>>x4>>x5>>x6>>x7>>x8>>x9){
+    double lpe(x6),rpe(x8);
+    if(peUncert){
+      lpe = gs.Gaus(x6,x7);
+      rpe = gs.Gaus(x8,x9);
+    }
+    
     scanPoints[0].push_back(x1);//position
     scanPoints[1].push_back(x2);//energy
     scanPoints[2].push_back(x3);//angle
-    scanPoints[3].push_back(x6);//LPEs
-    scanPoints[4].push_back(x8);//RPEs
+    scanPoints[3].push_back(lpe);//LPEs
+    scanPoints[4].push_back(rpe);//RPEs
     if(verbosity)
-      cout<<x1<<" "<<x2<<" "<<x3<<" "<<x6<<" "<<x8<<endl;
+      cout<<x1<<" "<<x2<<" "<<x3<<" "<<lpe<<" "<<rpe<<endl;
   }
   
   fin.close();
@@ -133,8 +169,8 @@ int interpolatePEs::getPEs(double E, double x, double angX ,double &outL,double 
   getPEs(pts,pt,lpe,rpe);
 
   if(lpe<0 || rpe<0 ||
-     isnan(lpe) || isnan(rpe) ||
-     isinf(lpe) || isinf(rpe)){
+     std::isnan(lpe) || std::isnan(rpe) ||
+     std::isinf(lpe) || std::isinf(rpe)){
     cout<<"Problem with interpolator! "<<endl;
     cout<<" "<<lpe<<" "<<rpe<<endl;
     exit(1);

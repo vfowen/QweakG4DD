@@ -93,7 +93,7 @@ int main(int argc, char** argv){
   hTotPE->GetXaxis()->SetBinLabel(7,"Minus P left  Total number of PEs");
   hTotPE->GetXaxis()->SetBinLabel(8,"Minus P right Total number of PEs");
 
-  //[L|R][Primary|NonPrimary|All][Plus|Minus]
+  //[L|R][NonPrimary|Primary|All][Plus|Minus]
   TH1D *hpe[2][3][2],*posPE[2][3][2],*angPE[2][3][2],*phiPE[2][3][2],*hpeAvg[2][3][2];
   TH1D *posAs[2][3],*angAs[2][3],*phiAs[2][3],*avgAs[2][3];
   int incrementNr(10000),recordNr(10000);
@@ -106,10 +106,12 @@ int main(int argc, char** argv){
 				Form("%s %s %s;number of PEs",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
 				300,0,300);
 	
+	double showerFactor(1);
+	if(j!=1) showerFactor=20;
 	hpeAvg[i][j][ipm]=new TH1D(Form("hpeAvg_%s_%s_%s",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
 				   Form("%dk ev Avg %s %s %s;number of PEs",
 					incrementNr/1000,pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
-				   600,0,maxAvg);
+				   600,0,maxAvg*showerFactor);
 	
 	posPE[i][j][ipm]=new TH1D(Form("posPE_%s_%s_%s",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
 				  Form("%s %s %s;position along bar[cm]",pm[ipm].c_str(),lr[i].c_str(),species[j].c_str()),
@@ -145,7 +147,7 @@ int main(int argc, char** argv){
   double AvgPE[2][2][2]={{{0,0},{0,0}},{{0,0},{0,0}}};
 
   //double pmVal[2]={0,0};
-  float startProc=0,stopProc=15,currentProc=0,procStep=10;
+  float startProc=50,stopProc=101,currentProc=1,procStep=10;
   int nev=t->GetEntries();
   for(int i=0;i<nev;i++){
     if( float(i+1)/nev*100 > currentProc ){
@@ -155,32 +157,41 @@ int main(int argc, char** argv){
 
     //if( i>5000000) break;
     //if( float(i+1)/nev*100<startProc || float(i+1)/nev*100>stopProc ) continue;
-
     t->GetEntry(i);
-    
-    // pmVal[0]=(asymInfo[0]+asymInfo[1])/2.;
-    // pmVal[1]=(asymInfo[0]-asymInfo[1])/2.;
+    double wght[2]={2*asymInfo[0]/(asymInfo[0]+asymInfo[1]),2*asymInfo[1]/(asymInfo[0]+asymInfo[1])};
+    if(!primary){
+      wght[0]=1;
+      wght[1]=1;
+    }
+    //if(recordNr == incrementNr ) recordNr=evNr;
+    //if(abs(angX)>30) continue;
     
     if(evNr>recordNr){
       recordNr+=incrementNr;
-      for(int j=0;j<2;j++)
+      for(int j=0;j<2;j++){
 	for(int k=0;k<2;k++){
 	  for(int ipm=0;ipm<2;ipm++){
 	    hpeAvg[k][j][ipm]->Fill(AvgPE[j][k][ipm]/(float)incrementNr);
 	  }
-
+	  
 	  if( (AvgPE[j][k][0] + AvgPE[j][k][1]) > 0 )
 	    avgAs[k][j]->Fill( (AvgPE[j][k][0] - AvgPE[j][k][1]) /  (AvgPE[j][k][0] + AvgPE[j][k][1]) );
-	  
-	  AvgPE[j][k][0]=0;
-	  AvgPE[j][k][1]=0;
 	}
+	hpeAvg[j][2][0]->Fill((AvgPE[0][j][0]+AvgPE[1][j][0])/(float)incrementNr);
+	hpeAvg[j][2][1]->Fill((AvgPE[0][j][1]+AvgPE[1][j][1])/(float)incrementNr);
+      }
+
+      for(int j=0;j<2;j++)
+	for(int k=0;k<2;k++)
+	  for(int ipm=0;ipm<2;ipm++)
+	    AvgPE[j][k][ipm]=0;
+      
     }
     
     float flip(1.);
     if(distModel == "mirror")
       flip=-1.;
-
+    
     double pes[2]={0,0};
     if(barModel == "tracks"){
       if(x>0) pes[0]=1;
@@ -191,21 +202,21 @@ int main(int argc, char** argv){
 
     for(int ipm=0;ipm<2;ipm++)
       for(int j=0;j<2;j++){
-	TotPE[primary][j][ipm]+=pes[j]*asymInfo[ipm];
-	AvgPE[primary][j][ipm]+=pes[j]*asymInfo[ipm];
+	TotPE[primary][j][ipm]+=pes[j]*wght[ipm];
+	AvgPE[primary][j][ipm]+=pes[j]*wght[ipm];
 	
-	hpe[j][primary][ipm]->Fill(pes[j]*asymInfo[ipm]);
-	posPE[j][primary][ipm]->Fill(x,pes[j]*asymInfo[ipm]);
-	angPE[j][primary][ipm]->Fill(angX-angXi,pes[j]*asymInfo[ipm]);
+	hpe[j][primary][ipm]->Fill(pes[j]*wght[ipm]);
+	posPE[j][primary][ipm]->Fill(x,pes[j]*wght[ipm]);
+	angPE[j][primary][ipm]->Fill(angX-angXi,pes[j]*wght[ipm]);
       
-	hpe[j][2][ipm]->Fill(pes[j]*asymInfo[ipm]);
-	posPE[j][2][ipm]->Fill(x,pes[j]*asymInfo[ipm]);
-	angPE[j][2][ipm]->Fill(angX-angXi,pes[j]*asymInfo[ipm]);
+	hpe[j][2][ipm]->Fill(pes[j]*wght[ipm]);
+	posPE[j][2][ipm]->Fill(x,pes[j]*wght[ipm]);
+	angPE[j][2][ipm]->Fill(angX-angXi,pes[j]*wght[ipm]);
 
 	if(fillPhi){
 	  double tmpPhi= phi < 0 ? 360 + phi : phi;
-	  phiPE[j][primary][ipm]->Fill(tmpPhi,pes[j]*asymInfo[ipm]);
-	  phiPE[2][primary][ipm]->Fill(tmpPhi,pes[j]*asymInfo[ipm]);
+	  phiPE[j][primary][ipm]->Fill(tmpPhi,pes[j]*wght[ipm]);
+	  phiPE[j][2][ipm]->Fill(tmpPhi,pes[j]*wght[ipm]);
 	}      
       }
     
