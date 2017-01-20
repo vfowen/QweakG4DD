@@ -13,6 +13,9 @@
 
 using namespace std;
 
+void getCorrectedInitialConditions(float angX, TH1D *h, float &angXi, float &xi);
+const double pi=acos(-1);
+
 int main(int argc, char** argv){
 
   clock_t tStart=clock();
@@ -25,6 +28,7 @@ int main(int argc, char** argv){
          << "\t <tracks> is default and does not calculate PEs" << endl
          << " --distmodel mirror (omit for as is)" << endl
          << " --Ecut <Lval> <Hval> (optional: make energy cuts on electrons in MeV)" << endl
+         << " --correctInitial <distFile> <polV> (optional: calculates initial angle offset from a distribution according to polarization (+1 for V and -1 for mV). works for MD3 moustaches for now)" << endl
 	 << " --suffix <name to append to outFile> (omit for default)" << endl;
     return 1;
   }
@@ -35,6 +39,9 @@ int main(int argc, char** argv){
   string rootfile = "";
   string suffix="";
   int offset = 0;
+  int correctInitial(0);
+  TFile *corrFl;
+  TH1D *hcorrection,*hAng,*hAngCorrected,*hPos,*hPosCorrected;
   double eCutLow(-1),eCutHigh(-1);
   for(Int_t i = 1; i < argc; i++) {
     if(0 == strcmp("--Ecut", argv[i])) {
@@ -42,6 +49,21 @@ int main(int argc, char** argv){
       eCutHigh = atof(argv[i+2]);
     }else if(0 == strcmp("--barmodel", argv[i])) {
       barModel = argv[i+1];
+    }else if(0 == strcmp("--corectInitial", argv[i])) {
+      corrFl=TFile::Open(argv[i+1],"READ");
+      correctInitial = atoi(argv[i+2]);
+      if(correctInitial==1)
+	hcorrection = (TH1D*)corrFl->Get("hAng_V");
+      else if(correctInitial==-1)
+	hcorrection = (TH1D*)corrFl->Get("hAng_M");
+      else{
+	cout<<"Correction polarization value was inputted badly! Quitting!:" <<correctInitial<<endl;
+	return -2;
+      }
+      hAng = new TH1D("hAng","Original angle distribution; angle offset [deg]",200,-100,100);
+      hAngCorrected = new TH1D("hAngCorrected","Corrected angle distribution; angle offset [deg]",200,-100,100);
+      hPos = new TH1D("hPos","Original position distribution; position offset [cm]",200,-100,100);
+      hPosCorrected = new TH1D("hPosCorrected","Corrected angle distribution; position offset [cm]",200,-100,100);
     }else if(0 == strcmp("--distmodel", argv[i])) {
       distModel = argv[i+1];
     }else if(0 == strcmp("--rootfile", argv[i])) {
@@ -64,15 +86,17 @@ int main(int argc, char** argv){
   TTree *t=(TTree*)fin->Get("t");
   int evNr;
   int primary;//0 secondary, 1 primary
-  float x,y,z,E,angX,angY,angXi,angYi,polT;
+  float x,xi,y,z,zi,E,angX,angY,angXi,angYi,polT;
   float phi,theta;
   double asymPpM(0),asymPmM(0);
   int fillPhi=0;
   t->SetBranchAddress("evNr",&evNr);
   t->SetBranchAddress("primary",&primary);
   t->SetBranchAddress("x",&x);
+  t->SetBranchAddress("xi",&xi);
   t->SetBranchAddress("y",&y);
   t->SetBranchAddress("z",&z);
+  t->SetBranchAddress("zi",&zi);
   t->SetBranchAddress("E",&E);
   t->SetBranchAddress("angX",&angX);
   t->SetBranchAddress("angY",&angY);
@@ -197,6 +221,14 @@ int main(int argc, char** argv){
     }else{
       if(!interpolator.getPEs(E,flip*x,flip*angX,pes[0],pes[1])) continue;
     }
+
+    if( correctInitial != 0){
+      hAng->Fill(angX-angXi);
+      hPos->Fill(x-xi+tan(angXi/180*pi)*(z-zi));      
+      getCorrectedInitialConditions(angX,hcorrection,angXi,xi);
+      hAngCorrected->Fill(angX-angXi);
+      hPosCorrected->Fill(x-xi+tan(angXi/180*pi)*(z-zi));      
+    }
     
     for(int j=0;j<2;j++){
       TotPE[primary][j]+=pes[j];
@@ -245,9 +277,23 @@ int main(int argc, char** argv){
       angPE[i][j]->Write();
       phiPE[i][j]->Write();
     }
-  
+
+  if(correctInitial!=0){
+    hPos->Write();
+    hAng->Write();
+    hPosCorrected->Write();
+    hAngCorrected->Write();    
+  }
   fout->Close();
   cout<<" Running time[s]: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<endl;
 
   return 0;
+}
+
+inline void getCorrectedInitialConditions(float angX, TH1D *h, float &angXi, float &xi){
+  //   //for equation a*X+b =>JP det elog 117
+  // double a[8]={1.37e-3, 1.37e-3, 1.37e-3, 1.37e-3, 1.38e-3, 1.37e-3, 1.37e-3, 1.37e-3};
+  // double b[8]={-1.8e-4, -1.9e-4,  1.8e-4,  3.1e-4, -2.0e-5,  1.6e-4,  2.2e-4,  1.1e-4};
+  angXi = angX + h->GetRandom();
+  xi = (angXi/180*pi - 1.8e-4)/1.37e-3 ;
 }
