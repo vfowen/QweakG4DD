@@ -13,7 +13,7 @@
 
 using namespace std;
 
-void getCorrectedInitialConditions(float angX, TH1D *h, float &angXi, float &xi);
+void getCorrectedInitialConditions(float angX, float x, TH1D *h, float &angXi, float &xi, int posAng);
 const double pi=acos(-1);
 
 int main(int argc, char** argv){
@@ -28,7 +28,8 @@ int main(int argc, char** argv){
          << "\t <tracks> is default and does not calculate PEs" << endl
          << " --distmodel mirror (omit for as is)" << endl
          << " --Ecut <Lval> <Hval> (optional: make energy cuts on electrons in MeV)" << endl
-         << " --correctInitial <distFile> <polV> (optional: calculates initial angle offset from a distribution according to polarization (+1 for V and -1 for mV). works for MD3 moustaches for now)" << endl
+         << " --correctInitialAng <distFile> <polV> (optional: calculates initial angle offset from a distribution according to polarization (+1 for V and -1 for mV). works for MD3 moustaches for now)" << endl
+         << " --correctInitialPos <distFile> <polV> (optional: calculates initial position offset from a distribution according to polarization (+1 for V and -1 for mV). works for MD3 moustaches for now)" << endl
 	 << " --suffix <name to append to outFile> (omit for default)" << endl;
     return 1;
   }
@@ -41,7 +42,7 @@ int main(int argc, char** argv){
   int offset = 0;
   int correctInitial(0);
   TFile *corrFl;
-  TH1D *hcorrection,*hAng,*hAngCorrected,*hPos,*hPosCorrected;
+  TH1D *hcorrection;
   double eCutLow(-1),eCutHigh(-1);
   for(Int_t i = 1; i < argc; i++) {
     if(0 == strcmp("--Ecut", argv[i])) {
@@ -49,9 +50,10 @@ int main(int argc, char** argv){
       eCutHigh = atof(argv[i+2]);
     }else if(0 == strcmp("--barmodel", argv[i])) {
       barModel = argv[i+1];
-    }else if(0 == strcmp("--corectInitial", argv[i])) {
+    }else if(0 == strcmp("--correctInitialAng", argv[i])) {
       corrFl=TFile::Open(argv[i+1],"READ");
       correctInitial = atoi(argv[i+2]);
+      cout<<"Will correct initial angle for polarizaiton: "<<correctInitial<<endl;
       if(correctInitial==1)
 	hcorrection = (TH1D*)corrFl->Get("hAng_V");
       else if(correctInitial==-1)
@@ -60,10 +62,18 @@ int main(int argc, char** argv){
 	cout<<"Correction polarization value was inputted badly! Quitting!:" <<correctInitial<<endl;
 	return -2;
       }
-      hAng = new TH1D("hAng","Original angle distribution; angle offset [deg]",200,-100,100);
-      hAngCorrected = new TH1D("hAngCorrected","Corrected angle distribution; angle offset [deg]",200,-100,100);
-      hPos = new TH1D("hPos","Original position distribution; position offset [cm]",200,-100,100);
-      hPosCorrected = new TH1D("hPosCorrected","Corrected angle distribution; position offset [cm]",200,-100,100);
+    }else if(0 == strcmp("--correctInitialPos", argv[i])) {
+      corrFl=TFile::Open(argv[i+1],"READ");
+      correctInitial = atoi(argv[i+2])*2;
+      cout<<"Will correct initial position for polarizaiton: "<<correctInitial<<endl;
+      if(correctInitial==2)
+	hcorrection = (TH1D*)corrFl->Get("hPos_V");
+      else if(correctInitial==-2)
+	hcorrection = (TH1D*)corrFl->Get("hPos_M");
+      else{
+	cout<<"Correction polarization value was inputted badly! Quitting!:" <<correctInitial<<endl;
+	return -2;
+      }
     }else if(0 == strcmp("--distmodel", argv[i])) {
       distModel = argv[i+1];
     }else if(0 == strcmp("--rootfile", argv[i])) {
@@ -119,6 +129,13 @@ int main(int argc, char** argv){
   else
     outNm = Form("o_anaPE_%s_%s_%s.root",barModel.c_str(),distModel.c_str(),suffix.c_str());
   TFile *fout=new TFile(outNm.c_str(),"RECREATE");
+  TH1D *hAng,*hAngCorrected,*hPos,*hPosCorrected;
+  if(correctInitial!=0){
+    hAng = new TH1D("hAng","Original angle distribution; angle offset [deg]",200,-100,100);
+    hAngCorrected = new TH1D("hAngCorrected","Corrected angle distribution; angle offset [deg]",200,-100,100);
+    hPos = new TH1D("hPos","Original position distribution; position offset [cm]",200,-100,100);
+    hPosCorrected = new TH1D("hPosCorrected","Corrected angle distribution; position offset [cm]",200,-100,100);
+  }
   string lr[2]={"L","R"};
   string species[3]={"N","P","A"};
 
@@ -222,10 +239,16 @@ int main(int argc, char** argv){
       if(!interpolator.getPEs(E,flip*x,flip*angX,pes[0],pes[1])) continue;
     }
 
-    if( correctInitial != 0){
+    if( abs(correctInitial) == 1){
       hAng->Fill(angX-angXi);
       hPos->Fill(x-xi+tan(angXi/180*pi)*(z-zi));      
-      getCorrectedInitialConditions(angX,hcorrection,angXi,xi);
+      getCorrectedInitialConditions(angX,x,hcorrection,angXi,xi,correctInitial);
+      hAngCorrected->Fill(angX-angXi);
+      hPosCorrected->Fill(x-xi+tan(angXi/180*pi)*(z-zi));      
+    }else if( abs(correctInitial) == 2){
+      hAng->Fill(angX-angXi);
+      hPos->Fill(x-xi+tan(angXi/180*pi)*(z-zi));      
+      getCorrectedInitialConditions(angX,x,hcorrection,angXi,xi,correctInitial);
       hAngCorrected->Fill(angX-angXi);
       hPosCorrected->Fill(x-xi+tan(angXi/180*pi)*(z-zi));      
     }
@@ -290,10 +313,15 @@ int main(int argc, char** argv){
   return 0;
 }
 
-inline void getCorrectedInitialConditions(float angX, TH1D *h, float &angXi, float &xi){
+inline void getCorrectedInitialConditions(float angX, float x, TH1D *h, float &angXi, float &xi, int posAng){
   //   //for equation a*X+b =>JP det elog 117
   // double a[8]={1.37e-3, 1.37e-3, 1.37e-3, 1.37e-3, 1.38e-3, 1.37e-3, 1.37e-3, 1.37e-3};
   // double b[8]={-1.8e-4, -1.9e-4,  1.8e-4,  3.1e-4, -2.0e-5,  1.6e-4,  2.2e-4,  1.1e-4};
-  angXi = angX + h->GetRandom();
-  xi = (angXi/180*pi - 1.8e-4)/1.37e-3 ;
+  if(abs(posAng)==1){
+    angXi = angX + h->GetRandom();
+    xi = (angXi/180*pi - 1.8e-4)/1.37e-3 ;
+  }else{
+    xi = x + h->GetRandom();
+    angXi = (xi*1.37e-3 + 1.8e-4)*180/pi;
+  }
 }
