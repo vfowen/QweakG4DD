@@ -13,7 +13,7 @@
 
 using namespace std;
 
-void getCorrectedInitialConditions(float angX, float x, TH1D *h, float &angXi, float &xi, int posAng);
+void getCorrectedInitialConditions(float angX, float x, float z, float zi, TH1D *h, float &angXi, float &xi, int posAng);
 const double pi=acos(-1);
 
 int main(int argc, char** argv){
@@ -133,8 +133,8 @@ int main(int argc, char** argv){
   if(correctInitial!=0){
     hAng = new TH1D("hAng","Original angle distribution; angle offset [deg]",200,-100,100);
     hAngCorrected = new TH1D("hAngCorrected","Corrected angle distribution; angle offset [deg]",200,-100,100);
-    hPos = new TH1D("hPos","Original position distribution; position offset [cm]",200,-100,100);
-    hPosCorrected = new TH1D("hPosCorrected","Corrected angle distribution; position offset [cm]",200,-100,100);
+    hPos = new TH1D("hPos","Original position distribution; position offset [cm]",400,-200,200);
+    hPosCorrected = new TH1D("hPosCorrected","Corrected position offset distribution; position offset [cm]",400,-200,200);
   }
   string lr[2]={"L","R"};
   string species[3]={"N","P","A"};
@@ -193,7 +193,7 @@ int main(int argc, char** argv){
       cout<<" at event: "<<i<<"\t"<<float(i+1)/nev*100<<"% | time passed: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<" s | iProc: "<<int(int( float(i+1)/nev*100 ) * nProcBins/100)<<endl;
       currentProc+=procStep;
     }
-    //if( i>500000) break;
+    //if( i>5000000) break;
     //if( float(i+1)/nev*100<startProc || float(i+1)/nev*100>stopProc ) continue;
 
     t->GetEntry(i);
@@ -241,16 +241,16 @@ int main(int argc, char** argv){
 
     if( abs(correctInitial) == 1){
       hAng->Fill(angX-angXi);
-      hPos->Fill(x-xi+tan(angXi/180*pi)*(z-zi));      
-      getCorrectedInitialConditions(angX,x,hcorrection,angXi,xi,correctInitial);
+      hPos->Fill(x-(xi+tan(angXi/180*pi)*abs(z-zi)));      
+      getCorrectedInitialConditions(angX,x,z,zi,hcorrection,angXi,xi,correctInitial);
       hAngCorrected->Fill(angX-angXi);
-      hPosCorrected->Fill(x-xi+tan(angXi/180*pi)*(z-zi));      
+      hPosCorrected->Fill(x-(xi+tan(angXi/180*pi)*abs(z-zi)));      
     }else if( abs(correctInitial) == 2){
       hAng->Fill(angX-angXi);
-      hPos->Fill(x-xi+tan(angXi/180*pi)*(z-zi));      
-      getCorrectedInitialConditions(angX,x,hcorrection,angXi,xi,correctInitial);
+      hPos->Fill(x-(xi+tan(angXi/180*pi)*abs(z-zi)));
+      getCorrectedInitialConditions(angX,x,z,zi,hcorrection,angXi,xi,correctInitial);
       hAngCorrected->Fill(angX-angXi);
-      hPosCorrected->Fill(x-xi+tan(angXi/180*pi)*(z-zi));      
+      hPosCorrected->Fill(x-(xi+tan(angXi/180*pi)*abs(z-zi)));      
     }
     
     for(int j=0;j<2;j++){
@@ -313,15 +313,23 @@ int main(int argc, char** argv){
   return 0;
 }
 
-inline void getCorrectedInitialConditions(float angX, float x, TH1D *h, float &angXi, float &xi, int posAng){
-  //   //for equation a*X+b =>JP det elog 117
+inline void getCorrectedInitialConditions(float angX, float x, float z, float zi,
+					  TH1D *h, float &angXi, float &xi, int posAng){
+  //   //for equation a*X - b =>JP det elog 117 //FIXME the eq should be ax+b (problem is in sampling)
   // double a[8]={1.37e-3, 1.37e-3, 1.37e-3, 1.37e-3, 1.38e-3, 1.37e-3, 1.37e-3, 1.37e-3};
   // double b[8]={-1.8e-4, -1.9e-4,  1.8e-4,  3.1e-4, -2.0e-5,  1.6e-4,  2.2e-4,  1.1e-4};
+
   if(abs(posAng)==1){
-    angXi = angX + h->GetRandom();
-    xi = (angXi/180*pi - 1.8e-4)/1.37e-3 ;
+    angXi = angX - h->GetRandom();
+    xi = (angXi/180*pi + 1.8e-4)/1.37e-3 ;
   }else{
-    xi = x + h->GetRandom();
-    angXi = (xi*1.37e-3 + 1.8e-4)*180/pi;
+    //h contains x - (xi + tan(angXi)*(z-zi))
+    //beam always starts at the same zi so that value is correct
+    double val = x - h->GetRandom();//[cm]
+    double c = abs(z-zi);//[cm]
+    double a = 1.37e-3; //[rad/cm]
+    double b = 1.8e-4; //[rad]
+    xi = (val - c*b)/(1+a*c); //[cm]
+    angXi = (xi*1.37e-3 - 1.8e-4)*180/pi;
   }
 }
