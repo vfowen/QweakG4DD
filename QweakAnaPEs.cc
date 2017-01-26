@@ -10,6 +10,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TH1D.h"
+#include "TH2D.h"
 
 using namespace std;
 
@@ -130,11 +131,16 @@ int main(int argc, char** argv){
     outNm = Form("o_anaPE_%s_%s_%s.root",barModel.c_str(),distModel.c_str(),suffix.c_str());
   TFile *fout=new TFile(outNm.c_str(),"RECREATE");
   TH1D *hAng,*hAngCorrected,*hPos,*hPosCorrected;
+  TH2D *fPos_iAng,*fPos_iAng_Corrected;
   if(correctInitial!=0){
     hAng = new TH1D("hAng","Original angle distribution; angle offset [deg]",200,-100,100);
     hAngCorrected = new TH1D("hAngCorrected","Corrected angle distribution; angle offset [deg]",200,-100,100);
     hPos = new TH1D("hPos","Original position distribution; position offset [cm]",400,-200,200);
     hPosCorrected = new TH1D("hPosCorrected","Corrected position offset distribution; position offset [cm]",400,-200,200);
+    fPos_iAng=new TH2D("fPos_iAng","; position at Quartz [cm]; initial Angle [deg]",
+		       200,-100,100,100,-10,10);
+    fPos_iAng_Corrected=new TH2D("fPos_iAng_Corrected","; position at Quartz [cm]; initial Angle [deg]",
+		       200,-100,100,100,-10,10);
   }
   string lr[2]={"L","R"};
   string species[3]={"N","P","A"};
@@ -242,15 +248,19 @@ int main(int argc, char** argv){
     if( abs(correctInitial) == 1){
       hAng->Fill(angX-angXi);
       hPos->Fill(x-(xi+tan(angXi/180*pi)*abs(z-zi)));      
+      fPos_iAng->Fill(x,angXi);
       getCorrectedInitialConditions(angX,x,z,zi,hcorrection,angXi,xi,correctInitial);
       hAngCorrected->Fill(angX-angXi);
       hPosCorrected->Fill(x-(xi+tan(angXi/180*pi)*abs(z-zi)));      
+      fPos_iAng_Corrected->Fill(x,angXi);
     }else if( abs(correctInitial) == 2){
       hAng->Fill(angX-angXi);
       hPos->Fill(x-(xi+tan(angXi/180*pi)*abs(z-zi)));
+      fPos_iAng->Fill(x,angXi);
       getCorrectedInitialConditions(angX,x,z,zi,hcorrection,angXi,xi,correctInitial);
       hAngCorrected->Fill(angX-angXi);
       hPosCorrected->Fill(x-(xi+tan(angXi/180*pi)*abs(z-zi)));      
+      fPos_iAng_Corrected->Fill(x,angXi);
     }
     
     for(int j=0;j<2;j++){
@@ -305,7 +315,9 @@ int main(int argc, char** argv){
     hPos->Write();
     hAng->Write();
     hPosCorrected->Write();
-    hAngCorrected->Write();    
+    hAngCorrected->Write();
+    fPos_iAng->Write();
+    fPos_iAng_Corrected->Write();
   }
   fout->Close();
   cout<<" Running time[s]: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<endl;
