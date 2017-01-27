@@ -251,27 +251,18 @@ int main(int argc, char** argv){
       if(!interpolator.getPEs(E,flip*x,flip*angX,pes[0],pes[1])) continue;
     }
 
-    if( abs(correctInitial) == 1){
+    if( correctInitial != 0){
       hAng->Fill(angX-angXi);
       hPos->Fill(x-(xi+tan(angXi/180*pi)*abs(z-zi)));      
       fPos_iAng->Fill(x,angXi);
-      getCorrectedInitialConditions(angX,x,z,zi,hcorrection,angXi,xi,correctInitial);
-      hAngCorrected->Fill(angX-angXi);
-      hPosCorrected->Fill(x-(xi+tan(angXi/180*pi)*abs(z-zi)));      
-      fPos_iAng_Corrected->Fill(x,angXi);
-    }else if( abs(correctInitial) == 2){
-      hAng->Fill(angX-angXi);
-      hPos->Fill(x-(xi+tan(angXi/180*pi)*abs(z-zi)));
-      fPos_iAng->Fill(x,angXi);
-      getCorrectedInitialConditions(angX,x,z,zi,hcorrection,angXi,xi,correctInitial);
-      hAngCorrected->Fill(angX-angXi);
-      hPosCorrected->Fill(x-(xi+tan(angXi/180*pi)*abs(z-zi)));      
-      fPos_iAng_Corrected->Fill(x,angXi);
-    }else if( abs(correctInitial) == 3){
-      hAng->Fill(angX-angXi);
-      hPos->Fill(x-(xi+tan(angXi/180*pi)*abs(z-zi)));
-      fPos_iAng->Fill(x,angXi);
-      getCorrectedInitialConditions(angX,x,angXi,xi,correctInitial);
+
+      if( abs(correctInitial) == 1)
+	getCorrectedInitialConditions(angX,x,z,zi,hcorrection,angXi,xi,correctInitial);
+      else if( abs(correctInitial) == 2)
+	getCorrectedInitialConditions(angX,x,z,zi,hcorrection,angXi,xi,correctInitial);
+      else if( abs(correctInitial) == 3)
+	getCorrectedInitialConditions(angX,x,angXi,xi,correctInitial);
+
       hAngCorrected->Fill(angX-angXi);
       hPosCorrected->Fill(x-(xi+tan(angXi/180*pi)*abs(z-zi)));      
       fPos_iAng_Corrected->Fill(x,angXi);
