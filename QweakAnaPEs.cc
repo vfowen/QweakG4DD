@@ -15,6 +15,8 @@
 using namespace std;
 
 void getCorrectedInitialConditions(float angX, float x, float z, float zi, TH1D *h, float &angXi, float &xi, int posAng);
+void getCorrectedInitialConditions(float angX, float x, float &angXi, float &xi, int pol);
+
 const double pi=acos(-1);
 
 int main(int argc, char** argv){
@@ -31,6 +33,7 @@ int main(int argc, char** argv){
          << " --Ecut <Lval> <Hval> (optional: make energy cuts on electrons in MeV)" << endl
          << " --correctInitialAng <distFile> <polV> (optional: calculates initial angle offset from a distribution according to polarization (+1 for V and -1 for mV). works for MD3 moustaches for now)" << endl
          << " --correctInitialPos <distFile> <polV> (optional: calculates initial position offset from a distribution according to polarization (+1 for V and -1 for mV). works for MD3 moustaches for now)" << endl
+	 << " --correctInitialCor <polV> (optional: calculates initial position offset from a correlation between initial angle and final position for different polarization (+1 for V and -1 for mV). works for MD3 moustaches for now)" << endl
 	 << " --suffix <name to append to outFile> (omit for default)" << endl;
     return 1;
   }
@@ -75,6 +78,9 @@ int main(int argc, char** argv){
 	cout<<"Correction polarization value was inputted badly! Quitting!:" <<correctInitial<<endl;
 	return -2;
       }
+    }else if(0 == strcmp("--correctInitialCor", argv[i])) {
+      correctInitial = atoi(argv[i+1])*3;
+      cout<<"Will correct initial position/angle with correlation "<<correctInitial<<endl;
     }else if(0 == strcmp("--distmodel", argv[i])) {
       distModel = argv[i+1];
     }else if(0 == strcmp("--rootfile", argv[i])) {
@@ -261,6 +267,14 @@ int main(int argc, char** argv){
       hAngCorrected->Fill(angX-angXi);
       hPosCorrected->Fill(x-(xi+tan(angXi/180*pi)*abs(z-zi)));      
       fPos_iAng_Corrected->Fill(x,angXi);
+    }else if( abs(correctInitial) == 3){
+      hAng->Fill(angX-angXi);
+      hPos->Fill(x-(xi+tan(angXi/180*pi)*abs(z-zi)));
+      fPos_iAng->Fill(x,angXi);
+      getCorrectedInitialConditions(angX,x,angXi,xi,correctInitial);
+      hAngCorrected->Fill(angX-angXi);
+      hPosCorrected->Fill(x-(xi+tan(angXi/180*pi)*abs(z-zi)));      
+      fPos_iAng_Corrected->Fill(x,angXi);
     }
     
     for(int j=0;j<2;j++){
@@ -327,21 +341,38 @@ int main(int argc, char** argv){
 
 inline void getCorrectedInitialConditions(float angX, float x, float z, float zi,
 					  TH1D *h, float &angXi, float &xi, int posAng){
-  //   //for equation a*X - b =>JP det elog 117 //FIXME the eq should be ax+b (problem is in sampling)
+  //   //for equation a*X + b =>JP det elog 117 
   // double a[8]={1.37e-3, 1.37e-3, 1.37e-3, 1.37e-3, 1.38e-3, 1.37e-3, 1.37e-3, 1.37e-3};
   // double b[8]={-1.8e-4, -1.9e-4,  1.8e-4,  3.1e-4, -2.0e-5,  1.6e-4,  2.2e-4,  1.1e-4};
 
+  double a = 1.37e-3; //[rad/cm]
+  double b = -1.8e-4; //[rad] //FIXME this does not match elog because I sampled ax-b
   if(abs(posAng)==1){
     angXi = angX - h->GetRandom();
-    xi = (angXi/180*pi + 1.8e-4)/1.37e-3 ;
+    xi = (angXi/180*pi - b)/a ;
   }else{
     //h contains x - (xi + tan(angXi)*(z-zi))
     //beam always starts at the same zi so that value is correct
     double val = x - h->GetRandom();//[cm]
     double c = abs(z-zi);//[cm]
-    double a = 1.37e-3; //[rad/cm]
-    double b = 1.8e-4; //[rad]
     xi = (val - c*b)/(1+a*c); //[cm]
-    angXi = (xi*1.37e-3 - 1.8e-4)*180/pi;
+    angXi = (xi*a + b)*180/pi;
   }
+}
+
+inline void getCorrectedInitialConditions(float angX, float x,
+					  float &angXi, float &xi, int pol){
+  double p0(0),p1(0);
+  if(pol>0){
+    p0 = -0.01015;
+    p1 = 0.07785;
+  }else{
+    p0 = -0.01035;
+    p1 = 0.07785;
+  }
+  angXi = x*p1 + p0;
+
+  double a = 1.37e-3; //[rad/cm]
+  double b = -1.8e-4; //[rad] //FIXME this does not match elog because I sampled ax-b
+  xi = (angXi/180*pi - b)/a ;
 }
