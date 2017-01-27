@@ -142,6 +142,6 @@ double getAngY(double posY){//[posY]=cm
   if(nDist<200)
     return (1.375e-3 * posY + 0.01); //from DA - data [rad]
   else
-    return getAngYa * posY - getAngYb;//from JP - det elog 117
+    return getAngYa * posY + getAngYb;//from JP - det elog 117
 }
 
