@@ -68,7 +68,7 @@ vector<double> gprXcent,gprX;
 void readGpr(string fnm);
 
 
-std::vector<pmtdd_data*> avgValue(TString, TString, TString, float, Int_t);
+std::vector<pmtdd_data*> avgValue(TString, TString, TString, float, Int_t, string);
 
 int main(int argc, char** argv)
 {
@@ -94,7 +94,8 @@ int main(int argc, char** argv)
 	 <<"\t if val==0 just draw and ignore the rest of the program. other values proceed as normal"
          << endl
          << " --scan1fct <fnm> <0/1> (optional; arg2==0 look in file \"fnm\" for the gprCentralValue as model 7. arg2==1 in addition to central value look for 300 TGraphs giving the phase space functions)"
-         << endl;
+         << endl
+      	 << " --suffix <name to append to outFile> (omit for default)" << endl;
     return 1;
   }
   
@@ -105,6 +106,7 @@ int main(int argc, char** argv)
   Bool_t scan = kFALSE;
   float offset = 0;
   Int_t peUncert(0);
+  string suffix = "";
   
   for(Int_t i = 1; i < argc; i++) {    
     if(0 == strcmp("--drawFctions", argv[i])) {
@@ -128,7 +130,10 @@ int main(int argc, char** argv)
       scan = kTRUE;
     } else if(0 == strcmp("--lightParaUncert", argv[i])) {
       peUncert = 1;
+    }else if(0 == strcmp("--suffix", argv[i])) {
+      suffix = argv[i+1];
     }
+
   }
 
   //set Limits
@@ -163,7 +168,7 @@ int main(int argc, char** argv)
     std::vector<double> octant = {1, 2, 3, 4, 5, 6, 7, 8};
     for(unsigned int i = 0; i < hitMaps.size(); i++) {
       std::vector<pmtdd_data*> pmtdd;
-      pmtdd = avgValue(barModel, distModel, hitMaps[i], offset,peUncert);
+      pmtdd = avgValue(barModel, distModel, hitMaps[i], offset,peUncert,suffix);
       for(int j = 0; j < 6; j++) {
 	    fom[j].push_back(pmtdd[j]->fom);
 	    dfom[j].push_back(pmtdd[j]->dfom);
@@ -291,14 +296,14 @@ int main(int argc, char** argv)
     app->Run();
   } else {
     std::vector<pmtdd_data*> pmtdd;
-    pmtdd = avgValue(barModel, distModel, rootfile, offset,peUncert);
+    pmtdd = avgValue(barModel, distModel, rootfile, offset,peUncert,suffix);
   }
 
   cout<<" Running time[s]: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<endl;
   return 0;
 }
 
-std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString rootfile, float offset, Int_t peUncert) {
+std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString rootfile, float offset, Int_t peUncert, string suffix) {
   interpolatePEs interpolator(barModel.Data(),peUncert);
   //interpolator.verbosity=1;
 
@@ -336,9 +341,15 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
     t->SetBranchAddress("asymPpM",&asymPpM);
     t->SetBranchAddress("asymPmM",&asymPmM);
   }
-  
-  TFile *fout=new TFile(Form("o_avgModel_%s_%s_offset_%4.2f_Nmodels_%d.root", barModel.Data(),
-                             distModel.Data(),offset,nModelsEff),"RECREATE");
+
+  string outNm="";
+  if(suffix=="")
+    outNm=Form("o_avgModel_%s_%s_offset_%4.2f_Nmodels_%d.root", barModel.Data(),
+	       distModel.Data(),offset,nModelsEff);
+  else
+    outNm=Form("o_avgModel_%s_%s_offset_%4.2f_Nmodels_%d_%s.root", barModel.Data(),
+	       distModel.Data(),offset,nModelsEff,suffix.c_str());    
+  TFile *fout=new TFile(outNm.c_str(),"RECREATE");
 
   string lr[2]={"R","L"};
   TH1D *hpe[2][nModels],*posPE[2][nModels],*angPE[2][nModels];
