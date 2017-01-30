@@ -577,25 +577,25 @@ double model(float val,int type){
     return 1;  
   else if(type==1){
     if( (abs(val)>=20 && abs(val)<40) )
-      return 0.759 * 4e-6 * val/abs(val);
+      return 0.759 * 4e-6 * val/abs(val) * 290/478;
     else
       return 0;
   }else if(type==2)
-    return 0.713 * 4e-8 * val;
+    return 0.713 * 4e-8 * val * 290/377;
   else if(type==3)
-    return 0.685 * 1.5e-9 * abs(pow(val,3))/val;
+    return 0.685 * 1.5e-9 * abs(pow(val,3))/val * 290/502;
   else if(type==4)
-    return 0.610 * 4e-11 * pow(val,3);
+    return 0.610 * 4e-11 * pow(val,3) * 290/561;
   else if(type==5) 
     return
-      -3.9 * 0.713 * 4e-8 * val
-      +5.8 * 0.685 * 1.5e-9 * abs(pow(val,3))/val
-      -0.9 * 0.610 * 4e-11 * pow(val,3);
+      (-3.9 * 0.713 * 4e-8 * val
+       +5.8 * 0.685 * 1.5e-9 * abs(pow(val,3))/val
+       -0.9 * 0.610 * 4e-11 * pow(val,3) ) * 290/934;
   else if(type==6)
     return
-      -0.9 * 0.713 * 4e-8 * val
-      +2.8 * 0.685 * 1.5e-9 * abs(pow(val,3))/val
-      -0.9 * 0.610 * 4e-11 * pow(val,3);
+      (-0.9 * 0.713 * 4e-8 * val
+       +2.8 * 0.685 * 1.5e-9 * abs(pow(val,3))/val
+       -0.9 * 0.610 * 4e-11 * pow(val,3) ) * 290/561;
   else if(type==7){
     int nFct=type-7;    
     int bin = int(lower_bound(gprXcent.begin(),gprXcent.end(),abs(val)) - gprXcent.begin());
