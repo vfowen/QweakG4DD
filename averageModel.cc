@@ -61,6 +61,7 @@ const int nModels = 308;
 const int rangeTst=0;
 int nModelsEff(nModels-301);//default is only [0,6]
 vector<vector<vector<double>>> asymLimits;
+int withShower(0);
 
 //gpr Cnt value and phase space functions 
 vector<vector<double>> gprFcts;
@@ -95,6 +96,7 @@ int main(int argc, char** argv)
          << endl
          << " --scan1fct <fnm> <0/1> (optional; arg2==0 look in file \"fnm\" for the gprCentralValue as model 7. arg2==1 in addition to central value look for 300 TGraphs giving the phase space functions)"
          << endl
+      	 << " --processShower (optional: if you have a hitmap with secondary hits this will scale the asymmetry appropriately)" << endl
       	 << " --suffix <name to append to outFile> (omit for default)" << endl;
     return 1;
   }
@@ -120,6 +122,8 @@ int main(int argc, char** argv)
       readGpr(argv[i+1]);
     }else if(0 == strcmp("--barmodel", argv[i])) {
       barModel = argv[i+1];
+    }else if(0 == strcmp("--processShower", argv[i])) {
+      withShower=1;
     } else if(0 == strcmp("--distmodel", argv[i])) {
       distModel = argv[i+1];
     } else if(0 == strcmp("--rootfile", argv[i])) {
@@ -357,7 +361,7 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
 
   // Histogram for electron population (x)
   TH1D *x_pos = new TH1D("x_pos","electron population vs pos",200,-100,100);
-  t->Draw("x>>x_pos","primary == 1 && abs(angX) < 89 && abs(x) < 100 && E > 3","goff");
+  //t->Draw("x>>x_pos","primary == 1 && abs(angX) < 89 && abs(x) < 100 && E > 3","goff");
   
   for(int i=0;i<nModelsEff;i++)
     for(int j=0;j<2;j++){
@@ -386,6 +390,8 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
   for(int i=0;i<nev;i++){
     t->GetEntry(i);
 
+    if( !withShower && !primary ) continue;
+    
     if( float(i+1)/nev*100 > currentProc ){
       cout<<" at event: "<<i<<"\t"<<float(i+1)/nev*100<<"% | time passed: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<" s"<<endl;
       currentProc+=procStep;
@@ -420,8 +426,12 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
     if(!interpolator.getPEs(E,flip*x+offset,flip*angX,lpe,rpe)) continue;
     
     for(int imod=0;imod<nModelsEff;imod++){
-      double asym=model(angX-angXi,imod);
-
+      double asym=1.;
+      if(primary==1)
+	asym=model(angX-angXi,imod);
+      else if(imod!=0)
+	asym=0;
+      
       avgStepL[imod]+=asym*lpe;
       avgStepR[imod]+=asym*rpe;
       lAvgTotPE[imod]+=asym*lpe;
@@ -568,7 +578,11 @@ double model(float val,int type){
   //6= -0.9  (M2)  + 2.8 (M3) -0.9 (M4)
   //7= microscopic model
   //8-308= GPR functions
-
+  double showerScales[7]={1.,18.8,18.5,18.2,18.0,17.9,18.2};
+  double showerFactor=1;
+  if(withShower && type<7)
+    showerFactor = showerScales[type];
+  
   if(val==0 && type!=0) return 0;
 
   if(type>=nModelsEff) return 0;//set asymmetry to 0 if not using microscopic or GPR
@@ -577,25 +591,25 @@ double model(float val,int type){
     return 1;  
   else if(type==1){
     if( (abs(val)>=20 && abs(val)<40) )
-      return 0.759 * 4e-6 * val/abs(val) * 290/478;
+      return 0.759 * 4e-6 * val/abs(val) * 290/478 * showerFactor;
     else
       return 0;
   }else if(type==2)
-    return 0.713 * 4e-8 * val * 290/377;
+    return 0.713 * 4e-8 * val * 290/377 *showerFactor;
   else if(type==3)
-    return 0.685 * 1.5e-9 * abs(pow(val,3))/val * 290/502;
+    return 0.685 * 1.5e-9 * abs(pow(val,3))/val * 290/502 *showerFactor;
   else if(type==4)
-    return 0.610 * 4e-11 * pow(val,3) * 290/561;
+    return 0.610 * 4e-11 * pow(val,3) * 290/561 *showerFactor;
   else if(type==5) 
     return
       (-3.9 * 0.713 * 4e-8 * val
        +5.8 * 0.685 * 1.5e-9 * abs(pow(val,3))/val
-       -0.9 * 0.610 * 4e-11 * pow(val,3) ) * 290/934;
+       -0.9 * 0.610 * 4e-11 * pow(val,3) ) * 290/934 *showerFactor;
   else if(type==6)
     return
       (-0.9 * 0.713 * 4e-8 * val
        +2.8 * 0.685 * 1.5e-9 * abs(pow(val,3))/val
-       -0.9 * 0.610 * 4e-11 * pow(val,3) ) * 290/561;
+       -0.9 * 0.610 * 4e-11 * pow(val,3) ) * 290/561 *showerFactor;
   else if(type==7){
     int nFct=type-7;    
     int bin = int(lower_bound(gprXcent.begin(),gprXcent.end(),abs(val)) - gprXcent.begin());
@@ -603,7 +617,7 @@ double model(float val,int type){
     double xH = gprXcent[bin];
     double yL = gprFcts[nFct][bin-1];
     double yH = gprFcts[nFct][bin];
-    return -val/abs(val)*(yL + (yH - yL)*(abs(val) - xL)/(xH - xL))/1e6;
+    return -val/abs(val)*(yL + (yH - yL)*(abs(val) - xL)/(xH - xL))/1e6 * 0.787;//FIXME 0.787 is for the wrong beam polarization factor
   }else if(type<308){
     int nFct=type-7;    
     int bin = int(lower_bound(gprX.begin(),gprX.end(),abs(val)) - gprX.begin());
@@ -611,7 +625,7 @@ double model(float val,int type){
     double xH = gprX[bin];
     double yL = gprFcts[nFct][bin-1];
     double yH = gprFcts[nFct][bin];
-    return -val/abs(val)*(yL + (yH - yL)*(abs(val) - xL)/(xH - xL))/1e6;
+    return -val/abs(val)*(yL + (yH - yL)*(abs(val) - xL)/(xH - xL))/1e6 * 0.787;//FIXME 0.787 is for the wrong beam polarization factor
   }else
     return 0;      
 
