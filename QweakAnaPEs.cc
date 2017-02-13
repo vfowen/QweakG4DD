@@ -137,7 +137,9 @@ int main(int argc, char** argv){
     outNm = Form("o_anaPE_%s_%s_%s.root",barModel.c_str(),distModel.c_str(),suffix.c_str());
   TFile *fout=new TFile(outNm.c_str(),"RECREATE");
   TH1D *hAng,*hAngCorrected,*hPos,*hPosCorrected;
-  TH2D *fPos_iAng,*fPos_iAng_Corrected;
+  TH1D *hAngIDiff,*hPosIDiff;
+  TH2D *fPos_iAng,*fPos_iAng_Corrected,*iAngOg_iAngCor;
+  TH2D *iPos_iAng,*iPos_iAng_Corrected,*iPosProj_iAng_Corrected;
   if(correctInitial!=0){
     hAng = new TH1D("hAng","Original angle distribution; angle offset [deg]",200,-100,100);
     hAngCorrected = new TH1D("hAngCorrected","Corrected angle distribution; angle offset [deg]",200,-100,100);
@@ -147,6 +149,19 @@ int main(int argc, char** argv){
 		       200,-100,100,100,-10,10);
     fPos_iAng_Corrected=new TH2D("fPos_iAng_Corrected","; position at Quartz [cm]; initial Angle [deg]",
 		       200,-100,100,100,-10,10);
+    iPos_iAng=new TH2D("iPos_iAng","; position at Pb [cm]; initial Angle at Pb [deg]",
+		       200,-100,100,100,-10,10);
+    iPos_iAng_Corrected=new TH2D("iPos_iAng_Corrected",
+				 "; position at Pb [cm]; initial Angle at Pb [deg]",
+				 200,-100,100,100,-10,10);
+    iPosProj_iAng_Corrected=new TH2D("iPosProj_iAng_Corrected",
+				     "; position at Pb [cm]; initial Angle at Pb [deg]",
+				     200,-100,100,100,-10,10);
+    iAngOg_iAngCor=new TH2D("iAngOg_iAngCor",
+			    "; original Angle at Pb [deg]; corrected initial angle at Pb [deg]",
+			    100,-10,10,100,-10,10);
+    hAngIDiff = new TH1D("hAngIDiff",";difference between calculated and original Initial angle [deg]",300,-150,150);
+    hPosIDiff = new TH1D("hPosIDiff",";difference between calculated and originial Initial position offset [cm]",400,-200,200);
   }
   string lr[2]={"L","R"};
   string species[3]={"N","P","A"};
@@ -209,7 +224,8 @@ int main(int argc, char** argv){
     //if( float(i+1)/nev*100<startProc || float(i+1)/nev*100>stopProc ) continue;
 
     t->GetEntry(i);
-    
+    if(abs(z)<100)
+      z=577.155;//fix for local z
     if( i>0 )
       prevEvNr=currEvNr;
     currEvNr=evNr;
@@ -255,17 +271,24 @@ int main(int argc, char** argv){
       hAng->Fill(angX-angXi);
       hPos->Fill(x-(xi+tan(angXi/180*pi)*abs(z-zi)));      
       fPos_iAng->Fill(x,angXi);
-
+      iPos_iAng->Fill(xi,angXi);
+      double angXiOg=angXi;
+      double xiOg = xi;
       if( abs(correctInitial) == 1)
 	getCorrectedInitialConditions(angX,x,z,zi,hcorrection,angXi,xi,correctInitial);
       else if( abs(correctInitial) == 2)
 	getCorrectedInitialConditions(angX,x,z,zi,hcorrection,angXi,xi,correctInitial);
       else if( abs(correctInitial) == 3)
 	getCorrectedInitialConditions(angX,x,angXi,xi,correctInitial);
-
+      
       hAngCorrected->Fill(angX-angXi);
       hPosCorrected->Fill(x-(xi+tan(angXi/180*pi)*abs(z-zi)));      
       fPos_iAng_Corrected->Fill(x,angXi);
+      iPos_iAng_Corrected->Fill(xi,angXi);
+      iPosProj_iAng_Corrected->Fill((xi+tan(angXi/180*pi)*abs(z-zi)),angXi);
+      iAngOg_iAngCor->Fill(angXiOg,angXi);
+      hPosIDiff->Fill(xiOg - xi);
+      hAngIDiff->Fill(angXiOg - angXi);
     }
     
     for(int j=0;j<2;j++){
@@ -323,6 +346,12 @@ int main(int argc, char** argv){
     hAngCorrected->Write();
     fPos_iAng->Write();
     fPos_iAng_Corrected->Write();
+    iPos_iAng->Write();
+    iPos_iAng_Corrected->Write();
+    iPosProj_iAng_Corrected->Write();
+    iAngOg_iAngCor->Write();
+    hPosIDiff->Write();
+    hAngIDiff->Write();
   }
   fout->Close();
   cout<<" Running time[s]: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<endl;
@@ -360,9 +389,10 @@ inline void getCorrectedInitialConditions(float angX, float x,
   }else{
     p0 = -0.01035;
     p1 = 0.07785;
-  }
+  }  
   angXi = x*p1 + p0;
-
+  //cout<<"\t"<<x<<"\t"<<angXi<<endl;
+  
   double a = 1.37e-3; //[rad/cm]
   double b = -1.8e-4; //[rad] //FIXME this does not match elog because I sampled ax-b
   xi = (angXi/180*pi - b)/a ;
