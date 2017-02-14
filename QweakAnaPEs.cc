@@ -52,6 +52,7 @@ int main(int argc, char** argv){
     if(0 == strcmp("--Ecut", argv[i])) {
       eCutLow  = atof(argv[i+1]);
       eCutHigh = atof(argv[i+2]);
+      cout<<"Will make cuts "<<eCutLow<<" <E< "<<eCutHigh<<endl;
     }else if(0 == strcmp("--barmodel", argv[i])) {
       barModel = argv[i+1];
     }else if(0 == strcmp("--correctInitialAng", argv[i])) {
