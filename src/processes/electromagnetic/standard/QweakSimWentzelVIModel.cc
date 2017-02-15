@@ -656,7 +656,15 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	  G4cout<<"\tpol (R,T,P) "<<polarization.getR()<<"\t"<<polarization.getTheta()<<"\t"<<polarization.getPhi()<<G4endl;
 	}
 	G4double _amplitude = AnalyzingPower(eEnergy, cost) * transPol;
-	G4double phiPol = phi - polarization.getPhi();
+
+	G4double dmx = sint*cos(phi);
+	G4double dmy = sint*sin(phi);
+	G4ThreeVector dmDir(dmx,dmy,cost);
+	dmDir.rotateUz(oldDirection);    
+	G4double phiGlobal = dmDir.getPhi();
+	G4double phiPol = phiGlobal - polarization.getPhi();    
+
+	//G4double phiPol = phi - polarization.getPhi();
 
 	if(modifyTrajectory){
 	  G4double _prob=G4UniformRand();
@@ -734,7 +742,15 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	  G4cout<<"\tpol (R,T,P) "<<polarization.getR()<<"\t"<<polarization.getTheta()<<"\t"<<polarization.getPhi()<<G4endl;
 	}
 	G4double _amplitude = AnalyzingPower(eEnergy, cost) * transPol;
-	G4double phiPol = phi - polarization.getPhi();
+
+	G4double dmx = sint*cos(phi);
+	G4double dmy = sint*sin(phi);
+	G4ThreeVector dmDir(dmx,dmy,cost);
+	dmDir.rotateUz(oldDirection);    
+	G4double phiGlobal = dmDir.getPhi();
+	G4double phiPol = phiGlobal - polarization.getPhi();    
+
+	//G4double phiPol = phi - polarization.getPhi();
 
 	if(modifyTrajectory){
 	  G4double _prob=G4UniformRand();

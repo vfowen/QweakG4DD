@@ -8,6 +8,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TH1I.h"
+#include "G4ThreeVector.hh"
 
 using namespace std;
 
@@ -22,7 +23,7 @@ int fixedPos(0);
 std::vector<double> xI,yI,zI,aXi,aYi,polI;
 
 void findInt(std::vector<int> &inter,std::vector<int> &val, int trackID,int parent, int &hasPar, int &nInt);
-void processOne(TTree *QweakSimG4_Tree,TTree *tout, int &nrEvts);
+void processOne(TTree *QweakSimG4_Tree,TTree *tout, long &nrEvts);
 void readInitial(string fnm);
 
 
@@ -39,7 +40,7 @@ int main(int argc, char** argv){
     fixedPos=atoi(argv[3]);
 
   TFile *fout=new TFile(Form("o_hits_%s.root",suffix.c_str()),"RECREATE");
-  TH1I *hEntries=new TH1I("hEntries","number of processed events",2,0,2);
+  TH1D *hEntries=new TH1D("hEntries","number of processed events",2,0,2);
   TTree *tout=new TTree("t","Stripped QweakSimG4 tree for hits");
   tout->Branch("evNr",&evNr,"evNr/I");
   tout->Branch("primary",&primary,"primary/I");
@@ -61,8 +62,8 @@ int main(int argc, char** argv){
   tout->Branch("asymPM",&asymPM,"asymPM/D");
   tout->Branch("asymPP",&asymPP,"asymPP/D");
   
-  int totEv=0;
-  int simEvts(0);
+  long totEv=0;
+  long simEvts(0);
   if ( files.find(".root") < files.size() ){
     if(!fixedPos) readInitial(files);
     TFile *fin=new TFile(files.c_str(),"READ");
@@ -75,7 +76,7 @@ int main(int argc, char** argv){
     TTree *QweakSimG4_Tree=(TTree*)fin->Get("QweakSimG4_Tree");
     cout<<"processing only one file: "<<files.c_str()<<endl;    
     
-    int evts=QweakSimG4_Tree->GetEntries();
+    long evts=QweakSimG4_Tree->GetEntries();
     totEv+=evts;
     cout<<" total nr ev: "<<evts<<" "<<totEv<<endl;
     
@@ -97,7 +98,7 @@ int main(int argc, char** argv){
       }
       TTree *QweakSimG4_Tree=(TTree*)fin->Get("QweakSimG4_Tree");
       cout<<"processing : "<<data.c_str()<<endl;          
-      int evts=QweakSimG4_Tree->GetEntries();
+      long evts=QweakSimG4_Tree->GetEntries();
       totEv+=evts;
       cout<<" total nr ev: "<<evts<<" "<<totEv<<endl;      
       processOne(QweakSimG4_Tree,tout,simEvts);      
@@ -120,7 +121,7 @@ int main(int argc, char** argv){
   return 0;
 }
 
-void processOne(TTree *QweakSimG4_Tree, TTree *tout, int &nrEvts){
+void processOne(TTree *QweakSimG4_Tree, TTree *tout, long &nrEvts){
 
   std::vector<int> interaction;
   std::vector<int> trackID;
@@ -133,19 +134,20 @@ void processOne(TTree *QweakSimG4_Tree, TTree *tout, int &nrEvts){
     QweakSimG4_Tree->GetEntry(i);
     if(i%10000==1) cout<<"   at event: "<<i<<endl;
 
-    evNr = nrEvts + event->Primary.GetPrimaryEventNumber();
+    int nThrown = event->Primary.GetPrimaryEventNumber()-1;
+    evNr = nrEvts + nThrown + 1;
     double asymPpM = event->Primary.GetAsymDeno();
     double asymPmM = event->Primary.GetAsymNomi();
     asymPP = (asymPpM + asymPmM)/2;
     asymPM = (asymPpM - asymPmM)/2;
 
     if(!fixedPos){
-      xi=xI[i];
-      yi=yI[i];
-      zi=zI[i];
-      angXi=aXi[i];
-      angYi=aYi[i];
-      polTi=polI[i];
+      xi=xI[nThrown];
+      yi=yI[nThrown];
+      zi=zI[nThrown];
+      angXi=aXi[nThrown];
+      angYi=aYi[nThrown];
+      polTi=polI[nThrown];
     }else{
       xi=0.;
       yi=335.0;
@@ -154,7 +156,7 @@ void processOne(TTree *QweakSimG4_Tree, TTree *tout, int &nrEvts){
       angYi=0.;
       polTi=1.;
     }
-
+    
     interaction.clear();
     trackID.clear();
     
@@ -174,12 +176,18 @@ void processOne(TTree *QweakSimG4_Tree, TTree *tout, int &nrEvts){
       primary=0;
       if(tID==1 && parentID==0) primary=1;
       double polX=event->Cerenkov.Detector.GetPolarizationX()[hit];
-      double polY=event->Cerenkov.Detector.GetPolarizationY()[hit];
-      polT=sqrt(pow(polX,2)+pow(polY,2));
+      double polY=event->Cerenkov.Detector.GetPolarizationY()[hit];      
+      double polZ=event->Cerenkov.Detector.GetPolarizationZ()[hit];
+      G4ThreeVector pol(polX,polY,polZ);
+      G4ThreeVector mom(event->Cerenkov.Detector.GetLocalMomentumX()[hit],
+			event->Cerenkov.Detector.GetLocalMomentumY()[hit],
+			event->Cerenkov.Detector.GetLocalMomentumZ()[hit]);
+      //pol.rotateUz(mom.unit());
+      polT = pol.unit() * mom.unit();
 
-      x=event->Cerenkov.Detector.GetDetectorLocalPositionX()[hit];
-      y=event->Cerenkov.Detector.GetDetectorLocalPositionY()[hit];
-      z=event->Cerenkov.Detector.GetDetectorLocalPositionZ()[hit];
+      x=event->Cerenkov.Detector.GetDetectorGlobalPositionX()[hit];
+      y=event->Cerenkov.Detector.GetDetectorGlobalPositionY()[hit];
+      z=event->Cerenkov.Detector.GetDetectorGlobalPositionZ()[hit];
       
       double Gphi   = event->Cerenkov.Detector.GetGlobalPhiAngle()[hit];
       double Gtheta = event->Cerenkov.Detector.GetGlobalThetaAngle()[hit];	
