@@ -142,8 +142,8 @@ int main(int argc, char** argv)
 
   //set Limits
   //model,R/L,Upper/Lower
-  std::vector<double> dummyR={-0.500,-0.000};
-  std::vector<double> dummyL={ 0.000, 0.500};
+  std::vector<double> dummyL={-0.500,-0.000};
+  std::vector<double> dummyR={ 0.000, 0.500};
   std::vector<std::vector<double>> dummyLimit={dummyR,dummyL};
   for(int i=0;i<nModelsEff;i++)
     asymLimits.push_back(dummyLimit);
@@ -423,12 +423,14 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
       flip=-1.;
 
     double lpe(-1),rpe(-1);
-    if(!interpolator.getPEs(E,flip*x+offset,flip*angX,lpe,rpe)) continue;
+    // SIGN FIX -1*x and -1*angX
+    if(!interpolator.getPEs(E,flip*-1*x+offset,flip*-1*angX,lpe,rpe)) continue;
     
     for(int imod=0;imod<nModelsEff;imod++){
       double asym=1.;
       if(primary==1)
-	asym=model(angX-angXi,imod);
+    // SIGN FIX: no -1*(angX-angXi)
+	asym=model((angX-angXi),imod);
       else if(imod!=0)
 	asym=0;
       
@@ -439,11 +441,13 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
       
       hpe[0][imod]->Fill((1.+asym)*rpe);
       posPE[0][imod]->Fill(x,asym*rpe);
-      angPE[0][imod]->Fill(angX-angXi,asym*rpe);
+      // SIGN FIX: no -1*(angX-angXi)
+      angPE[0][imod]->Fill((angX-angXi),asym*rpe);
 
       hpe[1][imod]->Fill((1.+asym)*lpe);
       posPE[1][imod]->Fill(x,asym*lpe);
-      angPE[1][imod]->Fill(angX-angXi,asym*lpe);
+      // SIGN FIX: no -1*(angX-angXi)
+      angPE[1][imod]->Fill((angX-angXi),asym*lpe);
       
     }        
   }
@@ -690,10 +694,12 @@ pmtdd_data* printInfo(TH1D *hl,TH1D *hr){
   pmtdd->ar = hr->GetMean();
   pmtdd->dar = hr->GetMeanError();
   // Double difference and error
-  pmtdd->dd = pmtdd->al-pmtdd->ar;
+  // SIGN FIX now aR-aL
+  pmtdd->dd = pmtdd->ar-pmtdd->al;
   pmtdd->ddd = sqrt(pmtdd->dar*pmtdd->dar+pmtdd->dal*pmtdd->dal);
   // a_bias and error
-  pmtdd->abias = (pmtdd->al+pmtdd->ar)/2;
+  // SIGN FIX now -1*(pmtdd->al+pmtdd->ar)/2
+  pmtdd->abias = -1*(pmtdd->al+pmtdd->ar)/2;
   pmtdd->dabias = sqrt(pmtdd->dar*pmtdd->dar+pmtdd->dal*pmtdd->dal)/2;
   // figure of merit (a_bias/dd*100) and error
   pmtdd->fom = ((pmtdd->al+pmtdd->ar)/2)/(pmtdd->al-pmtdd->ar)*100;
