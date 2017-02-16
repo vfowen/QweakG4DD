@@ -444,10 +444,10 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
       // SIGN FIX: A_NEG = - A_R, so use x instead of y, and -asym.
       angPE[0][imod]->Fill((angX-angXi),asym*rpe);
 
-      hpe[1][imod]->Fill((1.+asym)*lpe);
-      posPE[1][imod]->Fill(x,asym*lpe);
+      hpe[1][imod]->Fill((1.-asym)*lpe);
+      posPE[1][imod]->Fill(x,-asym*lpe);
       // SIGN FIX: A_POS = -A_L, so use x instead of y,  and -asym
-      angPE[1][imod]->Fill((angX-angXi),asym*lpe);
+      angPE[1][imod]->Fill((angX-angXi),-asym*lpe);
       
     }        
   }
