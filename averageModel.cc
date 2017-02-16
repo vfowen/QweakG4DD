@@ -423,14 +423,14 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
       flip=-1.;
 
     double lpe(-1),rpe(-1);
-    // SIGN FIX -1*x and -1*angX
+    // SIGN FIX: invert the mustache x-coordinate.
     if(!interpolator.getPEs(E,flip*-1*x+offset,flip*-1*angX,lpe,rpe)) continue;
     
     for(int imod=0;imod<nModelsEff;imod++){
       double asym=1.;
       if(primary==1)
-    // SIGN FIX: no -1*(angX-angXi)
-	asym=model((angX-angXi),imod);
+    // SIGN FIX: asymmetry should be negative for positive x'
+	asym=model(-1*(angX-angXi),imod);
       else if(imod!=0)
 	asym=0;
       
@@ -439,10 +439,10 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
       lAvgTotPE[imod]+=asym*lpe;
       rAvgTotPE[imod]+=asym*rpe;
       
-      hpe[0][imod]->Fill((1.+asym)*rpe);
-      posPE[0][imod]->Fill(x,asym*rpe);
+      hpe[0][imod]->Fill((1.-asym)*rpe);
+      posPE[0][imod]->Fill(x,-asym*rpe);
       // SIGN FIX: A_NEG = - A_R, so use x instead of y, and -asym.
-      angPE[0][imod]->Fill((angX-angXi),asym*rpe);
+      angPE[0][imod]->Fill((angX-angXi),-asym*rpe);
 
       hpe[1][imod]->Fill((1.-asym)*lpe);
       posPE[1][imod]->Fill(x,-asym*lpe);
