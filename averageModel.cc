@@ -424,7 +424,10 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
 
     double lpe(-1),rpe(-1);
     // SIGN FIX: invert the mustache x-coordinate.
-    if(!interpolator.getPEs(E,flip*-1*x+offset,flip*-1*angX,lpe,rpe)) continue;
+    x *= -1.0*flip;
+    angX *= -1.0*flip;
+    angXi *= -1.0*flip;
+    if(!interpolator.getPEs(E,x+offset,angX,lpe,rpe)) continue;
     
     for(int imod=0;imod<nModelsEff;imod++){
       double asym=1.;
