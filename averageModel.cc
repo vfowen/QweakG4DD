@@ -422,18 +422,23 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
     if(distModel == "mirror")
       flip=-1.;
 
+    // SIGN FIX: This code will now use the tracking coordinates yt, angYt, and angYt_i. I also introduce angYt_rel as the relative angle.
+    // the "flip" reverses the input distribution around the origin...
+    float yt = -1.0*flip*x;
+    float angYt = -1.0*flip*angX;
+    float angYti = -1.0*flip*angXi;
+    float angYt_rel = angYt - angYti;    
+
+    // SIGN FIX: In Jie's light model, she compares left(x_sim) with right (y_track).  To fix this, we need to use her light model carefully:
+    // lpe(yt) = rpe_jie(x), etc.   to do this, call with (E,yt,angYt,rpe,lpe) instead of (E,x,angX,lpe,rpe)
     double lpe(-1),rpe(-1);
-    // SIGN FIX: invert the mustache x-coordinate.
-    x *= -1.0*flip;
-    angX *= -1.0*flip;
-    angXi *= -1.0*flip;
-    if(!interpolator.getPEs(E,x+offset,angX,lpe,rpe)) continue;
+    if(!interpolator.getPEs(E,yt+offset,angYt,rpe,lpe)) continue;
     
     for(int imod=0;imod<nModelsEff;imod++){
       double asym=1.;
       if(primary==1)
-    // SIGN FIX: asymmetry should be negative for positive x'
-	asym=model(-1*(angX-angXi),imod);
+	// SIGN FIX: asymmetry should be positive for positive relative angles along the y-axis.
+	asym=model(angYt_rel,imod);
       else if(imod!=0)
 	asym=0;
       
@@ -442,27 +447,26 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
       lAvgTotPE[imod]+=asym*lpe;
       rAvgTotPE[imod]+=asym*rpe;
       
-      hpe[0][imod]->Fill((1.-asym)*rpe);
-      posPE[0][imod]->Fill(x,-asym*rpe);
-      // SIGN FIX: A_NEG = - A_R, so use x instead of y, and -asym.
-      angPE[0][imod]->Fill((angX-angXi),-asym*rpe);
+      hpe[0][imod]->Fill((1.+asym)*rpe);
+      posPE[0][imod]->Fill(yt,asym*rpe);
+      angPE[0][imod]->Fill(angYt_rel,asym*rpe);
 
-      hpe[1][imod]->Fill((1.-asym)*lpe);
-      posPE[1][imod]->Fill(x,-asym*lpe);
-      // SIGN FIX: A_POS = -A_L, so use x instead of y,  and -asym
-      angPE[1][imod]->Fill((angX-angXi),-asym*lpe);
+      hpe[1][imod]->Fill((1.+asym)*lpe);
+      posPE[1][imod]->Fill(yt,asym*lpe);
+      angPE[1][imod]->Fill(angYt_rel,asym*lpe);
       
     }        
   }
   
   cout<<endl<<"total PE average: A_L A_R DD A_ave A_ave/DD"<<endl;
+  // SIGN FIX: not terribly relevent, but still: always take difference as R-L (not L-R)
   for(int imod=1;imod<nModelsEff;imod++)
     cout<<imod<<"\t"<<lAvgTotPE[imod]/lAvgTotPE[0]<<"\t"<<rAvgTotPE[imod]/rAvgTotPE[0]
-	<<"\t"<<lAvgTotPE[imod]/lAvgTotPE[0]-rAvgTotPE[imod]/rAvgTotPE[0]
+	<<"\t"<<rAvgTotPE[imod]/rAvgTotPE[0]-lAvgTotPE[imod]/lAvgTotPE[0]
 	<<"\t"<<(lAvgTotPE[imod]/lAvgTotPE[0]+rAvgTotPE[imod]/rAvgTotPE[0])/2
 	<<"\t"<<
       ((lAvgTotPE[imod]/lAvgTotPE[0]+rAvgTotPE[imod]/rAvgTotPE[0])/2)/
-      (lAvgTotPE[imod]/lAvgTotPE[0]-rAvgTotPE[imod]/rAvgTotPE[0])<<endl;
+      (rAvgTotPE[imod]/rAvgTotPE[0]-lAvgTotPE[imod]/lAvgTotPE[0])<<endl;
   fout->cd();
   TNamed* tn1;                              
   TNamed* tn2;                              
@@ -697,12 +701,12 @@ pmtdd_data* printInfo(TH1D *hl,TH1D *hr){
   pmtdd->ar = hr->GetMean();
   pmtdd->dar = hr->GetMeanError();
   // Double difference and error
-  // SIGN FIX now aR-aL
+  // SIGN FIX: now aR-aL
   pmtdd->dd = pmtdd->ar-pmtdd->al;
   pmtdd->ddd = sqrt(pmtdd->dar*pmtdd->dar+pmtdd->dal*pmtdd->dal);
   // a_bias and error
-  // SIGN FIX now -1*(pmtdd->al+pmtdd->ar)/2
-  pmtdd->abias = -1*(pmtdd->al+pmtdd->ar)/2;
+  // SIGN FIX: A_bias= (pmtdd->ar+pmtdd->al)/2
+  pmtdd->abias = (pmtdd->al+pmtdd->ar)/2;
   pmtdd->dabias = sqrt(pmtdd->dar*pmtdd->dar+pmtdd->dal*pmtdd->dal)/2;
   // figure of merit (a_bias/dd*100) and error
   pmtdd->fom = ((pmtdd->al+pmtdd->ar)/2)/(pmtdd->al-pmtdd->ar)*100;
