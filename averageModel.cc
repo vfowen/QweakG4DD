@@ -430,9 +430,10 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
     float angYt_rel = angYt - angYti;    
 
     // SIGN FIX: In Jie's light model, she compares left(x_sim) with right (y_track).  To fix this, we need to use her light model carefully:
-    // lpe(yt) = rpe_jie(x), etc.   to do this, call with (E,yt,angYt,rpe,lpe) instead of (E,x,angX,lpe,rpe)
+    // lpe(yt) = rpe_jie(x), etc.   to do this, call with (E,x,angX,rpe,lpe) instead of (E,yt,angYt,lpe,rpe)
     double lpe(-1),rpe(-1);
-    if(!interpolator.getPEs(E,yt+offset,angYt,rpe,lpe)) continue;
+    if(!interpolator.getPEs(E,x+offset,angX,rpe,lpe)) continue;
+    //    if(!interpolator.getPEs(E,y+offset,angYt,lpe,rpe)) continue;  // use this line instead for light flip check: lpe_jie(y) = lpe(y), etc.
     
     for(int imod=0;imod<nModelsEff;imod++){
       double asym=1.;
