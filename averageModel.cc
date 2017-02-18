@@ -142,8 +142,8 @@ int main(int argc, char** argv)
 
   //set Limits
   //model,R/L,Upper/Lower
-  std::vector<double> dummyL={-0.500,-0.000};
-  std::vector<double> dummyR={ 0.000, 0.500};
+  std::vector<double> dummyL={-0.500, 0.500};
+  std::vector<double> dummyR={-0.500, 0.500};
   std::vector<std::vector<double>> dummyLimit={dummyR,dummyL};
   for(int i=0;i<nModelsEff;i++)
     asymLimits.push_back(dummyLimit);
@@ -424,16 +424,23 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
 
     // SIGN FIX: This code will now use the tracking coordinates yt, angYt, and angYt_i. I also introduce angYt_rel as the relative angle.
     // the "flip" reverses the input distribution around the origin...
-    float yt = -1.0*flip*x;
-    float angYt = -1.0*flip*angX;
-    float angYti = -1.0*flip*angXi;
-    float angYt_rel = angYt - angYti;    
+    x *= flip;
+    angX *= flip;
+    angXi *= flip;
+    float yt = -1.0*x;
+    float angYt = -1.0*angX;
+    float angYti = -1.0*angXi;
+    float angYt_rel = angYt - angYti;
 
-    // SIGN FIX: In Jie's light model, she compares left(x_sim) with right (y_track).  To fix this, we need to use her light model carefully:
-    // lpe(yt) = rpe_jie(x), etc.   to do this, call with (E,x,angX,rpe,lpe) instead of (E,yt,angYt,lpe,rpe)
+    // SIGN FIX: In Jie's light model, she compares left(x_sim) with POS(y_track). Her table should be interpreted as R->NEG, L->POS.
+    // (If you input a negative coordinate, Jie's table gives large rpe, which matches reality NEG.) 
+    // we should use lpe(yt) = rpe_jie(yt), rpe(yt) = lpe_jie(yt).
+    // to do this, call with (E,yt,angYt,rpe,lpe) instead of (E,yt,angYt,lpe,rpe)
     double lpe(-1),rpe(-1);
-    if(!interpolator.getPEs(E,x+offset,angX,rpe,lpe)) continue;
-    //    if(!interpolator.getPEs(E,y+offset,angYt,lpe,rpe)) continue;  // use this line instead for light flip check: lpe_jie(y) = lpe(y), etc.
+    if(!interpolator.getPEs(E,yt+offset,angYt,rpe,lpe)) continue;
+    // A nice test is to invert Jie's optical model, so that instead of using rpe(yt) = lpe(x) = rpe_jie(x)
+    // also, lpe(yt) = rpe(x) = lpe_jie(x), rpe
+    //if(!interpolator.getPEs(E,x+offset,angX,lpe,rpe)) continue;  // use this line instead for light flip check: lpe_jie(y) = lpe(y), etc.
     
     for(int imod=0;imod<nModelsEff;imod++){
       double asym=1.;
@@ -710,7 +717,7 @@ pmtdd_data* printInfo(TH1D *hl,TH1D *hr){
   pmtdd->abias = (pmtdd->al+pmtdd->ar)/2;
   pmtdd->dabias = sqrt(pmtdd->dar*pmtdd->dar+pmtdd->dal*pmtdd->dal)/2;
   // figure of merit (a_bias/dd*100) and error
-  pmtdd->fom = ((pmtdd->al+pmtdd->ar)/2)/(pmtdd->al-pmtdd->ar)*100;
+  pmtdd->fom = ((pmtdd->al+pmtdd->ar)/2)/(pmtdd->ar-pmtdd->al)*100;
   pmtdd->dfom = sqrt(pow(pmtdd->fom,2)*(pow(pmtdd->ddd/pmtdd->dd,2)+pow(pmtdd->dabias/pmtdd->abias,2)));
   pmtdd->print();
 
