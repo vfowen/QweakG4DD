@@ -221,7 +221,7 @@ int main(int argc, char** argv){
       cout<<" at event: "<<i<<"\t"<<float(i+1)/nev*100<<"% | time passed: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<" s | iProc: "<<int(int( float(i+1)/nev*100 ) * nProcBins/100)<<endl;
       currentProc+=procStep;
     }
-    //if( i>5000000) break;
+    //if( i>40000000) break;
     //if( float(i+1)/nev*100<startProc || float(i+1)/nev*100>stopProc ) continue;
 
     t->GetEntry(i);
@@ -252,9 +252,12 @@ int main(int argc, char** argv){
 	  AvgPE[j][k]=0;
     }
     
-    float flip(1.);
-    if(distModel == "mirror")
-      flip=-1.;
+    if(distModel == "mirror"){
+      x = -x;
+      angX = -x;
+      xi = -xi;
+      angXi = -angXi;
+    }
     if(eCutLow>-1 && (E<eCutLow || E>=eCutHigh)) continue;
     
     double pes[2]={1,0};
@@ -265,7 +268,9 @@ int main(int argc, char** argv){
       if(x>=0) pes[0]=1;
       else if(x<0) pes[1]=1;
     }else{
-      if(!interpolator.getPEs(E,flip*x,flip*angX,pes[0],pes[1])) continue;
+      // -x,-angX so that we can be in the tracking frame
+      // associate L to the R container so that we can match the proper optical parametrization
+      if(!interpolator.getPEs(E,-x,-angX,pes[1],pes[0])) continue;
     }
 
     if( correctInitial != 0){
@@ -295,10 +300,16 @@ int main(int argc, char** argv){
     for(int j=0;j<2;j++){
       TotPE[primary][j]+=pes[j];
       AvgPE[primary][j]+=pes[j];
-      
+
       hpe[j][primary]->Fill(pes[j]);
       posPE[j][primary]->Fill(x,pes[j]);
       angPE[j][primary]->Fill(angX-angXi,pes[j]);
+
+      // if( x>60 && angX>40){
+      // 	cout<<x<<" "<<angX<<endl;
+      // 	cout<<"\t"<<hpe[j][primary]->GetName()<<" "<<pes[j]<<endl;
+      // 	std::cin.ignore();
+      // }
       
       hpe[j][2]->Fill(pes[j]);
       posPE[j][2]->Fill(x,pes[j]);
