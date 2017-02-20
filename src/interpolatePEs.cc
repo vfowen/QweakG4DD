@@ -81,6 +81,12 @@ void interpolatePEs::readScan(){
   }else if("ideal23_RBevelLongAxisOnly" == barModel) {
     path = "input/idealBar_alongDir_acrossAng23_RBevelLongAxisOnly.txt";
     cout << "Using: "<< path << endl;
+  }else if("ideal23_RLG2mmThinner" == barModel) {
+    path = "input/idealBar_alongDir_acrossAng23_RLG2mmThinner.txt";
+    cout << "Using: "<< path << endl;
+  }else if("ideal23_RNoBevel" == barModel) {
+    path = "input/idealBar_alongDir_acrossAng23_RNoBevel.txt";
+    cout << "Using: "<< path << endl;
   }else{
     cout << "Cannot match your barModel to available list: update list or check name"<<endl;
     exit(2);

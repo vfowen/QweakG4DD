@@ -80,7 +80,11 @@ int main(int argc, char** argv)
     cout << " usage: build/avgModel [options]" << endl
          << " --rootfile <path to rootfile>" << endl
          << " --barmodel ideal0, ideal23, ideal23_polish, ideal23_bevel, "
-         << "ideal23_glue, ideal23_thickdiff, ideal23_RBevelEndcapCentralGlueSideOnly, ideal23_RBevelEndcapPMTSideOnly, ideal23_RBevelLongAxisOnly "
+         << "ideal23_glue, ideal23_thickdiff, "
+         << "ideal23_RBevelEndcapCentralGlueSideOnly, "
+         << "ideal23_RBevelEndcapPMTSideOnly, ideal23_RBevelLongAxisOnly, "
+         << "ideal23_RLG2mmThinner, "
+         << "ideal23_RNoBevel, "
          << "md1config10_23, md1config16_model2_23, md1_model2_lightGuideMod md2config5_23, "
          << "md2config5_model2_23, md3config4_23, md4config4_23, md5config4_23, "
          << "md6config3_23, md7config2_23, md8config16_0 or md8config16_23"
@@ -541,6 +545,12 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
     tn2 = new TNamed("angle","angle 23");
   }else if("ideal23_RBevelLongAxisOnly" == barModel) {
     tn1 = new TNamed("bar","ideal bar with bevel long axis only");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("ideal23_RLG2mmThinner" == barModel) {
+    tn1 = new TNamed("bar","ideal bar with thinner light guide");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("ideal23_RNoBevel" == barModel) {
+    tn1 = new TNamed("bar","ideal bar with no right bevel");
     tn2 = new TNamed("angle","angle 23");
   }else{
     cout<<"not sure what bar model you beam by: "<<barModel<<endl;
