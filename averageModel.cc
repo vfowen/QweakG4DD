@@ -142,8 +142,8 @@ int main(int argc, char** argv)
 
   //set Limits
   //model,R/L,Upper/Lower
-  std::vector<double> dummyR={-0.500,-0.000};
-  std::vector<double> dummyL={ 0.000, 0.500};
+  std::vector<double> dummyL={-0.500, 0.500};
+  std::vector<double> dummyR={-0.500, 0.500};
   std::vector<std::vector<double>> dummyLimit={dummyR,dummyL};
   for(int i=0;i<nModelsEff;i++)
     asymLimits.push_back(dummyLimit);
@@ -422,13 +422,31 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
     if(distModel == "mirror")
       flip=-1.;
 
+    // SIGN FIX: This code will now use the tracking coordinates yt, angYt, and angYt_i. I also introduce angYt_rel as the relative angle.
+    // the "flip" reverses the input distribution around the origin...
+    x *= flip;
+    angX *= flip;
+    angXi *= flip;
+    float yt = -1.0*x;
+    float angYt = -1.0*angX;
+    float angYti = -1.0*angXi;
+    float angYt_rel = angYt - angYti;
+
+    // SIGN FIX: In Jie's light model, she compares left(x_sim) with POS(y_track). Her table should be interpreted as R->NEG, L->POS.
+    // (If you input a negative coordinate, Jie's table gives large rpe, which matches reality NEG.) 
+    // we should use lpe(yt) = rpe_jie(yt), rpe(yt) = lpe_jie(yt).
+    // to do this, call with (E,yt,angYt,rpe,lpe) instead of (E,yt,angYt,lpe,rpe)
     double lpe(-1),rpe(-1);
-    if(!interpolator.getPEs(E,flip*x+offset,flip*angX,lpe,rpe)) continue;
+    if(!interpolator.getPEs(E,yt+offset,angYt,rpe,lpe)) continue;
+    // A nice test is to invert Jie's optical model, so that instead of using rpe(yt) = lpe(x) = rpe_jie(x)
+    // also, lpe(yt) = rpe(x) = lpe_jie(x), rpe
+    //if(!interpolator.getPEs(E,x+offset,angX,lpe,rpe)) continue;  // use this line instead for light flip check: lpe_jie(y) = lpe(y), etc.
     
     for(int imod=0;imod<nModelsEff;imod++){
       double asym=1.;
       if(primary==1)
-	asym=model(angX-angXi,imod);
+	// SIGN FIX: asymmetry should be positive for positive relative angles along the y-axis.
+	asym=model(angYt_rel,imod);
       else if(imod!=0)
 	asym=0;
       
@@ -438,24 +456,25 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
       rAvgTotPE[imod]+=asym*rpe;
       
       hpe[0][imod]->Fill((1.+asym)*rpe);
-      posPE[0][imod]->Fill(x,asym*rpe);
-      angPE[0][imod]->Fill(angX-angXi,asym*rpe);
+      posPE[0][imod]->Fill(yt,asym*rpe);
+      angPE[0][imod]->Fill(angYt_rel,asym*rpe);
 
       hpe[1][imod]->Fill((1.+asym)*lpe);
-      posPE[1][imod]->Fill(x,asym*lpe);
-      angPE[1][imod]->Fill(angX-angXi,asym*lpe);
+      posPE[1][imod]->Fill(yt,asym*lpe);
+      angPE[1][imod]->Fill(angYt_rel,asym*lpe);
       
     }        
   }
   
   cout<<endl<<"total PE average: A_L A_R DD A_ave A_ave/DD"<<endl;
+  // SIGN FIX: not terribly relevent, but still: always take difference as R-L (not L-R)
   for(int imod=1;imod<nModelsEff;imod++)
     cout<<imod<<"\t"<<lAvgTotPE[imod]/lAvgTotPE[0]<<"\t"<<rAvgTotPE[imod]/rAvgTotPE[0]
-	<<"\t"<<lAvgTotPE[imod]/lAvgTotPE[0]-rAvgTotPE[imod]/rAvgTotPE[0]
+	<<"\t"<<rAvgTotPE[imod]/rAvgTotPE[0]-lAvgTotPE[imod]/lAvgTotPE[0]
 	<<"\t"<<(lAvgTotPE[imod]/lAvgTotPE[0]+rAvgTotPE[imod]/rAvgTotPE[0])/2
 	<<"\t"<<
       ((lAvgTotPE[imod]/lAvgTotPE[0]+rAvgTotPE[imod]/rAvgTotPE[0])/2)/
-      (lAvgTotPE[imod]/lAvgTotPE[0]-rAvgTotPE[imod]/rAvgTotPE[0])<<endl;
+      (rAvgTotPE[imod]/rAvgTotPE[0]-lAvgTotPE[imod]/lAvgTotPE[0])<<endl;
   fout->cd();
   TNamed* tn1;                              
   TNamed* tn2;                              
@@ -690,13 +709,15 @@ pmtdd_data* printInfo(TH1D *hl,TH1D *hr){
   pmtdd->ar = hr->GetMean();
   pmtdd->dar = hr->GetMeanError();
   // Double difference and error
-  pmtdd->dd = pmtdd->al-pmtdd->ar;
+  // SIGN FIX: now aR-aL
+  pmtdd->dd = pmtdd->ar-pmtdd->al;
   pmtdd->ddd = sqrt(pmtdd->dar*pmtdd->dar+pmtdd->dal*pmtdd->dal);
   // a_bias and error
+  // SIGN FIX: A_bias= (pmtdd->ar+pmtdd->al)/2
   pmtdd->abias = (pmtdd->al+pmtdd->ar)/2;
   pmtdd->dabias = sqrt(pmtdd->dar*pmtdd->dar+pmtdd->dal*pmtdd->dal)/2;
   // figure of merit (a_bias/dd*100) and error
-  pmtdd->fom = ((pmtdd->al+pmtdd->ar)/2)/(pmtdd->al-pmtdd->ar)*100;
+  pmtdd->fom = ((pmtdd->al+pmtdd->ar)/2)/(pmtdd->ar-pmtdd->al)*100;
   pmtdd->dfom = sqrt(pow(pmtdd->fom,2)*(pow(pmtdd->ddd/pmtdd->dd,2)+pow(pmtdd->dabias/pmtdd->abias,2)));
   pmtdd->print();
 
