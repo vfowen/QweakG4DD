@@ -62,6 +62,7 @@ const int rangeTst=0;
 int nModelsEff(nModels-301);//default is only [0,6]
 vector<vector<vector<double>>> asymLimits;
 int withShower(0);
+double EcutLow(2),EcutHigh(2000);
 
 //gpr Cnt value and phase space functions 
 vector<vector<double>> gprFcts;
@@ -98,8 +99,10 @@ int main(int argc, char** argv)
          << " --drawFctions <#> (optional; make output file with the effective model functions."
 	 <<"\t if val==0 just draw and ignore the rest of the program. other values proceed as normal"
          << endl
-         << " --scan1fct <fnm> <0/1> (optional; arg2==0 look in file \"fnm\" for the gprCentralValue as model 7. arg2==1 in addition to central value look for 300 TGraphs giving the phase space functions)"
-         << endl
+         << " --scan1fct <fnm> <0/1> (optional; \n\targ2==0 look in file \"fnm\" for the gprCentralValue as model 7. \n\targ2==1 in addition to central value look for 300 TGraphs giving the phase space functions)"
+	 << endl
+         << " --Ecut lowVal highVal (optional; will make additional cuts on tracks used in the analysis)"
+	 << endl      
       	 << " --processShower (optional: if you have a hitmap with secondary hits this will scale the asymmetry appropriately)" << endl
       	 << " --suffix <name to append to outFile> (omit for default)" << endl;
     return 1;
@@ -120,12 +123,21 @@ int main(int argc, char** argv)
       if(atoi(argv[i+1])==0)
 	return 0;
     }else if(0 == strcmp("--scan1fct", argv[i])) {
+      string testInput=argv[i+2];
+      if(testInput!="0" && testInput!="1"){
+	cout<<"Mwap! Mwap! I was expecting 0 or 1 for the second argument of scan1fct but I got this crap: "<<testInput<<endl;
+	return 0;
+      }
       int fctBool=atoi(argv[i+2]);
       nModelsEff += 1 + fctBool*300;
       cout<<"start reading GPR. Number of effective models: "<<nModelsEff<<endl;
       readGpr(argv[i+1]);
     }else if(0 == strcmp("--barmodel", argv[i])) {
       barModel = argv[i+1];
+    }else if(0 == strcmp("--Ecut", argv[i])) {
+      EcutLow  = atof(argv[i+1]);
+      EcutHigh = atof(argv[i+2]);
+      cout<<"\tWill make energy cuts on the model 7 between "<<EcutLow<<" and "<<EcutHigh<<endl;
     }else if(0 == strcmp("--processShower", argv[i])) {
       withShower=1;
     } else if(0 == strcmp("--distmodel", argv[i])) {
@@ -394,8 +406,6 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
   for(int i=0;i<nev;i++){
     t->GetEntry(i);
 
-    if( !withShower && !primary ) continue;
-    
     if( float(i+1)/nev*100 > currentProc ){
       cout<<" at event: "<<i<<"\t"<<float(i+1)/nev*100<<"% | time passed: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<" s"<<endl;
       currentProc+=procStep;
@@ -422,6 +432,8 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
     
     if(i>1000000 && rangeTst) break;
 
+    if( !withShower && !primary ) continue;
+
     float flip(1.);
     if(distModel == "mirror")
       flip=-1.;
@@ -446,7 +458,9 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
     // also, lpe(yt) = rpe(x) = lpe_jie(x), rpe
     //if(!interpolator.getPEs(E,x+offset,angX,lpe,rpe)) continue;  // use this line instead for light flip check: lpe_jie(y) = lpe(y), etc.
     
-    for(int imod=0;imod<nModelsEff;imod++){
+    for(int imod=0;imod<nModelsEff;imod++){      
+      if( imod==7 && (E<EcutLow || E>=EcutHigh)) continue;     
+
       double asym=1.;
       if(primary==1)
 	// SIGN FIX: asymmetry should be positive for positive relative angles along the y-axis.
