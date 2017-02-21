@@ -45,8 +45,7 @@ struct pmtdd_data {
 };
 
 void pmtdd_data::print(void) {
-  cout << this->al << "\t" << this->dal << "\t" << this->ar << "\t" << this->dar << "\t"
-       << this->dd << "\t" << this->ddd << "\t"
+  cout << this->dd << "\t" << this->ddd << "\t"
        << this->abias << "\t" << this->dabias <<"\t"
        << this->fom << "\t"
        << this->dfom << endl;
@@ -581,7 +580,7 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
   tn2->Write();                              
   tn3->Write();
 
-  cout<<endl<<" average asymmetry histogram results: A_L dA_L A_R dA_R DD dDD A_bias dA_bia A_bias/DD*100"<<endl;
+  cout<<endl<<" average asymmetry histogram results: DD dDD A_bias dA_bia A_bias/DD*100"<<endl;
   vector< pmtdd_data* > pmtdd;
   x_pos->Write();
   for(int j=0;j<nModelsEff;j++){      
