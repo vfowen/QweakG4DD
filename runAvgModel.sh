@@ -8,7 +8,7 @@ elif [ $1 == "md1model2" ]
 then 
     bar="md1config16_model2_23"
     hitmap="o_hits_sampledMD2_stdStep_noTrackMod_V.root"
-elif [ $1 == "md1model2" ]
+elif [ $1 == "md1lg" ]
 then 
     bar="md1_model2_lightGuideMod"
     hitmap="o_hits_sampledMD2_stdStep_noTrackMod_V.root"
