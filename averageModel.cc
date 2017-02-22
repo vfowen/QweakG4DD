@@ -662,7 +662,7 @@ double model(float val,int type){
     double xH = gprXcent[bin];
     double yL = gprFcts[nFct][bin-1];
     double yH = gprFcts[nFct][bin];
-    return -val/abs(val)*(yL + (yH - yL)*(abs(val) - xL)/(xH - xL))/1e6 * 0.787;//FIXME 0.787 is for the wrong beam polarization factor
+    return -val/abs(val)*(yL + (yH - yL)*(abs(val) - xL)/(xH - xL))/1e6;
   }else if(type<308){
     int nFct=type-7;    
     int bin = int(lower_bound(gprX.begin(),gprX.end(),abs(val)) - gprX.begin());
@@ -670,7 +670,7 @@ double model(float val,int type){
     double xH = gprX[bin];
     double yL = gprFcts[nFct][bin-1];
     double yH = gprFcts[nFct][bin];
-    return -val/abs(val)*(yL + (yH - yL)*(abs(val) - xL)/(xH - xL))/1e6 * 0.787;//FIXME 0.787 is for the wrong beam polarization factor
+    return -val/abs(val)*(yL + (yH - yL)*(abs(val) - xL)/(xH - xL))/1e6;
   }else
     return 0;      
 
