@@ -54,7 +54,7 @@ void pmtdd_data::print(void) {
 pmtdd_data* printInfo(TH1D *hl,TH1D *hr);
 void drawFunctions();
 clock_t tStart;
-double model(float val,int type);
+double model(float val,int type, float Eval);
 
 const int nModels = 308;
 const int rangeTst=0;
@@ -67,6 +67,7 @@ double EcutLow(2),EcutHigh(2000);
 vector<vector<double>> gprFcts;
 vector<double> gprXcent,gprX;
 void readGpr(string fnm);
+void readGpr(vector<string> fnm);
 
 
 std::vector<pmtdd_data*> avgValue(TString, TString, TString, float, Int_t, string);
@@ -98,7 +99,7 @@ int main(int argc, char** argv)
          << " --drawFctions <#> (optional; make output file with the effective model functions."
 	 <<"\t if val==0 just draw and ignore the rest of the program. other values proceed as normal"
          << endl
-         << " --scan1fct <fnm> <0/1> (optional; \n\targ2==0 look in file \"fnm\" for the gprCentralValue as model 7. \n\targ2==1 in addition to central value look for 300 TGraphs giving the phase space functions)"
+         << " --scan1fct <fnm> <0/1> (optional; \n\targ2==0 look in file \"fnm\" for the gprCentralValue as model 7. \n\targ2==1 in addition to central value look for 300 TGraphs giving the phase space functions)\nb\targ2==n with n>1 needs to be followed by n files that contain effective models with energy binning"
 	 << endl
          << " --Ecut lowVal highVal (optional; will make additional cuts on tracks used in the analysis)"
 	 << endl      
@@ -123,14 +124,25 @@ int main(int argc, char** argv)
 	return 0;
     }else if(0 == strcmp("--scan1fct", argv[i])) {
       string testInput=argv[i+2];
-      if(testInput!="0" && testInput!="1"){
-	cout<<"Mwap! Mwap! I was expecting 0 or 1 for the second argument of scan1fct but I got this crap: "<<testInput<<endl;
+      if(testInput!="0" && testInput!="1" && testInput!="3"){
+	cout<<"Mwap! Mwap! I was expecting 0, 1 or 3 for the second argument of scan1fct but I got this crap: "<<testInput<<endl;
 	return 0;
       }
-      int fctBool=atoi(argv[i+2]);
-      nModelsEff += 1 + fctBool*300;
+
+      if(testInput=="3"){
+	int nBins=atoi(argv[i+2]);
+	vector<string> fnms;
+	fnms.push_back(argv[i+1]);
+	for(int j=0;j<nBins;j++)
+	  fnms.push_back(argv[i+3+j]);
+	readGpr(fnms);
+	nModelsEff += 2;
+      }else{
+	int fctBool=atoi(argv[i+2]);
+	nModelsEff += 1 + fctBool*300;
+	readGpr(argv[i+1]);
+      }
       cout<<"start reading GPR. Number of effective models: "<<nModelsEff<<endl;
-      readGpr(argv[i+1]);
     }else if(0 == strcmp("--barmodel", argv[i])) {
       barModel = argv[i+1];
     }else if(0 == strcmp("--Ecut", argv[i])) {
@@ -461,10 +473,13 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
       if( imod==7 && (E<EcutLow || E>=EcutHigh)) continue;     
 
       double asym=1.;
-      if(primary==1)
+      if(primary==1){
 	// SIGN FIX: asymmetry should be positive for positive relative angles along the y-axis.
-	asym=model(angYt_rel,imod);
-      else if(imod!=0)
+	if( nModelsEff==9 && imod==8)
+	  asym=model(angYt_rel,imod,E);
+	else
+	  asym=model(angYt_rel,imod,-1);
+      }else if(imod!=0)
 	asym=0;
       
       avgStepL[imod]+=asym*lpe;
@@ -613,7 +628,7 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
 }
 
 //models go here
-double model(float val,int type){
+double model(float val,int type, float Eval){
   //0=                                     
   //1= cnst*sgn(angX) for abs(angX)=[20,40]
   //2= cnst*angX                           
@@ -665,11 +680,29 @@ double model(float val,int type){
     return -val/abs(val)*(yL + (yH - yL)*(abs(val) - xL)/(xH - xL))/1e6;
   }else if(type<308){
     int nFct=type-7;    
-    int bin = int(lower_bound(gprX.begin(),gprX.end(),abs(val)) - gprX.begin());
-    double xL = gprX[bin-1];
-    double xH = gprX[bin];
-    double yL = gprFcts[nFct][bin-1];
-    double yH = gprFcts[nFct][bin];
+    int bin;
+    double xL, xH, yL, yH;
+    if(Eval<0){
+      bin = int(lower_bound(gprX.begin(),gprX.end(),abs(val)) - gprX.begin());
+      xL = gprX[bin-1];
+      xH = gprX[bin];
+      yL = gprFcts[nFct][bin-1];
+      yH = gprFcts[nFct][bin];
+    }else{
+      bin = int(lower_bound(gprXcent.begin(),gprXcent.end(),abs(val)) - gprXcent.begin());
+      xL = gprXcent[bin-1];
+      xH = gprXcent[bin];
+
+      if(Eval>=3 && Eval<30)
+	nFct+=1;
+      else if(Eval>=30 && Eval<100)
+	nFct+=2;
+      else if(Eval>=100 && Eval<2000)
+	nFct+=3;
+
+      yL = gprFcts[nFct][bin-1];
+      yH = gprFcts[nFct][bin];      
+    }
     return -val/abs(val)*(yL + (yH - yL)*(abs(val) - xL)/(xH - xL))/1e6;
   }else
     return 0;      
@@ -728,6 +761,36 @@ void readGpr(string fnm){
   fin->Close();  
 }
 
+void readGpr(vector<string> fnms){
+  std::vector<double> tst;
+  int nfiles=fnms.size();
+  TFile *fin;
+  for(int j=0;j<nfiles;j++){
+    tst.clear();
+    fin=TFile::Open(fnms[j].c_str(),"READ");
+    TH1D *hin=(TH1D*)fin->Get("ho");
+    int nBins=hin->GetXaxis()->GetNbins();
+    for(int i=1;i<=nBins;i++){
+      double x,y;
+      x = hin->GetBinCenter(i);
+      y = hin->GetBinContent(i);
+      if(x<0) continue;
+      if(x>90) continue;      
+      if(j==0)
+	gprXcent.push_back(x);
+      else{
+	int currentPnt = tst.size();
+	if(gprXcent[currentPnt] != x)
+	  cerr<<__PRETTY_FUNCTION__<<" line: "<<__LINE__<<endl
+	      <<"\t x positions don't match for function "<<j<<" "<<currentPnt<<" <> "<<gprXcent[currentPnt]<<" "<<x<<endl;
+      }
+      tst.push_back(y);
+    }
+    gprFcts.push_back(tst);
+    fin->Close();
+  }
+}
+
 pmtdd_data* printInfo(TH1D *hl,TH1D *hr){
   pmtdd_data* pmtdd = new pmtdd_data();
   pmtdd->al = hl->GetMean();
@@ -758,7 +821,7 @@ void drawFunctions(){
     gr[i]=new TGraph();
     for(int j=0;j<178;j++){      
       double val = -89 + j;
-      gr[i]->SetPoint(j,val,model(val,i));
+      gr[i]->SetPoint(j,val,model(val,i,-1));
     }
     gr[i]->SetName(Form("model_%d",i));
     gr[i]->SetMarkerStyle(20);
