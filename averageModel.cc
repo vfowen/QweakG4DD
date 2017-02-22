@@ -468,10 +468,10 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
     // A nice test is to invert Jie's optical model, so that instead of using rpe(yt) = lpe(x) = rpe_jie(x)
     // also, lpe(yt) = rpe(x) = lpe_jie(x), rpe
     //if(!interpolator.getPEs(E,x+offset,angX,lpe,rpe)) continue;  // use this line instead for light flip check: lpe_jie(y) = lpe(y), etc.
-    
+
     for(int imod=0;imod<nModelsEff;imod++){      
       if( imod==7 && (E<EcutLow || E>=EcutHigh)) continue;     
-
+      
       double asym=1.;
       if(primary==1){
 	// SIGN FIX: asymmetry should be positive for positive relative angles along the y-axis.
@@ -481,7 +481,7 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
 	  asym=model(angYt_rel,imod,-1);
       }else if(imod!=0)
 	asym=0;
-      
+
       avgStepL[imod]+=asym*lpe;
       avgStepR[imod]+=asym*rpe;
       lAvgTotPE[imod]+=asym*lpe;
@@ -693,12 +693,10 @@ double model(float val,int type, float Eval){
       xL = gprXcent[bin-1];
       xH = gprXcent[bin];
 
-      if(Eval>=3 && Eval<30)
+      if(Eval>=30 && Eval<100)
 	nFct+=1;
-      else if(Eval>=30 && Eval<100)
-	nFct+=2;
       else if(Eval>=100 && Eval<2000)
-	nFct+=3;
+	nFct+=2;
 
       yL = gprFcts[nFct][bin-1];
       yH = gprFcts[nFct][bin];      
