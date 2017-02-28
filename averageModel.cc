@@ -421,7 +421,7 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
       cout<<" at event: "<<i<<"\t"<<float(i+1)/nev*100<<"% | time passed: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<" s"<<endl;
       currentProc+=procStep;
     }
-        
+
     if(float(i+1)/nev*100>currentStep){
       for(int imod=1;imod<nModelsEff;imod++){
 	if(avgStepR[0]>0 && avgStepL[0]>0){
@@ -650,10 +650,7 @@ double model(float val,int type, float Eval){
   if(type==0)
     return 1;  
   else if(type==1){
-    if( (abs(val)>=20 && abs(val)<40) )
-      return 0.759 * 4e-6 * val/abs(val) * 290/478 * showerFactor;
-    else
-      return 0;
+    return 0.759 * 4e-6 * val/abs(val) /4.5 * 290/478 * 290/230 * showerFactor;
   }else if(type==2)
     return 0.713 * 4e-8 * val * 290/377 *showerFactor;
   else if(type==3)
