@@ -20,6 +20,10 @@ elif [ $1 == "md2model2" ]
 then 
     bar="md2config5_model2_23"
     hitmap="o_hits_sampledMD2_stdStep_noTrackMod_V.root"
+elif [ $1 == "md2run1" ]
+then 
+    bar="md2config3run1par_model2_23"
+    hitmap="o_hits_sampledMD2_stdStep_noTrackMod_V.root"
 elif [ $1 == "md3" ]
 then 
     bar="md3config4_23"
@@ -86,10 +90,4 @@ then
     hitmap="o_hits_sampledMD3_stdStep_noTrackMod_V.root"
 fi
 
-./avgModel --rootfile hitmap/$hitmap --barmodel $bar --scan1fct hitmap/o_gp_dd_fold_correctedCor_E3to30.root 0 --Ecut 3 30 --suffix 3to30
-
-./avgModel --rootfile hitmap/$hitmap --barmodel $bar --scan1fct hitmap/o_gp_dd_fold_correctedCor_E3to2000.root 0 --Ecut 3 2000 --suffix 3to2000
-
-./avgModel --rootfile hitmap/$hitmap --barmodel $bar --scan1fct hitmap/o_gp_dd_fold_correctedCor_E30to100.root 0 --Ecut 30 100 --suffix 30to100
-
-./avgModel --rootfile hitmap/$hitmap --barmodel $bar --scan1fct hitmap/o_gp_dd_fold_correctedCor_E100to2000.root 0 --Ecut 100 2000 --suffix 100to2000
+./avgModel --barmodel $bar --rootfile hitmap/$hitmap --scan1fct hitmap/o_gp_dd_fold_correctedCor_E3to2000.root 3 hitmap/o_gp_dd_fold_correctedCor_E3to30.root hitmap/o_gp_dd_fold_correctedCor_E30to100.root hitmap/o_gp_dd_fold_correctedCor_E100to2000.root
