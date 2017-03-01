@@ -87,7 +87,7 @@ int main(int argc, char** argv)
          << "ideal23_RBevelEndcapCentralGlueSideOnly, "
          << "ideal23_RBevelEndcapPMTSideOnly, ideal23_RBevelLongAxisOnly, "
          << "ideal23_RLG2mmThinner, "
-         << "ideal23_RNoBevel, "
+         << "ideal23_RNoBevel, ideal23_GlueFilmR040, ideal23_PolishR005Decrease, ideal23_PolishR010Decrease"
          << "md1config10_23, md1config16_model2_23, md1_model2_lightGuideMod md2config5_23, "
          << "md2config5_model2_23, md2config3run1par_model2_23, md3config4_23, md4config4_23," 
          << "md5config4_23,md6config3_23, md7config2_23, md8config16_0 or md8config16_23"
@@ -592,6 +592,15 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
     tn2 = new TNamed("angle","angle 23");
   }else if("ideal23_RNoBevel" == barModel) {
     tn1 = new TNamed("bar","ideal bar with no right bevel");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("ideal23_GlueFilmR040" == barModel) {
+    tn1 = new TNamed("bar","ideal bar full glue joint on L and 40% on R");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("ideal23_PolishR005Decrease" == barModel) {
+    tn1 = new TNamed("bar","ideal bar with polish of R quartz at 94.7%");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("ideal23_PolishR010" == barModel) {
+    tn1 = new TNamed("bar","ideal bar with polish of R quartz at 89.7%");
     tn2 = new TNamed("angle","angle 23");
   }else{
     cout<<"not sure what bar model you beam by: "<<barModel<<endl;
