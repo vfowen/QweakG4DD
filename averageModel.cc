@@ -56,6 +56,9 @@ void drawFunctions();
 clock_t tStart;
 double model(float val,int type, float Eval);
 
+int scaleLight(0);
+double scalePEs(double, int, double, string);
+
 const int nModels = 308;
 const int rangeTst=0;
 int nModelsEff(nModels-301);//default is only [0,6]
@@ -68,7 +71,6 @@ vector<vector<double>> gprFcts;
 vector<double> gprXcent,gprX;
 void readGpr(string fnm);
 void readGpr(vector<string> fnm);
-
 
 std::vector<pmtdd_data*> avgValue(TString, TString, TString, float, Int_t, string);
 
@@ -103,6 +105,7 @@ int main(int argc, char** argv)
 	 << endl
          << " --Ecut lowVal highVal (optional; will make additional cuts on tracks used in the analysis)"
 	 << endl      
+      	 << " --scaleLight (optional: scale the PEs to try to match tracking light yield)" << endl
       	 << " --processShower (optional: if you have a hitmap with secondary hits this will scale the asymmetry appropriately)" << endl
       	 << " --suffix <name to append to outFile> (omit for default)" << endl;
     return 1;
@@ -151,14 +154,14 @@ int main(int argc, char** argv)
       cout<<"\tWill make energy cuts on the model 7 between "<<EcutLow<<" and "<<EcutHigh<<endl;
     }else if(0 == strcmp("--processShower", argv[i])) {
       withShower=1;
+    }else if(0 == strcmp("--scaleLight", argv[i])) {
+      scaleLight=1;
     } else if(0 == strcmp("--distmodel", argv[i])) {
       distModel = argv[i+1];
     } else if(0 == strcmp("--rootfile", argv[i])) {
       rootfile = argv[i+1];
     } else if(0 == strcmp("--offset", argv[i])) {
       offset = atof(argv[i+1]);
-    } else if(0 == strcmp("--scan", argv[i])) {
-      scan = kTRUE;
     } else if(0 == strcmp("--lightParaUncert", argv[i])) {
       peUncert = 1;
     }else if(0 == strcmp("--suffix", argv[i])) {
@@ -388,8 +391,10 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
 
   // Histogram for electron population (x)
   TH1D *x_pos = new TH1D("x_pos","electron population vs pos",200,-100,100);
-  //t->Draw("x>>x_pos","primary == 1 && abs(angX) < 89 && abs(x) < 100 && E > 3","goff");
-  
+  cout<<"Getting histogram number of hits as a function of position: "<<endl;
+  t->Draw("x>>x_pos","primary == 1 && abs(angX) < 89 && abs(x) < 100 && E > 3","goff");
+  cout<<"\tmoving on: time passed "<<(double) ((clock() - tStart)/CLOCKS_PER_SEC)<<" s"<<endl;
+
   for(int i=0;i<nModelsEff;i++)
     for(int j=0;j<2;j++){
       as[j][i]=new TH1D(Form("as%s_%d",lr[j].c_str(),i),Form("model %d %s PMT;asymmetry [ppm]",i,lr[j].c_str()),
@@ -469,6 +474,11 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
     // also, lpe(yt) = rpe(x) = lpe_jie(x), rpe
     //if(!interpolator.getPEs(E,x+offset,angX,lpe,rpe)) continue;  // use this line instead for light flip check: lpe_jie(y) = lpe(y), etc.
 
+    if(scaleLight==1){
+      lpe = scalePEs(lpe,0,yt+offset,barModel.Data());
+      rpe = scalePEs(rpe,1,yt+offset,barModel.Data());
+    }
+    
     for(int imod=0;imod<nModelsEff;imod++){      
       if( imod==7 && (E<EcutLow || E>=EcutHigh)) continue;     
       
@@ -785,6 +795,33 @@ void readGpr(vector<string> fnms){
     fin->Close();
   }
 }
+
+double scalePEs(double val, int lr, double position, string barModel){
+  if(barModel == "md1config16_model2_23"){
+    if(lr==0){    
+      if(position<-60)
+	return val * (0.8210 - 0.0009* position );
+      else if(position<-10)
+	return val * (0.9873 + 0.0004* position );
+      else if(position>10 && position<=50)
+	return val * (1.033 + 0.004* position );
+      else if(position>50)
+	return val * (1.1766 + 0.0025* position );
+    }else if(lr==1){
+      if(position<-50)
+	return val * (0.962 - 0.003* position );
+      else if(position<-10)
+	return val * (0.927 - 0.004* position );
+      else if(position>10 && position<=60)
+	return val * (1.0231 - 0.0004* position );
+      else if(position>60)
+	return val * (1.3628 - 0.0056* position );
+    }
+  }
+
+  return val;
+}
+
 
 pmtdd_data* printInfo(TH1D *hl,TH1D *hr){
   pmtdd_data* pmtdd = new pmtdd_data();
