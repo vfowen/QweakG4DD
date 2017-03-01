@@ -45,8 +45,7 @@ struct pmtdd_data {
 };
 
 void pmtdd_data::print(void) {
-  cout << this->al << "\t" << this->dal << "\t" << this->ar << "\t" << this->dar << "\t"
-       << this->dd << "\t" << this->ddd << "\t"
+  cout << this->dd << "\t" << this->ddd << "\t"
        << this->abias << "\t" << this->dabias <<"\t"
        << this->fom << "\t"
        << this->dfom << endl;
@@ -55,19 +54,23 @@ void pmtdd_data::print(void) {
 pmtdd_data* printInfo(TH1D *hl,TH1D *hr);
 void drawFunctions();
 clock_t tStart;
-double model(float val,int type);
+double model(float val,int type, float Eval);
+
+int scaleLight(0);
+double scalePEs(double, int, double, string);
 
 const int nModels = 308;
 const int rangeTst=0;
 int nModelsEff(nModels-301);//default is only [0,6]
 vector<vector<vector<double>>> asymLimits;
 int withShower(0);
+double EcutLow(2),EcutHigh(2000);
 
 //gpr Cnt value and phase space functions 
 vector<vector<double>> gprFcts;
 vector<double> gprXcent,gprX;
 void readGpr(string fnm);
-
+void readGpr(vector<string> fnm);
 
 std::vector<pmtdd_data*> avgValue(TString, TString, TString, float, Int_t, string);
 
@@ -86,8 +89,8 @@ int main(int argc, char** argv)
          << "ideal23_RLG2mmThinner, "
          << "ideal23_RNoBevel, "
          << "md1config10_23, md1config16_model2_23, md1_model2_lightGuideMod md2config5_23, "
-         << "md2config5_model2_23, md3config4_23, md4config4_23, md5config4_23, "
-         << "md6config3_23, md7config2_23, md8config16_0 or md8config16_23"
+         << "md2config5_model2_23, md2config3run1par_model2_23, md3config4_23, md4config4_23," 
+         << "md5config4_23,md6config3_23, md7config2_23, md8config16_0 or md8config16_23"
          << endl
          << " --distmodel mirror (omit for as is)"
          << endl
@@ -98,8 +101,11 @@ int main(int argc, char** argv)
          << " --drawFctions <#> (optional; make output file with the effective model functions."
 	 <<"\t if val==0 just draw and ignore the rest of the program. other values proceed as normal"
          << endl
-         << " --scan1fct <fnm> <0/1> (optional; arg2==0 look in file \"fnm\" for the gprCentralValue as model 7. arg2==1 in addition to central value look for 300 TGraphs giving the phase space functions)"
-         << endl
+         << " --scan1fct <fnm> <0/1> (optional; \n\targ2==0 look in file \"fnm\" for the gprCentralValue as model 7. \n\targ2==1 in addition to central value look for 300 TGraphs giving the phase space functions)\nb\targ2==n with n>1 needs to be followed by n files that contain effective models with energy binning"
+	 << endl
+         << " --Ecut lowVal highVal (optional; will make additional cuts on tracks used in the analysis)"
+	 << endl      
+      	 << " --scaleLight (optional: scale the PEs to try to match tracking light yield)" << endl
       	 << " --processShower (optional: if you have a hitmap with secondary hits this will scale the asymmetry appropriately)" << endl
       	 << " --suffix <name to append to outFile> (omit for default)" << endl;
     return 1;
@@ -120,22 +126,42 @@ int main(int argc, char** argv)
       if(atoi(argv[i+1])==0)
 	return 0;
     }else if(0 == strcmp("--scan1fct", argv[i])) {
-      int fctBool=atoi(argv[i+2]);
-      nModelsEff += 1 + fctBool*300;
+      string testInput=argv[i+2];
+      if(testInput!="0" && testInput!="1" && testInput!="3"){
+	cout<<"Mwap! Mwap! I was expecting 0, 1 or 3 for the second argument of scan1fct but I got this crap: "<<testInput<<endl;
+	return 0;
+      }
+
+      if(testInput=="3"){
+	int nBins=atoi(argv[i+2]);
+	vector<string> fnms;
+	fnms.push_back(argv[i+1]);
+	for(int j=0;j<nBins;j++)
+	  fnms.push_back(argv[i+3+j]);
+	readGpr(fnms);
+	nModelsEff += 2;
+      }else{
+	int fctBool=atoi(argv[i+2]);
+	nModelsEff += 1 + fctBool*300;
+	readGpr(argv[i+1]);
+      }
       cout<<"start reading GPR. Number of effective models: "<<nModelsEff<<endl;
-      readGpr(argv[i+1]);
     }else if(0 == strcmp("--barmodel", argv[i])) {
       barModel = argv[i+1];
+    }else if(0 == strcmp("--Ecut", argv[i])) {
+      EcutLow  = atof(argv[i+1]);
+      EcutHigh = atof(argv[i+2]);
+      cout<<"\tWill make energy cuts on the model 7 between "<<EcutLow<<" and "<<EcutHigh<<endl;
     }else if(0 == strcmp("--processShower", argv[i])) {
       withShower=1;
+    }else if(0 == strcmp("--scaleLight", argv[i])) {
+      scaleLight=1;
     } else if(0 == strcmp("--distmodel", argv[i])) {
       distModel = argv[i+1];
     } else if(0 == strcmp("--rootfile", argv[i])) {
       rootfile = argv[i+1];
     } else if(0 == strcmp("--offset", argv[i])) {
       offset = atof(argv[i+1]);
-    } else if(0 == strcmp("--scan", argv[i])) {
-      scan = kTRUE;
     } else if(0 == strcmp("--lightParaUncert", argv[i])) {
       peUncert = 1;
     }else if(0 == strcmp("--suffix", argv[i])) {
@@ -365,8 +391,10 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
 
   // Histogram for electron population (x)
   TH1D *x_pos = new TH1D("x_pos","electron population vs pos",200,-100,100);
-  //t->Draw("x>>x_pos","primary == 1 && abs(angX) < 89 && abs(x) < 100 && E > 3","goff");
-  
+  cout<<"Getting histogram number of hits as a function of position: "<<endl;
+  t->Draw("x>>x_pos","primary == 1 && abs(angX) < 89 && abs(x) < 100 && E > 3","goff");
+  cout<<"\tmoving on: time passed "<<(double) ((clock() - tStart)/CLOCKS_PER_SEC)<<" s"<<endl;
+
   for(int i=0;i<nModelsEff;i++)
     for(int j=0;j<2;j++){
       as[j][i]=new TH1D(Form("as%s_%d",lr[j].c_str(),i),Form("model %d %s PMT;asymmetry [ppm]",i,lr[j].c_str()),
@@ -394,13 +422,11 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
   for(int i=0;i<nev;i++){
     t->GetEntry(i);
 
-    if( !withShower && !primary ) continue;
-    
     if( float(i+1)/nev*100 > currentProc ){
       cout<<" at event: "<<i<<"\t"<<float(i+1)/nev*100<<"% | time passed: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<" s"<<endl;
       currentProc+=procStep;
     }
-        
+
     if(float(i+1)/nev*100>currentStep){
       for(int imod=1;imod<nModelsEff;imod++){
 	if(avgStepR[0]>0 && avgStepL[0]>0){
@@ -421,6 +447,8 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
     }
     
     if(i>1000000 && rangeTst) break;
+
+    if( !withShower && !primary ) continue;
 
     float flip(1.);
     if(distModel == "mirror")
@@ -445,15 +473,25 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
     // A nice test is to invert Jie's optical model, so that instead of using rpe(yt) = lpe(x) = rpe_jie(x)
     // also, lpe(yt) = rpe(x) = lpe_jie(x), rpe
     //if(!interpolator.getPEs(E,x+offset,angX,lpe,rpe)) continue;  // use this line instead for light flip check: lpe_jie(y) = lpe(y), etc.
+
+    if(scaleLight==1){
+      lpe = scalePEs(lpe,0,yt+offset,barModel.Data());
+      rpe = scalePEs(rpe,1,yt+offset,barModel.Data());
+    }
     
-    for(int imod=0;imod<nModelsEff;imod++){
-      double asym=1.;
-      if(primary==1)
-	// SIGN FIX: asymmetry should be positive for positive relative angles along the y-axis.
-	asym=model(angYt_rel,imod);
-      else if(imod!=0)
-	asym=0;
+    for(int imod=0;imod<nModelsEff;imod++){      
+      if( imod==7 && (E<EcutLow || E>=EcutHigh)) continue;     
       
+      double asym=1.;
+      if(primary==1){
+	// SIGN FIX: asymmetry should be positive for positive relative angles along the y-axis.
+	if( nModelsEff==9 && imod==8)
+	  asym=model(angYt_rel,imod,E);
+	else
+	  asym=model(angYt_rel,imod,-1);
+      }else if(imod!=0)
+	asym=0;
+
       avgStepL[imod]+=asym*lpe;
       avgStepR[imod]+=asym*rpe;
       lAvgTotPE[imod]+=asym*lpe;
@@ -497,6 +535,9 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
     tn2 = new TNamed("angle","angle 23");
   }else if("md2config5_model2_23" == barModel) {
     tn1 = new TNamed("bar","md2config5_model2");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("md2config3run1par_model2_23" == barModel) {
+    tn1 = new TNamed("bar","md2config3run1par_model2");
     tn2 = new TNamed("angle","angle 23");
   }else if("md3config4_23" == barModel) {
     tn1 = new TNamed("bar","md3config4");
@@ -567,7 +608,7 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
   tn2->Write();                              
   tn3->Write();
 
-  cout<<endl<<" average asymmetry histogram results: A_L dA_L A_R dA_R DD dDD A_bias dA_bia A_bias/DD*100"<<endl;
+  cout<<endl<<" average asymmetry histogram results: DD dDD A_bias dA_bia A_bias/DD*100"<<endl;
   vector< pmtdd_data* > pmtdd;
   x_pos->Write();
   for(int j=0;j<nModelsEff;j++){      
@@ -597,7 +638,7 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
 }
 
 //models go here
-double model(float val,int type){
+double model(float val,int type, float Eval){
   //0=                                     
   //1= cnst*sgn(angX) for abs(angX)=[20,40]
   //2= cnst*angX                           
@@ -619,10 +660,7 @@ double model(float val,int type){
   if(type==0)
     return 1;  
   else if(type==1){
-    if( (abs(val)>=20 && abs(val)<40) )
-      return 0.759 * 4e-6 * val/abs(val) * 290/478 * showerFactor;
-    else
-      return 0;
+    return 0.759 * 4e-6 * val/abs(val) /4.5 * 290/478 * 290/230 * showerFactor;
   }else if(type==2)
     return 0.713 * 4e-8 * val * 290/377 *showerFactor;
   else if(type==3)
@@ -646,15 +684,31 @@ double model(float val,int type){
     double xH = gprXcent[bin];
     double yL = gprFcts[nFct][bin-1];
     double yH = gprFcts[nFct][bin];
-    return -val/abs(val)*(yL + (yH - yL)*(abs(val) - xL)/(xH - xL))/1e6 * 0.787;//FIXME 0.787 is for the wrong beam polarization factor
+    return -val/abs(val)*(yL + (yH - yL)*(abs(val) - xL)/(xH - xL))/1e6;
   }else if(type<308){
     int nFct=type-7;    
-    int bin = int(lower_bound(gprX.begin(),gprX.end(),abs(val)) - gprX.begin());
-    double xL = gprX[bin-1];
-    double xH = gprX[bin];
-    double yL = gprFcts[nFct][bin-1];
-    double yH = gprFcts[nFct][bin];
-    return -val/abs(val)*(yL + (yH - yL)*(abs(val) - xL)/(xH - xL))/1e6 * 0.787;//FIXME 0.787 is for the wrong beam polarization factor
+    int bin;
+    double xL, xH, yL, yH;
+    if(Eval<0){
+      bin = int(lower_bound(gprX.begin(),gprX.end(),abs(val)) - gprX.begin());
+      xL = gprX[bin-1];
+      xH = gprX[bin];
+      yL = gprFcts[nFct][bin-1];
+      yH = gprFcts[nFct][bin];
+    }else{
+      bin = int(lower_bound(gprXcent.begin(),gprXcent.end(),abs(val)) - gprXcent.begin());
+      xL = gprXcent[bin-1];
+      xH = gprXcent[bin];
+
+      if(Eval>=30 && Eval<100)
+	nFct+=1;
+      else if(Eval>=100 && Eval<2000)
+	nFct+=2;
+
+      yL = gprFcts[nFct][bin-1];
+      yH = gprFcts[nFct][bin];      
+    }
+    return -val/abs(val)*(yL + (yH - yL)*(abs(val) - xL)/(xH - xL))/1e6;
   }else
     return 0;      
 
@@ -712,6 +766,63 @@ void readGpr(string fnm){
   fin->Close();  
 }
 
+void readGpr(vector<string> fnms){
+  std::vector<double> tst;
+  int nfiles=fnms.size();
+  TFile *fin;
+  for(int j=0;j<nfiles;j++){
+    tst.clear();
+    fin=TFile::Open(fnms[j].c_str(),"READ");
+    TH1D *hin=(TH1D*)fin->Get("ho");
+    int nBins=hin->GetXaxis()->GetNbins();
+    for(int i=1;i<=nBins;i++){
+      double x,y;
+      x = hin->GetBinCenter(i);
+      y = hin->GetBinContent(i);
+      if(x<0) continue;
+      if(x>90) continue;      
+      if(j==0)
+	gprXcent.push_back(x);
+      else{
+	int currentPnt = tst.size();
+	if(gprXcent[currentPnt] != x)
+	  cerr<<__PRETTY_FUNCTION__<<" line: "<<__LINE__<<endl
+	      <<"\t x positions don't match for function "<<j<<" "<<currentPnt<<" <> "<<gprXcent[currentPnt]<<" "<<x<<endl;
+      }
+      tst.push_back(y);
+    }
+    gprFcts.push_back(tst);
+    fin->Close();
+  }
+}
+
+double scalePEs(double val, int lr, double position, string barModel){
+  if(barModel == "md1config16_model2_23"){
+    if(lr==0){    
+      if(position<-60)
+	return val * (0.8210 - 0.0009* position );
+      else if(position<-10)
+	return val * (0.9873 + 0.0004* position );
+      else if(position>10 && position<=50)
+	return val * (1.033 + 0.004* position );
+      else if(position>50)
+	return val * (1.1766 + 0.0025* position );
+    }else if(lr==1){
+      if(position<-50)
+	return val * (0.962 - 0.003* position );
+      else if(position<-10)
+	return val * (0.927 - 0.004* position );
+      else if(position>10 && position<=60)
+	return val * (1.0231 - 0.0004* position );
+      else if(position>60)
+	return val * (1.3628 - 0.0056* position );
+    }
+  }
+
+  return val;
+}
+
+
 pmtdd_data* printInfo(TH1D *hl,TH1D *hr){
   pmtdd_data* pmtdd = new pmtdd_data();
   pmtdd->al = hl->GetMean();
@@ -742,7 +853,7 @@ void drawFunctions(){
     gr[i]=new TGraph();
     for(int j=0;j<178;j++){      
       double val = -89 + j;
-      gr[i]->SetPoint(j,val,model(val,i));
+      gr[i]->SetPoint(j,val,model(val,i,-1));
     }
     gr[i]->SetName(Form("model_%d",i));
     gr[i]->SetMarkerStyle(20);
