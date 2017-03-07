@@ -59,6 +59,8 @@ double model(float val,int type, float Eval);
 int scaleLight(0);
 double scalePEs(double, int, double, string);
 
+int symMust(0),symPEs(0);
+double asymPEs(0);
 const int nModels = 308;
 const int rangeTst=0;
 int nModelsEff(nModels-301);//default is only [0,6]
@@ -106,6 +108,9 @@ int main(int argc, char** argv)
          << " --Ecut lowVal highVal (optional; will make additional cuts on tracks used in the analysis)"
 	 << endl      
       	 << " --scaleLight (optional: scale the PEs to try to match tracking light yield)" << endl
+      	 << " --symmetryzeMustache (optional: this will symmetrize the moustache==for each hit in x,angX it will also process -x,-angX)" << endl
+      	 << " --symmetryzePEs (optional: this will symmetrize the PEs from lookup tabl==for each hit in x,angX we get Lpe1,Rpe1 it will also process -x,-angX to get Lpe2,Rpe2. lep=(Lpe1+Rpe2)/2 and similarly for rpe)" << endl
+      	 << " --asymPEs <val> (optional: this add an asymmetry on the PEs as a linear function of angle such that A = val*angX/90)" << endl
       	 << " --processShower (optional: if you have a hitmap with secondary hits this will scale the asymmetry appropriately)" << endl
       	 << " --suffix <name to append to outFile> (omit for default)" << endl;
     return 1;
@@ -156,6 +161,12 @@ int main(int argc, char** argv)
       withShower=1;
     }else if(0 == strcmp("--scaleLight", argv[i])) {
       scaleLight=1;
+    }else if(0 == strcmp("--symmetrizeMustache", argv[i])) {
+      symMust=1;
+    }else if(0 == strcmp("--symmetrizePEs", argv[i])) {
+      symPEs=1;
+    }else if(0 == strcmp("--asymPEs", argv[i])) {      
+      asymPEs=atof(argv[i+1]);
     } else if(0 == strcmp("--distmodel", argv[i])) {
       distModel = argv[i+1];
     } else if(0 == strcmp("--rootfile", argv[i])) {
@@ -474,45 +485,65 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
     // (If you input a negative coordinate, Jie's table gives large rpe, which matches reality NEG.) 
     // we should use lpe(yt) = rpe_jie(yt), rpe(yt) = lpe_jie(yt).
     // to do this, call with (E,yt,angYt,rpe,lpe) instead of (E,yt,angYt,lpe,rpe)
-    double lpe(-1),rpe(-1);
-    if(!interpolator.getPEs(E,yt+offset,angYt,rpe,lpe)) continue;
+    double lpeV[2]={-1,-1},rpeV[2]={-1,-1};
+    if(!interpolator.getPEs(E,yt+offset,angYt,rpeV[0],lpeV[0])) continue;
     // A nice test is to invert Jie's optical model, so that instead of using rpe(yt) = lpe(x) = rpe_jie(x)
     // also, lpe(yt) = rpe(x) = lpe_jie(x), rpe
-    //if(!interpolator.getPEs(E,x+offset,angX,lpe,rpe)) continue;  // use this line instead for light flip check: lpe_jie(y) = lpe(y), etc.
 
-    if(scaleLight==1){
-      lpe = scalePEs(lpe,0,yt+offset,barModel.Data());
-      rpe = scalePEs(rpe,1,yt+offset,barModel.Data());
-    }
+    if(symMust || symPEs)
+      if(!interpolator.getPEs(E,-yt-offset,-angYt,rpeV[1],lpeV[1])) continue;
+
+
+    for(int imust=0;imust<2;imust++){
+      if(imust==1 && symMust==0) continue;
+
+      double lpe=lpeV[imust];
+      double rpe=rpeV[imust];
+
+      if(symPEs){
+	lpe = ( lpeV[imust] + rpeV[(imust+1)%2] )/2;
+	rpe = ( rpeV[imust] + lpeV[(imust+1)%2] )/2;
+      }
+
+      if(abs(asymPEs)>0){
+	lpe *= (1 - asymPEs * abs(angYt)/90 );
+	rpe *= (1 + asymPEs * abs(angYt)/90 );
+      }
+
+      if(scaleLight==1){
+	lpe = scalePEs(lpe,0,yt+offset,barModel.Data());
+	rpe = scalePEs(rpe,1,yt+offset,barModel.Data());
+      }
     
-    for(int imod=0;imod<nModelsEff;imod++){      
-      if( imod==7 && (E<EcutLow || E>=EcutHigh)) continue;     
-      
-      double asym=1.;
-      if(primary==1){
-	// SIGN FIX: asymmetry should be positive for positive relative angles along the y-axis.
-	if( nModelsEff==9 && imod==8)
-	  asym=model(angYt_rel,imod,E);
-	else
-	  asym=model(angYt_rel,imod,-1);
-      }else if(imod!=0)
-	asym=0;
+      for(int imod=0;imod<nModelsEff;imod++){      
+	if( imod==7 && (E<EcutLow || E>=EcutHigh)) continue;
+	
+	double asym=1.;
+	if(primary==1){
+	  // SIGN FIX: asymmetry should be positive for positive relative angles along the y-axis.
+	  if( nModelsEff==9 && imod==8)
+	    asym=model(angYt_rel,imod,E);
+	  else
+	    asym=model(angYt_rel,imod,-1);
+	}else if(imod!=0)
+	  asym=0;
 
-      avgStepL[imod]+=asym*lpe;
-      avgStepR[imod]+=asym*rpe;
-      lAvgTotPE[imod]+=asym*lpe;
-      rAvgTotPE[imod]+=asym*rpe;
+	avgStepL[imod]+=asym*lpe;
+	avgStepR[imod]+=asym*rpe;
+	lAvgTotPE[imod]+=asym*lpe;
+	rAvgTotPE[imod]+=asym*rpe;
       
-      hpe[0][imod]->Fill((1.+asym)*rpe);
-      posPE[0][imod]->Fill(yt,asym*rpe);
-      angPE[0][imod]->Fill(angYt_rel,asym*rpe);
-      hangPE[0][imod]->Fill(angYt,asym*rpe);
+	hpe[0][imod]->Fill((1.+asym)*rpe);
+	posPE[0][imod]->Fill(yt,asym*rpe);
+	angPE[0][imod]->Fill(angYt_rel,asym*rpe);
+	hangPE[0][imod]->Fill(angYt,asym*rpe);
 
-      hpe[1][imod]->Fill((1.+asym)*lpe);
-      posPE[1][imod]->Fill(yt,asym*lpe);
-      angPE[1][imod]->Fill(angYt_rel,asym*lpe);
-      hangPE[1][imod]->Fill(angYt,asym*lpe);      
-    }        
+	hpe[1][imod]->Fill((1.+asym)*lpe);
+	posPE[1][imod]->Fill(yt,asym*lpe);
+	angPE[1][imod]->Fill(angYt_rel,asym*lpe);
+	hangPE[1][imod]->Fill(angYt,asym*lpe);      
+      }//models
+    }//symmetric mustache
   }
   
   cout<<endl<<"total PE average: A_L A_R DD A_ave A_ave/DD"<<endl;
