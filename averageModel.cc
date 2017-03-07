@@ -618,6 +618,7 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
   cout<<endl<<" average asymmetry histogram results: DD dDD A_bias dA_bia A_bias/DD*100"<<endl;
   vector< pmtdd_data* > pmtdd;
   x_pos->Write();
+  x_ang->Write();
   for(int j=0;j<nModelsEff;j++){      
     for(int i=0;i<2;i++){
       hpe[i][j]->Write();
