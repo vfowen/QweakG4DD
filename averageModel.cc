@@ -387,6 +387,7 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
 
   string lr[2]={"R","L"};
   TH1D *hpe[2][nModels],*posPE[2][nModels],*angPE[2][nModels];
+  TH1D *hangPE[2][nModels];
   TH1D *as[2][nModels];
 
   // Histogram for electron population (x)
@@ -405,8 +406,11 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
 			     Form("model %d %s #PEs;position [cm]",i,lr[j].c_str()),
 			     200,-100,100);
       angPE[j][i] = new TH1D(Form("pe%s_ang_%d",lr[j].c_str(),i),
-			     Form("model %d %s #PEs;angle [deg]",i,lr[j].c_str()),
+			     Form("model %d %s #PEs;angle offset [deg]",i,lr[j].c_str()),
 			     240,-120,120);
+      hangPE[j][i] = new TH1D(Form("pe%s_Qang_%d",lr[j].c_str(),i),
+			      Form("model %d %s #PEs;angle at quartz [deg]",i,lr[j].c_str()),
+			      240,-120,120);
     }
     
   std::vector<double> avgStepL(nModels,0);
@@ -500,11 +504,12 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
       hpe[0][imod]->Fill((1.+asym)*rpe);
       posPE[0][imod]->Fill(yt,asym*rpe);
       angPE[0][imod]->Fill(angYt_rel,asym*rpe);
+      hangPE[0][imod]->Fill(angYt,asym*rpe);
 
       hpe[1][imod]->Fill((1.+asym)*lpe);
       posPE[1][imod]->Fill(yt,asym*lpe);
       angPE[1][imod]->Fill(angYt_rel,asym*lpe);
-      
+      hangPE[1][imod]->Fill(angYt,asym*lpe);      
     }        
   }
   
@@ -616,6 +621,7 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
       hpe[i][j]->Write();
       posPE[i][j]->Write();
       angPE[i][j]->Write();
+      hangPE[i][j]->Write();
       as[i][j]->Write();
     }
 
@@ -816,6 +822,26 @@ double scalePEs(double val, int lr, double position, string barModel){
 	return val * (1.0231 - 0.0004* position );
       else if(position>60)
 	return val * (1.3628 - 0.0056* position );
+    }
+  }else if(barModel == "md1config10_23"){
+    if(lr==0){    
+      if(position<-60)
+	return val * (0.7977 - 0.0011* position );
+      else if(position<-10)
+	return val * (1.037 + 0.0011* position );
+      else if(position>10 && position<=50)
+	return val * (0.9920 + 0.0028* position );
+      else if(position>50)
+	return val * (1.0890 + 0.0026* position );
+    }else if(lr==1){
+      if(position<-50)
+	return val * (1.1594 + 0.0010* position );
+      else if(position<-10)
+	return val * (1.0845 - 0.0003* position );
+      else if(position>10 && position<=60)
+	return val * (0.9794 + 0.0006* position );
+      else if(position>60)
+	return val * (1.3391 - 0.0052* position );
     }
   }
 
