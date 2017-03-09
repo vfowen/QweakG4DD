@@ -103,7 +103,7 @@ void QweakSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     G4cout<<myEventCounter<<" posmom "<<myPositionX<<" "<<myPositionY<<" "<<myPositionZ<<" "
 	  <<myNormMomentumX<<" "<<myNormMomentumY<<" "<<myNormMomentumZ<<" "<<G4endl;
     G4ThreeVector tmp(myNormMomentumX,myNormMomentumY,myNormMomentumZ);
-    G4cout<<"\tmom (R,T,P) "<<tmp.getR()<<"\t"<<tmp.getTheta()<<"\t"<<tmp.getPhi()<<G4endl;    
+    G4cout<<"\tmom (R,T,P) "<<tmp.getR()<<"\t"<<tmp.getTheta()<<"\t"<<tmp.getPhi()<<G4endl;
   }
 
   if (fPolarization == "f") {

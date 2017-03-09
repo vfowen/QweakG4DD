@@ -90,6 +90,15 @@ void interpolatePEs::readScan(){
   }else if("ideal23_RNoBevel" == barModel) {
     path = "input/idealBar_alongDir_acrossAng23_RNoBevel.txt";
     cout << "Using: "<< path << endl;
+  }else if("ideal23_GlueFilmR040" == barModel) {
+    path = "input/idealBar_alongDir_acrossAng23_GlueFilmR040.txt";
+    cout << "Using: "<< path << endl;
+  }else if("ideal23_PolishR005Decrease" == barModel) {
+    path = "input/idealBar_alongDir_acrossAng23_PolishR005Decrease.txt";
+    cout << "Using: "<< path << endl;
+  }else if("ideal23_PolishR010Decrease" == barModel) {
+    path = "input/idealBar_alongDir_acrossAng23_PolishR010Decrease.txt";
+    cout << "Using: "<< path << endl;
   }else{
     cout << "Cannot match your barModel to available list: update list or check name"<<endl;
     exit(2);
