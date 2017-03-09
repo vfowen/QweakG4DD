@@ -108,8 +108,8 @@ int main(int argc, char** argv)
          << " --Ecut lowVal highVal (optional; will make additional cuts on tracks used in the analysis)"
 	 << endl      
       	 << " --scaleLight (optional: scale the PEs to try to match tracking light yield)" << endl
-      	 << " --symmetryzeMustache (optional: this will symmetrize the moustache==for each hit in x,angX it will also process -x,-angX)" << endl
-      	 << " --symmetryzePEs (optional: this will symmetrize the PEs from lookup tabl==for each hit in x,angX we get Lpe1,Rpe1 it will also process -x,-angX to get Lpe2,Rpe2. lep=(Lpe1+Rpe2)/2 and similarly for rpe)" << endl
+      	 << " --symmetrizeMustache (optional: this will symmetrize the moustache==for each hit in x,angX it will also process -x,-angX)" << endl
+      	 << " --symmetrizePEs (optional: this will symmetrize the PEs from lookup tabl==for each hit in x,angX we get Lpe1,Rpe1 it will also process -x,-angX to get Lpe2,Rpe2. lep=(Lpe1+Rpe2)/2 and similarly for rpe)" << endl
       	 << " --asymPEs <val> (optional: this add an asymmetry on the PEs as a linear function of angle such that A = val*angX/90)" << endl
       	 << " --processShower (optional: if you have a hitmap with secondary hits this will scale the asymmetry appropriately)" << endl
       	 << " --suffix <name to append to outFile> (omit for default)" << endl;
@@ -158,15 +158,20 @@ int main(int argc, char** argv)
       EcutHigh = atof(argv[i+2]);
       cout<<"\tWill make energy cuts on the model 7 between "<<EcutLow<<" and "<<EcutHigh<<endl;
     }else if(0 == strcmp("--processShower", argv[i])) {
+      cout<<"\twill process shower hits"<<endl;
       withShower=1;
     }else if(0 == strcmp("--scaleLight", argv[i])) {
+      cout<<"\twill scale light to match tracking"<<endl;	
       scaleLight=1;
     }else if(0 == strcmp("--symmetrizeMustache", argv[i])) {
+      cout<<"\twill symmetrize moustaches!"<<endl;
       symMust=1;
     }else if(0 == strcmp("--symmetrizePEs", argv[i])) {
+      cout<<"\twill symmetrize PEs!"<<endl;
       symPEs=1;
-    }else if(0 == strcmp("--asymPEs", argv[i])) {      
+    }else if(0 == strcmp("--asymPEs", argv[i])) {            
       asymPEs=atof(argv[i+1]);
+      cout<<"\twill scale PE output to reach a maximum of "<<asymPEs<<" at 90 deg"<<endl;
     } else if(0 == strcmp("--distmodel", argv[i])) {
       distModel = argv[i+1];
     } else if(0 == strcmp("--rootfile", argv[i])) {
@@ -493,7 +498,6 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
     if(symMust || symPEs)
       if(!interpolator.getPEs(E,-yt-offset,-angYt,rpeV[1],lpeV[1])) continue;
 
-
     for(int imust=0;imust<2;imust++){
       if(imust==1 && symMust==0) continue;
 
@@ -514,11 +518,18 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
 	lpe = scalePEs(lpe,0,yt+offset,barModel.Data());
 	rpe = scalePEs(rpe,1,yt+offset,barModel.Data());
       }
-    
+
+      if(imust==1) {
+	angYt_rel *= -1;
+	angYt *= -1;
+	yt *= -1;
+      }
+
       for(int imod=0;imod<nModelsEff;imod++){      
 	if( imod==7 && (E<EcutLow || E>=EcutHigh)) continue;
 	
 	double asym=1.;
+	
 	if(primary==1){
 	  // SIGN FIX: asymmetry should be positive for positive relative angles along the y-axis.
 	  if( nModelsEff==9 && imod==8)
