@@ -62,7 +62,7 @@ void QweakSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   G4double myPositionX, myPositionY, myPositionZ;
   G4double myNormMomentumX, myNormMomentumY, myNormMomentumZ;
   G4double E_beam;  // Energy of the incoming and outgoing particle
-  
+
   if( myUserInfo->GetFixedPosMom() ){
     myPositionX =  myUserInfo->GetBeamPositionX(-1);
     myPositionY =  myUserInfo->GetBeamPositionY(-1);
@@ -103,8 +103,7 @@ void QweakSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     G4cout<<myEventCounter<<" posmom "<<myPositionX<<" "<<myPositionY<<" "<<myPositionZ<<" "
 	  <<myNormMomentumX<<" "<<myNormMomentumY<<" "<<myNormMomentumZ<<" "<<G4endl;
     G4ThreeVector tmp(myNormMomentumX,myNormMomentumY,myNormMomentumZ);
-    G4cout<<"\tmom (R,T,P) "<<tmp.getR()<<"\t"<<tmp.getTheta()<<"\t"<<tmp.getPhi()<<G4endl;
-    G4cout<<"\tAngX AngY: "<<myUserInfo->GetNormMomentumX(myEventCounter)/CLHEP::deg<<" "<<myUserInfo->GetNormMomentumY(myEventCounter)/CLHEP::deg<<G4endl;
+    G4cout<<"\tmom (R,T,P) "<<tmp.getR()<<"\t"<<tmp.getTheta()<<"\t"<<tmp.getPhi()<<G4endl;    
   }
 
   if (fPolarization == "f") {
