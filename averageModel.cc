@@ -92,7 +92,7 @@ int main(int argc, char** argv)
          << "ideal23_RNoBevel, ideal23_GlueFilmR040, ideal23_PolishR005Decrease, ideal23_PolishR010Decrease, "
          << "md1config10_23, md1config16_model2_23, md1_model2_lightGuideMod md2config5_23, "
          << "md2config5_model2_23, md2config3run1par_model2_23, md3config4_23, md4config4_23," 
-         << "md5config4_23,md6config3_23, md7config2_23, md8config16_0 or md8config16_23"
+         << "md5config4_23,md6config3_23, md7config2_23, md8config16_0, md8config16_23, md8configMG_23"
          << endl
          << " --distmodel mirror (omit for as is)"
          << endl
@@ -510,8 +510,10 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
       }
 
       if(abs(asymPEs)>0){
-	lpe *= (1 - asymPEs * abs(angYt)/90 );
-	rpe *= (1 + asymPEs * abs(angYt)/90 );
+	lpe *= (1 - asymPEs * abs(yt)/100 );
+	rpe *= (1 + asymPEs * abs(yt)/100 );
+	// lpe *= (1 - asymPEs * abs(angYt)/90 );
+	// rpe *= (1 + asymPEs * abs(angYt)/90 );
       }
 
       if(scaleLight==1){
@@ -608,6 +610,9 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
     tn2 = new TNamed("angle","angle 0");
   }else if("md8config16_23" == barModel) {
     tn1 = new TNamed("bar","md8config16");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("md8configMG_23" == barModel) {
+    tn1 = new TNamed("bar","md8configMG");
     tn2 = new TNamed("angle","angle 23");
   }else if("ideal0" == barModel) {
     tn1 = new TNamed("bar","ideal bar");

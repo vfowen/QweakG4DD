@@ -57,6 +57,9 @@ void interpolatePEs::readScan(){
   }else if("md8config16_23" == barModel) {
     cout << "Using input/md8Config16_alongDir_acrossAng23_lightPara.txt" << endl;
     path = "input/md8Config16_alongDir_acrossAng23_lightPara.txt";
+  }else if("md8configMG_23" == barModel) {
+    path = "input/md8ConfigMG_alongDir_acrossAng23.txt";
+    cout << "Using : " << path << endl;
   }else if("ideal0" == barModel) {
     cout << "Using input/idealBar_alongDir_acrossAng0_lightPara.txt" << endl;
     path = "input/idealBar_alongDir_acrossAng0_lightPara.txt";
