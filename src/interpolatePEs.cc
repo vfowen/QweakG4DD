@@ -39,6 +39,9 @@ void interpolatePEs::readScan(){
   }else if("md2config3run1par_model2_23" == barModel) {
     path = "input/md2Config3Run1Parameters_model2_alongDir_acrossAng23_lightPara.txt";
     cout << "Using "<<path<<endl;
+  }else if("md2config11_model2_23" == barModel) {
+    path = "input/md2Config11_model2_alongDir_acrossAng23.txt";
+    cout << "Using "<<path<<endl;
   }else if("md3config4_23" == barModel) {
     cout << "Using input/md3Config4_alongDir_acrossAng23_lightPara.txt" << endl;
     path = "input/md3Config4_alongDir_acrossAng23_lightPara.txt";
