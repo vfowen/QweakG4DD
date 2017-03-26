@@ -491,12 +491,19 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
     // we should use lpe(yt) = rpe_jie(yt), rpe(yt) = lpe_jie(yt).
     // to do this, call with (E,yt,angYt,rpe,lpe) instead of (E,yt,angYt,lpe,rpe)
     double lpeV[2]={-1,-1},rpeV[2]={-1,-1};
-    if(!interpolator.getPEs(E,yt+offset,angYt,rpeV[0],lpeV[0])) continue;
+    if(barModel=="md8configMG_23")
+      if(!interpolator.getPEs(E,-1*(yt+offset),-1*(angYt),lpeV[0],rpeV[0])) continue;
+    else
+      if(!interpolator.getPEs(E,yt+offset,angYt,rpeV[0],lpeV[0])) continue;
     // A nice test is to invert Jie's optical model, so that instead of using rpe(yt) = lpe(x) = rpe_jie(x)
     // also, lpe(yt) = rpe(x) = lpe_jie(x), rpe
 
-    if(symMust || symPEs)
-      if(!interpolator.getPEs(E,-yt-offset,-angYt,rpeV[1],lpeV[1])) continue;
+    if(symMust || symPEs){
+    if(barModel=="md8configMG_23")
+      if(!interpolator.getPEs(E,yt+offset,angYt,lpeV[1],rpeV[1])) continue;
+    else
+      if(!interpolator.getPEs(E,-1*(yt+offset),-1*(angYt),rpeV[1],lpeV[1])) continue;
+    }
 
     for(int imust=0;imust<2;imust++){
       if(imust==1 && symMust==0) continue;
