@@ -278,7 +278,11 @@ int main(int argc, char** argv){
     }else{
       // -x,-angX so that we can be in the tracking frame
       // associate L to the R container so that we can match the proper optical parametrization
-      if(!interpolator.getPEs(E,-x,-angX,pes[1],pes[0])) continue;
+      if(barModel=="md8configMG_23"){
+	if(!interpolator.getPEs(E,x,angX,pes[0],pes[1])) continue;
+      }else{
+	if(!interpolator.getPEs(E,-x,-angX,pes[1],pes[0])) continue;
+      }
     }
 
     if( correctInitial != 0){
