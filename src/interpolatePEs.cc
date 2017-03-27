@@ -108,6 +108,30 @@ void interpolatePEs::readScan(){
   }else if("ideal23_PolishR010Decrease" == barModel) {
     path = "input/idealBar_alongDir_acrossAng23_PolishR010Decrease.txt";
     cout << "Using: "<< path << endl;
+  }else if("tracking_md1"==barModel){
+    path = "input/md1_trackingParametrization_dummy3D.txt";
+    cout << "Using: "<<path << endl;
+  }else if("tracking_md2"==barModel){
+    path = "input/md2_trackingParametrization_dummy3D.txt";
+    cout << "Using: "<<path << endl;
+  }else if("tracking_md3"==barModel){
+    path = "input/md3_trackingParametrization_dummy3D.txt";
+    cout << "Using: "<<path << endl;
+  }else if("tracking_md4"==barModel){
+    path = "input/md4_trackingParametrization_dummy3D.txt";
+    cout << "Using: "<<path << endl;
+  }else if("tracking_md5"==barModel){
+    path = "input/md5_trackingParametrization_dummy3D.txt";
+    cout << "Using: "<<path << endl;
+  }else if("tracking_md6"==barModel){
+    path = "input/md6_trackingParametrization_dummy3D.txt";
+    cout << "Using: "<<path << endl;
+  }else if("tracking_md7"==barModel){
+    path = "input/md7_trackingParametrization_dummy3D.txt";
+    cout << "Using: "<<path << endl;
+  }else if("tracking_md8"==barModel){
+    path = "input/md8_trackingParametrization_dummy3D.txt";
+    cout << "Using: "<<path << endl;
   }else{
     cout << "Cannot match your barModel to available list: update list or check name"<<endl;
     exit(2);
@@ -132,6 +156,14 @@ void interpolatePEs::readScan(){
     xPosHighLimit =  90;
     xAngLowLimit  = -80;
     xAngHighLimit =  80;
+  } else if("tracking_md1" == barModel || "tracking_md2" == barModel ||
+	    "tracking_md3" == barModel || "tracking_md4" == barModel ||
+	    "tracking_md5" == barModel || "tracking_md6" == barModel ||
+	    "tracking_md7" == barModel || "tracking_md8" == barModel){
+    xPosLowLimit  = -95;
+    xPosHighLimit =  95;
+    xAngLowLimit  = -89;
+    xAngHighLimit =  89;    
   } else {
     xPosLowLimit  = -100;
     xPosHighLimit =  100;
