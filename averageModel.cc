@@ -92,7 +92,7 @@ int main(int argc, char** argv)
          << "ideal23_RNoBevel, ideal23_GlueFilmR040, ideal23_PolishR005Decrease, ideal23_PolishR010Decrease, "
          << "md1config10_23, md1config16_model2_23, md1_model2_lightGuideMod, md1config5_model2_23, md2config5_23, "
          << "md2config5_model2_23, md2config3run1par_model2_23, md2config11_model2_23, md3config4_23, md4config4_23," 
-         << "md5config4_23,md6config3_23, md7config2_23, md8config16_0, md8config16_23, md8configMG_23"
+         << "md5config4_23,md6config3_23, md7config2_23, md8config16_0, md8config16_23, md8configMG_23, "
 	 <<"tracking_md1,tracking_md2,tracking_md3,tracking_md4,tracking_md5,tracking_md6,tracking_md7,tracking_md8"
          << endl
          << " --distmodel mirror (omit for as is)"
@@ -675,6 +675,31 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
   }else if("ideal23_PolishR010Decrease" == barModel) {
     tn1 = new TNamed("bar","ideal bar with polish of R quartz at 89.7%");
     tn2 = new TNamed("angle","angle 23");
+  }else if("tracking_md1" == barModel) {
+    tn1 = new TNamed("bar","dummy md1");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("tracking_md2" == barModel) {
+    tn1 = new TNamed("bar","dummy md2");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("tracking_md3" == barModel) {
+    tn1 = new TNamed("bar","dummy md3");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("tracking_md4" == barModel) {
+    tn1 = new TNamed("bar","dummy md4");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("tracking_md5" == barModel) {
+    tn1 = new TNamed("bar","dummy md5");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("tracking_md6" == barModel) {
+    tn1 = new TNamed("bar","dummy md6");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("tracking_md7" == barModel) {
+    tn1 = new TNamed("bar","dummy md7");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("tracking_md8" == barModel) {
+    tn1 = new TNamed("bar","dummy md8");
+    tn2 = new TNamed("angle","angle 23");
+
   }else{
     cout<<"not sure what bar model you beam by: "<<barModel<<endl;
     exit(3);
