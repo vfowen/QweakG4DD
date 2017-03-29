@@ -35,6 +35,8 @@ int main(int argc, char** argv)
          << endl
          << " --distmodel mirror (omit for as is)"
          << endl
+         << " --check (it will stop processing at 20% of the data)"
+         << endl
       	 << " --suffix <name to append to outFile> (omit for default)" << endl;
     return 1;
   }
@@ -44,7 +46,7 @@ int main(int argc, char** argv)
   string distModel = "asIs";
   string rootfile = "";
   string suffix = "";
-  
+  int check(0);
   for(Int_t i = 1; i < argc; i++) {    
     if(0 == strcmp("--barmodel", argv[i])) {
       barModel = argv[i+1];
@@ -54,6 +56,8 @@ int main(int argc, char** argv)
       rootfile = argv[i+1];
     }else if(0 == strcmp("--suffix", argv[i])) {
       suffix = argv[i+1];
+    }else if(0 == strcmp("--check", argv[i])) {
+      check(1);
     }    
   }
 
@@ -102,8 +106,8 @@ int main(int argc, char** argv)
 
   int nBins=200;
   TH1D *totPEs = new TH1D("totPEs","rPos, rNeg, lPos, lNeg",4,0,4);
-  TH1D *avgDD  = new TH1D("avgDD","Avg DD distribution",100,-1e-5,1e-5);
-  TH1D *avgAb  = new TH1D("avgAb","Avg Ab distribution",100,-1e-5,1e-5);
+  TH1D *avgDD  = new TH1D("avgDD","Avg DD distribution",100,-1e-6,1e-6);
+  TH1D *avgAb  = new TH1D("avgAb","Avg Ab distribution",100,-1e-6,1e-6);
   
   for(int i=0;i<2;i++){
     as[i] = new TH1D(Form("as_%s",lr[i].c_str()),
@@ -111,7 +115,7 @@ int main(int argc, char** argv)
 		     100,-1e-5,1e-5);
     avgAs[i] = new TH1D(Form("avgAs_%s",lr[i].c_str()),
 			Form("Avg Asymmetry distribution %s",lr[i].c_str()),
-			100,-1e-5,1e-5);
+			100,-2e-7,2e-7);
     posAs[i] = new TH1D(Form("posAs_%s",lr[i].c_str()),
 			Form("%s PMT;position[cm];asymmetry[ppm]",lr[i].c_str()),
 			nBins,-100,100);
@@ -172,7 +176,7 @@ int main(int argc, char** argv)
     }
     
     
-    //if( float(i+1)/nev*100 > 20 ) break;
+    if( check && float(i+1)/nev*100 > 20 ) break;
 
     double yt     = -1.0*flip*x;
     double angYt  = -1.0*flip*angX;
