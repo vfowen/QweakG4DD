@@ -57,7 +57,7 @@ int main(int argc, char** argv)
     }else if(0 == strcmp("--suffix", argv[i])) {
       suffix = argv[i+1];
     }else if(0 == strcmp("--check", argv[i])) {
-      check(1);
+      check=1;
     }    
   }
 
