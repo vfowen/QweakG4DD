@@ -266,8 +266,8 @@ int main(int argc, char** argv)
   double lAs  = (lTotPE[0] - lTotPE[1])/(lTotPE[0] + lTotPE[1]);
   double dd   = (rAs - lAs);
   double ab   = (rAs + lAs)/2;
-  cout<<"L\tR\tDD\tAb\n";
-  cout<<lAs<<"\t"<<rAs<<"\t"<<dd<<"\t"<<ab<<endl;
+  cout<<"L\tR\tDD\tAb\tAb/DD*100\n";
+  cout<<lAs<<"\t"<<rAs<<"\t"<<dd<<"\t"<<ab<<"\t"<<ab/dd*100<<endl;
 
   fout->Close();
 
