@@ -410,10 +410,6 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
   // Histogram for electron population (x)
   TH1D *x_pos = new TH1D("x_pos","electron population; position at quartz [cm]",200,-100,100);
   TH1D *x_ang = new TH1D("x_ang","electron population; angle at quartz [deg]",240,-120,120);
-  cout<<"Getting histogram number of hits as a function of position: "<<endl;
-  t->Draw("x>>x_pos","primary == 1 && abs(angX) < 89 && abs(x) < 100 && E > 3","goff");
-  t->Draw("angX>>x_ang","primary == 1 && abs(angX) < 89 && abs(x) < 100 && E > 3","goff");
-  cout<<"\tmoving on: time passed "<<(double) ((clock() - tStart)/CLOCKS_PER_SEC)<<" s"<<endl;
 
   for(int i=0;i<nModelsEff;i++)
     for(int j=0;j<2;j++){
@@ -554,6 +550,11 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
 	}else if(imod!=0)
 	  asym=0;
 
+	if(imod==0){
+	  x_pos->Fill(yt);
+	  x_ang->Fill(angYt);
+	}
+	
 	avgStepL[imod]+=asym*lpe;
 	avgStepR[imod]+=asym*rpe;
 	lAvgTotPE[imod]+=asym*lpe;
