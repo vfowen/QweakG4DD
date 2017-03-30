@@ -84,7 +84,7 @@ int main(int argc, char** argv)
   if( argc == 1 || (0 == strcmp("--help", argv[1]))) {
     cout << " usage: build/avgModel [options]" << endl
          << " --rootfile <path to rootfile>" << endl
-         << " --barmodel ideal0, ideal23, ideal23_polish, ideal23_bevel, "
+         << " --barmodel ideal0, ideal23, ideal23v2, ideal23_polish, ideal23_bevel, "
          << "ideal23_glue, ideal23_thickdiff, "
          << "ideal23_RBevelEndcapCentralGlueSideOnly, "
          << "ideal23_RBevelEndcapPMTSideOnly, ideal23_RBevelLongAxisOnly, "
@@ -638,6 +638,9 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
     tn2 = new TNamed("angle","angle 0");
   }else if("ideal23" == barModel) {
     tn1 = new TNamed("bar","ideal bar");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("ideal23v2" == barModel) {
+    tn1 = new TNamed("bar","ideal bar v2");
     tn2 = new TNamed("angle","angle 23");
   }else if("ideal23_polish" == barModel) {
     tn1 = new TNamed("bar","ideal bar with polish");
