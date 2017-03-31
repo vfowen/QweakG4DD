@@ -111,6 +111,9 @@ void interpolatePEs::readScan(){
   }else if("ideal23v2"==barModel){
     path = "input/idealBar_alongDir_acrossAng23v2.txt";
     cout << "Using: "<<path << endl;
+  }else if("ideal23_1bevelBug"==barModel){
+    path = "input/idealBar_alongDir_acrossAng23_1bevelBug.txt";
+    cout << "Using: "<<path << endl;
   }else if("tracking_md1"==barModel){
     path = "input/md1_trackingParametrization_dummy3D.txt";
     cout << "Using: "<<path << endl;
