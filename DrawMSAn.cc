@@ -15,7 +15,7 @@ int main(int argc, char** argv){
   double theta=atof(argv[1]);
   double energy=atof(argv[2]);
 
-  TFile *fout=TFile::Open("z_MScAN.root","update");
+  TFile *fout=TFile::Open("o_MScAN.root","update");
 
   const double maxE=1160;
   const double maxT=180;

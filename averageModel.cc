@@ -45,8 +45,7 @@ struct pmtdd_data {
 };
 
 void pmtdd_data::print(void) {
-  cout << this->al << "\t" << this->dal << "\t" << this->ar << "\t" << this->dar << "\t"
-       << this->dd << "\t" << this->ddd << "\t"
+  cout << this->dd << "\t" << this->ddd << "\t"
        << this->abias << "\t" << this->dabias <<"\t"
        << this->fom << "\t"
        << this->dfom << endl;
@@ -55,20 +54,27 @@ void pmtdd_data::print(void) {
 pmtdd_data* printInfo(TH1D *hl,TH1D *hr);
 void drawFunctions();
 clock_t tStart;
-double model(float val,int type);
+double model(float val,int type, float Eval);
 
+int scaleLight(0);
+double scalePEs(double, int, double, string);
+
+int symMust(0),symPEs(0);
+double asymPEs(0);
 const int nModels = 308;
 const int rangeTst=0;
 int nModelsEff(nModels-301);//default is only [0,6]
 vector<vector<vector<double>>> asymLimits;
+int withShower(0);
+double EcutLow(2),EcutHigh(2000);
 
 //gpr Cnt value and phase space functions 
 vector<vector<double>> gprFcts;
 vector<double> gprXcent,gprX;
 void readGpr(string fnm);
+void readGpr(vector<string> fnm);
 
-
-std::vector<pmtdd_data*> avgValue(TString, TString, TString, float, Int_t);
+std::vector<pmtdd_data*> avgValue(TString, TString, TString, float, Int_t, string);
 
 int main(int argc, char** argv)
 {
@@ -78,11 +84,16 @@ int main(int argc, char** argv)
   if( argc == 1 || (0 == strcmp("--help", argv[1]))) {
     cout << " usage: build/avgModel [options]" << endl
          << " --rootfile <path to rootfile>" << endl
-         << " --barmodel ideal0, ideal23, ideal23_polish, ideal23_bevel, "
-         << "ideal23_glue, ideal23_thickdiff, ideal23_RBevelEndcapCentralGlueSideOnly, ideal23_RBevelEndcapPMTSideOnly, ideal23_RBevelLongAxisOnly "
-         << "md1config10_23, md1config16_model2_23, md1_model2_lightGuideMod md2config5_23, "
-         << "md2config5_model2_23, md3config4_23, md4config4_23, md5config4_23, "
-         << "md6config3_23, md7config2_23, md8config16_0 or md8config16_23"
+         << " --barmodel ideal0, ideal23, ideal23v2, ideal23_1bevelBug, ideal23_polish, ideal23_bevel, "
+         << "ideal23_glue, ideal23_thickdiff, "
+         << "ideal23_RBevelEndcapCentralGlueSideOnly, "
+         << "ideal23_RBevelEndcapPMTSideOnly, ideal23_RBevelLongAxisOnly, "
+         << "ideal23_RLG2mmThinner, "
+         << "ideal23_RNoBevel, ideal23_GlueFilmR040, ideal23_PolishR005Decrease, ideal23_PolishR010Decrease, "
+         << "md1config10_23, md1config16_model2_23, md1_model2_lightGuideMod, md1config5_model2_23, md2config5_23, "
+         << "md2config5_model2_23, md2config3run1par_model2_23, md2config11_model2_23, md3config4_23, md4config4_23," 
+         << "md5config4_23,md6config3_23, md7config2_23, md8config16_0, md8config16_23, md8configMG_23, "
+	 <<"tracking_md1,tracking_md2,tracking_md3,tracking_md4,tracking_md5,tracking_md6,tracking_md7,tracking_md8"
          << endl
          << " --distmodel mirror (omit for as is)"
          << endl
@@ -93,8 +104,16 @@ int main(int argc, char** argv)
          << " --drawFctions <#> (optional; make output file with the effective model functions."
 	 <<"\t if val==0 just draw and ignore the rest of the program. other values proceed as normal"
          << endl
-         << " --scan1fct <fnm> <0/1> (optional; arg2==0 look in file \"fnm\" for the gprCentralValue as model 7. arg2==1 in addition to central value look for 300 TGraphs giving the phase space functions)"
-         << endl;
+         << " --scan1fct <fnm> <0/1> (optional; \n\targ2==0 look in file \"fnm\" for the gprCentralValue as model 7. \n\targ2==1 in addition to central value look for 300 TGraphs giving the phase space functions)\nb\targ2==n with n>1 needs to be followed by n files that contain effective models with energy binning"
+	 << endl
+         << " --Ecut lowVal highVal (optional; will make additional cuts on tracks used in the analysis)"
+	 << endl      
+      	 << " --scaleLight (optional: scale the PEs to try to match tracking light yield)" << endl
+      	 << " --symmetrizeMustache (optional: this will symmetrize the moustache==for each hit in x,angX it will also process -x,-angX)" << endl
+      	 << " --symmetrizePEs (optional: this will symmetrize the PEs from lookup tabl==for each hit in x,angX we get Lpe1,Rpe1 it will also process -x,-angX to get Lpe2,Rpe2. lep=(Lpe1+Rpe2)/2 and similarly for rpe)" << endl
+      	 << " --asymPEs <val> (optional: this add an asymmetry on the PEs as a linear function of angle such that A = val*angX/90)" << endl
+      	 << " --processShower (optional: if you have a hitmap with secondary hits this will scale the asymmetry appropriately)" << endl
+      	 << " --suffix <name to append to outFile> (omit for default)" << endl;
     return 1;
   }
   
@@ -105,6 +124,7 @@ int main(int argc, char** argv)
   Bool_t scan = kFALSE;
   float offset = 0;
   Int_t peUncert(0);
+  string suffix = "";
   
   for(Int_t i = 1; i < argc; i++) {    
     if(0 == strcmp("--drawFctions", argv[i])) {
@@ -112,29 +132,65 @@ int main(int argc, char** argv)
       if(atoi(argv[i+1])==0)
 	return 0;
     }else if(0 == strcmp("--scan1fct", argv[i])) {
-      int fctBool=atoi(argv[i+2]);
-      nModelsEff += 1 + fctBool*300;
+      string testInput=argv[i+2];
+      if(testInput!="0" && testInput!="1" && testInput!="3"){
+	cout<<"Mwap! Mwap! I was expecting 0, 1 or 3 for the second argument of scan1fct but I got this crap: "<<testInput<<endl;
+	return 0;
+      }
+
+      if(testInput=="3"){
+	int nBins=atoi(argv[i+2]);
+	vector<string> fnms;
+	fnms.push_back(argv[i+1]);
+	for(int j=0;j<nBins;j++)
+	  fnms.push_back(argv[i+3+j]);
+	readGpr(fnms);
+	nModelsEff += 2;
+      }else{
+	int fctBool=atoi(argv[i+2]);
+	nModelsEff += 1 + fctBool*300;
+	readGpr(argv[i+1]);
+      }
       cout<<"start reading GPR. Number of effective models: "<<nModelsEff<<endl;
-      readGpr(argv[i+1]);
     }else if(0 == strcmp("--barmodel", argv[i])) {
       barModel = argv[i+1];
+    }else if(0 == strcmp("--Ecut", argv[i])) {
+      EcutLow  = atof(argv[i+1]);
+      EcutHigh = atof(argv[i+2]);
+      cout<<"\tWill make energy cuts on the model 7 between "<<EcutLow<<" and "<<EcutHigh<<endl;
+    }else if(0 == strcmp("--processShower", argv[i])) {
+      cout<<"\twill process shower hits"<<endl;
+      withShower=1;
+    }else if(0 == strcmp("--scaleLight", argv[i])) {
+      cout<<"\twill scale light to match tracking"<<endl;	
+      scaleLight=1;
+    }else if(0 == strcmp("--symmetrizeMustache", argv[i])) {
+      cout<<"\twill symmetrize moustaches!"<<endl;
+      symMust=1;
+    }else if(0 == strcmp("--symmetrizePEs", argv[i])) {
+      cout<<"\twill symmetrize PEs!"<<endl;
+      symPEs=1;
+    }else if(0 == strcmp("--asymPEs", argv[i])) {            
+      asymPEs=atof(argv[i+1]);
+      cout<<"\twill scale PE output to reach a maximum of "<<asymPEs<<" at 90 deg"<<endl;
     } else if(0 == strcmp("--distmodel", argv[i])) {
       distModel = argv[i+1];
     } else if(0 == strcmp("--rootfile", argv[i])) {
       rootfile = argv[i+1];
     } else if(0 == strcmp("--offset", argv[i])) {
       offset = atof(argv[i+1]);
-    } else if(0 == strcmp("--scan", argv[i])) {
-      scan = kTRUE;
     } else if(0 == strcmp("--lightParaUncert", argv[i])) {
       peUncert = 1;
+    }else if(0 == strcmp("--suffix", argv[i])) {
+      suffix = argv[i+1];
     }
+
   }
 
   //set Limits
   //model,R/L,Upper/Lower
-  std::vector<double> dummyR={-0.500,-0.000};
-  std::vector<double> dummyL={ 0.000, 0.500};
+  std::vector<double> dummyL={-0.500, 0.500};
+  std::vector<double> dummyR={-0.500, 0.500};
   std::vector<std::vector<double>> dummyLimit={dummyR,dummyL};
   for(int i=0;i<nModelsEff;i++)
     asymLimits.push_back(dummyLimit);
@@ -163,7 +219,7 @@ int main(int argc, char** argv)
     std::vector<double> octant = {1, 2, 3, 4, 5, 6, 7, 8};
     for(unsigned int i = 0; i < hitMaps.size(); i++) {
       std::vector<pmtdd_data*> pmtdd;
-      pmtdd = avgValue(barModel, distModel, hitMaps[i], offset,peUncert);
+      pmtdd = avgValue(barModel, distModel, hitMaps[i], offset,peUncert,suffix);
       for(int j = 0; j < 6; j++) {
 	    fom[j].push_back(pmtdd[j]->fom);
 	    dfom[j].push_back(pmtdd[j]->dfom);
@@ -291,14 +347,14 @@ int main(int argc, char** argv)
     app->Run();
   } else {
     std::vector<pmtdd_data*> pmtdd;
-    pmtdd = avgValue(barModel, distModel, rootfile, offset,peUncert);
+    pmtdd = avgValue(barModel, distModel, rootfile, offset,peUncert,suffix);
   }
 
   cout<<" Running time[s]: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<endl;
   return 0;
 }
 
-std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString rootfile, float offset, Int_t peUncert) {
+std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString rootfile, float offset, Int_t peUncert, string suffix) {
   interpolatePEs interpolator(barModel.Data(),peUncert);
   //interpolator.verbosity=1;
 
@@ -336,18 +392,25 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
     t->SetBranchAddress("asymPpM",&asymPpM);
     t->SetBranchAddress("asymPmM",&asymPmM);
   }
-  
-  TFile *fout=new TFile(Form("o_avgModel_%s_%s_offset_%4.2f_Nmodels_%d.root", barModel.Data(),
-                             distModel.Data(),offset,nModelsEff),"RECREATE");
+
+  string outNm="";
+  if(suffix=="")
+    outNm=Form("o_avgModel_%s_%s_offset_%4.2f_Nmodels_%d.root", barModel.Data(),
+	       distModel.Data(),offset,nModelsEff);
+  else
+    outNm=Form("o_avgModel_%s_%s_offset_%4.2f_Nmodels_%d_%s.root", barModel.Data(),
+	       distModel.Data(),offset,nModelsEff,suffix.c_str());    
+  TFile *fout=new TFile(outNm.c_str(),"RECREATE");
 
   string lr[2]={"R","L"};
   TH1D *hpe[2][nModels],*posPE[2][nModels],*angPE[2][nModels];
+  TH1D *hangPE[2][nModels];
   TH1D *as[2][nModels];
 
   // Histogram for electron population (x)
-  TH1D *x_pos = new TH1D("x_pos","electron population vs pos",200,-100,100);
-  t->Draw("x>>x_pos","primary == 1 && abs(angX) < 89 && abs(x) < 100 && E > 3","goff");
-  
+  TH1D *x_pos = new TH1D("x_pos","electron population; position at quartz [cm]",200,-100,100);
+  TH1D *x_ang = new TH1D("x_ang","electron population; angle at quartz [deg]",240,-120,120);
+
   for(int i=0;i<nModelsEff;i++)
     for(int j=0;j<2;j++){
       as[j][i]=new TH1D(Form("as%s_%d",lr[j].c_str(),i),Form("model %d %s PMT;asymmetry [ppm]",i,lr[j].c_str()),
@@ -358,8 +421,11 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
 			     Form("model %d %s #PEs;position [cm]",i,lr[j].c_str()),
 			     200,-100,100);
       angPE[j][i] = new TH1D(Form("pe%s_ang_%d",lr[j].c_str(),i),
-			     Form("model %d %s #PEs;angle [deg]",i,lr[j].c_str()),
+			     Form("model %d %s #PEs;angle offset [deg]",i,lr[j].c_str()),
 			     240,-120,120);
+      hangPE[j][i] = new TH1D(Form("pe%s_Qang_%d",lr[j].c_str(),i),
+			      Form("model %d %s #PEs;angle at quartz [deg]",i,lr[j].c_str()),
+			      240,-120,120);
     }
     
   std::vector<double> avgStepL(nModels,0);
@@ -379,7 +445,7 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
       cout<<" at event: "<<i<<"\t"<<float(i+1)/nev*100<<"% | time passed: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<" s"<<endl;
       currentProc+=procStep;
     }
-        
+
     if(float(i+1)/nev*100>currentStep){
       for(int imod=1;imod<nModelsEff;imod++){
 	if(avgStepR[0]>0 && avgStepL[0]>0){
@@ -401,40 +467,121 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
     
     if(i>1000000 && rangeTst) break;
 
+    if( !withShower && !primary ) continue;
+
     float flip(1.);
     if(distModel == "mirror")
       flip=-1.;
 
-    double lpe(-1),rpe(-1);
-    if(!interpolator.getPEs(E,flip*x+offset,flip*angX,lpe,rpe)) continue;
+    // SIGN FIX: This code will now use the tracking coordinates yt, angYt, and angYt_i. I also introduce angYt_rel as the relative angle.
+    // the "flip" reverses the input distribution around the origin...
+    x *= flip;
+    angX *= flip;
+    angXi *= flip;
+    float yt = -1.0*x;
+    float angYt = -1.0*angX;
+    float angYti = -1.0*angXi;
+    float angYt_rel = angYt - angYti;
+
+    // SIGN FIX: In Jie's light model, she compares left(x_sim) with POS(y_track). Her table should be interpreted as R->NEG, L->POS.
+    // (If you input a negative coordinate, Jie's table gives large rpe, which matches reality NEG.) 
+    // we should use lpe(yt) = rpe_jie(yt), rpe(yt) = lpe_jie(yt).
+    // to do this, call with (E,yt,angYt,rpe,lpe) instead of (E,yt,angYt,lpe,rpe)
+    double lpeV[2]={-1,-1},rpeV[2]={-1,-1};
+    if(barModel=="md8configMG_23"){
+      if(!interpolator.getPEs(E,-1*(yt+offset),-1*(angYt),lpeV[0],rpeV[0]))
+	continue;
+    }else
+      if(!interpolator.getPEs(E,yt+offset,angYt,rpeV[0],lpeV[0]))
+	continue;
     
-    for(int imod=0;imod<nModelsEff;imod++){
-      double asym=model(angX-angXi,imod);
+    // A nice test is to invert Jie's optical model, so that instead of using rpe(yt) = lpe(x) = rpe_jie(x)
+    // also, lpe(yt) = rpe(x) = lpe_jie(x), rpe
 
-      avgStepL[imod]+=asym*lpe;
-      avgStepR[imod]+=asym*rpe;
-      lAvgTotPE[imod]+=asym*lpe;
-      rAvgTotPE[imod]+=asym*rpe;
-      
-      hpe[0][imod]->Fill((1.+asym)*rpe);
-      posPE[0][imod]->Fill(x,asym*rpe);
-      angPE[0][imod]->Fill(angX-angXi,asym*rpe);
+    if(symMust || symPEs){
+      if(barModel=="md8configMG_23"){
+	if(!interpolator.getPEs(E,yt+offset,angYt,lpeV[1],rpeV[1]))
+	  continue;
+      }else
+	if(!interpolator.getPEs(E,-1*(yt+offset),-1*(angYt),rpeV[1],lpeV[1]))
+	  continue;
+    }
 
-      hpe[1][imod]->Fill((1.+asym)*lpe);
-      posPE[1][imod]->Fill(x,asym*lpe);
-      angPE[1][imod]->Fill(angX-angXi,asym*lpe);
+    for(int imust=0;imust<2;imust++){
+      if(imust==1 && symMust==0) continue;
+
+      double lpe=lpeV[imust];
+      double rpe=rpeV[imust];
+
+      if(symPEs){
+	lpe = ( lpeV[imust] + rpeV[(imust+1)%2] )/2;
+	rpe = ( rpeV[imust] + lpeV[(imust+1)%2] )/2;
+      }
+
+      if(abs(asymPEs)>0){
+	lpe *= (1 - asymPEs * abs(yt)/100 );
+	rpe *= (1 + asymPEs * abs(yt)/100 );
+	// lpe *= (1 - asymPEs * abs(angYt)/90 );
+	// rpe *= (1 + asymPEs * abs(angYt)/90 );
+      }
+
+      if(scaleLight==1){
+	lpe = scalePEs(lpe,0,yt+offset,barModel.Data());
+	rpe = scalePEs(rpe,1,yt+offset,barModel.Data());
+      }
+
+      if(imust==1) {
+	angYt_rel *= -1;
+	angYt *= -1;
+	yt *= -1;
+      }
+
+      for(int imod=0;imod<nModelsEff;imod++){      
+	if( imod==7 && (E<EcutLow || E>=EcutHigh)) continue;
+	
+	double asym=1.;
+	
+	if(primary==1){
+	  // SIGN FIX: asymmetry should be positive for positive relative angles along the y-axis.
+	  if( nModelsEff==9 && imod==8)
+	    asym=model(angYt_rel,imod,E);
+	  else
+	    asym=model(angYt_rel,imod,-1);
+	}else if(imod!=0)
+	  asym=0;
+
+	if(imod==0){
+	  x_pos->Fill(yt);
+	  x_ang->Fill(angYt);
+	}
+	
+	avgStepL[imod]+=asym*lpe;
+	avgStepR[imod]+=asym*rpe;
+	lAvgTotPE[imod]+=asym*lpe;
+	rAvgTotPE[imod]+=asym*rpe;
       
-    }        
+	hpe[0][imod]->Fill((1.+asym)*rpe);
+	posPE[0][imod]->Fill(yt,asym*rpe);
+	angPE[0][imod]->Fill(angYt_rel,asym*rpe);
+	hangPE[0][imod]->Fill(angYt,asym*rpe);
+
+	hpe[1][imod]->Fill((1.+asym)*lpe);
+	posPE[1][imod]->Fill(yt,asym*lpe);
+	angPE[1][imod]->Fill(angYt_rel,asym*lpe);
+	hangPE[1][imod]->Fill(angYt,asym*lpe);      
+      }//models
+    }//symmetric mustache
   }
   
   cout<<endl<<"total PE average: A_L A_R DD A_ave A_ave/DD"<<endl;
+  // SIGN FIX: not terribly relevent, but still: always take difference as R-L (not L-R)
   for(int imod=1;imod<nModelsEff;imod++)
     cout<<imod<<"\t"<<lAvgTotPE[imod]/lAvgTotPE[0]<<"\t"<<rAvgTotPE[imod]/rAvgTotPE[0]
-	<<"\t"<<lAvgTotPE[imod]/lAvgTotPE[0]-rAvgTotPE[imod]/rAvgTotPE[0]
+	<<"\t"<<rAvgTotPE[imod]/rAvgTotPE[0]-lAvgTotPE[imod]/lAvgTotPE[0]
 	<<"\t"<<(lAvgTotPE[imod]/lAvgTotPE[0]+rAvgTotPE[imod]/rAvgTotPE[0])/2
 	<<"\t"<<
       ((lAvgTotPE[imod]/lAvgTotPE[0]+rAvgTotPE[imod]/rAvgTotPE[0])/2)/
-      (lAvgTotPE[imod]/lAvgTotPE[0]-rAvgTotPE[imod]/rAvgTotPE[0])<<endl;
+      (rAvgTotPE[imod]/rAvgTotPE[0]-lAvgTotPE[imod]/lAvgTotPE[0])<<endl;
   fout->cd();
   TNamed* tn1;                              
   TNamed* tn2;                              
@@ -448,11 +595,20 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
   }else if("md1_model2_lightGuideMod" == barModel) {
     tn1 = new TNamed("bar","md1_model2_lightGuideMod");
     tn2 = new TNamed("angle","angle 23");
+  }else if("md1config5_model2_23" == barModel) {
+    tn1 = new TNamed("bar","md1config5_model2");
+    tn2 = new TNamed("angle","angle 23");
   }else if("md2config5_23" == barModel) {
     tn1 = new TNamed("bar","md2config5");
     tn2 = new TNamed("angle","angle 23");
   }else if("md2config5_model2_23" == barModel) {
     tn1 = new TNamed("bar","md2config5_model2");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("md2config3run1par_model2_23" == barModel) {
+    tn1 = new TNamed("bar","md2config3run1par_model2");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("md2config11_model2_23" == barModel) {
+    tn1 = new TNamed("bar","md2config11_model2");
     tn2 = new TNamed("angle","angle 23");
   }else if("md3config4_23" == barModel) {
     tn1 = new TNamed("bar","md3config4");
@@ -475,11 +631,20 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
   }else if("md8config16_23" == barModel) {
     tn1 = new TNamed("bar","md8config16");
     tn2 = new TNamed("angle","angle 23");
+  }else if("md8configMG_23" == barModel) {
+    tn1 = new TNamed("bar","md8configMG");
+    tn2 = new TNamed("angle","angle 23");
   }else if("ideal0" == barModel) {
     tn1 = new TNamed("bar","ideal bar");
     tn2 = new TNamed("angle","angle 0");
   }else if("ideal23" == barModel) {
     tn1 = new TNamed("bar","ideal bar");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("ideal23v2" == barModel) {
+    tn1 = new TNamed("bar","ideal bar v2");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("ideal23_1bevelBug" == barModel) {
+    tn1 = new TNamed("bar","ideal bar with 1BevelBug");
     tn2 = new TNamed("angle","angle 23");
   }else if("ideal23_polish" == barModel) {
     tn1 = new TNamed("bar","ideal bar with polish");
@@ -502,6 +667,46 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
   }else if("ideal23_RBevelLongAxisOnly" == barModel) {
     tn1 = new TNamed("bar","ideal bar with bevel long axis only");
     tn2 = new TNamed("angle","angle 23");
+  }else if("ideal23_RLG2mmThinner" == barModel) {
+    tn1 = new TNamed("bar","ideal bar with thinner light guide");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("ideal23_RNoBevel" == barModel) {
+    tn1 = new TNamed("bar","ideal bar with no right bevel");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("ideal23_GlueFilmR040" == barModel) {
+    tn1 = new TNamed("bar","ideal bar full glue joint on L and 40% on R");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("ideal23_PolishR005Decrease" == barModel) {
+    tn1 = new TNamed("bar","ideal bar with polish of R quartz at 94.7%");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("ideal23_PolishR010Decrease" == barModel) {
+    tn1 = new TNamed("bar","ideal bar with polish of R quartz at 89.7%");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("tracking_md1" == barModel) {
+    tn1 = new TNamed("bar","dummy md1");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("tracking_md2" == barModel) {
+    tn1 = new TNamed("bar","dummy md2");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("tracking_md3" == barModel) {
+    tn1 = new TNamed("bar","dummy md3");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("tracking_md4" == barModel) {
+    tn1 = new TNamed("bar","dummy md4");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("tracking_md5" == barModel) {
+    tn1 = new TNamed("bar","dummy md5");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("tracking_md6" == barModel) {
+    tn1 = new TNamed("bar","dummy md6");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("tracking_md7" == barModel) {
+    tn1 = new TNamed("bar","dummy md7");
+    tn2 = new TNamed("angle","angle 23");
+  }else if("tracking_md8" == barModel) {
+    tn1 = new TNamed("bar","dummy md8");
+    tn2 = new TNamed("angle","angle 23");
+
   }else{
     cout<<"not sure what bar model you beam by: "<<barModel<<endl;
     exit(3);
@@ -517,14 +722,16 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
   tn2->Write();                              
   tn3->Write();
 
-  cout<<endl<<" average asymmetry histogram results: A_L dA_L A_R dA_R DD dDD A_bias dA_bia A_bias/DD*100"<<endl;
+  cout<<endl<<" average asymmetry histogram results: DD dDD A_bias dA_bia A_bias/DD*100"<<endl;
   vector< pmtdd_data* > pmtdd;
   x_pos->Write();
+  x_ang->Write();
   for(int j=0;j<nModelsEff;j++){      
     for(int i=0;i<2;i++){
       hpe[i][j]->Write();
       posPE[i][j]->Write();
       angPE[i][j]->Write();
+      hangPE[i][j]->Write();
       as[i][j]->Write();
     }
 
@@ -547,7 +754,7 @@ std::vector<pmtdd_data*> avgValue(TString barModel, TString distModel, TString r
 }
 
 //models go here
-double model(float val,int type){
+double model(float val,int type, float Eval){
   //0=                                     
   //1= cnst*sgn(angX) for abs(angX)=[20,40]
   //2= cnst*angX                           
@@ -557,7 +764,11 @@ double model(float val,int type){
   //6= -0.9  (M2)  + 2.8 (M3) -0.9 (M4)
   //7= microscopic model
   //8-308= GPR functions
-
+  double showerScales[7]={1.,18.8,18.5,18.2,18.0,17.9,18.2};
+  double showerFactor=1;
+  if(withShower && type<7)
+    showerFactor = showerScales[type];
+  
   if(val==0 && type!=0) return 0;
 
   if(type>=nModelsEff) return 0;//set asymmetry to 0 if not using microscopic or GPR
@@ -565,26 +776,23 @@ double model(float val,int type){
   if(type==0)
     return 1;  
   else if(type==1){
-    if( (abs(val)>=20 && abs(val)<40) )
-      return 0.759 * 4e-6 * val/abs(val);
-    else
-      return 0;
+    return 0.759 * 4e-6 * val/abs(val) /4.5 * 290/478 * 290/230 * showerFactor;
   }else if(type==2)
-    return 0.713 * 4e-8 * val;
+    return 0.713 * 4e-8 * val * 290/377 *showerFactor;
   else if(type==3)
-    return 0.685 * 1.5e-9 * abs(pow(val,3))/val;
+    return 0.685 * 1.5e-9 * abs(pow(val,3))/val * 290/502 *showerFactor;
   else if(type==4)
-    return 0.610 * 4e-11 * pow(val,3);
+    return 0.610 * 4e-11 * pow(val,3) * 290/561 *showerFactor;
   else if(type==5) 
     return
-      -3.9 * 0.713 * 4e-8 * val
-      +5.8 * 0.685 * 1.5e-9 * abs(pow(val,3))/val
-      -0.9 * 0.610 * 4e-11 * pow(val,3);
+      (-3.9 * 0.713 * 4e-8 * val
+       +5.8 * 0.685 * 1.5e-9 * abs(pow(val,3))/val
+       -0.9 * 0.610 * 4e-11 * pow(val,3) ) * 290/934 *showerFactor;
   else if(type==6)
     return
-      -0.9 * 0.713 * 4e-8 * val
-      +2.8 * 0.685 * 1.5e-9 * abs(pow(val,3))/val
-      -0.9 * 0.610 * 4e-11 * pow(val,3);
+      (-0.9 * 0.713 * 4e-8 * val
+       +2.8 * 0.685 * 1.5e-9 * abs(pow(val,3))/val
+       -0.9 * 0.610 * 4e-11 * pow(val,3) ) * 290/561 *showerFactor;
   else if(type==7){
     int nFct=type-7;    
     int bin = int(lower_bound(gprXcent.begin(),gprXcent.end(),abs(val)) - gprXcent.begin());
@@ -595,11 +803,27 @@ double model(float val,int type){
     return -val/abs(val)*(yL + (yH - yL)*(abs(val) - xL)/(xH - xL))/1e6;
   }else if(type<308){
     int nFct=type-7;    
-    int bin = int(lower_bound(gprX.begin(),gprX.end(),abs(val)) - gprX.begin());
-    double xL = gprX[bin-1];
-    double xH = gprX[bin];
-    double yL = gprFcts[nFct][bin-1];
-    double yH = gprFcts[nFct][bin];
+    int bin;
+    double xL, xH, yL, yH;
+    if(Eval<0){
+      bin = int(lower_bound(gprX.begin(),gprX.end(),abs(val)) - gprX.begin());
+      xL = gprX[bin-1];
+      xH = gprX[bin];
+      yL = gprFcts[nFct][bin-1];
+      yH = gprFcts[nFct][bin];
+    }else{
+      bin = int(lower_bound(gprXcent.begin(),gprXcent.end(),abs(val)) - gprXcent.begin());
+      xL = gprXcent[bin-1];
+      xH = gprXcent[bin];
+
+      if(Eval>=30 && Eval<100)
+	nFct+=1;
+      else if(Eval>=100 && Eval<2000)
+	nFct+=2;
+
+      yL = gprFcts[nFct][bin-1];
+      yH = gprFcts[nFct][bin];      
+    }
     return -val/abs(val)*(yL + (yH - yL)*(abs(val) - xL)/(xH - xL))/1e6;
   }else
     return 0;      
@@ -658,6 +882,83 @@ void readGpr(string fnm){
   fin->Close();  
 }
 
+void readGpr(vector<string> fnms){
+  std::vector<double> tst;
+  int nfiles=fnms.size();
+  TFile *fin;
+  for(int j=0;j<nfiles;j++){
+    tst.clear();
+    fin=TFile::Open(fnms[j].c_str(),"READ");
+    TH1D *hin=(TH1D*)fin->Get("ho");
+    int nBins=hin->GetXaxis()->GetNbins();
+    for(int i=1;i<=nBins;i++){
+      double x,y;
+      x = hin->GetBinCenter(i);
+      y = hin->GetBinContent(i);
+      if(x<0) continue;
+      if(x>90) continue;      
+      if(j==0)
+	gprXcent.push_back(x);
+      else{
+	int currentPnt = tst.size();
+	if(gprXcent[currentPnt] != x)
+	  cerr<<__PRETTY_FUNCTION__<<" line: "<<__LINE__<<endl
+	      <<"\t x positions don't match for function "<<j<<" "<<currentPnt<<" <> "<<gprXcent[currentPnt]<<" "<<x<<endl;
+      }
+      tst.push_back(y);
+    }
+    gprFcts.push_back(tst);
+    fin->Close();
+  }
+}
+
+double scalePEs(double val, int lr, double position, string barModel){
+  if(barModel == "md1config16_model2_23"){
+    if(lr==0){    
+      if(position<-60)
+	return val * (0.8210 - 0.0009* position );
+      else if(position<-10)
+	return val * (0.9873 + 0.0004* position );
+      else if(position>10 && position<=50)
+	return val * (1.033 + 0.004* position );
+      else if(position>50)
+	return val * (1.1766 + 0.0025* position );
+    }else if(lr==1){
+      if(position<-50)
+	return val * (0.962 - 0.003* position );
+      else if(position<-10)
+	return val * (0.927 - 0.004* position );
+      else if(position>10 && position<=60)
+	return val * (1.0231 - 0.0004* position );
+      else if(position>60)
+	return val * (1.3628 - 0.0056* position );
+    }
+  }else if(barModel == "md1config10_23"){
+    if(lr==0){    
+      if(position<-60)
+	return val * (0.7977 - 0.0011* position );
+      else if(position<-10)
+	return val * (1.037 + 0.0011* position );
+      else if(position>10 && position<=50)
+	return val * (0.9920 + 0.0028* position );
+      else if(position>50)
+	return val * (1.0890 + 0.0026* position );
+    }else if(lr==1){
+      if(position<-50)
+	return val * (1.1594 + 0.0010* position );
+      else if(position<-10)
+	return val * (1.0845 - 0.0003* position );
+      else if(position>10 && position<=60)
+	return val * (0.9794 + 0.0006* position );
+      else if(position>60)
+	return val * (1.3391 - 0.0052* position );
+    }
+  }
+
+  return val;
+}
+
+
 pmtdd_data* printInfo(TH1D *hl,TH1D *hr){
   pmtdd_data* pmtdd = new pmtdd_data();
   pmtdd->al = hl->GetMean();
@@ -665,13 +966,15 @@ pmtdd_data* printInfo(TH1D *hl,TH1D *hr){
   pmtdd->ar = hr->GetMean();
   pmtdd->dar = hr->GetMeanError();
   // Double difference and error
-  pmtdd->dd = pmtdd->al-pmtdd->ar;
+  // SIGN FIX: now aR-aL
+  pmtdd->dd = pmtdd->ar-pmtdd->al;
   pmtdd->ddd = sqrt(pmtdd->dar*pmtdd->dar+pmtdd->dal*pmtdd->dal);
   // a_bias and error
+  // SIGN FIX: A_bias= (pmtdd->ar+pmtdd->al)/2
   pmtdd->abias = (pmtdd->al+pmtdd->ar)/2;
   pmtdd->dabias = sqrt(pmtdd->dar*pmtdd->dar+pmtdd->dal*pmtdd->dal)/2;
   // figure of merit (a_bias/dd*100) and error
-  pmtdd->fom = ((pmtdd->al+pmtdd->ar)/2)/(pmtdd->al-pmtdd->ar)*100;
+  pmtdd->fom = ((pmtdd->al+pmtdd->ar)/2)/(pmtdd->ar-pmtdd->al)*100;
   pmtdd->dfom = sqrt(pow(pmtdd->fom,2)*(pow(pmtdd->ddd/pmtdd->dd,2)+pow(pmtdd->dabias/pmtdd->abias,2)));
   pmtdd->print();
 
@@ -686,7 +989,7 @@ void drawFunctions(){
     gr[i]=new TGraph();
     for(int j=0;j<178;j++){      
       double val = -89 + j;
-      gr[i]->SetPoint(j,val,model(val,i));
+      gr[i]->SetPoint(j,val,model(val,i,-1));
     }
     gr[i]->SetName(Form("model_%d",i));
     gr[i]->SetMarkerStyle(20);

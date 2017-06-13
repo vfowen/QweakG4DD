@@ -24,6 +24,9 @@ void interpolatePEs::readScan(){
   }else if("md1config16_model2_23" == barModel) {
     cout << "Using input/md1Config16_model2_alongDir_acrossAng23_lightPara.txt" << endl;
     path = "input/md1Config16_model2_alongDir_acrossAng23_lightPara.txt";
+  }else if("md1config5_model2_23" == barModel) {
+    path = "input/md1Config5_model2_alongDir_acrossAng23.txt";
+    cout << "Using: "<< path << endl;
   }else if("md1_model2_lightGuideMod" == barModel) {
     path = "input/md1_model2_LightGuideMod_alongDir_acrossAng23_lightPara.txt";
     cout << "Using: "<< path << endl;
@@ -33,6 +36,12 @@ void interpolatePEs::readScan(){
   }else if("md2config5_model2_23" == barModel) {
     cout << "Using input/md2Config5_model2_alongDir_acrossAng23_lightPara.txt" << endl;
     path = "input/md2Config5_model2_alongDir_acrossAng23_lightPara.txt";
+  }else if("md2config3run1par_model2_23" == barModel) {
+    path = "input/md2Config3Run1Parameters_model2_alongDir_acrossAng23_lightPara.txt";
+    cout << "Using "<<path<<endl;
+  }else if("md2config11_model2_23" == barModel) {
+    path = "input/md2Config11_model2_alongDir_acrossAng23.txt";
+    cout << "Using "<<path<<endl;
   }else if("md3config4_23" == barModel) {
     cout << "Using input/md3Config4_alongDir_acrossAng23_lightPara.txt" << endl;
     path = "input/md3Config4_alongDir_acrossAng23_lightPara.txt";
@@ -54,6 +63,9 @@ void interpolatePEs::readScan(){
   }else if("md8config16_23" == barModel) {
     cout << "Using input/md8Config16_alongDir_acrossAng23_lightPara.txt" << endl;
     path = "input/md8Config16_alongDir_acrossAng23_lightPara.txt";
+  }else if("md8configMG_23" == barModel) {
+    path = "input/md8ConfigMG_alongDir_acrossAng23.txt";
+    cout << "Using : " << path << endl;
   }else if("ideal0" == barModel) {
     cout << "Using input/idealBar_alongDir_acrossAng0_lightPara.txt" << endl;
     path = "input/idealBar_alongDir_acrossAng0_lightPara.txt";
@@ -81,6 +93,51 @@ void interpolatePEs::readScan(){
   }else if("ideal23_RBevelLongAxisOnly" == barModel) {
     path = "input/idealBar_alongDir_acrossAng23_RBevelLongAxisOnly.txt";
     cout << "Using: "<< path << endl;
+  }else if("ideal23_RLG2mmThinner" == barModel) {
+    path = "input/idealBar_alongDir_acrossAng23_RLG2mmThinner.txt";
+    cout << "Using: "<< path << endl;
+  }else if("ideal23_RNoBevel" == barModel) {
+    path = "input/idealBar_alongDir_acrossAng23_RNoBevel.txt";
+    cout << "Using: "<< path << endl;
+  }else if("ideal23_GlueFilmR040" == barModel) {
+    path = "input/idealBar_alongDir_acrossAng23_GlueFilmR040.txt";
+    cout << "Using: "<< path << endl;
+  }else if("ideal23_PolishR005Decrease" == barModel) {
+    path = "input/idealBar_alongDir_acrossAng23_PolishR005Decrease.txt";
+    cout << "Using: "<< path << endl;
+  }else if("ideal23_PolishR010Decrease" == barModel) {
+    path = "input/idealBar_alongDir_acrossAng23_PolishR010Decrease.txt";
+    cout << "Using: "<< path << endl;
+  }else if("ideal23v2"==barModel){
+    path = "input/idealBar_alongDir_acrossAng23v2.txt";
+    cout << "Using: "<<path << endl;
+  }else if("ideal23_1bevelBug"==barModel){
+    path = "input/idealBar_alongDir_acrossAng23_1bevelBug.txt";
+    cout << "Using: "<<path << endl;
+  }else if("tracking_md1"==barModel){
+    path = "input/md1_trackingParametrization_dummy3D.txt";
+    cout << "Using: "<<path << endl;
+  }else if("tracking_md2"==barModel){
+    path = "input/md2_trackingParametrization_dummy3D.txt";
+    cout << "Using: "<<path << endl;
+  }else if("tracking_md3"==barModel){
+    path = "input/md3_trackingParametrization_dummy3D.txt";
+    cout << "Using: "<<path << endl;
+  }else if("tracking_md4"==barModel){
+    path = "input/md4_trackingParametrization_dummy3D.txt";
+    cout << "Using: "<<path << endl;
+  }else if("tracking_md5"==barModel){
+    path = "input/md5_trackingParametrization_dummy3D.txt";
+    cout << "Using: "<<path << endl;
+  }else if("tracking_md6"==barModel){
+    path = "input/md6_trackingParametrization_dummy3D.txt";
+    cout << "Using: "<<path << endl;
+  }else if("tracking_md7"==barModel){
+    path = "input/md7_trackingParametrization_dummy3D.txt";
+    cout << "Using: "<<path << endl;
+  }else if("tracking_md8"==barModel){
+    path = "input/md8_trackingParametrization_dummy3D.txt";
+    cout << "Using: "<<path << endl;
   }else{
     cout << "Cannot match your barModel to available list: update list or check name"<<endl;
     exit(2);
@@ -105,6 +162,14 @@ void interpolatePEs::readScan(){
     xPosHighLimit =  90;
     xAngLowLimit  = -80;
     xAngHighLimit =  80;
+  } else if("tracking_md1" == barModel || "tracking_md2" == barModel ||
+	    "tracking_md3" == barModel || "tracking_md4" == barModel ||
+	    "tracking_md5" == barModel || "tracking_md6" == barModel ||
+	    "tracking_md7" == barModel || "tracking_md8" == barModel){
+    xPosLowLimit  = -95;
+    xPosHighLimit =  95;
+    xAngLowLimit  = -89;
+    xAngHighLimit =  89;    
   } else {
     xPosLowLimit  = -100;
     xPosHighLimit =  100;
