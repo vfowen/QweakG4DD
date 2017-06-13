@@ -7,8 +7,10 @@ project(QweakSimG4)
 # Find Geant4
 SITE_NAME(mySite)
 if(${mySite} MATCHES "ifarm*")
-   set(Geant4_DIR /lustre/expphy/work/hallc/qweak/ciprian/geant41001p02/geant4.10.01.p02/build)
-   message( "On ifarm using custom geant4_dir: " ${Geant4_DIR})
+   if(NOT DEFINED Geant4_DIR)
+	set(Geant4_DIR $ENV{G4INSTALL}/build)
+   endif(NOT DEFINED Geant4_DIR)
+   message( "On ifarm using geant4_dir: " ${Geant4_DIR})
    find_package(Geant4 REQUIRED COMPONENTS gdml qt ui_all vis_all)
    execute_process(COMMAND ${Geant4_DIR}/geant4-config --version
                    OUTPUT_VARIABLE GEANT4_VERSION
@@ -93,6 +95,7 @@ add_library(QweakSim SHARED ${my_project_sources})
 #add_dependencies(QweakSim QweakSimVersion)
 target_link_libraries(QweakSim ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 
+add_definitions(-std=c++11)
 # Add the target executables:
 # - QweakSimG4
 add_executable(QweakSimG4 QweakSimG4.cc)
@@ -115,10 +118,9 @@ add_executable(DrawMSAn DrawMSAn.cc)
 target_link_libraries(DrawMSAn ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
 
 # - effective Model
-#add_executable(effModel effectiveModel.cc)
-#target_link_libraries(effModel ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
+add_executable(effModel effectiveModel.cc)
+target_link_libraries(effModel ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
 # - average Model
-add_definitions(-std=c++11)
 add_executable(avgModel averageModel.cc)
 target_link_libraries(avgModel ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} QweakSim)
 
