@@ -169,8 +169,8 @@ int main(int argc, char** argv)
       getPEs(pts,pt,lpe,rpe);
 
       if(lpe==-1 || rpe==-1 ||
-	 isnan(lpe) || isnan(rpe) ||
-	 isinf(lpe) || isinf(rpe)){
+	 std::isnan(lpe) || std::isnan(rpe) ||
+	 std::isinf(lpe) || std::isinf(rpe)){
 	cout<<"Problem with interpolator! "<<endl;
 	cout<<" "<<ipt<<" "<<lpe<<" "<<rpe<<endl;
 	exit(1);
