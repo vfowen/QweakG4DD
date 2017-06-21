@@ -17,7 +17,7 @@ This package comes with 2 modified physics processes that will replace the stand
 
 Their purpose is to either modify the phi diretion (see https://github.com/cipriangal/QweakG4DD/blob/master/src/processes/electromagnetic/standard/QweakSimUrbanMscModel.cc#L975)  of particles to introduce a transverse asymmetry and calculate an asymmetry weight (https://github.com/cipriangal/QweakG4DD/blob/master/src/processes/electromagnetic/standard/QweakSimUrbanMscModel.cc#L988) and propogate it through to the output. 
 
-##Analysis chain:
+## Analysis chain:
 ### Pb propogation
 To run the simulation do:
   `build/QweakSimG4 macro/runPMTDD.mac`
