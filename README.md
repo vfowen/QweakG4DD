@@ -41,15 +41,15 @@ It produces two output files: **QwSim_0.root**(main output) and **o_tuple.root**
 ### Tree strip
 To get the relevant hits at the face of quartz (and strip the rest of the information that is normally not needed for the rest of the analysis) one then uses https://github.com/cipriangal/QweakG4DD/blob/master/QweakTreeBarHits.cc as
 
-  `build/QweakTreeBarHits QwSim_0.root`
+  `build/QweakTreeBarHits QwSim_0.root <outputSuffix> [optional: 1 if you ran your simulation with a fixed position]`
 
 or
 
-  `build/QweakTreeBarHits file.list`
+  `build/QweakTreeBarHits file.list <outputSuffix> [optional: 1 if you ran your simulation with a fixed position]`
 
-where file.list contains a list of paths and output root files from multiple simulations (for example when running on a farm and you have X files with the same configuration -- see above for different flags).
+where file.list contains a list of paths and output root files from multiple simulations (for example when running on a farm and you have X files with the same configuration -- see above for different flags). The last argument needs to 1 if you ran your simulation from a fixed location on the bar (i.e. not sampled a moustache).
 
-This produces a **o_hits.root** file that contains:
+This produces a **o_hits_outputSuffix.root** file that contains:
   - position and energy information at the face of the quartz: "x,y,z,E" 
   - position information at the beginning sim at the face of the Pb: "xi,yi,zi" 
   - flag to denote primary electron: "primary"
