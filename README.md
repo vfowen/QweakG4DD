@@ -76,8 +76,9 @@ The detailed output for o_anaPE\* files can be understood by looking through the
   - histograms with names *phiPE_\** have the total number of PEs for a particular global phi angle
   - histograms with names *\*AvgProc_\** have the number of PEs similar to the above but for a chunck of data (by default 5%)
 
-
 All of these histograms are for either the Left or Right tubes (bad nomenclature: for MD3 this is really beam Left or Right) and for Primaries (P), Non-primaries (N), All electrons (A).
+
+For example if we want to calculate the asymmetry as a function of position along the bar for the Left tube we take posPE_L_P from the o_anaPE_V.root (the output from the vertical polarization simulation) and the same histogram from the o_anaPE_mV.root (the output from the minus vertical polarization simulation). For each bin we can calculate an asymmetry as (V-mV)/(V+mV).
 
 **Weighted analysis**
 
