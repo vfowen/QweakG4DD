@@ -68,6 +68,15 @@ Using the hit map from the previous step one can apply different optical models 
   
 Note: This should be used for track modification simulations.
 
+The detailed output for o_anaPE\* files can be understood by looking through the QweakAnaPEs source code. In broad strokes:
+  - histograms with names *hpe_\** have the PE distribution for all the events
+  - histograms with names *hpeAvg_\** have the average PE distribution. This can give you the uncertainty on the mean
+  - histograms with names *posPE_\** have the total number of PEs for a particular position 
+  - histograms with names *angPE_\** have the total number of PEs for a particular angle (this is the deflection angle)
+  - histograms with names *phiPE_\** have the total number of PEs for a particular global phi angle
+  - histograms with names *\*AvgProc_\** have the number of PEs similar to the above but for a chunck of data (by default 5%)
+All of these histograms are for either the Left or Right tubes (bad nomenclature: for MD3 this is really beam Left or Right) and for Primaries (P), Non-primaries (N), All electrons (A).
+
 **Weighted analysis**
 
 Alternatively if a weighted simulation was generated to get the number of PEs one should use https://github.com/cipriangal/QweakG4DD/blob/master/QweakAnaPEsWgt.cc as:
