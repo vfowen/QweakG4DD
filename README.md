@@ -75,6 +75,8 @@ The detailed output for o_anaPE\* files can be understood by looking through the
   - histograms with names *angPE_\** have the total number of PEs for a particular angle (this is the deflection angle)
   - histograms with names *phiPE_\** have the total number of PEs for a particular global phi angle
   - histograms with names *\*AvgProc_\** have the number of PEs similar to the above but for a chunck of data (by default 5%)
+
+
 All of these histograms are for either the Left or Right tubes (bad nomenclature: for MD3 this is really beam Left or Right) and for Primaries (P), Non-primaries (N), All electrons (A).
 
 **Weighted analysis**
