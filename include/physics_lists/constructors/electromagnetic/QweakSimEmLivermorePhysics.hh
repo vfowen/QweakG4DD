@@ -8,7 +8,7 @@ class QweakSimEmLivermorePhysics: public G4EmLivermorePhysics
     G4EmLivermorePhysics(ver),verbose(ver),asymInfo(asInfo) { };
     virtual ~QweakSimEmLivermorePhysics() { };
 
-    virtual void ConstructProcess();
+    virtual void ConstructProcess() { };
 
   private:
     G4int verbose;
